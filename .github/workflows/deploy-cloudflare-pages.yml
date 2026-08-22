@@ -112,7 +112,7 @@ jobs:
         shell: bash
         run: npx --yes wrangler@latest pages functions build functions --outfile /tmp/oolita-worker.js
 
-      - name: Verify Cloudflare Analytics Engine binding
+      - name: Report Cloudflare Analytics Engine binding
         shell: bash
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -180,9 +180,8 @@ jobs:
         shell: bash
         run: node --check functions/api/event.js
 
-      - name: Configure Cloudflare Analytics Engine
+      - name: Remove unsupported Analytics Engine binding
         id: analytics_binding
-        continue-on-error: true
         shell: bash
         run: python3 scripts/configure_cloudflare_analytics.py
 
@@ -223,6 +222,7 @@ jobs:
 
       - name: Record deployment and service status
         if: ${{ always() && steps.deploy_site.outcome == 'success' }}
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -241,4 +241,12 @@ jobs:
             exit 0
           fi
           git commit -m 'Record OOLITA deployment and service status [skip ci]'
-          git push
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              exit 0
+            fi
+            git rebase --abort || true
+            sleep 2
+          done
+          echo 'Deployment succeeded; status receipt push was skipped after retries.'
+          exit 0
