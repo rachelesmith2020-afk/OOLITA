@@ -31,10 +31,15 @@ STYLE = r'''<style id="oolita-follow-mobile-finish">
 }
 </style>'''
 
-for rel, old_name, new_name in [
+pages = [
     ("index.html", "Seguir OOLITA", "Suscribirme"),
     ("en/index.html", "Follow OOLITA", "Subscribe"),
-]:
+]
+error_page = next((path for path in ("404.html", "404/index.html") if (ROOT / path).is_file()), None)
+if error_page:
+    pages.append((error_page, "Seguir OOLITA", "Suscribirme"))
+
+for rel, old_name, new_name in pages:
     p = ROOT / rel
     if not p.is_file():
         raise SystemExit(f"Missing page: {rel}")
@@ -59,7 +64,10 @@ for rel, old_name, new_name in [
 
     p.write_text(s, encoding="utf-8")
 
-for rel, label in [("index.html", "Suscribirme"), ("en/index.html", "Subscribe")]:
+validation_pages = [("index.html", "Suscribirme"), ("en/index.html", "Subscribe")]
+if error_page:
+    validation_pages.append((error_page, "Suscribirme"))
+for rel, label in validation_pages:
     s = (ROOT / rel).read_text(encoding="utf-8")
     required = [
         'id="oolita-follow-mobile-finish"',

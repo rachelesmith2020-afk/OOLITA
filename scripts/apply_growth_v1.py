@@ -264,6 +264,27 @@ for path, contact_marker, addition, marker in [
     elif new_contact not in s:
         raise SystemExit(f"Could not assign contact number 14 in {path}")
 
+# About and collaboration now occupy rows 12 and 13, so Contact is row 14.
+for path, old, new in [
+    ("index.html", '<span class="n">12</span><span class="nom">Contacto</span>', '<span class="n">14</span><span class="nom">Contacto</span>'),
+    ("en/index.html", '<span class="n">12</span><span class="nom">Contact</span>', '<span class="n">14</span><span class="nom">Contact</span>'),
+]:
+    p, s = read(path)
+    if old in s:
+        p.write_text(s.replace(old, new, 1), encoding="utf-8")
+    elif new not in s:
+        raise SystemExit(f"Contact row could not be renumbered in {path}")
+
+error_page = next((path for path in ("404.html", "404/index.html") if (ROOT / path).is_file()), None)
+if error_page:
+    p, s = read(error_page)
+    old = '<span class="n">12</span><span class="nom">Contacto</span>'
+    new = '<span class="n">14</span><span class="nom">Contacto</span>'
+    if old in s:
+        p.write_text(s.replace(old, new, 1), encoding="utf-8")
+    elif new not in s:
+        raise SystemExit(f"Contact row could not be renumbered in {error_page}")
+
 # 10) Add new URLs to sitemap so search engines can discover them.
 p, sm = read("sitemap.xml")
 new_urls = [
@@ -299,6 +320,10 @@ for path, needles in required.items():
     for needle in needles:
         if needle not in s:
             raise SystemExit(f"Growth invariant missing in {path}: {needle}")
+if error_page:
+    _, s = read(error_page)
+    if '<span class="n">14</span><span class="nom">Contacto</span>' not in s:
+        raise SystemExit(f"Growth invariant missing in {error_page}: Contact row 14")
 
 for path, canonical in {
     "cabo-de-gata/index.html": "https://oolita.es/cabo-de-gata/",

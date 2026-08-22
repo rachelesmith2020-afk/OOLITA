@@ -428,6 +428,7 @@ for page in sorted(ROOT.rglob("index.html")):
             raise SystemExit(f"Unnamed navigation landmark in {relative}")
 
 root_resolved = ROOT.resolve()
+parsed_by_target = {page.resolve(): parser for page, parser in parsed.items()}
 for page, parser in parsed.items():
     for href in parser.links:
         url = urlsplit(href)
@@ -464,7 +465,7 @@ for page, parser in parsed.items():
             raise SystemExit(f"Broken internal target in {page.relative_to(ROOT)}: {href}")
 
         if url.fragment and target.suffix == ".html":
-            target_parser = parsed.get(target)
+            target_parser = parsed_by_target.get(target)
             if target_parser is None or unquote(url.fragment) not in target_parser.ids:
                 raise SystemExit(f"Broken internal fragment in {page.relative_to(ROOT)}: {href}")
 

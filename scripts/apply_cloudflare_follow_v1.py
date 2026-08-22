@@ -91,8 +91,17 @@ def swap(path, section_id, block):
 
 swap("index.html", "seguir-oolita", ES)
 swap("en/index.html", "follow-oolita", EN)
+error_page = next((path for path in ("404.html", "404/index.html") if (ROOT / path).is_file()), None)
+if error_page:
+    swap(error_page, "seguir-oolita", ES)
 
-for path, form_id in [("index.html", "oolita-follow-es"), ("en/index.html", "oolita-follow-en")]:
+follow_pages = [
+    ("index.html", "oolita-follow-es", "/privacidad/"),
+    ("en/index.html", "oolita-follow-en", "/en/privacy/"),
+]
+if error_page:
+    follow_pages.append((error_page, "oolita-follow-es", "/privacidad/"))
+for path, form_id, privacy_href in follow_pages:
     s = (ROOT / path).read_text(encoding="utf-8")
     required = [
         'data-oolita-follow="cloudflare"',
@@ -105,8 +114,9 @@ for path, form_id in [("index.html", "oolita-follow-es"), ("en/index.html", "ool
         'id="oolita-follow-style"',
         'class="follow-chip-set"',
         'class="follow-submit"',
+        'background:#2d4e23;color:#f1e6cf',
         'data-follow-fallback',
-        'href="/privacidad/"' if path == "index.html" else 'href="/en/privacy/"',
+        f'href="{privacy_href}"',
     ]
     for needle in required:
         if needle not in s:
