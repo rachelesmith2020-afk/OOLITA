@@ -8,9 +8,6 @@ function cleanPath(value) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  if (!env.OOLITA_ANALYTICS) {
-    return new Response("Analytics binding unavailable", { status: 503 });
-  }
 
   let payload;
   try {
@@ -28,12 +25,19 @@ export async function onRequestPost(context) {
   const path = cleanPath(payload.path);
   const href = cleanPath(payload.href);
 
-  // Deliberately store no email, IP address, cookie value, user-agent or full referrer.
-  env.OOLITA_ANALYTICS.writeDataPoint({
-    indexes: ["oolita"],
-    blobs: [event, path, href],
-    doubles: [1],
-  });
+  // Analytics must never block the site. If Analytics Engine is unavailable,
+  // accept the event and discard it until a supported storage layer is enabled.
+  if (env.OOLITA_ANALYTICS) {
+    try {
+      env.OOLITA_ANALYTICS.writeDataPoint({
+        indexes: ["oolita"],
+        blobs: [event, path, href],
+        doubles: [1],
+      });
+    } catch (err) {
+      console.error("analytics write failed", err);
+    }
+  }
 
   return new Response(null, {
     status: 204,
