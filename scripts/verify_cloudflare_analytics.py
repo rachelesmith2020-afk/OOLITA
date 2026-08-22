@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only preflight for the OOLITA Pages Analytics Engine binding."""
+"""Read-only preflight that confirms Analytics Engine cannot block OOLITA deploys."""
 from __future__ import annotations
 
 import json
@@ -11,7 +11,6 @@ ACCOUNT_ID = os.environ.get("CLOUDFLARE_ACCOUNT_ID", "").strip()
 TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
 PROJECT = "oolita"
 BINDING = "OOLITA_ANALYTICS"
-DATASET = "oolita_events"
 
 if not ACCOUNT_ID or not TOKEN:
     raise SystemExit("Missing Cloudflare credentials for analytics preflight")
@@ -32,10 +31,11 @@ except urllib.error.HTTPError as exc:
 if not body.get("success"):
     raise SystemExit(f"Cloudflare project read unsuccessful: {body.get('errors')}")
 project = body.get("result") or {}
-prod = ((project.get("deployment_configs") or {}).get("production") or {})
-bindings = prod.get("analytics_engine_datasets") or {}
-binding = bindings.get(BINDING) or {}
-print(f"analytics_binding_dataset={binding.get('dataset')!r}")
-if binding.get("dataset") != DATASET:
-    raise SystemExit(f"Expected {BINDING} -> {DATASET}; binding is missing or different")
-print("Cloudflare Analytics Engine production binding verified read-only.")
+configs = project.get("deployment_configs") or {}
+for env_name in ("production", "preview"):
+    bindings = ((configs.get(env_name) or {}).get("analytics_engine_datasets") or {})
+    binding = bindings.get(BINDING)
+    print(f"{env_name}_analytics_binding={binding!r}")
+    if binding is not None:
+        raise SystemExit(f"Unsupported Analytics Engine binding still present in {env_name}")
+print("Cloudflare Analytics Engine blocker is absent.")
