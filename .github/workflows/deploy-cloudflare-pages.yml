@@ -1,0 +1,94 @@
+name: Deploy OOLITA to Cloudflare Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY to publish oolita'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oolita-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event.inputs.confirm == 'DEPLOY' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Require Cloudflare token
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+            echo 'Missing GitHub Actions secret: CLOUDFLARE_API_TOKEN'
+            exit 1
+          fi
+
+      - name: Reconstruct current complete Pages site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf site
+          mkdir -p site
+          wget \
+            --mirror \
+            --page-requisites \
+            --no-host-directories \
+            --directory-prefix=site \
+            --domains=oolita.pages.dev \
+            --execute robots=off \
+            https://oolita.pages.dev/
+
+      - name: Overlay reviewed files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d overrides ]; then
+            cp -a overrides/. site/
+          fi
+
+      - name: Safety checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f site/index.html
+          test -f site/en/index.html
+          test -f site/laberinto/index.html
+          test -f site/en/labyrinth/index.html
+          test -f site/domingos/index.html
+          test -f site/sitemap.xml
+          test -f site/robots.txt
+          test -f site/favicon.svg
+
+          count=$(find site -type f | wc -l)
+          echo "Reconstructed file count: $count"
+          if [ "$count" -lt 80 ]; then
+            echo 'Site reconstruction looks incomplete; refusing to deploy.'
+            exit 1
+          fi
+
+          bad=$(find site \( -name '*.bak*' -o -name '*.py' -o -name '*~' -o -name '.DS_Store' \) -print)
+          if [ -n "$bad" ]; then
+            echo 'Refusing to deploy forbidden files:'
+            printf '%s\n' "$bad"
+            exit 1
+          fi
+
+      - name: Deploy complete site to Cloudflare Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
