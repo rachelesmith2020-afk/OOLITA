@@ -1,6 +1,6 @@
-commit=31cea2dcea2acb038cb2abd45af75d9a0d4d142a
-run_id=32605653372
-activated_at=2026-08-22T23:36:37Z
+commit=6ee291e6c99588aa7f1c559df3c3f0dc8ab6a67d
+run_id=32606323000
+activated_at=2026-08-22T23:51:49Z
 subscriber_storage=cloudflare_d1_eu
 endpoint=verified
 email_sending=not_enabled
