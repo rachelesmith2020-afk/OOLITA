@@ -1,59 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ORIGIN="https://oolita.pages.dev"
 rm -rf site
-mkdir -p site
-
-curl -fsSL "$ORIGIN/sitemap.xml" -o /tmp/oolita-sitemap.xml
-cp /tmp/oolita-sitemap.xml site/sitemap.xml
-
-python3 - <<'PY' > /tmp/oolita-page-urls.txt
-import re
-from urllib.parse import urlsplit
-
-text = open('/tmp/oolita-sitemap.xml', encoding='utf-8').read()
-locs = re.findall(r'<loc>\s*(.*?)\s*</loc>', text, flags=re.I | re.S)
-if not locs:
-    raise SystemExit('No URLs found in sitemap.xml')
-
-required_paths = {
-    '/',
-    '/en/',
-    '/que-es-un-laberinto/',
-    '/en/what-is-a-labyrinth/',
-    '/que-es-un-oolito/',
-    '/en/what-is-an-ooid/',
-    '/domingos/',
-    '/laberinto/',
-    '/en/labyrinth/',
-    '/carteles/',
-    '/en/posters/',
-}
-
-paths = set(required_paths)
-for loc in locs:
-    paths.add(urlsplit(loc.strip()).path or '/')
-
-for path in sorted(paths):
-    if not path.startswith('/'):
-        path = '/' + path
-    print('https://oolita.pages.dev' + path)
-PY
-
-wget \
-  --page-requisites \
-  --span-hosts \
-  --domains=oolita.pages.dev,oolita.es \
-  --no-host-directories \
-  --directory-prefix=site \
-  --execute robots=off \
-  --input-file=/tmp/oolita-page-urls.txt
-
-curl -fsSL "$ORIGIN/robots.txt" -o site/robots.txt
-curl -fsSL "$ORIGIN/favicon.svg" -o site/favicon.svg
-curl -fsSL "$ORIGIN/404.html" -o site/404.html || true
-
+python3 scripts/mirror_oolita.py site
 python3 scripts/apply_wording_resilient.py site
 
 if [ -d overrides ]; then
