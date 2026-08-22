@@ -8,7 +8,15 @@ on:
       - 'scripts/build_site_for_deploy.sh'
       - 'scripts/apply_wording_resilient.py'
       - 'scripts/apply_wording.py'
-      - 'scripts/apply_direction_v2.py'
+      - 'scripts/apply_direction_v3.py'
+      - 'overrides/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-cloudflare-pages.yml'
+      - 'scripts/build_site_for_deploy.sh'
+      - 'scripts/apply_wording_resilient.py'
+      - 'scripts/apply_wording.py'
       - 'scripts/apply_direction_v3.py'
       - 'overrides/**'
   workflow_dispatch:
@@ -43,7 +51,7 @@ jobs:
         run: python3 scripts/apply_direction_v3.py site
 
   deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'DEPLOY' }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'DEPLOY') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
