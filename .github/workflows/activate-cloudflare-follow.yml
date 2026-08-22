@@ -44,7 +44,11 @@ jobs:
         shell: bash
         run: python3 scripts/configure_cloudflare_subscribers.py
 
-      - name: Re-verify analytics binding
+      - name: Remove unsupported Analytics Engine binding
+        shell: bash
+        run: python3 scripts/configure_cloudflare_analytics.py
+
+      - name: Report Analytics Engine binding state
         shell: bash
         run: python3 scripts/verify_cloudflare_analytics.py
 
@@ -115,6 +119,7 @@ jobs:
 
       - name: Record Follow service status
         if: ${{ success() }}
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -126,4 +131,12 @@ jobs:
           git add service-status/follow.txt
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Record OOLITA Follow service status [skip ci]'
-          git push
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              exit 0
+            fi
+            git rebase --abort || true
+            sleep 2
+          done
+          echo 'Follow activation succeeded; status receipt push was skipped after retries.'
+          exit 0
