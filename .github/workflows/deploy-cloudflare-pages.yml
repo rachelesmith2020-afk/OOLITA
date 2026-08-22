@@ -8,7 +8,6 @@ on:
       - 'scripts/build_site_for_deploy.sh'
       - 'scripts/apply_wording_resilient.py'
       - 'scripts/apply_wording.py'
-      - 'scripts/apply_direction.py'
       - 'scripts/apply_direction_v2.py'
       - 'scripts/apply_direction_v3.py'
       - 'overrides/**'
