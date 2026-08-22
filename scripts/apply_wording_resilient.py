@@ -16,12 +16,19 @@ replacement = r'''def r(path, old, new, expected=1):
     text = p.read_text(encoding="utf-8")
     old_count = text.count(old)
     new_count = text.count(new)
+    superseding = None
+    if old.startswith("¿Te aviso cuando se abra la puerta?"):
+        superseding = '<a href="/#seguir-oolita">Sigue OOLITA</a> para recibir un aviso cuando se abra el mundo.'
+    elif old.startswith("Want to be told when the door opens?"):
+        superseding = '<a href="/en/#follow-oolita">Follow OOLITA</a> to be notified when the world opens.'
     if old_count > 0:
         text = text.replace(old, new)
         p.write_text(text, encoding="utf-8")
         print(f"patched {path}: {old_count} occurrence(s): {old[:52]!r}")
     elif new_count > 0:
         print(f"already reviewed {path}: {new_count} occurrence(s): {new[:52]!r}")
+    elif superseding and superseding in text:
+        print(f"already superseded {path}: {superseding[:52]!r}")
     else:
         raise SystemExit(
             f"Unexpected wording state in {path}: found old=0, new=0: {old!r}"

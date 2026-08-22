@@ -32,9 +32,9 @@ STYLE = r'''<style id="oolita-follow-style">
 .oolita-follow .follow-consent{display:grid;grid-template-columns:1.1rem 1fr;gap:.75rem;align-items:start;margin:0 0 1.8rem;font-size:.92rem;line-height:1.45;cursor:pointer}
 .oolita-follow .follow-consent input{appearance:none;-webkit-appearance:none;width:1.08rem;height:1.08rem;margin:.12rem 0 0;border:1.5px solid currentColor;background:transparent}
 .oolita-follow .follow-consent input:checked{background:currentColor;box-shadow:inset 0 0 0 3px #f1e6cf}
-.oolita-follow .follow-submit{width:100%;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:1rem;min-height:4.35rem;padding:.9rem 1.05rem;border:1.5px solid currentColor;border-radius:0;background:currentColor;color:#f1e6cf;font:inherit;text-align:left;cursor:pointer;transition:transform .16s ease,opacity .16s ease}
+.oolita-follow .follow-submit{width:100%;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:1rem;min-height:4.35rem;padding:.9rem 1.05rem;border:1.5px solid #2d4e23;border-radius:0;background:#2d4e23;color:#f1e6cf;font:inherit;text-align:left;cursor:pointer;transition:transform .16s ease,opacity .16s ease}
 .oolita-follow .follow-submit:hover{transform:translateY(-2px)}
-.oolita-follow .follow-submit:focus-visible{outline:3px solid currentColor;outline-offset:4px}
+.oolita-follow .follow-submit:focus-visible{outline:3px solid #2d4e23;outline-offset:4px}
 .oolita-follow .follow-submit:disabled{opacity:.42;cursor:wait;transform:none}
 .oolita-follow .follow-submit .follow-arrow{font-size:1.25rem;line-height:1}
 .oolita-follow .follow-submit .follow-name{font-size:1.04rem;font-weight:650}
@@ -91,8 +91,14 @@ def swap(path, section_id, block):
 
 swap("index.html", "seguir-oolita", ES)
 swap("en/index.html", "follow-oolita", EN)
+error_page = next((path for path in ("404.html", "404/index.html") if (ROOT / path).is_file()), None)
+if error_page:
+    swap(error_page, "seguir-oolita", ES)
 
-for path, form_id in [("index.html", "oolita-follow-es"), ("en/index.html", "oolita-follow-en")]:
+follow_pages = [("index.html", "oolita-follow-es"), ("en/index.html", "oolita-follow-en")]
+if error_page:
+    follow_pages.append((error_page, "oolita-follow-es"))
+for path, form_id in follow_pages:
     s = (ROOT / path).read_text(encoding="utf-8")
     required = [
         'data-oolita-follow="cloudflare"',
@@ -105,6 +111,7 @@ for path, form_id in [("index.html", "oolita-follow-es"), ("en/index.html", "ool
         'id="oolita-follow-style"',
         'class="follow-chip-set"',
         'class="follow-submit"',
+        'background:#2d4e23;color:#f1e6cf',
         'data-follow-fallback',
     ]
     for needle in required:
