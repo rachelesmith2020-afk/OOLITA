@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Remove the unsupported Analytics Engine binding from the OOLITA Pages project.
 
-Cloudflare currently rejects Pages Function deployments when the binding exists
-but Analytics Engine has not been enabled at account level. OOLITA analytics is
-therefore kept non-blocking until that product is explicitly enabled later.
+Cloudflare's Pages project PATCH API deletes bindings by setting the binding key
+to null. OOLITA analytics stays non-blocking until Analytics Engine is explicitly
+enabled at account level.
 """
 from __future__ import annotations
 
@@ -45,13 +45,13 @@ for env_name in ("production", "preview"):
     env_cfg = configs.get(env_name) or {}
     existing = dict(env_cfg.get("analytics_engine_datasets") or {})
     if BINDING in existing:
-        existing.pop(BINDING, None)
+        existing[BINDING] = None
         patch[env_name] = {"analytics_engine_datasets": existing}
         changed = True
 
 if changed:
     api("PATCH", base, {"deployment_configs": patch})
-    print(f"Removed unsupported Cloudflare Analytics Engine binding: {BINDING}")
+    print(f"Requested Analytics Engine binding deletion via null: {BINDING}")
 else:
     print(f"Analytics Engine binding already absent: {BINDING}")
 
@@ -59,7 +59,7 @@ project = api("GET", base) or {}
 configs = project.get("deployment_configs") or {}
 for env_name in ("production", "preview"):
     bindings = ((configs.get(env_name) or {}).get("analytics_engine_datasets") or {})
-    if BINDING in bindings:
+    if bindings.get(BINDING) is not None:
         raise SystemExit(f"Analytics Engine binding removal failed for {env_name}")
 
 print("OOLITA deployment is no longer blocked by Analytics Engine.")
