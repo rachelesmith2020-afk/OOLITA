@@ -20,6 +20,14 @@ BASE = "https://oolita.es"
 LASTMOD = "2026-08-22"
 OLD_COORDINATES = "36°44′ N · 2°07′ W"
 EXACT_COORDINATES = "36°47′58″ N · 2°03′47″ W"
+HOME_TITLE_ES = "OOLITA — Piedra, papel y código en Cabo de Gata"
+HOME_TITLE_EN = "OOLITA — Stone, paper and code in Cabo de Gata"
+HOME_CREDIT_ES = "OOLITA reúne la obra y la escritura de Raquel Costantini con la labor editorial de Vestini Tribe."
+HOME_CREDIT_EN = "OOLITA brings together the art and writing of Raquel Costantini with the publishing work of Vestini Tribe."
+ABOUT_CREDIT_ES = "OOLITA es el nombre público del proyecto que reúne una obra vinculada al lugar y la práctica editorial que crece a su alrededor. El laberinto de Los Escullos y el texto del libro OOLITA son obra de Raquel Costantini. Hallazgo es su práctica artística más amplia. Vestini Tribe publica el libro y las ediciones de OOLITA. Todo el proyecto se reúne en oolita.es."
+ABOUT_CREDIT_EN = "OOLITA is the public identity of a project bringing together a place-based work and the publishing practice growing around it. The Los Escullos labyrinth and the text of the book OOLITA are works by Raquel Costantini. Hallazgo is her wider artistic practice. Vestini Tribe publishes the book and OOLITA editions. The whole project comes together at oolita.es."
+FOOTER_CREDIT_ES = "OOLITA · Raquel Costantini, artista y autora · Vestini Tribe, editorial"
+FOOTER_CREDIT_EN = "OOLITA · Raquel Costantini, artist and author · Vestini Tribe, publisher"
 
 
 def read(path: str) -> tuple[Path, str]:
@@ -66,6 +74,78 @@ def set_title_and_social(path: str, *, title: str | None = None, description: st
         text = set_meta(text, "property", "og:description", description, page=path)
         text = set_meta(text, "name", "twitter:description", description, page=path)
     p.write_text(text, encoding="utf-8")
+
+
+def insert_after_first_paragraph(text: str, class_name: str, addition: str, *, page: str) -> str:
+    if addition in text:
+        return text
+    pattern = rf'(<p\s+class=["\']{re.escape(class_name)}["\'][^>]*>[\s\S]*?</p>)'
+    text, count = re.subn(pattern, rf'\1<p class="parr credito-proyecto">{addition}</p>', text, count=1, flags=re.I)
+    if count != 1:
+        raise SystemExit(f"Credit insertion point missing in {page}: {class_name}")
+    return text
+
+
+def apply_project_credits() -> None:
+    for path, home_credit, old_signature, new_signature in [
+        (
+            "index.html",
+            HOME_CREDIT_ES,
+            '<div class="firma"><span class="rot">Raquel Costantini</span><span class="rot">Hallazgo</span><span class="rot">Almería, ES</span></div>',
+            '<div class="firma"><span class="rot">Raquel Costantini — artista y autora</span><span class="rot">Vestini Tribe — editorial</span></div>',
+        ),
+        (
+            "en/index.html",
+            HOME_CREDIT_EN,
+            '<div class="firma"><span class="rot">Raquel Costantini</span><span class="rot">Hallazgo</span><span class="rot">Almería, Spain</span></div>',
+            '<div class="firma"><span class="rot">Raquel Costantini — artist and author</span><span class="rot">Vestini Tribe — publisher</span></div>',
+        ),
+    ]:
+        p, text = read(path)
+        text = insert_after_first_paragraph(text, "parr definicion", home_credit, page=path)
+        text = replace_required(text, old_signature, new_signature, page=path)
+        p.write_text(text, encoding="utf-8")
+
+    for path, about_credit in [
+        ("sobre-oolita/index.html", ABOUT_CREDIT_ES),
+        ("en/about/index.html", ABOUT_CREDIT_EN),
+    ]:
+        p, text = read(path)
+        text = insert_after_first_paragraph(text, "glosa", about_credit, page=path)
+        p.write_text(text, encoding="utf-8")
+
+    for path, old_credit, new_credit in [
+        (
+            "ediciones/libro/index.html",
+            '<div><span class="k">Sello</span><span class="v">Vestini Tribe</span></div>',
+            '<div><span class="k">Autora</span><span class="v">Raquel Costantini</span></div>\n<div><span class="k">Editorial</span><span class="v">Vestini Tribe</span></div>',
+        ),
+        (
+            "en/editions/book/index.html",
+            '<div><span class="k">Imprint</span><span class="v">Vestini Tribe</span></div>',
+            '<div><span class="k">Author</span><span class="v">Raquel Costantini</span></div>\n<div><span class="k">Publisher</span><span class="v">Vestini Tribe</span></div>',
+        ),
+    ]:
+        p, text = read(path)
+        text = replace_required(text, old_credit, new_credit, page=path)
+        p.write_text(text, encoding="utf-8")
+
+
+def patch_footer_credit(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    language = "en" if re.search(r'<html\s+lang=["\']en(?:-[^"\']+)?["\']', text, flags=re.I) else "es"
+    expected = FOOTER_CREDIT_EN if language == "en" else FOOTER_CREDIT_ES
+    footer = re.search(r'<footer\b[\s\S]*?</footer>', text, flags=re.I)
+    if not footer:
+        raise SystemExit(f"Missing footer while applying project credit in {path.relative_to(ROOT)}")
+    footer_text = footer.group(0)
+    if expected not in footer_text:
+        old = "OOLITA · Raquel Costantini"
+        if old not in footer_text:
+            raise SystemExit(f"Existing footer credit missing in {path.relative_to(ROOT)}")
+        footer_text = footer_text.replace(old, expected, 1)
+        text = text[:footer.start()] + footer_text + text[footer.end():]
+        path.write_text(text, encoding="utf-8")
 
 
 STYLE = r'''<style id="oolita-audit-fixes-style">
@@ -266,6 +346,8 @@ if not ROOT.is_dir():
 # Homepage orientation and action hierarchy.
 patch_home("index.html", lang="es")
 patch_home("en/index.html", lang="en")
+set_title_and_social("index.html", title=HOME_TITLE_ES)
+set_title_and_social("en/index.html", title=HOME_TITLE_EN)
 
 # Search-result copy: remove the duplicated phrase and keep edition titles
 # concise while preserving the page's more expressive on-page heading.
@@ -290,6 +372,12 @@ for page in sorted(ROOT.rglob("index.html")):
         page.write_text(text, encoding="utf-8")
     add_privacy_footer(page)
 
+# Make authorship, artistic practice and publishing responsibility explicit
+# without treating OOLITA itself as either the author or the publisher.
+apply_project_credits()
+for page in sorted(ROOT.rglob("*.html")):
+    patch_footer_credit(page)
+
 # Add the two policy routes to the sitemap before the common search pass marks
 # all materially changed URLs.
 sitemap, sitemap_text = read("sitemap.xml")
@@ -302,9 +390,9 @@ for url in (f"{BASE}/privacidad/", f"{BASE}/en/privacy/"):
 sitemap.write_text(sitemap_text, encoding="utf-8")
 
 # Strict regression checks for every audited issue.
-for path, follow_id, countdown, policy in [
-    ("index.html", "seguir-oolita", "El mundo 3D abre", "/privacidad/"),
-    ("en/index.html", "follow-oolita", "The 3D world opens", "/en/privacy/"),
+for path, follow_id, countdown, policy, expected_title in [
+    ("index.html", "seguir-oolita", "El mundo 3D abre", "/privacidad/", HOME_TITLE_ES),
+    ("en/index.html", "follow-oolita", "The 3D world opens", "/en/privacy/", HOME_TITLE_EN),
 ]:
     _, text = read(path)
     for needle in [
@@ -322,6 +410,57 @@ for path, follow_id, countdown, policy in [
             raise SystemExit(f"Homepage audit invariant missing in {path}: {needle}")
     if 'background:currentColor;color:#f1e6cf' in text:
         raise SystemExit(f"Invisible Follow button rule remains in {path}")
+    title = re.search(r"<title>(.*?)</title>", text, flags=re.S).group(1)
+    if title != expected_title or len(title) > 60:
+        raise SystemExit(f"Homepage title invariant failed in {path}: {title!r}")
+    for attr, key in (("property", "og:title"), ("name", "twitter:title")):
+        if f'<meta {attr}="{key}" content="{expected_title}">' not in text:
+            raise SystemExit(f"Homepage social title invariant failed in {path}: {key}")
+
+for path, home_credit, signature in [
+    (
+        "index.html",
+        HOME_CREDIT_ES,
+        '<div class="firma"><span class="rot">Raquel Costantini — artista y autora</span><span class="rot">Vestini Tribe — editorial</span></div>',
+    ),
+    (
+        "en/index.html",
+        HOME_CREDIT_EN,
+        '<div class="firma"><span class="rot">Raquel Costantini — artist and author</span><span class="rot">Vestini Tribe — publisher</span></div>',
+    ),
+]:
+    _, text = read(path)
+    for needle in (home_credit, signature):
+        if needle not in text:
+            raise SystemExit(f"Homepage project-credit invariant missing in {path}: {needle}")
+
+for path, about_credit in [
+    ("sobre-oolita/index.html", ABOUT_CREDIT_ES),
+    ("en/about/index.html", ABOUT_CREDIT_EN),
+]:
+    _, text = read(path)
+    if about_credit not in text:
+        raise SystemExit(f"About project-credit invariant missing in {path}")
+
+for path, author_label, publisher_label, obsolete_label in [
+    ("ediciones/libro/index.html", "Autora", "Editorial", "Sello"),
+    ("en/editions/book/index.html", "Author", "Publisher", "Imprint"),
+]:
+    _, text = read(path)
+    for label, value in ((author_label, "Raquel Costantini"), (publisher_label, "Vestini Tribe")):
+        row = f'<div><span class="k">{label}</span><span class="v">{value}</span></div>'
+        if row not in text:
+            raise SystemExit(f"Book credit invariant missing in {path}: {row}")
+    if f'<span class="k">{obsolete_label}</span>' in text:
+        raise SystemExit(f"Obsolete book credit label remains in {path}: {obsolete_label}")
+
+for page in ROOT.rglob("*.html"):
+    text = page.read_text(encoding="utf-8")
+    language = "en" if re.search(r'<html\s+lang=["\']en(?:-[^"\']+)?["\']', text, flags=re.I) else "es"
+    expected = FOOTER_CREDIT_EN if language == "en" else FOOTER_CREDIT_ES
+    footer = re.search(r'<footer\b[\s\S]*?</footer>', text, flags=re.I)
+    if not footer or expected not in footer.group(0):
+        raise SystemExit(f"Global project credit missing in {page.relative_to(ROOT)}")
 
 social_pages = {
     "cabo-de-gata/index.html": f"{BASE}/cabo-de-gata/",
