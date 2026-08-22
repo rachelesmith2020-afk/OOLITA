@@ -1,6 +1,7 @@
-commit=1b20dfbf84ca546c29523bec7e2e485c5e5217e0
-run_id=32595432850
-checked_at=2026-08-22T20:01:09Z
-subscriber_storage=blocked_d1_token_scope
-endpoint=inactive_safe_fallback
-subscription_state=not_collecting
+commit=973f92a63e788010ffa4c3ae971a6583feba7b49
+run_id=32597296445
+activated_at=2026-08-22T20:39:54Z
+subscriber_storage=cloudflare_d1_eu
+endpoint=verified
+email_sending=not_enabled
+subscription_state=active_on_submit
