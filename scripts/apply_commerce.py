@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Apply OOLITA commerce configuration to a built site.
+"""Apply OOLITA's locale-specific Stripe commerce configuration.
 
+Spanish product pages use EUR offers; English product pages use GBP offers.
 The public site stays in pre-launch email-interest mode until a real Stripe
-Payment Link exists in commerce/catalog.json. When a payment link is added,
-this script swaps only the matching prepared checkout hooks. Invalid or partial
+Payment Link exists for that exact locale/currency offer. Invalid or partial
 commerce state stops deployment rather than guessing.
 """
 from __future__ import annotations
@@ -26,18 +26,46 @@ if catalog.get("provider") != "stripe":
 
 PRODUCTS = {
     "book": {
-        "pages": [
-            ("ediciones/libro/index.html", "Avísame cuando pueda comprarlo", "Comprar el libro"),
-            ("en/editions/book/index.html", "Tell me when I can buy it", "Buy the book"),
-        ],
         "checkout_key": "book",
+        "pages": [
+            {
+                "path": "ediciones/libro/index.html",
+                "offer": "es_eur",
+                "locale": "es",
+                "currency": "eur",
+                "old_label": "Avísame cuando pueda comprarlo",
+                "buy_label": "Comprar el libro",
+            },
+            {
+                "path": "en/editions/book/index.html",
+                "offer": "en_gbp",
+                "locale": "en",
+                "currency": "gbp",
+                "old_label": "Tell me when I can buy it",
+                "buy_label": "Buy the book",
+            },
+        ],
     },
     "textile_01": {
-        "pages": [
-            ("ediciones/camiseta/index.html", "Avísame cuando pueda comprarla", "Comprar la edición"),
-            ("en/editions/t-shirt/index.html", "Tell me when I can buy it", "Buy the edition"),
-        ],
         "checkout_key": "textile-01",
+        "pages": [
+            {
+                "path": "ediciones/camiseta/index.html",
+                "offer": "es_eur",
+                "locale": "es",
+                "currency": "eur",
+                "old_label": "Avísame cuando pueda comprarla",
+                "buy_label": "Comprar la edición",
+            },
+            {
+                "path": "en/editions/t-shirt/index.html",
+                "offer": "en_gbp",
+                "locale": "en",
+                "currency": "gbp",
+                "old_label": "Tell me when I can buy it",
+                "buy_label": "Buy the edition",
+            },
+        ],
     },
 }
 
@@ -50,7 +78,15 @@ def valid_payment_link(url: str) -> bool:
     return parts.scheme == "https" and parts.hostname in {"buy.stripe.com", "checkout.stripe.com"}
 
 
-def patch_page(path: str, checkout_key: str, old_label: str, buy_label: str, payment_link: str | None):
+def patch_page(
+    path: str,
+    checkout_key: str,
+    offer_key: str,
+    currency: str,
+    old_label: str,
+    buy_label: str,
+    payment_link: str | None,
+):
     p = ROOT / path
     if not p.is_file():
         raise SystemExit(f"Missing commerce page: {path}")
@@ -65,24 +101,33 @@ def patch_page(path: str, checkout_key: str, old_label: str, buy_label: str, pay
         raise SystemExit(f"Prepared checkout hook missing in {path}: {checkout_key}")
 
     anchor = match.group(0)
+    if f'data-commerce-offer="{offer_key}"' not in anchor:
+        anchor = anchor.replace(
+            '<a ',
+            f'<a data-commerce-offer="{offer_key}" data-commerce-currency="{currency.upper()}" ',
+            1,
+        )
+
     if payment_link:
         if not valid_payment_link(payment_link):
-            raise SystemExit(f"Invalid Stripe payment link for {checkout_key}: {payment_link}")
+            raise SystemExit(f"Invalid Stripe payment link for {checkout_key}/{offer_key}: {payment_link}")
         new_anchor = re.sub(r'href="[^"]+"', f'href="{payment_link}"', anchor, count=1)
         new_anchor = re.sub(r'\srel="nofollow"', ' rel="nofollow noopener"', new_anchor, count=1)
         new_anchor = new_anchor.replace(old_label, buy_label)
         if 'data-commerce-state=' not in new_anchor:
             new_anchor = new_anchor.replace('<a ', '<a data-commerce-state="live" ', 1)
         text = text[:match.start()] + new_anchor + text[match.end():]
-        print(f"commerce live: {path} -> Stripe")
+        print(f"commerce live: {path} -> Stripe {currency.upper()}")
     else:
-        # Pre-launch mode must remain an email-interest action, never a fake buy button.
         href = re.search(r'href="([^"]+)"', anchor)
         if not href or not href.group(1).startswith("mailto:"):
             raise SystemExit(f"Expected pre-launch mailto checkout in {path}")
         if buy_label in anchor:
             raise SystemExit(f"Buy label present without payment link in {path}")
-        print(f"commerce prelaunch: {path} remains email-interest")
+        if 'data-commerce-state=' not in anchor:
+            anchor = anchor.replace('<a ', '<a data-commerce-state="prelaunch" ', 1)
+        text = text[:match.start()] + anchor + text[match.end():]
+        print(f"commerce prelaunch: {path} remains email-interest ({currency.upper()})")
 
     p.write_text(text, encoding="utf-8")
 
@@ -91,28 +136,52 @@ products = catalog.get("products")
 if not isinstance(products, dict):
     raise SystemExit("commerce/catalog.json products must be an object")
 
-for key, spec in PRODUCTS.items():
-    product = products.get(key)
+for product_key, spec in PRODUCTS.items():
+    product = products.get(product_key)
     if not isinstance(product, dict):
-        raise SystemExit(f"Missing commerce product: {key}")
+        raise SystemExit(f"Missing commerce product: {product_key}")
 
-    payment_link = product.get("payment_link")
-    price = product.get("price")
-    currency = product.get("currency")
     stripe_product_id = product.get("stripe_product_id")
-    stripe_price_id = product.get("stripe_price_id")
+    offers = product.get("offers")
+    if not isinstance(offers, dict):
+        raise SystemExit(f"{product_key} offers must be an object")
 
-    if payment_link:
-        if price is None or not currency or not stripe_product_id or not stripe_price_id:
-            raise SystemExit(
-                f"{key} has a payment link but incomplete product/price metadata; refusing deployment"
-            )
-    elif any(v is not None for v in (price, currency, stripe_product_id, stripe_price_id)):
-        raise SystemExit(
-            f"{key} has partial Stripe metadata but no payment link; refusing deployment"
+    for page in spec["pages"]:
+        offer_key = page["offer"]
+        offer = offers.get(offer_key)
+        if not isinstance(offer, dict):
+            raise SystemExit(f"Missing commerce offer: {product_key}/{offer_key}")
+
+        if offer.get("locale") != page["locale"]:
+            raise SystemExit(f"Wrong locale for {product_key}/{offer_key}")
+        if offer.get("currency") != page["currency"]:
+            raise SystemExit(f"Wrong currency for {product_key}/{offer_key}")
+
+        amount_minor = offer.get("amount_minor")
+        stripe_price_id = offer.get("stripe_price_id")
+        payment_link = offer.get("payment_link")
+
+        if payment_link:
+            if not isinstance(amount_minor, int) or amount_minor <= 0:
+                raise SystemExit(f"{product_key}/{offer_key} has payment link but invalid amount_minor")
+            if not stripe_product_id or not stripe_price_id:
+                raise SystemExit(
+                    f"{product_key}/{offer_key} has a payment link but incomplete Stripe IDs; refusing deployment"
+                )
+        else:
+            if amount_minor is not None or stripe_price_id is not None:
+                raise SystemExit(
+                    f"{product_key}/{offer_key} has partial price metadata but no payment link; refusing deployment"
+                )
+
+        patch_page(
+            page["path"],
+            spec["checkout_key"],
+            offer_key,
+            page["currency"],
+            page["old_label"],
+            page["buy_label"],
+            payment_link,
         )
 
-    for path, old_label, buy_label in spec["pages"]:
-        patch_page(path, spec["checkout_key"], old_label, buy_label, payment_link)
-
-print("OOLITA commerce configuration validated successfully.")
+print("OOLITA EUR/GBP commerce configuration validated successfully.")
