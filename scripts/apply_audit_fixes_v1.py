@@ -12,7 +12,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 import re
 import sys
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
@@ -427,25 +427,45 @@ for page in sorted(ROOT.rglob("index.html")):
         if not nav.get("aria-label") and not nav.get("aria-labelledby"):
             raise SystemExit(f"Unnamed navigation landmark in {relative}")
 
+root_resolved = ROOT.resolve()
 for page, parser in parsed.items():
     for href in parser.links:
         url = urlsplit(href)
         if (
             url.scheme
             or url.netloc
-            or href.startswith(("#", "mailto:", "tel:", "javascript:"))
+            or href.startswith(("mailto:", "tel:", "javascript:"))
             or url.path.startswith("/api/")
-            or not url.path.startswith("/")
         ):
             continue
-        target = ROOT / url.path.lstrip("/")
-        if url.path.endswith("/"):
+
+        local_path = unquote(url.path)
+        if not local_path:
+            target = page
+        elif local_path.startswith("/"):
+            target = ROOT / local_path.lstrip("/")
+        else:
+            target = page.parent / local_path
+
+        if local_path.endswith("/"):
+            target /= "index.html"
+
+        target = target.resolve()
+        try:
+            target.relative_to(root_resolved)
+        except ValueError:
+            raise SystemExit(
+                f"Internal target escapes site root in {page.relative_to(ROOT)}: {href}"
+            )
+
+        if target.is_dir():
             target /= "index.html"
         if not target.exists():
             raise SystemExit(f"Broken internal target in {page.relative_to(ROOT)}: {href}")
+
         if url.fragment and target.suffix == ".html":
             target_parser = parsed.get(target)
-            if target_parser is None or url.fragment not in target_parser.ids:
+            if target_parser is None or unquote(url.fragment) not in target_parser.ids:
                 raise SystemExit(f"Broken internal fragment in {page.relative_to(ROOT)}: {href}")
 
 print("OOLITA accessibility, discovery and privacy audit fixes validated successfully.")
