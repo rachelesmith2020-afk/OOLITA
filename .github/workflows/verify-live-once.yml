@@ -1,0 +1,75 @@
+name: Verify OOLITA live once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-live-once.yml'
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Mark verification pending
+        shell: bash
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            -d '{"state":"pending","context":"oolita/live-verification","description":"Checking deployed OOLITA pages"}'
+
+      - name: Verify Pages origin and custom domain
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          for host in https://oolita.pages.dev https://oolita.es; do
+            tag=$(printf '%s' "$host" | tr -cd '[:alnum:]')
+            curl -fsSL --retry 3 -H 'Cache-Control: no-cache' "${host}/?verify=${GITHUB_SHA}" -o "$tmp/${tag}-es.html"
+            curl -fsSL --retry 3 -H 'Cache-Control: no-cache' "${host}/en/?verify=${GITHUB_SHA}" -o "$tmp/${tag}-en.html"
+            curl -fsSL --retry 3 -H 'Cache-Control: no-cache' "${host}/laberinto/?verify=${GITHUB_SHA}" -o "$tmp/${tag}-lab.html"
+            curl -fsSL --retry 3 -H 'Cache-Control: no-cache' "${host}/en/labyrinth/?verify=${GITHUB_SHA}" -o "$tmp/${tag}-lab-en.html"
+            curl -fsSL --retry 3 -H 'Cache-Control: no-cache' "${host}/en/posters/?verify=${GITHUB_SHA}" -o "$tmp/${tag}-posters.html"
+            curl -fsSL --retry 3 -H 'Cache-Control: no-cache' "${host}/que-es-un-laberinto/?verify=${GITHUB_SHA}" -o "$tmp/${tag}-concept.html"
+
+            grep -Fq 'El mismo camino, hecho de luz.' "$tmp/${tag}-es.html"
+            grep -Fq 'La misma senda en tres materiales.' "$tmp/${tag}-es.html"
+            grep -Fq 'Te escribiré el 3 de enero.' "$tmp/${tag}-es.html"
+            ! grep -Fq 'te llamo de vuelta' "$tmp/${tag}-es.html"
+
+            grep -Fq 'The same path, made of light.' "$tmp/${tag}-en.html"
+            grep -Fq 'The same path in three materials.' "$tmp/${tag}-en.html"
+            grep -Fq 'I’ll write to you on 3 January.' "$tmp/${tag}-en.html"
+            ! grep -Fq 'call you back on 3 January' "$tmp/${tag}-en.html"
+
+            grep -Fq '¿Puedo perderme?' "$tmp/${tag}-lab.html"
+            grep -Fq 'Want me to let you know when the door opens?' "$tmp/${tag}-lab-en.html"
+            grep -Fq '48-page bilingual fable' "$tmp/${tag}-posters.html"
+            grep -Fq 'Qué es un laberinto clásico' "$tmp/${tag}-concept.html"
+          done
+
+      - name: Report verification result
+        if: always()
+        shell: bash
+        run: |
+          state='failure'
+          description='Live OOLITA verification failed'
+          if [ "${{ job.status }}" = 'success' ]; then
+            state='success'
+            description='Live OOLITA verification succeeded'
+          fi
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            -d "{\"state\":\"${state}\",\"context\":\"oolita/live-verification\",\"description\":\"${description}\"}"
