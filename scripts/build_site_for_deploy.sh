@@ -88,7 +88,8 @@ print(f'Sitemap completeness: {len(locs)} URLs present')
 PY
 
 # Poster pages deliberately ship all three image encodings.
-for n in $(seq -w 1 9); do
+for i in $(seq 1 9); do
+  n=$(printf '%02d' "$i")
   for ext in avif webp png; do
     test -f "site/carteles/img/cartel-${n}.${ext}" || {
       echo "Missing poster asset: site/carteles/img/cartel-${n}.${ext}"
