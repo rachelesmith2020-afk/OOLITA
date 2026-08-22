@@ -41,54 +41,74 @@ jobs:
           test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
 
       - name: Provision and bind subscriber storage
+        id: subscriber_storage
+        continue-on-error: true
         shell: bash
         run: python3 scripts/configure_cloudflare_subscribers.py
 
+      - name: Report blocked subscriber-storage prerequisite
+        if: ${{ steps.subscriber_storage.outcome != 'success' }}
+        shell: bash
+        run: |
+          echo '::warning::Follow OOLITA is safely inactive because the current Cloudflare API token cannot manage D1. Add Account > D1 > Edit to the token, then rerun this workflow.'
+
       - name: Remove unsupported Analytics Engine binding
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/configure_cloudflare_analytics.py
 
       - name: Report Analytics Engine binding state
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/verify_cloudflare_analytics.py
 
       - name: Reconstruct and validate complete site
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: bash scripts/build_site_for_deploy.sh
 
       - name: Apply and validate Cabo de Gata direction
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/apply_direction_v3.py site
 
       - name: Prepare homepage growth definition
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/growth_prep.py site
 
       - name: Apply and validate growth layer
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/apply_growth_v1.py site
 
       - name: Apply and validate commerce configuration
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/apply_commerce.py site commerce/catalog.json
 
       - name: Apply and validate improvement-list completion
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/apply_list_completion_v1.py site
 
       - name: Activate first-party Follow OOLITA
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/apply_follow_transition_v1.py site
 
       - name: Apply and validate first-party analytics
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/apply_first_party_analytics_v1.py site
 
       - name: Apply and validate search visibility
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/apply_search_visibility_v1.py site
 
       - name: Validate Pages Functions
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -98,10 +118,12 @@ jobs:
           npx --yes wrangler@latest pages functions build functions --outfile /tmp/oolita-worker.js
 
       - name: Redeploy with subscriber binding
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
 
       - name: Verify subscriber endpoint
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -117,8 +139,8 @@ jobs:
           cat /tmp/oolita-follow-health || true
           exit 1
 
-      - name: Record Follow service status
-        if: ${{ success() }}
+      - name: Record Follow active status
+        if: ${{ steps.subscriber_storage.outcome == 'success' && success() }}
         continue-on-error: true
         shell: bash
         run: |
@@ -139,4 +161,28 @@ jobs:
             sleep 2
           done
           echo 'Follow activation succeeded; status receipt push was skipped after retries.'
+          exit 0
+
+      - name: Record Follow blocked status
+        if: ${{ steps.subscriber_storage.outcome != 'success' }}
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p service-status
+          printf 'commit=%s\nrun_id=%s\nchecked_at=%s\nsubscriber_storage=blocked_d1_token_scope\nendpoint=inactive_safe_fallback\nsubscription_state=not_collecting\n' \
+            "$GITHUB_SHA" "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > service-status/follow.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add service-status/follow.txt
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Record blocked OOLITA Follow prerequisite [skip ci]'
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              exit 0
+            fi
+            git rebase --abort || true
+            sleep 2
+          done
+          echo 'Follow prerequisite was recorded locally; remote receipt push skipped after retries.'
           exit 0
