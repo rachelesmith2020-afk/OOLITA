@@ -1,6 +1,12 @@
 name: Deploy OOLITA to Cloudflare Pages
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-cloudflare-pages.yml'
+      - 'scripts/**'
+      - 'overrides/**'
   workflow_dispatch:
     inputs:
       confirm:
@@ -12,14 +18,26 @@ permissions:
   contents: read
 
 concurrency:
-  group: oolita-production-deploy
+  group: oolita-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    if: ${{ github.event.inputs.confirm == 'DEPLOY' }}
+  validate:
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Reconstruct and validate complete site
+        shell: bash
+        run: bash scripts/build_site_for_deploy.sh
+
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'DEPLOY' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
@@ -37,95 +55,9 @@ jobs:
             exit 1
           fi
 
-      - name: Reconstruct current complete Pages site
+      - name: Reconstruct and validate complete site
         shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf site
-          mkdir -p site
-
-          curl -fsSL https://oolita.pages.dev/sitemap.xml -o /tmp/sitemap.xml
-          cp /tmp/sitemap.xml site/sitemap.xml
-
-          python3 - <<'PY' > /tmp/page-urls.txt
-          import re
-          from urllib.parse import urlsplit
-
-          text = open('/tmp/sitemap.xml', encoding='utf-8').read()
-          locs = re.findall(r'<loc>\s*(.*?)\s*</loc>', text, flags=re.I | re.S)
-          if not locs:
-              raise SystemExit('No URLs found in sitemap.xml')
-
-          seen = set()
-          for loc in locs:
-              path = urlsplit(loc.strip()).path or '/'
-              url = 'https://oolita.pages.dev' + path
-              if url not in seen:
-                  print(url)
-                  seen.add(url)
-          PY
-
-          echo 'Fetching sitemap-listed pages from oolita.pages.dev:'
-          cat /tmp/page-urls.txt
-
-          wget \
-            --page-requisites \
-            --no-host-directories \
-            --directory-prefix=site \
-            --domains=oolita.pages.dev \
-            --execute robots=off \
-            --input-file=/tmp/page-urls.txt
-
-          curl -fsSL https://oolita.pages.dev/robots.txt -o site/robots.txt
-          curl -fsSL https://oolita.pages.dev/favicon.svg -o site/favicon.svg
-          curl -fsSL https://oolita.pages.dev/404.html -o site/404.html || true
-
-      - name: Apply reviewed wording
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/apply_wording.py site
-
-      - name: Overlay reviewed files if present
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -d overrides ]; then
-            cp -a overrides/. site/
-          fi
-
-      - name: Safety checks
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f site/index.html
-          test -f site/en/index.html
-          test -f site/laberinto/index.html
-          test -f site/en/labyrinth/index.html
-          test -f site/domingos/index.html
-          test -f site/sitemap.xml
-          test -f site/robots.txt
-          test -f site/favicon.svg
-
-          grep -Fq 'El mismo camino, hecho de luz.' site/index.html
-          grep -Fq 'The same path, made of light.' site/en/index.html
-          grep -Fq 'La misma senda en tres materiales.' site/index.html
-          grep -Fq 'The same path in three materials.' site/en/index.html
-          grep -Fq '48-page bilingual fable' site/en/posters/index.html
-
-          count=$(find site -type f | wc -l)
-          echo "Reconstructed file count: $count"
-          if [ "$count" -lt 80 ]; then
-            echo 'Site reconstruction looks incomplete; refusing to deploy.'
-            exit 1
-          fi
-
-          bad=$(find site \( -name '*.bak*' -o -name '*.py' -o -name '*~' -o -name '.DS_Store' \) -print)
-          if [ -n "$bad" ]; then
-            echo 'Refusing to deploy forbidden files:'
-            printf '%s\n' "$bad"
-            exit 1
-          fi
+        run: bash scripts/build_site_for_deploy.sh
 
       - name: Deploy complete site to Cloudflare Pages
         shell: bash
