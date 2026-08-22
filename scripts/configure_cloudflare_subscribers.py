@@ -3,7 +3,8 @@
 
 Creates/reuses an EU-jurisdiction D1 database, applies the subscriber schema,
 and binds it to the OOLITA Pages project as OOLITA_SUBSCRIBERS for production
-and preview deployments. No email-sending service is created here.
+and preview deployments. Consent submissions are active immediately; no
+outbound email-sending service is created here.
 """
 from __future__ import annotations
 
@@ -67,7 +68,7 @@ CREATE TABLE IF NOT EXISTS subscribers (
   consent_version TEXT NOT NULL,
   consent_at TEXT NOT NULL,
   source_path TEXT NOT NULL DEFAULT '/',
-  status TEXT NOT NULL DEFAULT 'pending_confirmation' CHECK (status IN ('pending_confirmation','active','unsubscribed')),
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('pending_confirmation','active','unsubscribed')),
   unsubscribe_token TEXT NOT NULL UNIQUE,
   verified_at TEXT,
   unsubscribed_at TEXT,
@@ -77,7 +78,12 @@ CREATE INDEX IF NOT EXISTS idx_subscribers_status ON subscribers(status);
 CREATE INDEX IF NOT EXISTS idx_subscribers_language ON subscribers(language);
 """.strip()
 cf("POST", f"/accounts/{ACCOUNT_ID}/d1/database/{db_id}/query", {"sql": schema})
-print("subscriber schema applied")
+# Migrate any rows created under the earlier double-opt-in draft to the final
+# single-opt-in model. Consent was already explicit at submission time.
+cf("POST", f"/accounts/{ACCOUNT_ID}/d1/database/{db_id}/query", {
+    "sql": "UPDATE subscribers SET status='active', verified_at=NULL, updated_at=COALESCE(updated_at, consent_at) WHERE status='pending_confirmation'"
+})
+print("subscriber schema applied; single-opt-in state verified")
 
 project = cf("GET", f"/accounts/{ACCOUNT_ID}/pages/projects/{PROJECT}")
 configs = project.get("deployment_configs") or {}

@@ -119,7 +119,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p service-status
-          printf 'commit=%s\nrun_id=%s\nactivated_at=%s\nsubscriber_storage=cloudflare_d1_eu\nendpoint=verified\nemail_sending=not_enabled\nconfirmation_state=pending_confirmation\n' \
+          printf 'commit=%s\nrun_id=%s\nactivated_at=%s\nsubscriber_storage=cloudflare_d1_eu\nendpoint=verified\nemail_sending=not_enabled\nsubscription_state=active_on_submit\n' \
             "$GITHUB_SHA" "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > service-status/follow.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
