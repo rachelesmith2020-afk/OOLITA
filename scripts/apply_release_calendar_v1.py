@@ -182,7 +182,7 @@ replace_across_html(
 # The OOLITA site can publish the Hallazgo sequence now. The castle remains
 # free; the full catalogue in its reading room needs a key. The hardback is a
 # plan for autumn, not a live product or checkout claim.
-for path, changes in {
+hallazgo_pages = {
     "index.html": (
         ("Obra de Raquel Costantini ↗", "Castillo virtual · entrada libre · abre 16.05.27 · 19:00 CEST ↗"),
         ("Registro ilustrado de la obra de Hallazgo ↗", "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗"),
@@ -191,11 +191,14 @@ for path, changes in {
         ("Work by Raquel Costantini ↗", "Virtual castle · free to enter · opens 16.05.27 · 19:00 CEST ↗"),
         ("Illustrated record of the Hallazgo works ↗", "In the castle: full catalogue with a key · hardback planned for autumn 2027 ↗"),
     ),
-    "404/index.html": (
+}
+error_page = next((path for path in ("404.html", "404/index.html") if (ROOT / path).is_file()), None)
+if error_page:
+    hallazgo_pages[error_page] = (
         ("Obra de Raquel Costantini ↗", "Castillo virtual · entrada libre · abre 16.05.27 · 19:00 CEST ↗"),
         ("Registro ilustrado de la obra de Hallazgo ↗", "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗"),
-    ),
-}.items():
+    )
+for path, changes in hallazgo_pages.items():
     for old, new in changes:
         replace_text(path, old, new)
 
