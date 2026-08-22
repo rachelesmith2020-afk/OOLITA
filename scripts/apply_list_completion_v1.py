@@ -3,8 +3,8 @@
 
 Runs after growth + commerce. It tightens product information, makes the
 field-publication CTA explicit, adds a provider-ready Follow OOLITA block, and
-adds a vendor-neutral analytics event layer. External services remain disabled
-until a real provider/configuration exists.
+adds a vendor-neutral analytics event layer. The Follow block may remain in its
+safe pending state or be upgraded by the later Cloudflare Follow layer.
 """
 from pathlib import Path
 import re
@@ -45,7 +45,8 @@ product_notes = {
 for path, (old, new, marker) in product_notes.items():
     replace_once(path, old, new, marker)
 
-# Provider-ready Follow OOLITA block; deliberately not a fake working list.
+# Provider-ready Follow OOLITA block; the later Cloudflare Follow layer upgrades
+# this block when first-party storage is actually available.
 follow_es = '''<section class="tramo env" id="seguir-oolita"><span class="rot">Seguir OOLITA</span><h2 class="grande">Una lista, cuando esté lista.</h2><p class="glosa">La lista de OOLITA reunirá noticias del mundo 3D, el libro, las publicaciones de campo y las ediciones textiles.</p><form class="oolita-follow" data-oolita-follow="pending" aria-describedby="seguir-estado"><label>Correo electrónico <input type="email" name="email" autocomplete="email" disabled></label><fieldset disabled><legend>Me interesa</legend><label><input type="checkbox" name="interest" value="3d"> Mundo 3D</label><label><input type="checkbox" name="interest" value="book"> Libro</label><label><input type="checkbox" name="interest" value="field"> Publicaciones de campo</label><label><input type="checkbox" name="interest" value="textile"> Ediciones textiles</label></fieldset><label><input type="checkbox" name="consent" disabled> Quiero recibir correos de OOLITA y podré darme de baja en cualquier momento.</label><button type="submit" disabled>Seguir OOLITA</button><p class="parr" id="seguir-estado">La suscripción se activará cuando el servicio de lista esté conectado. Mientras tanto, el contacto directo sigue siendo <a href="mailto:oolita@tutamail.com">oolita@tutamail.com</a>.</p></form></section>'''
 follow_en = '''<section class="tramo env" id="follow-oolita"><span class="rot">Follow OOLITA</span><h2 class="grande">One list, when it is ready.</h2><p class="glosa">The OOLITA list will bring together news about the 3D world, the book, field publications and textile editions.</p><form class="oolita-follow" data-oolita-follow="pending" aria-describedby="follow-status"><label>Email <input type="email" name="email" autocomplete="email" disabled></label><fieldset disabled><legend>I am interested in</legend><label><input type="checkbox" name="interest" value="3d"> 3D world</label><label><input type="checkbox" name="interest" value="book"> Book</label><label><input type="checkbox" name="interest" value="field"> Field publications</label><label><input type="checkbox" name="interest" value="textile"> Textile editions</label></fieldset><label><input type="checkbox" name="consent" disabled> I want to receive OOLITA emails and can unsubscribe at any time.</label><button type="submit" disabled>Follow OOLITA</button><p class="parr" id="follow-status">Signup will be activated when the mailing-list service is connected. Until then, direct contact remains <a href="mailto:oolita@tutamail.com">oolita@tutamail.com</a>.</p></form></section>'''
 for path, block, marker in [("index.html", follow_es, 'id="seguir-oolita"'), ("en/index.html", follow_en, 'id="follow-oolita"')]:
@@ -111,7 +112,7 @@ for path, needles in required.items():
             raise SystemExit(f"List-completion invariant missing in {path}: {needle}")
 for path in ("index.html", "en/index.html"):
     _, s = read(path)
-    if 'data-oolita-follow="pending"' not in s:
-        raise SystemExit(f"Follow OOLITA must remain explicitly pending in {path}")
+    if 'data-oolita-follow="pending"' not in s and 'data-oolita-follow="cloudflare"' not in s:
+        raise SystemExit(f"Follow OOLITA must be pending or Cloudflare-managed in {path}")
 
 print("OOLITA improvement-list completion layer validated successfully.")
