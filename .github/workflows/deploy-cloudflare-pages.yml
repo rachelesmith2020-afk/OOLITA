@@ -14,6 +14,12 @@ on:
       - 'scripts/apply_commerce.py'
       - 'scripts/apply_list_completion_v1.py'
       - 'scripts/apply_follow_transition_v1.py'
+      - 'scripts/apply_first_party_analytics_v1.py'
+      - 'scripts/apply_search_visibility_v1.py'
+      - 'scripts/configure_cloudflare_analytics.py'
+      - 'scripts/submit_indexnow.py'
+      - 'functions/**'
+      - 'search/**'
       - 'commerce/**'
       - 'overrides/**'
   push:
@@ -29,6 +35,12 @@ on:
       - 'scripts/apply_commerce.py'
       - 'scripts/apply_list_completion_v1.py'
       - 'scripts/apply_follow_transition_v1.py'
+      - 'scripts/apply_first_party_analytics_v1.py'
+      - 'scripts/apply_search_visibility_v1.py'
+      - 'scripts/configure_cloudflare_analytics.py'
+      - 'scripts/submit_indexnow.py'
+      - 'functions/**'
+      - 'search/**'
       - 'commerce/**'
       - 'overrides/**'
   workflow_dispatch:
@@ -82,10 +94,22 @@ jobs:
         shell: bash
         run: python3 scripts/apply_follow_transition_v1.py site
 
+      - name: Apply and validate first-party analytics
+        shell: bash
+        run: python3 scripts/apply_first_party_analytics_v1.py site
+
+      - name: Apply and validate search visibility
+        shell: bash
+        run: python3 scripts/apply_search_visibility_v1.py site
+
+      - name: Validate analytics function syntax
+        shell: bash
+        run: node --check functions/api/event.js
+
   deploy:
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'DEPLOY') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
@@ -131,11 +155,51 @@ jobs:
         shell: bash
         run: python3 scripts/apply_follow_transition_v1.py site
 
+      - name: Apply and validate first-party analytics
+        shell: bash
+        run: python3 scripts/apply_first_party_analytics_v1.py site
+
+      - name: Apply and validate search visibility
+        shell: bash
+        run: python3 scripts/apply_search_visibility_v1.py site
+
+      - name: Validate analytics function syntax
+        shell: bash
+        run: node --check functions/api/event.js
+
+      - name: Configure Cloudflare Analytics Engine
+        shell: bash
+        run: python3 scripts/configure_cloudflare_analytics.py
+
       - name: Deploy complete site to Cloudflare Pages
         shell: bash
         run: |
           set -euo pipefail
           npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
+
+      - name: Verify first-party analytics endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload='{"event":"deployment-health","path":"/","href":""}'
+          for attempt in $(seq 1 12); do
+            code="$(curl -sS -o /tmp/oolita-analytics-response -w '%{http_code}' -X POST \
+              -H 'Content-Type: text/plain;charset=UTF-8' \
+              --data "$payload" \
+              https://oolita.pages.dev/api/event || true)"
+            if [ "$code" = "204" ]; then
+              echo 'OOLITA analytics endpoint verified (HTTP 204).'
+              exit 0
+            fi
+            echo "Analytics verification attempt $attempt returned HTTP $code"
+            sleep 5
+          done
+          cat /tmp/oolita-analytics-response || true
+          exit 1
+
+      - name: Submit updated URLs to IndexNow
+        shell: bash
+        run: python3 scripts/submit_indexnow.py site/sitemap.xml search/indexnow-key.txt
 
       - name: Record successful deployment
         if: ${{ success() }}
