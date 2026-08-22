@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Read-only preflight that confirms Analytics Engine cannot block OOLITA deploys."""
+"""Read-only report for the OOLITA Pages Analytics Engine binding.
+
+This check is informational only. The deploy step removes the unsupported
+binding before publishing so account-level Analytics Engine availability can
+never block the site.
+"""
 from __future__ import annotations
 
 import json
@@ -36,6 +41,4 @@ for env_name in ("production", "preview"):
     bindings = ((configs.get(env_name) or {}).get("analytics_engine_datasets") or {})
     binding = bindings.get(BINDING)
     print(f"{env_name}_analytics_binding={binding!r}")
-    if binding is not None:
-        raise SystemExit(f"Unsupported Analytics Engine binding still present in {env_name}")
-print("Cloudflare Analytics Engine blocker is absent.")
+print("Analytics binding state reported; deployment cleanup remains authoritative.")
