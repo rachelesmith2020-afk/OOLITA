@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Bind a Cloudflare Analytics Engine dataset to the OOLITA Pages project.
+"""Remove the unsupported Analytics Engine binding from the OOLITA Pages project.
 
-Uses the same Pages Write token already required for deployment. It only adds the
-OOLITA_ANALYTICS binding to production and verifies the project afterwards.
+Cloudflare currently rejects Pages Function deployments when the binding exists
+but Analytics Engine has not been enabled at account level. OOLITA analytics is
+therefore kept non-blocking until that product is explicitly enabled later.
 """
 from __future__ import annotations
 
@@ -15,7 +16,6 @@ ACCOUNT_ID = os.environ.get("CLOUDFLARE_ACCOUNT_ID", "").strip()
 TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
 PROJECT = "oolita"
 BINDING = "OOLITA_ANALYTICS"
-DATASET = "oolita_events"
 
 if not ACCOUNT_ID or not TOKEN:
     raise SystemExit("Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN")
@@ -37,21 +37,29 @@ def api(method: str, url: str, payload=None):
         raise SystemExit(f"Cloudflare API {method} unsuccessful: {body.get('errors')}")
     return body.get("result")
 
-project = api("GET", base)
-prod = ((project or {}).get("deployment_configs") or {}).get("production") or {}
-existing = prod.get("analytics_engine_datasets") or {}
-current = existing.get(BINDING)
-if isinstance(current, dict) and current.get("dataset") == DATASET:
-    print(f"Cloudflare analytics binding already present: {BINDING} -> {DATASET}")
-else:
-    merged = dict(existing)
-    merged[BINDING] = {"dataset": DATASET}
-    api("PATCH", base, {"deployment_configs": {"production": {"analytics_engine_datasets": merged}}})
-    print(f"Cloudflare analytics binding configured: {BINDING} -> {DATASET}")
+project = api("GET", base) or {}
+configs = project.get("deployment_configs") or {}
+patch = {}
+changed = False
+for env_name in ("production", "preview"):
+    env_cfg = configs.get(env_name) or {}
+    existing = dict(env_cfg.get("analytics_engine_datasets") or {})
+    if BINDING in existing:
+        existing.pop(BINDING, None)
+        patch[env_name] = {"analytics_engine_datasets": existing}
+        changed = True
 
-project = api("GET", base)
-prod = ((project or {}).get("deployment_configs") or {}).get("production") or {}
-verify = (prod.get("analytics_engine_datasets") or {}).get(BINDING) or {}
-if verify.get("dataset") != DATASET:
-    raise SystemExit("Cloudflare Analytics Engine binding verification failed")
-print("OOLITA Cloudflare Analytics Engine binding verified.")
+if changed:
+    api("PATCH", base, {"deployment_configs": patch})
+    print(f"Removed unsupported Cloudflare Analytics Engine binding: {BINDING}")
+else:
+    print(f"Analytics Engine binding already absent: {BINDING}")
+
+project = api("GET", base) or {}
+configs = project.get("deployment_configs") or {}
+for env_name in ("production", "preview"):
+    bindings = ((configs.get(env_name) or {}).get("analytics_engine_datasets") or {})
+    if BINDING in bindings:
+        raise SystemExit(f"Analytics Engine binding removal failed for {env_name}")
+
+print("OOLITA deployment is no longer blocked by Analytics Engine.")
