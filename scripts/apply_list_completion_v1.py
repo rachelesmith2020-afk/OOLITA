@@ -42,7 +42,7 @@ product_notes = {
     "ediciones/camiseta/index.html": ("La venta todavía no está abierta.</p>", "La venta todavía no está abierta.</p><p class=\"parr venta-info\"><strong>Antes de abrir la venta:</strong> aquí se indicarán los destinos de envío, el plazo estimado de preparación y entrega, la política de devoluciones y cómo se muestran los impuestos en el pago.</p>", "destinos de envío"),
     "en/editions/t-shirt/index.html": ("Sales are not open yet.</p>", "Sales are not open yet.</p><p class=\"parr venta-info\"><strong>Before sales open:</strong> this page will state shipping territories, estimated preparation and delivery times, the returns policy, and how taxes are shown at checkout.</p>", "shipping territories"),
 }
-for path, old, new, marker in product_notes.items():
+for path, (old, new, marker) in product_notes.items():
     replace_once(path, old, new, marker)
 
 # Provider-ready Follow OOLITA block; deliberately not a fake working list.
