@@ -32,6 +32,8 @@ CHANGED_PATHS = {
     "/en/about/",
     "/colaborar/",
     "/en/work-with-oolita/",
+    "/privacidad/",
+    "/en/privacy/",
     "/laberinto/",
     "/en/labyrinth/",
     "/carteles/",
