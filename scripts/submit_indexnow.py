@@ -34,18 +34,34 @@ if not urls:
 if len(urls) > 10000:
     raise SystemExit("IndexNow URL set exceeds 10,000 URLs")
 
+# Pages can report a successful deployment a little before the custom domain's
+# edge cache exposes a brand-new root asset. Wait long enough for oolita.es,
+# because IndexNow itself must be able to verify the key on the submitted host.
 key_url = f"{BASE}/{key}.txt"
-for attempt in range(1, 11):
+last_verify = "no response"
+for attempt in range(1, 31):
     try:
-        with urllib.request.urlopen(key_url, timeout=15) as response:
+        req = urllib.request.Request(
+            key_url,
+            headers={
+                "User-Agent": "OOLITA-indexing/1.0",
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=15) as response:
             body = response.read().decode("utf-8", "replace").strip()
+            last_verify = f"HTTP {response.status}, body={body[:80]!r}"
             if response.status == 200 and body == key:
+                print(f"IndexNow key verified on attempt {attempt}.")
                 break
-    except Exception:
-        pass
-    if attempt == 10:
-        raise SystemExit(f"IndexNow key is not publicly verifiable at {key_url}")
-    time.sleep(3)
+    except urllib.error.HTTPError as exc:
+        last_verify = f"HTTP {exc.code}"
+    except Exception as exc:
+        last_verify = repr(exc)
+    if attempt == 30:
+        raise SystemExit(f"IndexNow key is not publicly verifiable at {key_url}: {last_verify}")
+    time.sleep(4)
 
 payload = json.dumps({
     "host": HOST,
@@ -53,18 +69,18 @@ payload = json.dumps({
     "keyLocation": key_url,
     "urlList": urls,
 }).encode("utf-8")
-request = urllib.request.Request(
-    ENDPOINT,
-    data=payload,
-    method="POST",
-    headers={
-        "Content-Type": "application/json; charset=utf-8",
-        "User-Agent": "OOLITA-indexing/1.0",
-    },
-)
 
 last_error = None
 for attempt in range(1, 4):
+    request = urllib.request.Request(
+        ENDPOINT,
+        data=payload,
+        method="POST",
+        headers={
+            "Content-Type": "application/json; charset=utf-8",
+            "User-Agent": "OOLITA-indexing/1.0",
+        },
+    )
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
             status = response.status
