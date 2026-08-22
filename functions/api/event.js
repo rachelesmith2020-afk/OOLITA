@@ -25,9 +25,20 @@ export async function onRequestPost(context) {
   const path = cleanPath(payload.path);
   const href = cleanPath(payload.href);
 
-  // Analytics must never block the site. If Analytics Engine is unavailable,
-  // accept the event and discard it until a supported storage layer is enabled.
-  if (env.OOLITA_ANALYTICS) {
+  // Use the same EU-jurisdiction first-party D1 store as Follow OOLITA once it
+  // is bound. Store only event name, local paths and timestamp: no email, IP,
+  // cookie value, user-agent or full referrer is written by this endpoint.
+  if (env.OOLITA_SUBSCRIBERS) {
+    try {
+      await env.OOLITA_SUBSCRIBERS.prepare(
+        "INSERT INTO site_events (event, path, href, created_at) VALUES (?, ?, ?, ?)"
+      ).bind(event, path, href, new Date().toISOString()).run();
+    } catch (err) {
+      console.error("D1 analytics write failed", err);
+    }
+  } else if (env.OOLITA_ANALYTICS) {
+    // Backward-compatible fallback only; this binding is intentionally absent
+    // while the account-level Analytics Engine feature is disabled.
     try {
       env.OOLITA_ANALYTICS.writeDataPoint({
         indexes: ["oolita"],
@@ -39,6 +50,8 @@ export async function onRequestPost(context) {
     }
   }
 
+  // Measurement must never break navigation or form submission. Before D1 is
+  // available this is an intentional no-op with a successful response.
   return new Response(null, {
     status: 204,
     headers: {
