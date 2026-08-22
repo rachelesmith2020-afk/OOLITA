@@ -8,6 +8,16 @@ on:
       - 'scripts/build_site_for_deploy.sh'
       - 'scripts/apply_wording_resilient.py'
       - 'scripts/apply_wording.py'
+      - 'scripts/apply_direction_v3.py'
+      - 'overrides/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-cloudflare-pages.yml'
+      - 'scripts/build_site_for_deploy.sh'
+      - 'scripts/apply_wording_resilient.py'
+      - 'scripts/apply_wording.py'
+      - 'scripts/apply_direction_v3.py'
       - 'overrides/**'
   workflow_dispatch:
     inputs:
@@ -36,8 +46,12 @@ jobs:
         shell: bash
         run: bash scripts/build_site_for_deploy.sh
 
+      - name: Apply and validate Cabo de Gata direction
+        shell: bash
+        run: python3 scripts/apply_direction_v3.py site
+
   deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'DEPLOY' }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'DEPLOY') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -60,6 +74,10 @@ jobs:
       - name: Reconstruct and validate complete site
         shell: bash
         run: bash scripts/build_site_for_deploy.sh
+
+      - name: Apply and validate Cabo de Gata direction
+        shell: bash
+        run: python3 scripts/apply_direction_v3.py site
 
       - name: Deploy complete site to Cloudflare Pages
         shell: bash
