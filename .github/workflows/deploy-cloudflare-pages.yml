@@ -10,6 +10,7 @@ on:
       - 'scripts/apply_wording.py'
       - 'scripts/apply_direction.py'
       - 'scripts/apply_direction_v2.py'
+      - 'scripts/apply_direction_v3.py'
       - 'overrides/**'
   workflow_dispatch:
     inputs:
@@ -40,7 +41,7 @@ jobs:
 
       - name: Apply and validate Cabo de Gata direction
         shell: bash
-        run: python3 scripts/apply_direction_v2.py site
+        run: python3 scripts/apply_direction_v3.py site
 
   deploy:
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'DEPLOY' }}
@@ -69,7 +70,7 @@ jobs:
 
       - name: Apply and validate Cabo de Gata direction
         shell: bash
-        run: python3 scripts/apply_direction_v2.py site
+        run: python3 scripts/apply_direction_v3.py site
 
       - name: Deploy complete site to Cloudflare Pages
         shell: bash
