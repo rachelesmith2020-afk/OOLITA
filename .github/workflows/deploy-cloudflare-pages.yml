@@ -43,14 +43,42 @@ jobs:
           set -euo pipefail
           rm -rf site
           mkdir -p site
+
+          curl -fsSL https://oolita.pages.dev/sitemap.xml -o /tmp/sitemap.xml
+          cp /tmp/sitemap.xml site/sitemap.xml
+
+          python3 - <<'PY' > /tmp/page-urls.txt
+          import re
+          from urllib.parse import urlsplit
+
+          text = open('/tmp/sitemap.xml', encoding='utf-8').read()
+          locs = re.findall(r'<loc>\s*(.*?)\s*</loc>', text, flags=re.I | re.S)
+          if not locs:
+              raise SystemExit('No URLs found in sitemap.xml')
+
+          seen = set()
+          for loc in locs:
+              path = urlsplit(loc.strip()).path or '/'
+              url = 'https://oolita.pages.dev' + path
+              if url not in seen:
+                  print(url)
+                  seen.add(url)
+          PY
+
+          echo 'Fetching sitemap-listed pages from oolita.pages.dev:'
+          cat /tmp/page-urls.txt
+
           wget \
-            --mirror \
             --page-requisites \
             --no-host-directories \
             --directory-prefix=site \
             --domains=oolita.pages.dev \
             --execute robots=off \
-            https://oolita.pages.dev/
+            --input-file=/tmp/page-urls.txt
+
+          curl -fsSL https://oolita.pages.dev/robots.txt -o site/robots.txt
+          curl -fsSL https://oolita.pages.dev/favicon.svg -o site/favicon.svg
+          curl -fsSL https://oolita.pages.dev/404.html -o site/404.html || true
 
       - name: Apply reviewed wording
         shell: bash
