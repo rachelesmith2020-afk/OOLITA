@@ -1,0 +1,129 @@
+name: Activate OOLITA Cloudflare Follow
+
+on:
+  workflow_run:
+    workflows: ["Deploy OOLITA to Cloudflare Pages"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type ACTIVATE to provision the first-party OOLITA list'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: oolita-cloudflare-follow
+  cancel-in-progress: false
+
+jobs:
+  activate:
+    if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'ACTIVATE') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Require Cloudflare token
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
+
+      - name: Provision and bind subscriber storage
+        shell: bash
+        run: python3 scripts/configure_cloudflare_subscribers.py
+
+      - name: Re-verify analytics binding
+        shell: bash
+        run: python3 scripts/verify_cloudflare_analytics.py
+
+      - name: Reconstruct and validate complete site
+        shell: bash
+        run: bash scripts/build_site_for_deploy.sh
+
+      - name: Apply and validate Cabo de Gata direction
+        shell: bash
+        run: python3 scripts/apply_direction_v3.py site
+
+      - name: Prepare homepage growth definition
+        shell: bash
+        run: python3 scripts/growth_prep.py site
+
+      - name: Apply and validate growth layer
+        shell: bash
+        run: python3 scripts/apply_growth_v1.py site
+
+      - name: Apply and validate commerce configuration
+        shell: bash
+        run: python3 scripts/apply_commerce.py site commerce/catalog.json
+
+      - name: Apply and validate improvement-list completion
+        shell: bash
+        run: python3 scripts/apply_list_completion_v1.py site
+
+      - name: Activate first-party Follow OOLITA
+        shell: bash
+        run: python3 scripts/apply_follow_transition_v1.py site
+
+      - name: Apply and validate first-party analytics
+        shell: bash
+        run: python3 scripts/apply_first_party_analytics_v1.py site
+
+      - name: Apply and validate search visibility
+        shell: bash
+        run: python3 scripts/apply_search_visibility_v1.py site
+
+      - name: Validate Pages Functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check functions/api/event.js
+          node --check functions/api/subscribe.js
+          node --check functions/api/unsubscribe.js
+          npx --yes wrangler@latest pages functions build functions --outfile /tmp/oolita-worker.js
+
+      - name: Redeploy with subscriber binding
+        shell: bash
+        run: npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
+
+      - name: Verify subscriber endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 12); do
+            code="$(curl -sS -o /tmp/oolita-follow-health -w '%{http_code}' 'https://oolita.pages.dev/api/subscribe?health=1' || true)"
+            if [ "$code" = "204" ]; then
+              echo 'OOLITA subscriber endpoint verified (HTTP 204).'
+              exit 0
+            fi
+            echo "Follow verification attempt $attempt returned HTTP $code"
+            sleep 5
+          done
+          cat /tmp/oolita-follow-health || true
+          exit 1
+
+      - name: Record Follow service status
+        if: ${{ success() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p service-status
+          printf 'commit=%s\nrun_id=%s\nactivated_at=%s\nsubscriber_storage=cloudflare_d1_eu\nendpoint=verified\nemail_sending=not_enabled\nconfirmation_state=pending_confirmation\n' \
+            "$GITHUB_SHA" "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > service-status/follow.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add service-status/follow.txt
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Record OOLITA Follow service status [skip ci]'
+          git push
