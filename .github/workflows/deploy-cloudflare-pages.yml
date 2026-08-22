@@ -15,6 +15,8 @@ on:
       - 'scripts/apply_list_completion_v1.py'
       - 'scripts/apply_follow_transition_v1.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
+      - 'scripts/apply_follow_mobile_finish.py'
+      - 'scripts/apply_audit_fixes_v1.py'
       - 'scripts/apply_first_party_analytics_v1.py'
       - 'scripts/apply_search_visibility_v1.py'
       - 'scripts/configure_cloudflare_analytics.py'
@@ -39,6 +41,8 @@ on:
       - 'scripts/apply_list_completion_v1.py'
       - 'scripts/apply_follow_transition_v1.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
+      - 'scripts/apply_follow_mobile_finish.py'
+      - 'scripts/apply_audit_fixes_v1.py'
       - 'scripts/apply_first_party_analytics_v1.py'
       - 'scripts/apply_search_visibility_v1.py'
       - 'scripts/configure_cloudflare_analytics.py'
@@ -99,6 +103,10 @@ jobs:
       - name: Apply and validate Follow OOLITA transition
         shell: bash
         run: python3 scripts/apply_follow_transition_v1.py site
+
+      - name: Apply and validate accessibility, discovery and privacy audit fixes
+        shell: bash
+        run: python3 scripts/apply_audit_fixes_v1.py site
 
       - name: Apply and validate first-party analytics
         shell: bash
@@ -171,6 +179,10 @@ jobs:
       - name: Apply and validate Follow OOLITA transition
         shell: bash
         run: python3 scripts/apply_follow_transition_v1.py site
+
+      - name: Apply and validate accessibility, discovery and privacy audit fixes
+        shell: bash
+        run: python3 scripts/apply_audit_fixes_v1.py site
 
       - name: Apply and validate first-party analytics
         shell: bash
