@@ -13,6 +13,7 @@ on:
       - 'scripts/apply_growth_v1.py'
       - 'scripts/apply_commerce.py'
       - 'scripts/apply_list_completion_v1.py'
+      - 'scripts/apply_follow_transition_v1.py'
       - 'commerce/**'
       - 'overrides/**'
   push:
@@ -27,6 +28,7 @@ on:
       - 'scripts/apply_growth_v1.py'
       - 'scripts/apply_commerce.py'
       - 'scripts/apply_list_completion_v1.py'
+      - 'scripts/apply_follow_transition_v1.py'
       - 'commerce/**'
       - 'overrides/**'
   workflow_dispatch:
@@ -76,6 +78,10 @@ jobs:
         shell: bash
         run: python3 scripts/apply_list_completion_v1.py site
 
+      - name: Apply and validate Follow OOLITA transition
+        shell: bash
+        run: python3 scripts/apply_follow_transition_v1.py site
+
   deploy:
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'DEPLOY') }}
     runs-on: ubuntu-latest
@@ -120,6 +126,10 @@ jobs:
       - name: Apply and validate improvement-list completion
         shell: bash
         run: python3 scripts/apply_list_completion_v1.py site
+
+      - name: Apply and validate Follow OOLITA transition
+        shell: bash
+        run: python3 scripts/apply_follow_transition_v1.py site
 
       - name: Deploy complete site to Cloudflare Pages
         shell: bash
