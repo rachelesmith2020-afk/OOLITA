@@ -1,6 +1,12 @@
 name: Deploy OOLITA to Cloudflare Pages
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/build_site_for_deploy.sh'
+      - 'scripts/apply_wording_resilient.py'
+      - 'scripts/apply_wording.py'
   workflow_dispatch:
     inputs:
       confirm:
@@ -12,12 +18,27 @@ permissions:
   contents: read
 
 concurrency:
-  group: oolita-production-deploy
+  group: oolita-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  validate:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate candidate deployment bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f scripts/build_site_for_deploy.sh
+          bash scripts/build_site_for_deploy.sh
+
   deploy:
-    if: ${{ github.event.inputs.confirm == 'DEPLOY' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'DEPLOY' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -64,9 +85,6 @@ jobs:
                   print(url)
                   seen.add(url)
           PY
-
-          echo 'Fetching sitemap-listed pages from oolita.pages.dev:'
-          cat /tmp/page-urls.txt
 
           wget \
             --page-requisites \
