@@ -1,28 +1,52 @@
 {
   "provider": "stripe",
-  "status": "awaiting_connection",
+  "status": "connected_prices_tbd",
   "products": {
     "book": {
       "product_key": "oolita-book",
       "name_es": "OOLITA · libro bilingüe",
       "name_en": "OOLITA · bilingual book",
       "release_date": "2027-01-31",
-      "price": null,
-      "currency": null,
       "stripe_product_id": null,
-      "stripe_price_id": null,
-      "payment_link": null
+      "offers": {
+        "es_eur": {
+          "locale": "es",
+          "currency": "eur",
+          "amount_minor": null,
+          "stripe_price_id": null,
+          "payment_link": null
+        },
+        "en_gbp": {
+          "locale": "en",
+          "currency": "gbp",
+          "amount_minor": null,
+          "stripe_price_id": null,
+          "payment_link": null
+        }
+      }
     },
     "textile_01": {
       "product_key": "oolita-textile-01",
       "name_es": "OOLITA · primera edición textil",
       "name_en": "OOLITA · first textile edition",
       "release_date": "2027-03-28",
-      "price": null,
-      "currency": null,
       "stripe_product_id": null,
-      "stripe_price_id": null,
-      "payment_link": null
+      "offers": {
+        "es_eur": {
+          "locale": "es",
+          "currency": "eur",
+          "amount_minor": null,
+          "stripe_price_id": null,
+          "payment_link": null
+        },
+        "en_gbp": {
+          "locale": "en",
+          "currency": "gbp",
+          "amount_minor": null,
+          "stripe_price_id": null,
+          "payment_link": null
+        }
+      }
     }
   }
 }
