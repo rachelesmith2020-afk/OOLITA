@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Provision OOLITA's first-party Cloudflare subscriber database and Pages binding.
+"""Provision OOLITA's first-party Cloudflare data store and Pages binding.
 
-Creates/reuses an EU-jurisdiction D1 database, applies the subscriber schema,
-and binds it to the OOLITA Pages project as OOLITA_SUBSCRIBERS for production
-and preview deployments. Consent submissions are active immediately; no
-outbound email-sending service is created here.
+Creates/reuses an EU-jurisdiction D1 database, applies subscriber and minimal
+analytics schemas, and binds it to the OOLITA Pages project as
+OOLITA_SUBSCRIBERS for production and preview deployments. Consent submissions
+are active immediately; no outbound email-sending service is created here.
 """
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ items = cf("GET", f"/accounts/{ACCOUNT_ID}/d1/database?{query}") or []
 match = next((x for x in items if x.get("name") == DB_NAME), None)
 if match:
     db_id = match.get("uuid")
-    print(f"subscriber database exists: {DB_NAME} ({db_id})")
+    print(f"OOLITA database exists: {DB_NAME} ({db_id})")
 else:
     created = cf("POST", f"/accounts/{ACCOUNT_ID}/d1/database", {
         "name": DB_NAME,
@@ -55,7 +55,7 @@ else:
         "read_replication": {"mode": "disabled"},
     })
     db_id = created.get("uuid")
-    print(f"subscriber database created: {DB_NAME} ({db_id})")
+    print(f"OOLITA database created: {DB_NAME} ({db_id})")
 
 if not db_id:
     raise SystemExit("Cloudflare did not return a D1 database UUID")
@@ -76,6 +76,16 @@ CREATE TABLE IF NOT EXISTS subscribers (
 );
 CREATE INDEX IF NOT EXISTS idx_subscribers_status ON subscribers(status);
 CREATE INDEX IF NOT EXISTS idx_subscribers_language ON subscribers(language);
+
+CREATE TABLE IF NOT EXISTS site_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event TEXT NOT NULL,
+  path TEXT NOT NULL DEFAULT '',
+  href TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_site_events_event ON site_events(event);
+CREATE INDEX IF NOT EXISTS idx_site_events_created_at ON site_events(created_at);
 """.strip()
 cf("POST", f"/accounts/{ACCOUNT_ID}/d1/database/{db_id}/query", {"sql": schema})
 # Migrate any rows created under the earlier double-opt-in draft to the final
@@ -83,7 +93,7 @@ cf("POST", f"/accounts/{ACCOUNT_ID}/d1/database/{db_id}/query", {"sql": schema})
 cf("POST", f"/accounts/{ACCOUNT_ID}/d1/database/{db_id}/query", {
     "sql": "UPDATE subscribers SET status='active', verified_at=NULL, updated_at=COALESCE(updated_at, consent_at) WHERE status='pending_confirmation'"
 })
-print("subscriber schema applied; single-opt-in state verified")
+print("subscriber + site-event schema applied; single-opt-in state verified")
 
 project = cf("GET", f"/accounts/{ACCOUNT_ID}/pages/projects/{PROJECT}")
 configs = project.get("deployment_configs") or {}
@@ -107,4 +117,4 @@ for env_name in ("production", "preview"):
     if not bound or bound.get("id") != db_id:
         raise SystemExit(f"D1 binding verification failed for {env_name}")
 
-print("OOLITA Cloudflare subscriber storage is configured and verified.")
+print("OOLITA Cloudflare subscriber + event storage is configured and verified.")
