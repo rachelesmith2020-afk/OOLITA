@@ -52,7 +52,13 @@ jobs:
             --execute robots=off \
             https://oolita.pages.dev/
 
-      - name: Overlay reviewed files
+      - name: Apply reviewed wording
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/apply_wording.py site
+
+      - name: Overlay reviewed files if present
         shell: bash
         run: |
           set -euo pipefail
@@ -72,6 +78,12 @@ jobs:
           test -f site/sitemap.xml
           test -f site/robots.txt
           test -f site/favicon.svg
+
+          grep -Fq 'El mismo camino, hecho de luz.' site/index.html
+          grep -Fq 'The same path, made of light.' site/en/index.html
+          grep -Fq 'La misma senda en tres materiales.' site/index.html
+          grep -Fq 'The same path in three materials.' site/en/index.html
+          grep -Fq '48-page bilingual fable' site/en/posters/index.html
 
           count=$(find site -type f | wc -l)
           echo "Reconstructed file count: $count"
