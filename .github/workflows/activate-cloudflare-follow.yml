@@ -97,6 +97,11 @@ jobs:
         shell: bash
         run: python3 scripts/apply_follow_transition_v1.py site
 
+      - name: Apply and validate release calendar
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
+        shell: bash
+        run: python3 scripts/apply_release_calendar_v1.py site
+
       - name: Apply and validate first-party analytics
         if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
