@@ -1,0 +1,1 @@
+OOLITA Cloudflare D1 activation requested after updating the existing deployment token with D1 Read/Edit permissions on 2026-08-22.
