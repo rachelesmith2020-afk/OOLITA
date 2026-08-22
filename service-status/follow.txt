@@ -1,0 +1,6 @@
+commit=922da2ed385f8e3e6960a88ed8cdb594ce3cbb32
+run_id=32595093656
+checked_at=2026-08-22T19:54:26Z
+subscriber_storage=blocked_d1_token_scope
+endpoint=inactive_safe_fallback
+subscription_state=not_collecting
