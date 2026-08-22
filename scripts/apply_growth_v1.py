@@ -178,6 +178,10 @@ def make_page(source, dest, *, title, desc, canonical, alt_es, alt_en, old_count
     srcp, s = read(source)
     # Remove source-specific structured data rather than carrying incorrect schema.
     s = re.sub(r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>[\s\S]*?</script>', '', s, flags=re.I)
+    # The visual shell comes from the ooid article. Replace every inherited
+    # discovery/social field so generated pages never identify themselves as
+    # that source article when shared or crawled.
+    s = re.sub(r'<meta\s+property=["\']article:[^>]+>\s*', '', s, flags=re.I)
     s = re.sub(r'<title>[\s\S]*?</title>', f'<title>{title}</title>', s, count=1, flags=re.I)
     if re.search(r'<meta\s+name=["\']description["\'][^>]*>', s, flags=re.I):
         s = re.sub(r'<meta\s+name=["\']description["\'][^>]*>', f'<meta name="description" content="{desc}">', s, count=1, flags=re.I)
@@ -186,9 +190,38 @@ def make_page(source, dest, *, title, desc, canonical, alt_es, alt_en, old_count
     s = re.sub(r'<link\s+rel=["\']canonical["\'][^>]*>', f'<link rel="canonical" href="{canonical}">', s, count=1, flags=re.I)
     s = re.sub(r'<link\s+rel=["\']alternate["\'][^>]*hreflang=[^>]+>\s*', '', s, flags=re.I)
     canon_tag = f'<link rel="canonical" href="{canonical}">'
-    alternates = f'\n<link rel="alternate" hreflang="es" href="{alt_es}">\n<link rel="alternate" hreflang="en" href="{alt_en}">'
+    alternates = f'\n<link rel="alternate" hreflang="es" href="{alt_es}">\n<link rel="alternate" hreflang="en" href="{alt_en}">\n<link rel="alternate" hreflang="x-default" href="{alt_es}">'
     if canon_tag in s:
         s = s.replace(canon_tag, canon_tag + alternates, 1)
+
+    def set_meta(attr, key, value):
+        nonlocal s
+        pattern = rf'<meta\s+{re.escape(attr)}=["\']{re.escape(key)}["\'][^>]*>'
+        tag = f'<meta {attr}="{key}" content="{value}">'
+        if re.search(pattern, s, flags=re.I):
+            s = re.sub(pattern, tag, s, count=1, flags=re.I)
+        elif '</head>' in s:
+            s = s.replace('</head>', tag + '\n</head>', 1)
+        else:
+            raise SystemExit(f"Missing </head> while setting {key} in {dest}")
+
+    social_alt = "OOLITA — un proyecto de Raquel Costantini en Cabo de Gata"
+    if "/en/" in canonical:
+        social_alt = "OOLITA — a project by Raquel Costantini in Cabo de Gata"
+    for attr, key, value in [
+        ("property", "og:type", "website"),
+        ("property", "og:title", title),
+        ("property", "og:description", desc),
+        ("property", "og:url", canonical),
+        ("property", "og:image", "https://oolita.es/og.png"),
+        ("property", "og:image:secure_url", "https://oolita.es/og.png"),
+        ("property", "og:image:alt", social_alt),
+        ("name", "twitter:title", title),
+        ("name", "twitter:description", desc),
+        ("name", "twitter:image", "https://oolita.es/og.png"),
+        ("name", "twitter:image:alt", social_alt),
+    ]:
+        set_meta(attr, key, value)
     s = s.replace(old_counterpart, new_counterpart)
     for old, new in replace_labels:
         s = s.replace(old, new)
@@ -222,6 +255,14 @@ for path, contact_marker, addition, marker in [
         if contact_marker not in s:
             raise SystemExit(f"Contact link marker missing in {path}")
         p.write_text(s.replace(contact_marker, addition + contact_marker, 1), encoding="utf-8")
+        s = p.read_text(encoding="utf-8")
+
+    old_contact = contact_marker + '<span class="n">12</span>'
+    new_contact = contact_marker + '<span class="n">14</span>'
+    if old_contact in s:
+        p.write_text(s.replace(old_contact, new_contact, 1), encoding="utf-8")
+    elif new_contact not in s:
+        raise SystemExit(f"Could not assign contact number 14 in {path}")
 
 # About and collaboration now occupy rows 12 and 13, so Contact is row 14.
 for path, old, new in [
@@ -283,5 +324,24 @@ if error_page:
     _, s = read(error_page)
     if '<span class="n">14</span><span class="nom">Contacto</span>' not in s:
         raise SystemExit(f"Growth invariant missing in {error_page}: Contact row 14")
+
+for path, canonical in {
+    "cabo-de-gata/index.html": "https://oolita.es/cabo-de-gata/",
+    "en/cabo-de-gata/index.html": "https://oolita.es/en/cabo-de-gata/",
+    "sobre-oolita/index.html": "https://oolita.es/sobre-oolita/",
+    "en/about/index.html": "https://oolita.es/en/about/",
+    "colaborar/index.html": "https://oolita.es/colaborar/",
+    "en/work-with-oolita/index.html": "https://oolita.es/en/work-with-oolita/",
+}.items():
+    _, s = read(path)
+    for needle in [
+        f'<meta property="og:url" content="{canonical}">',
+        '<meta property="og:image" content="https://oolita.es/og.png">',
+        '<link rel="alternate" hreflang="x-default"',
+    ]:
+        if needle not in s:
+            raise SystemExit(f"Growth social invariant missing in {path}: {needle}")
+    if "what-is-an-ooid" in re.search(r'<meta property="og:url" content="([^"]+)">', s).group(1):
+        raise SystemExit(f"Inherited ooid social URL remains in {path}")
 
 print("OOLITA growth layer validated successfully.")
