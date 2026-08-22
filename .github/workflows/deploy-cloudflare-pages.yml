@@ -168,16 +168,21 @@ jobs:
         run: node --check functions/api/event.js
 
       - name: Configure Cloudflare Analytics Engine
+        id: analytics_binding
+        continue-on-error: true
         shell: bash
         run: python3 scripts/configure_cloudflare_analytics.py
 
       - name: Deploy complete site to Cloudflare Pages
+        id: deploy_site
         shell: bash
         run: |
           set -euo pipefail
           npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
 
       - name: Verify first-party analytics endpoint
+        id: analytics_verify
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -198,21 +203,29 @@ jobs:
           exit 1
 
       - name: Submit updated URLs to IndexNow
+        id: indexnow
+        continue-on-error: true
         shell: bash
         run: python3 scripts/submit_indexnow.py site/sitemap.xml search/indexnow-key.txt
 
-      - name: Record successful deployment
-        if: ${{ success() }}
+      - name: Record deployment and service status
+        if: ${{ always() && steps.deploy_site.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p deploy-status
-          printf 'commit=%s\nrun_id=%s\ndeployed_at=%s\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > deploy-status/latest.txt
+          now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          mkdir -p deploy-status service-status
+          printf 'commit=%s\nrun_id=%s\ndeployed_at=%s\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$now" > deploy-status/latest.txt
+          printf 'commit=%s\nrun_id=%s\nchecked_at=%s\nanalytics_binding=%s\nanalytics_endpoint=%s\nindexnow=%s\n' \
+            "$GITHUB_SHA" "$GITHUB_RUN_ID" "$now" \
+            '${{ steps.analytics_binding.outcome }}' \
+            '${{ steps.analytics_verify.outcome }}' \
+            '${{ steps.indexnow.outcome }}' > service-status/latest.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add deploy-status/latest.txt
+          git add deploy-status/latest.txt service-status/latest.txt
           if git diff --cached --quiet; then
             exit 0
           fi
-          git commit -m 'Record successful OOLITA deployment [skip ci]'
+          git commit -m 'Record OOLITA deployment and service status [skip ci]'
           git push
