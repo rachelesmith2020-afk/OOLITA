@@ -97,16 +97,16 @@ export async function onRequestPost(context) {
     await env.OOLITA_SUBSCRIBERS.prepare(`
       INSERT INTO subscribers
         (email, language, interests, consent_version, consent_at, source_path, status, unsubscribe_token, verified_at, unsubscribed_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, 'pending_confirmation', ?, NULL, NULL, ?)
+      VALUES (?, ?, ?, ?, ?, ?, 'active', ?, NULL, NULL, ?)
       ON CONFLICT(email) DO UPDATE SET
         language = excluded.language,
         interests = excluded.interests,
         consent_version = excluded.consent_version,
         consent_at = excluded.consent_at,
         source_path = excluded.source_path,
-        status = CASE WHEN subscribers.status = 'active' THEN 'active' ELSE 'pending_confirmation' END,
+        status = 'active',
         unsubscribe_token = CASE WHEN subscribers.status = 'active' THEN subscribers.unsubscribe_token ELSE excluded.unsubscribe_token END,
-        verified_at = CASE WHEN subscribers.status = 'active' THEN subscribers.verified_at ELSE NULL END,
+        verified_at = NULL,
         unsubscribed_at = NULL,
         updated_at = excluded.updated_at
     `).bind(
@@ -124,7 +124,7 @@ export async function onRequestPost(context) {
     return reply({ ok: false, error: "storage_error" }, 500);
   }
 
-  return reply({ ok: true, state: "pending_confirmation" });
+  return reply({ ok: true, state: "active" });
 }
 
 export function onRequest() {
