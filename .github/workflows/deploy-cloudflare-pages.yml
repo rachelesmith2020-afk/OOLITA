@@ -280,3 +280,4 @@ jobs:
           exit 0
 
 # Production propagation trigger for exact homepage wording: built from stone.
+# Production propagation verification trigger after live audit, 2026-08-23.
