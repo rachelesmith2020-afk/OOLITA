@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import runpy
 import sys
 
@@ -30,6 +31,20 @@ for rel in ("en/index.html", "en/editions/book/index.html"):
     if not target.is_file():
         continue
     text = target.read_text(encoding="utf-8")
+
+    # The mobile 2027 repair makes the year an inline span. On the next
+    # deployment, the site is reconstructed from that already-enhanced live
+    # homepage, so plain-string normalization alone cannot see "3 Jan 2027".
+    # Collapse only this known display wrapper back to the canonical
+    # intermediate form; the mobile layer below restores it after validation.
+    if rel == "en/index.html":
+        text = re.sub(
+            r'3\s+Jan\s*<span\b[^>]*class=["\'][^"\']*\bmobile-2027-clear\b[^"\']*["\'][^>]*>\s*2027\s*</span>',
+            "03.01.2027",
+            text,
+            flags=re.I,
+        )
+
     for reader_form, canonical_form in ENGLISH_DATE_NORMALISATION:
         text = text.replace(reader_form, canonical_form)
     target.write_text(text, encoding="utf-8")
