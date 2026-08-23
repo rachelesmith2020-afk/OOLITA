@@ -1,0 +1,20 @@
+# Cloudflare Pages configuration downloaded from the live OOLITA project on 2026-08-23,
+# with normal request tracing enabled. Keep this file aligned with dashboard-side
+# bindings before future deploys because Wrangler treats it as the project source of truth.
+name = "oolita"
+pages_build_output_dir = "./site"
+compatibility_date = "2026-08-10"
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 0.01
+
+[[d1_databases]]
+database_id = "05b1cd1d-52fd-4a11-8142-13ab92a2c712"
+binding = "OOLITA_SUBSCRIBERS"
+database_name = "OOLITA_SUBSCRIBERS"
+
+[[env.production.d1_databases]]
+database_id = "05b1cd1d-52fd-4a11-8142-13ab92a2c712"
+binding = "OOLITA_SUBSCRIBERS"
+database_name = "OOLITA_SUBSCRIBERS"
