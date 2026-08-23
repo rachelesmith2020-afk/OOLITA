@@ -6,6 +6,7 @@
 - Updates <lastmod> for pages materially changed on 2026-08-22.
 - Builds the permanent bilingual 3D-world explainer before sitemap checks.
 - Applies the final public identity, release-date and provenance-safe wording layer.
+- Applies the 23 Aug live SEO audit repair as the last bundle mutation.
 """
 from __future__ import annotations
 
@@ -130,3 +131,16 @@ for route in ("mundo-3d/index.html", "en/3d-world/index.html"):
 
 print(f"search visibility: marked {len(seen)} changed URLs with lastmod {LASTMOD}")
 print("OOLITA search visibility layer validated successfully.")
+
+# The live-audit repair must run after every other content transformer. In
+# particular, growth and identity expect the mirrored 404 shell; this pass
+# replaces it only once those validators have finished.
+seo_repair_script = HERE / "apply_seo_audit_2026_08_23.py"
+if not seo_repair_script.is_file():
+    raise SystemExit(f"Missing 23 Aug SEO audit repair layer: {seo_repair_script}")
+old_argv = sys.argv[:]
+sys.argv = [str(seo_repair_script), str(ROOT)]
+try:
+    runpy.run_path(str(seo_repair_script), run_name="__main__")
+finally:
+    sys.argv = old_argv
