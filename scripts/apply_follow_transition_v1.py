@@ -11,8 +11,8 @@ subprocess.run([sys.executable, "scripts/apply_follow_mobile_finish.py", str(ROO
 # The deployment mirror now starts from a live origin on which later final
 # passes have already published newer identity/date wording. Normalize only
 # the intermediate source strings expected by the older strict transformers;
-# apply_release_calendar_v1.py and apply_public_identity_v2.py restore the
-# current public wording later in the same build.
+# apply_release_calendar_v1.py, apply_public_identity_v2.py and the reader pass
+# restore the current public wording and English display dates later.
 for path in ROOT.rglob("*.html"):
     text = path.read_text(encoding="utf-8")
     text = text.replace(
@@ -32,11 +32,19 @@ for path in ROOT.rglob("*.html"):
         "Work by Raquel Costantini ↗",
     )
     text = text.replace(
+        "Virtual castle · free to enter · opens 16 May 27 · 19:00 CEST ↗",
+        "Work by Raquel Costantini ↗",
+    )
+    text = text.replace(
         "En el castillo: catálogo completo con clave · tapa dura 16.09.27 · presentación pública 19.09.27 ↗",
         "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗",
     )
     text = text.replace(
         "In the castle: full catalogue with a key · hardback 16.09.27 · public launch 19.09.27 ↗",
+        "In the castle: full catalogue with a key · hardback planned for autumn 2027 ↗",
+    )
+    text = text.replace(
+        "In the castle: full catalogue with a key · hardback 16 Sep 27 · public launch 19 Sep 27 ↗",
         "In the castle: full catalogue with a key · hardback planned for autumn 2027 ↗",
     )
     path.write_text(text, encoding="utf-8")
