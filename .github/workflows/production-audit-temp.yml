@@ -1,12 +1,11 @@
 name: Temporary OOLITA production audit supplemental
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - audit/live-production-20260823
     paths:
       - '.github/workflows/production-audit-temp.yml'
-      - '.github/audit/supplemental-audit.mjs'
 
 permissions:
   contents: write
@@ -22,8 +21,6 @@ jobs:
     steps:
       - name: Check out isolated audit branch
         uses: actions/checkout@v4
-        with:
-          ref: audit/live-production-20260823
 
       - name: Validate current main-equivalent build without deploying
         id: source_build
