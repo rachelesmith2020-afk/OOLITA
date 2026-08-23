@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: oolita-homepage-stone-hotfix
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy-hotfix:
@@ -60,3 +60,23 @@ jobs:
         run: |
           set -euo pipefail
           npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
+
+      - name: Record hotfix deployment receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          mkdir -p hotfix-status
+          printf 'commit=%s\nrun_id=%s\ndeployed_at=%s\nwording=built from stone\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$now" > hotfix-status/homepage-stone.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add hotfix-status/homepage-stone.txt
+          git commit -m 'Record homepage stone hotfix [skip ci]'
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              exit 0
+            fi
+            git rebase --abort || true
+            sleep 2
+          done
+          exit 1
