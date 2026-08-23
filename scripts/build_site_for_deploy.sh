@@ -9,6 +9,11 @@ if [ -d overrides ]; then
   cp -a overrides/. site/
 fi
 
+# Repair and validate the critical/high faults found by the 23 Aug live SEO audit.
+# This runs before the rest of the deployment transforms so broken origin assets
+# cannot silently survive as soft-200 HTML files in the final Pages bundle.
+python3 scripts/apply_seo_audit_2026_08_23.py site
+
 required=(
   site/index.html
   site/en/index.html
@@ -30,6 +35,11 @@ required=(
   site/en/editions/t-shirt/index.html
   site/sitemap.xml
   site/robots.txt
+  site/404.html
+  site/og.png
+  site/apple-touch-icon.png
+  site/favicon.ico
+  site/_headers
   site/favicon.svg
   site/fonts/fonts.v3.css
   site/fonts/instrument-sans-var-latin.woff2
