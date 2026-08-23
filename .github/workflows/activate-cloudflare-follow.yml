@@ -1,10 +1,6 @@
 name: Activate OOLITA Cloudflare Follow
 
 on:
-  workflow_run:
-    workflows: ["Deploy OOLITA to Cloudflare Pages"]
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
     inputs:
       confirm:
@@ -13,7 +9,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: oolita-cloudflare-follow
@@ -21,7 +17,7 @@ concurrency:
 
 jobs:
   activate:
-    if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'ACTIVATE') }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'ACTIVATE' }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -52,6 +48,11 @@ jobs:
         run: |
           echo '::warning::Follow OOLITA is safely inactive because the current Cloudflare API token cannot manage D1. Add Account > D1 > Edit to the token, then rerun this workflow.'
 
+      - name: Reconstruct and validate complete site
+        if: ${{ steps.subscriber_storage.outcome == 'success' }}
+        shell: bash
+        run: bash scripts/build_site_for_deploy.sh
+
       - name: Remove unsupported Analytics Engine binding
         if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
@@ -61,11 +62,6 @@ jobs:
         if: ${{ steps.subscriber_storage.outcome == 'success' }}
         shell: bash
         run: python3 scripts/verify_cloudflare_analytics.py
-
-      - name: Reconstruct and validate complete site
-        if: ${{ steps.subscriber_storage.outcome == 'success' }}
-        shell: bash
-        run: bash scripts/build_site_for_deploy.sh
 
       - name: Apply and validate Cabo de Gata direction
         if: ${{ steps.subscriber_storage.outcome == 'success' }}
@@ -149,50 +145,17 @@ jobs:
           cat /tmp/oolita-follow-health || true
           exit 1
 
-      - name: Record Follow active status
+      - name: Summarize Follow activation
         if: ${{ steps.subscriber_storage.outcome == 'success' && success() }}
-        continue-on-error: true
         shell: bash
         run: |
-          set -euo pipefail
-          mkdir -p service-status
-          printf 'commit=%s\nrun_id=%s\nactivated_at=%s\nsubscriber_storage=cloudflare_d1_eu\nendpoint=verified\nemail_sending=not_enabled\nsubscription_state=active_on_submit\n' \
-            "$GITHUB_SHA" "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > service-status/follow.txt
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add service-status/follow.txt
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Record OOLITA Follow service status [skip ci]'
-          for attempt in 1 2 3; do
-            if git pull --rebase origin main && git push origin HEAD:main; then
-              exit 0
-            fi
-            git rebase --abort || true
-            sleep 2
-          done
-          echo 'Follow activation succeeded; status receipt push was skipped after retries.'
-          exit 0
-
-      - name: Record Follow blocked status
-        if: ${{ steps.subscriber_storage.outcome != 'success' }}
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p service-status
-          printf 'commit=%s\nrun_id=%s\nchecked_at=%s\nsubscriber_storage=blocked_d1_token_scope\nendpoint=inactive_safe_fallback\nsubscription_state=not_collecting\n' \
-            "$GITHUB_SHA" "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > service-status/follow.txt
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add service-status/follow.txt
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Record blocked OOLITA Follow prerequisite [skip ci]'
-          for attempt in 1 2 3; do
-            if git pull --rebase origin main && git push origin HEAD:main; then
-              exit 0
-            fi
-            git rebase --abort || true
-            sleep 2
-          done
-          echo 'Follow prerequisite was recorded locally; remote receipt push skipped after retries.'
-          exit 0
+          {
+            echo '### Follow OOLITA activation'
+            echo ''
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Run: $GITHUB_RUN_ID"
+            echo "- Activated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo '- Subscriber storage: Cloudflare D1'
+            echo '- Endpoint: verified'
+            echo '- Subscription state: active on submit'
+          } >> "$GITHUB_STEP_SUMMARY"
