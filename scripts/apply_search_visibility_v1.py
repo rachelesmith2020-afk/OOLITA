@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import runpy
 import sys
 
@@ -30,6 +31,13 @@ for rel in ("en/index.html", "en/editions/book/index.html"):
     if not target.is_file():
         continue
     text = target.read_text(encoding="utf-8")
+    if rel == "en/index.html":
+        text = re.sub(
+            r'3\s+Jan\s*<span\b[^>]*class=["\'][^"\']*\bmobile-2027-clear\b[^"\']*["\'][^>]*>\s*2027\s*</span>',
+            "03.01.2027",
+            text,
+            flags=re.I,
+        )
     for reader_form, canonical_form in ENGLISH_DATE_NORMALISATION:
         text = text.replace(reader_form, canonical_form)
     target.write_text(text, encoding="utf-8")
@@ -48,16 +56,11 @@ def run_layer(filename: str) -> None:
 
 
 run_layer("apply_search_visibility_core_v1.py")
-# Apply the agreed reader-assessment priorities after search/identity
-# normalization so the final reader-facing copy wins over canonical
-# intermediate forms used by earlier validation layers.
 run_layer("apply_reader_assessment_v1.py")
 run_layer("apply_book_excerpt_v1.py")
 run_layer("apply_sunday_archive_v1.py")
 run_layer("apply_seo_followup_v1.py")
 run_layer("apply_menu_hierarchy_v1.py")
-# Final visual layers. All copy, SEO, forms and routes above remain authoritative;
-# these passes change only spatial presentation and responsive legibility.
 run_layer("apply_art_restage_v1.py")
 run_layer("apply_mobile_english_2027_fix_v1.py")
 run_layer("apply_visual_spacing_cleanup_v1.py")
