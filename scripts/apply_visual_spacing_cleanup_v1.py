@@ -114,12 +114,29 @@ body.art-restaged:not(.art-home) h2{margin-top:clamp(2.5rem,6vw,5rem)!important;
   }
   body.art-home main > section{margin-block:3rem!important}
   body.art-home .art-field{min-height:56svh!important;padding:1.25rem!important}
-  body.art-home .art-field--stone{grid-template-columns:1fr!important;padding-top:42svh!important}
+  /* Match the desktop selector's ID specificity so the mobile one-column grid
+     actually wins despite both declarations being !important. */
+  body.art-home #oolita-art-field-stone{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:0!important;
+    padding:42svh 1.25rem 1.25rem!important;
+  }
+  body.art-home #oolita-art-field-stone .art-copy{
+    grid-column:1 / -1!important;
+    min-width:0!important;
+    width:100%!important;
+    max-width:none!important;
+  }
   body.art-home .art-field-photo{height:40svh!important}
   body.art-home .art-field--stone::after{inset:26svh 0 auto 0!important;height:16svh!important}
   body.art-home .art-field .art-word{font-size:clamp(4.8rem,28vw,8rem)!important;line-height:.68!important}
   body.art-home .art-field--stone .art-word{font-size:clamp(4rem,21vw,6.6rem)!important;white-space:nowrap!important}
-  body.art-home .art-caption{margin-top:1rem!important;font-size:1rem!important;line-height:1.4!important}
+  body.art-home #oolita-art-field-stone .art-caption{
+    width:min(100%,31rem)!important;
+    margin-top:1rem!important;
+    font-size:1rem!important;
+    line-height:1.4!important;
+  }
   body.art-home a.fila{padding-block:1.15rem!important}
   body.art-home a.fila .n{font-size:clamp(2.4rem,13vw,4rem)!important}
   body.art-home .menu-group-label{margin-top:3.2rem!important}
@@ -180,6 +197,8 @@ for rel in ("index.html", "en/index.html"):
         "#oolita-art-field-stone .art-word",
         "white-space:nowrap!important",
         "font-size:clamp(4.25rem,10vw,9rem)!important",
+        "grid-template-columns:minmax(0,1fr)!important",
+        "grid-column:1 / -1!important",
     ):
         if needle not in html:
             raise SystemExit(f"Visual spacing cleanup invariant failed in {rel}: {needle}")
