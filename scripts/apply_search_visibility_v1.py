@@ -21,6 +21,7 @@ KEY_FILE = Path("search/indexnow-key.txt")
 LASTMOD = "2026-08-22"
 BASE = "https://oolita.es"
 
+# Deployment gate: public identity must validate before sitemap/IndexNow publication.
 CHANGED_PATHS = {
     "/",
     "/en/",
