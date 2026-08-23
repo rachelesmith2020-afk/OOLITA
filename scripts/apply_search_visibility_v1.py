@@ -56,9 +56,9 @@ run_layer("apply_book_excerpt_v1.py")
 run_layer("apply_sunday_archive_v1.py")
 run_layer("apply_seo_followup_v1.py")
 run_layer("apply_menu_hierarchy_v1.py")
-# Final visual layer. All copy, SEO, forms and routes above remain authoritative;
-# this pass changes the spatial/visual presentation only.
-# Production trigger 2026-08-23: publish the validated contemporary-art restage.
+# Final visual layers. All copy, SEO, forms and routes above remain authoritative;
+# these passes change only spatial presentation and narrow-screen legibility.
 run_layer("apply_art_restage_v1.py")
 run_layer("apply_mobile_english_2027_fix_v1.py")
 run_layer("apply_visual_spacing_cleanup_v1.py")
+run_layer("apply_mobile_footer_cleanup_v1.py")
