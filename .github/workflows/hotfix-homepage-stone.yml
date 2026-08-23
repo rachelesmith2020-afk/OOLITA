@@ -1,0 +1,62 @@
+name: Hotfix homepage stone wording
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/hotfix-homepage-stone.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oolita-homepage-stone-hotfix
+  cancel-in-progress: false
+
+jobs:
+  deploy-hotfix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Mirror current production site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf site
+          python3 scripts/mirror_oolita.py site
+
+      - name: Apply and verify approved homepage wording
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('site/en/index.html')
+          if not p.is_file():
+              raise SystemExit('Missing site/en/index.html')
+          text = p.read_text(encoding='utf-8')
+          old = 'from loose calcarenite'
+          new = 'from stone'
+          if old in text:
+              text = text.replace(old, new)
+              p.write_text(text, encoding='utf-8')
+          final = p.read_text(encoding='utf-8')
+          if old in final:
+              raise SystemExit('Old wording remains after hotfix')
+          if new not in final:
+              raise SystemExit('Approved wording missing after hotfix')
+          print('Homepage hotfix verified: built from stone.')
+          PY
+
+      - name: Deploy hotfix to Cloudflare Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
