@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Final WCAG text-contrast layer for OOLITA.
 
-The OOLITA green (#2d4e23) on paper (#f1e7d4) has strong native contrast.
-The remaining Axe failures were caused by opacity applied to small text and,
-on the Sundays archive, to whole inactive tiles. This layer preserves the
-palette and visual hierarchy while keeping rendered text above 4.5:1.
+The base OOLITA green on paper is already high-contrast. The remaining Axe
+failures came from opacity on secondary copy / future archive rows and from one
+indigo-on-coral label. This layer keeps the palette and hierarchy while making
+all rendered text meet WCAG AA.
 """
 from __future__ import annotations
 
@@ -16,9 +16,7 @@ ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 STYLE_ID = "oolita-contrast-accessibility-v1"
 
 STYLE = r'''<style id="oolita-contrast-accessibility-v1">
-/* Native verde on papel is ~7.7:1. Keep secondary text at >= .84 opacity,
-   which preserves hierarchy while providing comfortable WCAG AA headroom. */
-body.art-home .claim-en,
+/* Secondary text on paper. */
 body.art-home .glo,
 body.art-home .menu-group-label,
 body.art-home .follow-status,
@@ -26,14 +24,27 @@ body.art-home .follow-privacy{
   opacity:.84!important;
 }
 
-/* Bilingual book excerpt metadata: small text must remain fully legible. */
+/* A more-specific art-restage rule sets this echo to .72!important, so use
+   the full selector and native green rather than fighting it with translucency. */
+body.art-home p.claim-en.art-manifesto.art-manifesto--echo{
+  opacity:1!important;
+}
+
+/* This one label is on coral, not paper. Darkened indigo gives >5:1 contrast
+   while staying within the existing indigo/coral palette. */
+body.art-home .c > .glo{
+  opacity:1!important;
+  color:#1d1b4f!important;
+}
+
+/* Bilingual book excerpt metadata. */
 .book-excerpt-figure figcaption,
 .book-excerpt-lang{
   opacity:.84!important;
 }
 
-/* Sundays: never fade a whole text-bearing tile. Distinguish future tiles
-   through the border instead, so numbers/dates stay readable. */
+/* Sunday field: do not fade text-bearing tiles. Future state is shown with a
+   quieter border, not low-contrast text. */
 .sunday-field-note,
 .sunday-field-axis,
 .sunday-tile-date,
@@ -50,6 +61,25 @@ body.art-home .follow-privacy{
 .sunday-tile.is-published,
 .sunday-tile.is-current{
   border-color:currentColor!important;
+}
+
+/* Detailed Sundays archive: .espera previously faded the whole future row,
+   producing 2.76:1 text. Keep future rows inactive through their existing
+   semantics and a lighter rule, but render the text itself at native contrast. */
+.espera.fila,
+.espera.fila .num,
+.espera.fila .cuerpo,
+.espera.fila .nombre,
+.espera.fila time,
+.espera.fila .fecha,
+.espera.fila .glo,
+.espera.fila span,
+.espera.fila p{
+  opacity:1!important;
+  color:#2d4e23!important;
+}
+.espera.fila{
+  border-color:rgba(45,78,35,.38)!important;
 }
 </style>'''
 
@@ -76,12 +106,12 @@ for target in html_files:
     target.write_text(html, encoding="utf-8")
 
 checks = {
-    "index.html": (".claim-en", ".glo", ".follow-privacy"),
-    "en/index.html": (".claim-en", ".glo", ".follow-privacy"),
+    "index.html": ("p.claim-en.art-manifesto.art-manifesto--echo", ".c > .glo", ".follow-privacy"),
+    "en/index.html": ("p.claim-en.art-manifesto.art-manifesto--echo", ".c > .glo", ".follow-privacy"),
     "ediciones/libro/index.html": (".book-excerpt-lang", "figcaption"),
     "en/editions/book/index.html": (".book-excerpt-lang", "figcaption"),
-    "domingos/index.html": (".sunday-tile-date", ".sunday-field-axis"),
-    "en/sundays/index.html": (".sunday-tile-date", ".sunday-field-axis"),
+    "domingos/index.html": (".sunday-tile-date", ".espera.fila"),
+    "en/sundays/index.html": (".sunday-tile-date", ".espera.fila"),
 }
 for rel, needles in checks.items():
     target = ROOT / rel
