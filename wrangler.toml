@@ -1,14 +1,13 @@
-# Cloudflare Pages configuration downloaded from the live OOLITA project on 2026-08-23,
-# with normal request tracing enabled. Keep this file aligned with dashboard-side
-# bindings before future deploys because Wrangler treats it as the project source of truth.
-# Production deployment trigger for the validated tracing configuration.
+# Cloudflare Pages configuration downloaded from the live OOLITA project on 2026-08-23.
+# Keep this file aligned with dashboard-side bindings before future deploys because
+# Wrangler treats it as the project source of truth.
+#
+# Do not add [observability] here: current Wrangler Pages validation does not
+# support that field. Agent/Worker tracing should be configured on a Worker,
+# not on this Pages project.
 name = "oolita"
 pages_build_output_dir = "./site"
 compatibility_date = "2026-08-10"
-
-[observability.traces]
-enabled = true
-head_sampling_rate = 0.01
 
 [[d1_databases]]
 database_id = "05b1cd1d-52fd-4a11-8142-13ab92a2c712"
