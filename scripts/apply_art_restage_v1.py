@@ -43,9 +43,6 @@ body.art-restaged .modulo{border-radius:0!important;box-shadow:none!important}
 body.art-restaged .rot{letter-spacing:.12em}
 body.art-restaged figure{margin-block:clamp(2.5rem,7vw,7rem)}
 body.art-restaged figcaption{max-width:38rem;margin:.7rem 0 0 auto;font-size:.76rem;letter-spacing:.04em}
-
-/* Interior pages inherit the material/editorial language without becoming a
-   spectacle: larger headings, flat surfaces, more air, genuine images square. */
 body.art-restaged:not(.art-home) h1{
   font-size:clamp(3.5rem,9vw,8rem)!important;
   line-height:.86!important;
@@ -59,8 +56,6 @@ body.art-restaged:not(.art-home) h2{
   letter-spacing:-.025em!important;
   max-width:16ch
 }
-
-/* Homepage: exhibition entrance rather than institutional index. */
 body.art-home main{overflow:hidden}
 body.art-home h1{
   font-size:clamp(6rem,21vw,18rem)!important;
@@ -99,9 +94,6 @@ body.art-home .art-context{
   letter-spacing:.01em
 }
 body.art-home main>section{margin-block:clamp(4rem,11vw,11rem)}
-
-/* Full-bleed poster fields: colours come directly from the nine printed
-   posters; the darker blue is the documented accessible screen step. */
 body.art-home .art-field{
   position:relative;
   width:100vw;
@@ -166,8 +158,6 @@ body.art-home .art-field--stone::after{
   pointer-events:none
 }
 body.art-home .art-field--stone .art-word{font-size:clamp(5.5rem,14vw,14rem)}
-
-/* Existing primary navigation becomes three large poster-like thresholds. */
 body.art-home a.fila{
   border-radius:0!important;
   box-shadow:none!important;
@@ -206,8 +196,6 @@ body.art-home .menu-group-label{
   letter-spacing:.17em!important;
   opacity:.72!important
 }
-
-/* Reading remains quiet, but no longer forms one institutional column. */
 body.art-home p.parr{
   max-width:46rem;
   font-size:clamp(1.08rem,1.55vw,1.32rem);
@@ -215,9 +203,6 @@ body.art-home p.parr{
 }
 body.art-home p.parr:nth-of-type(3n+1){margin-left:min(10vw,8rem)}
 body.art-home p.parr:nth-of-type(3n+2){margin-left:min(21vw,15rem)}
-
-/* Existing bilingual excerpt and Sundays archive are allowed to occupy the
-   viewport like works rather than widgets. */
 body.art-restaged .oolita-book-excerpt,
 body.art-restaged [class*="book-excerpt"]{
   border-radius:0!important;
@@ -236,7 +221,6 @@ body.art-home [class*="sunday-archive"]{
   margin-inline:calc(50% - 50vw)!important;
   padding-inline:max(4vw,calc((100vw - 1280px)/2))!important
 }
-
 @media(max-width:760px){
   body.art-home h1{font-size:clamp(5.3rem,28vw,10rem)!important}
   body.art-home h2{font-size:clamp(2.7rem,13vw,5.2rem)!important}
@@ -307,7 +291,6 @@ def add_class_to_paragraph_containing(text: str, needle: str, class_name: str) -
 
 
 def promote_manifesto(text: str, primary: str, echo: str) -> str:
-    """Move the existing bilingual fable lines directly under the H1."""
     blocks: list[str] = []
     for needle, extra in ((primary, "art-manifesto"), (echo, "art-manifesto art-manifesto--echo")):
         pattern = re.compile(r'<p\b[^>]*>.*?</p>', flags=re.I | re.S)
@@ -348,7 +331,6 @@ def insert_before_patterns(text: str, patterns: tuple[str, ...], block: str, lab
 def add_home_fields(text: str, *, en: bool) -> str:
     if 'id="oolita-art-field-stone"' in text:
         return text
-
     stone = (
         '<section id="oolita-art-field-stone" class="art-field art-field--blue art-field--stone" aria-label="Stone · Los Escullos">'
         '<img class="art-field-photo" src="/laberinto/laberinto-oolita-los-escullos.jpg" alt="The OOLITA stone labyrinth at Los Escullos" loading="lazy" decoding="async">'
@@ -378,34 +360,9 @@ def add_home_fields(text: str, *, en: bool) -> str:
         '<span class="art-kicker">PAPEL · PAPER</span><p class="art-word" aria-hidden="true">48</p>'
         '<p class="art-caption">Cuarenta y ocho páginas. Español e inglés juntos. La misma senda llevada al papel.</p></section>'
     )
-
-    text = insert_before_patterns(
-        text,
-        (
-            r'<span\b[^>]*>\s*(?:El laberinto|The labyrinth)\s*</span>',
-            r'<h2\b[^>]*>\s*Los Escullos\s*</h2>',
-        ),
-        stone,
-        "stone",
-    )
-    text = insert_before_patterns(
-        text,
-        (
-            r'<span\b[^>]*>\s*(?:22 domingos|22 Sundays)\s*</span>',
-            r'<h2\b[^>]*>\s*(?:El mismo camino, hecho de luz\.?|The same path, made of light\.?)\s*</h2>',
-        ),
-        sunday,
-        "22 Sundays",
-    )
-    text = insert_before_patterns(
-        text,
-        (
-            r'<span\b[^>]*>\s*(?:Piedra · papel · código|Stone · paper · code)\s*</span>',
-            r'<h2\b[^>]*>\s*(?:La misma senda en tres materiales\.?|The same path in three materials\.?)\s*</h2>',
-        ),
-        paper,
-        "paper",
-    )
+    text = insert_before_patterns(text,(r'<span\b[^>]*>\s*(?:El laberinto|The labyrinth)\s*</span>',r'<h2\b[^>]*>\s*Los Escullos\s*</h2>'),stone,"stone")
+    text = insert_before_patterns(text,(r'<span\b[^>]*>\s*(?:22 domingos|22 Sundays)\s*</span>',r'<h2\b[^>]*>\s*(?:El mismo camino, hecho de luz\.?|The same path, made of light\.?)\s*</h2>'),sunday,"22 Sundays")
+    text = insert_before_patterns(text,(r'<span\b[^>]*>\s*(?:Piedra · papel · código|Stone · paper · code)\s*</span>',r'<h2\b[^>]*>\s*(?:La misma senda en tres materiales\.?|The same path in three materials\.?)\s*</h2>'),paper,"paper")
     return text
 
 
@@ -428,7 +385,6 @@ def patch(rel: str, *, homepage: bool, en: bool) -> None:
 
 if not ROOT.is_dir():
     raise SystemExit(f"Missing built site: {ROOT}")
-
 html_files = sorted(ROOT.rglob("*.html"))
 if not html_files:
     raise SystemExit("No HTML pages found")
@@ -436,8 +392,6 @@ for html in html_files:
     rel = html.relative_to(ROOT).as_posix()
     patch(rel, homepage=rel in {"index.html", "en/index.html"}, en=rel.startswith("en/"))
 
-# Invariants: the art direction is global, the homepage intervention is complete,
-# and the primary links/content are still present.
 for html in html_files:
     text = html.read_text(encoding="utf-8")
     if 'id="oolita-art-restage-v1"' not in text or "art-restaged" not in text:
@@ -446,13 +400,13 @@ for html in html_files:
 for rel, needles in {
     "index.html": [
         "art-home", 'id="oolita-art-field-stone"', 'id="oolita-art-field-sundays"', 'id="oolita-art-field-paper"',
-        'class="art-manifesto"', 'href="/laberinto/"', 'href="/domingos/"', 'href="/cabo-de-gata/"',
+        "art-manifesto", 'href="/laberinto/"', 'href="/domingos/"', 'href="/cabo-de-gata/"',
         "#3F73E8", "#184EC8", "#F5D64A", "#EF725E", "#F1E7D4", "#5E9A70", "#2D4E23",
         "/laberinto/laberinto-oolita-los-escullos.jpg",
     ],
     "en/index.html": [
         "art-home", 'id="oolita-art-field-stone"', 'id="oolita-art-field-sundays"', 'id="oolita-art-field-paper"',
-        'class="art-manifesto"', 'href="/en/labyrinth/"', 'href="/en/sundays/"', 'href="/en/cabo-de-gata/"',
+        "art-manifesto", 'href="/en/labyrinth/"', 'href="/en/sundays/"', 'href="/en/cabo-de-gata/"',
         "/laberinto/laberinto-oolita-los-escullos.jpg",
     ],
 }.items():
@@ -461,12 +415,10 @@ for rel, needles in {
         if needle not in text:
             raise SystemExit(f"Art-restage invariant missing in {rel}: {needle}")
 
-# Genuine photograph referenced by the homepage must exist in the built bundle.
 photo = ROOT / "laberinto" / "laberinto-oolita-los-escullos.jpg"
 if not photo.is_file() or photo.stat().st_size < 10000:
     raise SystemExit("Missing/invalid genuine labyrinth photograph for art restage")
 
-# The two materially changed homepages get a fresh lastmod.
 sitemap = ROOT / "sitemap.xml"
 if not sitemap.is_file():
     raise SystemExit("Missing sitemap.xml")
