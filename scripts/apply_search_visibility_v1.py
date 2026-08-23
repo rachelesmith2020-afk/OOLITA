@@ -7,6 +7,7 @@
 - Builds the permanent bilingual 3D-world explainer before sitemap checks.
 - Applies the final public identity, release-date and provenance-safe wording layer.
 - Applies the 23 Aug live SEO audit repair as the last bundle mutation.
+- Applies the agreed reader-assessment priority fixes after the SEO repair.
 """
 from __future__ import annotations
 
@@ -142,5 +143,17 @@ old_argv = sys.argv[:]
 sys.argv = [str(seo_repair_script), str(ROOT)]
 try:
     runpy.run_path(str(seo_repair_script), run_name="__main__")
+finally:
+    sys.argv = old_argv
+
+# Reader-facing hierarchy/factual changes come last so neither the identity nor
+# SEO normalisation pass can restore the copy the reader audit is replacing.
+reader_script = HERE / "apply_reader_assessment_v1.py"
+if not reader_script.is_file():
+    raise SystemExit(f"Missing reader-assessment layer: {reader_script}")
+old_argv = sys.argv[:]
+sys.argv = [str(reader_script), str(ROOT)]
+try:
+    runpy.run_path(str(reader_script), run_name="__main__")
 finally:
     sys.argv = old_argv
