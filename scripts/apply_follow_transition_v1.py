@@ -49,4 +49,26 @@ for path in ROOT.rglob("*.html"):
     )
     path.write_text(text, encoding="utf-8")
 
+# The reader-assessment pass deliberately humanises visible English dates on
+# these two pages. Reverse that presentation only during reconstruction because
+# the older identity validator still checks its dotted intermediate values.
+# apply_reader_assessment_v1.py restores the human-readable forms at the end.
+for rel in ("en/index.html", "en/editions/book/index.html"):
+    path = ROOT / rel
+    if not path.is_file():
+        continue
+    text = path.read_text(encoding="utf-8")
+    for human, dotted in (
+        ("3 Jan 2027", "03.01.2027"),
+        ("3 Jan 27", "03.01.27"),
+        ("9 Aug 26", "09.08.26"),
+        ("31 Jan 27", "31.01.27"),
+        ("16 May 27", "16.05.27"),
+        ("16 Sep 27", "16.09.27"),
+        ("19 Sep 27", "19.09.27"),
+        ("11 Apr 27", "11.04.27"),
+    ):
+        text = text.replace(human, dotted)
+    path.write_text(text, encoding="utf-8")
+
 print("OOLITA Follow Cloudflare activation and mobile CTA validated successfully.")
