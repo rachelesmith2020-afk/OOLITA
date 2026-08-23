@@ -31,12 +31,33 @@ jobs:
           npm install --no-save playwright @axe-core/playwright
           npx playwright install --with-deps chromium
 
+      - name: Patch audit runner to use explicit browser contexts
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/audit/final-audit.mjs')
+          s=p.read_text()
+          old="const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});"
+          new="const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1});const page=await context.newPage();"
+          if old not in s:
+              raise SystemExit('browser.newPage patch target missing')
+          s=s.replace(old,new,1)
+          old2="await page.close();return d;"
+          new2="await context.close();return d;"
+          if old2 not in s:
+              raise SystemExit('context close patch target missing')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          PY
+
       - name: Verify exact production deployment and audit live site
         run: node .github/audit/final-audit.mjs
 
       - name: Record sanitized final audit result
         if: always()
         run: |
+          git restore .github/audit/final-audit.mjs || true
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add audit-results/final-production-audit.json audit-results/final-production-audit.md
