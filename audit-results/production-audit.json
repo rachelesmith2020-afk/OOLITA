@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-23T13:28:12.626Z",
+  "generated_at": "2026-08-23T13:29:55.303Z",
   "target_main_sha": "04ccf748492b8f7a741bfc5a79d809effa30688c",
   "deployment": {
     "latest_production": {
@@ -404,7 +404,7 @@
       },
       "stored_row": [
         {
-          "email": "oolita-audit-32642410040@example.com",
+          "email": "oolita-audit-32642492526@example.com",
           "status": "active",
           "verified_at": null,
           "unsubscribed_at": null,
@@ -448,7 +448,7 @@
           }
         },
         "row": {
-          "email": "oolita-audit-32642410040@example.com",
+          "email": "oolita-audit-32642492526@example.com",
           "status": "active",
           "verified_at": null,
           "unsubscribed_at": null,

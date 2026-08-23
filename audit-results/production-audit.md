@@ -1,5 +1,5 @@
 # OOLITA production audit
-Generated: 2026-08-23T13:28:12.626Z
+Generated: 2026-08-23T13:29:55.303Z
 Target main: 04ccf748492b8f7a741bfc5a79d809effa30688c
 
 ## Deployment
@@ -31,7 +31,7 @@ footer_layout: PASS — Footer remains within viewport at 360/390/412px
 ## Signup
 invalid_email: PASS — {"status":400,"body":{"ok":false,"error":"invalid_email"}}
 honeypot: PASS — {"response":{"status":200,"body":{"ok":true,"state":"recorded"}},"stored":0}
-valid_signup: PASS — {"response":{"status":200,"body":{"ok":true,"state":"active"}},"row":{"email":"oolita-audit-32642410040@example.com","status":"active","verified_at":null,"unsubscribed_at":null,"language":"en","interests":"[\"book\",\"field\"]"}}
+valid_signup: PASS — {"response":{"status":200,"body":{"ok":true,"state":"active"}},"row":{"email":"oolita-audit-32642492526@example.com","status":"active","verified_at":null,"unsubscribed_at":null,"language":"en","interests":"[\"book\",\"field\"]"}}
 existing_subscriber: PASS — {"status":200,"body":{"ok":true,"state":"active"}}
 double_opt_in: FAIL — Not enabled: valid consent is immediately active and verified_at remains NULL (single opt-in).
 loading_runtime: PASS — {"status":"List active · choose what you want to follow.","statusHidden":false,"buttonDisabled":false,"honeypotHidden":true}
