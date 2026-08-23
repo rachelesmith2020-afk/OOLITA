@@ -38,3 +38,22 @@ replacement = r'''def r(path, old, new, expected=1):
 patched_source = SOURCE[:start] + replacement + SOURCE[end:]
 sys.argv = [str(HERE / "apply_wording.py"), ROOT_ARG]
 exec(compile(patched_source, str(HERE / "apply_wording.py"), "exec"))
+
+# Homepage — English: keep the material description deliberately plain.
+homepage = Path(ROOT_ARG) / "en/index.html"
+if not homepage.is_file():
+    raise SystemExit("Missing expected page: en/index.html")
+text = homepage.read_text(encoding="utf-8")
+old = "from loose calcarenite"
+new = "from stone"
+old_count = text.count(old)
+new_count = text.count(new)
+if old_count > 0:
+    homepage.write_text(text.replace(old, new), encoding="utf-8")
+    print(f"patched en/index.html: {old_count} occurrence(s): {old!r} -> {new!r}")
+elif new_count > 0:
+    print(f"already reviewed en/index.html: {new_count} occurrence(s): {new!r}")
+else:
+    raise SystemExit(
+        f"Unexpected homepage material wording: found neither {old!r} nor {new!r}"
+    )
