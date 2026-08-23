@@ -3,9 +3,8 @@
 
 This pass deliberately runs last. It fixes stale visible 44/48-page poster
 copy, adds bilingual BreadcrumbList structured data to content/detail pages,
-updates sitemap lastmod only for pages actually changed here, and reports
-metadata that needs deliberate editorial review rather than silently rewriting
-it.
+updates sitemap lastmod only for pages actually changed here, and validates
+metadata without inventing edit dates.
 """
 from __future__ import annotations
 
@@ -37,10 +36,11 @@ def write_if_changed(path: Path, before: str, after: str) -> bool:
     return True
 
 
+changed_routes: set[str] = set()
+
 # ---------------------------------------------------------------------------
 # 1. Correct stale reader-visible page-count copy on the poster archive.
 # ---------------------------------------------------------------------------
-changed_routes: set[str] = set()
 poster_fixes = {
     "carteles/index.html": (
         ("fábula bilingüe de 44 páginas", "fábula bilingüe de 48 páginas"),
@@ -60,8 +60,7 @@ for rel, replacements in poster_fixes.items():
     for old, new in replacements:
         text = text.replace(old, new)
     if write_if_changed(path, before, text):
-        route = "/" + rel.removesuffix("index.html")
-        changed_routes.add(route)
+        changed_routes.add("/" + rel.removesuffix("index.html"))
 
 
 # ---------------------------------------------------------------------------
@@ -129,12 +128,36 @@ for rel, items in BREADCRUMBS.items():
             raise SystemExit(f"Missing </head> while adding breadcrumbs: {rel}")
         text = text.replace("</head>", script + "\n</head>", 1)
     if write_if_changed(path, before, text):
-        route = "/" + rel.removesuffix("index.html")
-        changed_routes.add(route)
+        changed_routes.add("/" + rel.removesuffix("index.html"))
 
 
 # ---------------------------------------------------------------------------
-# 3. Update sitemap lastmod for files this pass actually changed.
+# 3. Fix the single description that the built-site audit found over 160 chars.
+#    This is a deliberate edit, not an automatic truncation.
+# ---------------------------------------------------------------------------
+META_DESCRIPTION_FIXES = {
+    "que-es-un-laberinto/index.html": (
+        "Un laberinto clásico tiene un solo camino: se entra, se llega al centro y se vuelve. "
+        "Un laberinto multicursal tiene encrucijadas. Diferencias y recorrido."
+    ),
+}
+
+for rel, description in META_DESCRIPTION_FIXES.items():
+    if len(description) > 160:
+        raise SystemExit(f"Configured meta description is too long in {rel}: {len(description)}")
+    path, text = read(rel)
+    before = text
+    pattern = r'<meta\b(?=[^>]*\bname=["\']description["\'])[^>]*>'
+    replacement = f'<meta name="description" content="{description}">'
+    text, count = re.subn(pattern, replacement, text, count=1, flags=re.I)
+    if count != 1:
+        raise SystemExit(f"Expected one meta description in {rel}; replaced {count}")
+    if write_if_changed(path, before, text):
+        changed_routes.add("/" + rel.removesuffix("index.html"))
+
+
+# ---------------------------------------------------------------------------
+# 4. Update sitemap lastmod for files this pass actually changed.
 # ---------------------------------------------------------------------------
 sitemap = ROOT / "sitemap.xml"
 if not sitemap.is_file():
@@ -167,7 +190,7 @@ tree.write(sitemap, encoding="utf-8", xml_declaration=True)
 
 
 # ---------------------------------------------------------------------------
-# 4. Validate breadcrumbs and stale page-count removal.
+# 5. Validate breadcrumbs and stale page-count removal.
 # ---------------------------------------------------------------------------
 for rel, expected_items in BREADCRUMBS.items():
     _, text = read(rel)
@@ -201,25 +224,36 @@ for rel, stale in {
 
 
 # ---------------------------------------------------------------------------
-# 5. Metadata audit: report, do not fabricate editorial content/dates.
+# 6. Metadata audit: validate lengths and report non-actionable signals.
 # ---------------------------------------------------------------------------
 long_descriptions: list[tuple[str, int, str]] = []
+domain_mentions: list[tuple[str, str]] = []
 updated_times: list[tuple[str, str]] = []
 for path in sorted(ROOT.rglob("*.html")):
     rel = str(path.relative_to(ROOT))
     text = path.read_text(encoding="utf-8")
     m = re.search(r'<meta\b(?=[^>]*\bname=["\']description["\'])[^>]*\bcontent=["\']([^"\']*)["\'][^>]*>', text, flags=re.I)
-    if m and len(m.group(1).strip()) > 160:
-        long_descriptions.append((rel, len(m.group(1).strip()), m.group(1).strip()))
+    if m:
+        value = m.group(1).strip()
+        if len(value) > 160:
+            long_descriptions.append((rel, len(value), value))
+        if "oolita.es" in value.lower():
+            domain_mentions.append((rel, value))
     for stamp in re.findall(r'<meta\b(?=[^>]*\bproperty=["\']og:updated_time["\'])[^>]*\bcontent=["\']([^"\']+)["\'][^>]*>', text, flags=re.I):
         updated_times.append((rel, stamp.strip()))
 
 if long_descriptions:
-    print("SEO follow-up metadata review: descriptions over 160 characters:")
     for rel, length, value in long_descriptions:
-        print(f"  {rel}: {length} chars :: {value}")
+        print(f"Overlong meta description: {rel}: {length} chars :: {value}")
+    raise SystemExit(f"SEO follow-up found {len(long_descriptions)} descriptions over 160 characters")
+print("SEO follow-up metadata review: no descriptions over 160 characters.")
+
+if domain_mentions:
+    print("SEO follow-up metadata review: literal oolita.es appears in descriptions:")
+    for rel, value in domain_mentions:
+        print(f"  {rel}: {value}")
 else:
-    print("SEO follow-up metadata review: no descriptions over 160 characters.")
+    print("SEO follow-up metadata review: no literal-domain repetition in descriptions.")
 
 if updated_times:
     print("SEO follow-up metadata review: og:updated_time values present (not modified):")
@@ -231,5 +265,5 @@ else:
 print(
     f"OOLITA SEO follow-up validated: breadcrumbs={len(BREADCRUMBS)}; "
     f"changed_routes={len(changed_routes)}; long_descriptions={len(long_descriptions)}; "
-    f"og_updated_time={len(updated_times)}"
+    f"domain_mentions={len(domain_mentions)}; og_updated_time={len(updated_times)}"
 )
