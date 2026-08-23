@@ -1,7 +1,0 @@
-commit=1e7cacd8d1445f8aad360368922334454829cd5f
-run_id=32638219009
-activated_at=2026-08-23T12:03:19Z
-subscriber_storage=cloudflare_d1_eu
-endpoint=verified
-email_sending=not_enabled
-subscription_state=active_on_submit
