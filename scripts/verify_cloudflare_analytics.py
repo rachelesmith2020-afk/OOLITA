@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Read-only report for the OOLITA Pages Analytics Engine binding.
+"""Read-only report for OOLITA Pages Analytics Engine and runtime settings.
 
 This check is informational only. The deploy step removes the unsupported
 binding before publishing so account-level Analytics Engine availability can
-never block the site.
+never block the site. Runtime fields printed here are non-secret and are used
+to preserve the existing Pages compatibility configuration when adding tracing.
 """
 from __future__ import annotations
 
@@ -38,7 +39,13 @@ if not body.get("success"):
 project = body.get("result") or {}
 configs = project.get("deployment_configs") or {}
 for env_name in ("production", "preview"):
-    bindings = ((configs.get(env_name) or {}).get("analytics_engine_datasets") or {})
+    cfg = configs.get(env_name) or {}
+    bindings = cfg.get("analytics_engine_datasets") or {}
     binding = bindings.get(BINDING)
     print(f"{env_name}_analytics_binding={binding!r}")
-print("Analytics binding state reported; deployment cleanup remains authoritative.")
+    print(f"{env_name}_compatibility_date={cfg.get('compatibility_date')!r}")
+    print(f"{env_name}_compatibility_flags={cfg.get('compatibility_flags')!r}")
+    print(f"{env_name}_always_use_latest_compatibility_date={cfg.get('always_use_latest_compatibility_date')!r}")
+    print(f"{env_name}_fail_open={cfg.get('fail_open')!r}")
+    print(f"{env_name}_wrangler_config_hash={cfg.get('wrangler_config_hash')!r}")
+print("Analytics binding and runtime state reported; deployment cleanup remains authoritative.")
