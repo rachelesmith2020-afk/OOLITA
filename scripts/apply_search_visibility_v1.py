@@ -82,3 +82,5 @@ run_layer("apply_home_overlay_reset_v1.py")
 # reintroducing the PIEDRA/STONE collision or low-contrast secondary text.
 run_layer("apply_visual_spacing_cleanup_v1.py")
 run_layer("apply_contrast_accessibility_v1.py")
+
+# Deployment trigger: mobile stone field grid specificity fix, 2026-08-23.
