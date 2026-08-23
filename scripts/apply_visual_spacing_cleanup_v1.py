@@ -3,10 +3,13 @@
 
 Prevents hero typography collisions and regularises mobile spacing without
 undoing the poster-scale art direction or changing content/SEO/navigation.
+The style block is replaced on every run so a mirrored live origin cannot keep
+an obsolete copy of this final visual layer.
 """
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import sys
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
@@ -45,6 +48,45 @@ body.art-home p.parr{margin-top:1.1rem;margin-bottom:1.5rem}
 body.art-restaged h1,body.art-restaged h2,body.art-restaged h3{overflow-wrap:anywhere}
 body.art-restaged p,body.art-restaged li{overflow-wrap:break-word}
 
+/* Stone field: keep the title on one line and keep the kicker out of it.
+   The old art-restage rule used 14vw here, which breaks PIEDRA around laptop widths. */
+body.art-home #oolita-art-field-stone{
+  grid-template-columns:minmax(0,1.15fr) minmax(15rem,.85fr)!important;
+  gap:clamp(1.5rem,4vw,4rem)!important;
+  padding:clamp(2.25rem,5vw,4.5rem)!important;
+  align-items:end!important;
+}
+body.art-home #oolita-art-field-stone .art-copy{
+  width:100%!important;
+  max-width:44rem!important;
+  align-self:end!important;
+}
+body.art-home #oolita-art-field-stone .art-kicker{
+  position:static!important;
+  inset:auto!important;
+  display:block!important;
+  margin:0 0 1.1rem!important;
+  font-size:clamp(.72rem,.9vw,.86rem)!important;
+  line-height:1.2!important;
+  letter-spacing:.14em!important;
+}
+body.art-home #oolita-art-field-stone .art-word{
+  max-width:100%!important;
+  margin:0!important;
+  white-space:nowrap!important;
+  overflow-wrap:normal!important;
+  word-break:keep-all!important;
+  font-size:clamp(4.25rem,10vw,9rem)!important;
+  line-height:.78!important;
+  letter-spacing:-.055em!important;
+}
+body.art-home #oolita-art-field-stone .art-caption{
+  max-width:31rem!important;
+  margin:clamp(1.25rem,2.4vw,1.9rem) 0 0!important;
+  font-size:clamp(1rem,1.35vw,1.2rem)!important;
+  line-height:1.45!important;
+}
+
 /* Interior pages: consistent air around headings and prose. */
 body.art-restaged:not(.art-home) main > section{margin-block:clamp(2.5rem,6vw,5.5rem)}
 body.art-restaged:not(.art-home) h1{margin-bottom:clamp(1.5rem,4vw,3rem)!important}
@@ -72,11 +114,11 @@ body.art-restaged:not(.art-home) h2{margin-top:clamp(2.5rem,6vw,5rem)!important;
   }
   body.art-home main > section{margin-block:3rem!important}
   body.art-home .art-field{min-height:56svh!important;padding:1.25rem!important}
-  body.art-home .art-field--stone{padding-top:42svh!important}
+  body.art-home .art-field--stone{grid-template-columns:1fr!important;padding-top:42svh!important}
   body.art-home .art-field-photo{height:40svh!important}
   body.art-home .art-field--stone::after{inset:26svh 0 auto 0!important;height:16svh!important}
   body.art-home .art-field .art-word{font-size:clamp(4.8rem,28vw,8rem)!important;line-height:.68!important}
-  body.art-home .art-field--stone .art-word{font-size:clamp(4rem,21vw,6.6rem)!important}
+  body.art-home .art-field--stone .art-word{font-size:clamp(4rem,21vw,6.6rem)!important;white-space:nowrap!important}
   body.art-home .art-caption{margin-top:1rem!important;font-size:1rem!important;line-height:1.4!important}
   body.art-home a.fila{padding-block:1.15rem!important}
   body.art-home a.fila .n{font-size:clamp(2.4rem,13vw,4rem)!important}
@@ -114,19 +156,32 @@ html_files = sorted(ROOT.rglob("*.html"))
 if not html_files:
     raise SystemExit("No HTML pages found")
 
+style_pattern = re.compile(
+    rf'<style\s+id=["\']{re.escape(STYLE_ID)}["\'][^>]*>.*?</style>',
+    flags=re.I | re.S,
+)
 for target in html_files:
     html = target.read_text(encoding="utf-8")
-    if f'id="{STYLE_ID}"' in html:
-        continue
-    if "</head>" not in html:
-        raise SystemExit(f"Missing </head>: {target.relative_to(ROOT)}")
-    html = html.replace("</head>", STYLE + "\n</head>", 1)
+    if style_pattern.search(html):
+        html = style_pattern.sub(STYLE, html, count=1)
+    else:
+        if "</head>" not in html:
+            raise SystemExit(f"Missing </head>: {target.relative_to(ROOT)}")
+        html = html.replace("</head>", STYLE + "\n</head>", 1)
     target.write_text(html, encoding="utf-8")
 
 for rel in ("index.html", "en/index.html"):
     target = ROOT / rel
     html = target.read_text(encoding="utf-8")
-    if STYLE_ID not in html or "art-manifesto" not in html or "art-home" not in html:
-        raise SystemExit(f"Visual spacing cleanup invariant failed: {rel}")
+    for needle in (
+        STYLE_ID,
+        "art-manifesto",
+        "art-home",
+        "#oolita-art-field-stone .art-word",
+        "white-space:nowrap!important",
+        "font-size:clamp(4.25rem,10vw,9rem)!important",
+    ):
+        if needle not in html:
+            raise SystemExit(f"Visual spacing cleanup invariant failed in {rel}: {needle}")
 
 print(f"OOLITA visual overlap and mobile spacing cleanup validated across {len(html_files)} HTML pages.")
