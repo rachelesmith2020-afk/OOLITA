@@ -5,6 +5,7 @@
 - Ensures robots.txt advertises the sitemap.
 - Updates <lastmod> for pages materially changed on 2026-08-22.
 - Builds the permanent bilingual 3D-world explainer before sitemap checks.
+- Applies the final public identity, release-date and provenance-safe wording layer.
 """
 from __future__ import annotations
 
@@ -59,6 +60,18 @@ old_argv = sys.argv[:]
 sys.argv = [str(three_d_script), str(ROOT)]
 try:
     runpy.run_path(str(three_d_script), run_name="__main__")
+finally:
+    sys.argv = old_argv
+
+# This is the final public-content pass. It runs after the 3D page exists so
+# the same footer/legal identity applies to every public HTML route.
+identity_script = HERE / "apply_public_identity_v2.py"
+if not identity_script.is_file():
+    raise SystemExit(f"Missing public identity layer: {identity_script}")
+old_argv = sys.argv[:]
+sys.argv = [str(identity_script), str(ROOT)]
+try:
+    runpy.run_path(str(identity_script), run_name="__main__")
 finally:
     sys.argv = old_argv
 
