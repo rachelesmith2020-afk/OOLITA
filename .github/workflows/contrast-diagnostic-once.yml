@@ -25,7 +25,7 @@ jobs:
           set -euo pipefail
           npm install --no-save playwright@latest axe-core@latest
           npx playwright install --with-deps chromium
-      - name: Capture exact live contrast failures
+      - name: Capture unique live contrast failures
         shell: bash
         run: |
           set -euo pipefail
@@ -44,55 +44,49 @@ jobs:
           ];
           (async()=>{
             const browser = await chromium.launch({headless:true});
-            const report = {generated_at:new Date().toISOString(), pages:[], total:0};
+            const report = {generated_at:new Date().toISOString(), pages:[], total_nodes:0};
             for (const url of urls) {
               const page = await browser.newPage({viewport:{width:1280,height:900}});
-              await page.goto(url + '?contrast-diagnostic=' + Date.now(), {waitUntil:'networkidle'});
+              await page.goto(url + '?contrast-summary=' + Date.now(), {waitUntil:'networkidle'});
               await page.addScriptTag({path:axePath});
-              const nodes = await page.evaluate(async()=>{
+              const raw = await page.evaluate(async()=>{
                 const out = await axe.run(document, {runOnly:{type:'rule',values:['color-contrast']}});
-                return out.violations.flatMap(v => v.nodes.map(n => ({
-                  id:v.id, impact:v.impact, target:n.target, html:n.html, failureSummary:n.failureSummary
-                })));
+                return out.violations.flatMap(v => v.nodes.map(n => ({target:n.target, failureSummary:n.failureSummary})));
               });
-              const enriched=[];
-              for (const item of nodes) {
+              const groups = new Map();
+              for (const item of raw) {
                 const selector = Array.isArray(item.target) ? item.target[0] : item.target;
+                const key = selector.replace(/:nth-child\(\d+\)/g, ':nth-child(*)');
+                if (!groups.has(key)) groups.set(key,{selector:key,count:0,example_selector:selector,failureSummary:item.failureSummary});
+                groups.get(key).count++;
+              }
+              const unique=[];
+              for (const group of groups.values()) {
                 const details = await page.evaluate((sel)=>{
                   let el;
                   try { el = document.querySelector(sel); } catch { return {selectorError:true}; }
                   if (!el) return {missing:true};
-                  const cs = getComputedStyle(el);
-                  const chain=[];
-                  let p=el;
-                  while(p && p.nodeType===1){
-                    const s=getComputedStyle(p);
-                    chain.push({tag:p.tagName, id:p.id||'', cls:(typeof p.className==='string'?p.className:''), opacity:s.opacity, color:s.color, background:s.backgroundColor});
-                    p=p.parentElement;
-                  }
-                  return {
-                    text:(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,180),
-                    color:cs.color, background:cs.backgroundColor, opacity:cs.opacity,
-                    fontSize:cs.fontSize, fontWeight:cs.fontWeight, chain:chain.slice(0,8)
-                  };
-                }, selector);
-                enriched.push({...item, selector, details});
+                  const cs=getComputedStyle(el);
+                  return {text:(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,140),color:cs.color,background:cs.backgroundColor,opacity:cs.opacity,fontSize:cs.fontSize,fontWeight:cs.fontWeight,className:(typeof el.className==='string'?el.className:'')};
+                }, group.example_selector);
+                unique.push({...group,details});
               }
-              report.pages.push({url,count:enriched.length,nodes:enriched});
-              report.total += enriched.length;
+              report.pages.push({url,node_count:raw.length,unique});
+              report.total_nodes += raw.length;
               await page.close();
             }
             await browser.close();
-            fs.writeFileSync('audit-results/contrast-diagnostic.json', JSON.stringify(report,null,2));
-            console.log('TOTAL_CONTRAST_NODES=' + report.total);
+            fs.writeFileSync('audit-results/contrast-summary.json', JSON.stringify(report,null,2));
+            console.log('TOTAL_CONTRAST_NODES=' + report.total_nodes);
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
-      - name: Commit diagnostic report
+      - name: Commit summary
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add audit-results/contrast-diagnostic.json
-          git commit -m 'Record live contrast diagnostic [skip ci]'
+          git pull --rebase origin main
+          git add audit-results/contrast-summary.json
+          git commit -m 'Record live contrast summary [skip ci]'
           git push origin HEAD:main
