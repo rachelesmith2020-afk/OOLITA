@@ -1,3 +1,4 @@
+# Retry after selector-level contrast fixes.
 name: One-shot OOLITA contrast deploy and verification
 
 on:
@@ -25,17 +26,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-
       - name: Require Cloudflare token
         shell: bash
         run: |
           set -euo pipefail
           test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
-
       - name: Reconstruct production site
         shell: bash
         run: bash scripts/build_site_for_deploy.sh
-
       - name: Apply production layers and contrast last
         shell: bash
         run: |
@@ -50,9 +48,6 @@ jobs:
           python3 scripts/apply_audit_fixes_v1.py site
           python3 scripts/apply_first_party_analytics_v1.py site
           python3 scripts/apply_search_visibility_v1.py site
-          python3 scripts/apply_visual_spacing_cleanup_v1.py site
-          python3 scripts/apply_contrast_accessibility_v1.py site
-
       - name: Validate Pages Functions
         shell: bash
         run: |
@@ -62,13 +57,11 @@ jobs:
           node --check functions/api/unsubscribe.js
           python3 scripts/configure_cloudflare_analytics.py
           npx --yes wrangler@latest pages functions build functions --outfile /tmp/oolita-worker.js
-
       - name: Deploy repaired production site
         shell: bash
         run: |
           set -euo pipefail
           npx --yes wrangler@latest pages deploy site --project-name=oolita --branch=main --commit-dirty=true
-
       - name: Wait for live contrast marker
         shell: bash
         run: |
@@ -84,14 +77,12 @@ jobs:
           done
           echo 'Contrast layer did not reach oolita.es in time.' >&2
           exit 1
-
       - name: Install Chromium and Axe
         shell: bash
         run: |
           set -euo pipefail
           npm install --no-save playwright@latest axe-core@latest
           npx playwright install --with-deps chromium
-
       - name: Verify zero live contrast violations across sitemap
         shell: bash
         run: |
@@ -117,7 +108,7 @@ jobs:
                   const out = await axe.run(document, {runOnly:{type:'rule',values:['color-contrast']}});
                   return out.violations.flatMap(v => v.nodes.map(n => ({target:n.target,summary:n.failureSummary})));
                 });
-                if (result.length) failures.push({width,url,count:result.length,nodes:result.slice(0,8)});
+                if (result.length) failures.push({width,url,count:result.length,nodes:result.slice(0,12)});
                 console.log(`${width}px ${url} contrast=${result.length}`);
                 await page.close();
               }
@@ -130,7 +121,6 @@ jobs:
             }
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
-
       - name: Remove temporary contrast audit files after success
         shell: bash
         run: |
