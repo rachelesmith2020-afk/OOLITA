@@ -67,18 +67,20 @@ print("OOLITA deployment is no longer blocked by Analytics Engine.")
 
 # Final deployment content invariant. Earlier rendering layers may reconstruct
 # the homepage after the general wording pass, so enforce the approved wording
-# immediately before Wrangler publishes the finished `site` directory.
+# verbatim immediately before Wrangler publishes the finished `site` directory.
 homepage = Path("site/en/index.html")
 if not homepage.is_file():
     raise SystemExit("Missing final English homepage: site/en/index.html")
 html = homepage.read_text(encoding="utf-8")
-old = "from loose calcarenite"
-new = "from stone"
-if old in html:
-    html = html.replace(old, new)
-    homepage.write_text(html, encoding="utf-8")
-if old in homepage.read_text(encoding="utf-8"):
+for old in (
+    "laid by hand in 2021 from loose calcarenite",
+    "laid by hand in 2021 from stone",
+):
+    html = html.replace(old, "built from stone")
+homepage.write_text(html, encoding="utf-8")
+final = homepage.read_text(encoding="utf-8")
+if "loose calcarenite" in final:
     raise SystemExit("Final homepage still contains disallowed wording: loose calcarenite")
-if new not in homepage.read_text(encoding="utf-8"):
-    raise SystemExit("Final homepage does not contain approved wording: from stone")
-print("Final English homepage wording verified: built from stone.")
+if "built from stone" not in final:
+    raise SystemExit("Final homepage does not contain approved wording: built from stone")
+print("Final English homepage wording verified exactly: built from stone.")
