@@ -1,6 +1,7 @@
 # Cloudflare Pages configuration downloaded from the live OOLITA project on 2026-08-23,
 # with normal request tracing enabled. Keep this file aligned with dashboard-side
 # bindings before future deploys because Wrangler treats it as the project source of truth.
+# Production deployment trigger for the validated tracing configuration.
 name = "oolita"
 pages_build_output_dir = "./site"
 compatibility_date = "2026-08-10"
