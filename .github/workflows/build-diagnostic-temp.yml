@@ -1,0 +1,61 @@
+name: Temporary OOLITA production build diagnostic
+
+on:
+  push:
+    branches:
+      - audit/live-production-20260823
+    paths:
+      - '.github/workflows/build-diagnostic-temp.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run actual production pre-deploy sequence with stage report
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p audit-results
+          report=audit-results/build-diagnostic.md
+          printf '# Production pre-deploy build diagnostic\n\n' > "$report"
+          run_stage() {
+            name="$1"; shift
+            printf '%s: ' "$name" >> "$report"
+            if "$@" > /tmp/stage.log 2>&1; then
+              printf 'PASS\n' >> "$report"
+            else
+              printf 'FAIL\n\n```text\n' >> "$report"
+              tail -n 120 /tmp/stage.log >> "$report"
+              printf '\n```\n' >> "$report"
+              exit 1
+            fi
+          }
+          run_stage build_site bash scripts/build_site_for_deploy.sh
+          run_stage direction python3 scripts/apply_direction_v3.py site
+          run_stage growth_prep python3 scripts/growth_prep.py site
+          run_stage growth python3 scripts/apply_growth_v1.py site
+          run_stage commerce python3 scripts/apply_commerce.py site commerce/catalog.json
+          run_stage list_completion python3 scripts/apply_list_completion_v1.py site
+          run_stage follow_transition python3 scripts/apply_follow_transition_v1.py site
+          run_stage release_calendar python3 scripts/apply_release_calendar_v1.py site
+          run_stage audit_fixes python3 scripts/apply_audit_fixes_v1.py site
+          run_stage first_party_analytics python3 scripts/apply_first_party_analytics_v1.py site
+          run_stage search_visibility python3 scripts/apply_search_visibility_v1.py site
+          run_stage event_syntax node --check functions/api/event.js
+
+      - name: Record diagnostic
+        if: always()
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit-results/build-diagnostic.md
+          git commit -m 'Record production build diagnostic [skip ci]' || exit 0
+          git pull --rebase origin audit/live-production-20260823
+          git push origin HEAD:audit/live-production-20260823
