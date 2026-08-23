@@ -1,0 +1,1332 @@
+{
+  "generated_at": "2026-08-23T13:28:12.626Z",
+  "target_main_sha": "04ccf748492b8f7a741bfc5a79d809effa30688c",
+  "deployment": {
+    "latest_production": {
+      "id": "7a283945-2970-48bb-8cb8-5a6aee554fd8",
+      "url": "https://7a283945.oolita.pages.dev",
+      "environment": "production",
+      "created_on": "2026-08-23T13:07:23.779757Z",
+      "latest_stage": "success",
+      "aliases": [
+        "https://oolita.es",
+        "https://www.oolita.es"
+      ],
+      "branch": "main",
+      "commit_hash": "5fbfa836e09a294bac22946c01f0a6c0d642c2fe",
+      "commit_message": "Merge e1ed8f6e8779b63b909d1bd32f8311c246566c46 into f9dbbf586fe6ce3fafec9891f2db9e8492f99b91"
+    },
+    "production_branch": "main",
+    "latest_main_fingerprint_live": {
+      "pass": false,
+      "detail": "Unique 04ccf748 homepage overlay-reset marker present on both live homepages"
+    },
+    "cloudflare_commit_matches_main": {
+      "pass": false,
+      "detail": "5fbfa836e09a294bac22946c01f0a6c0d642c2fe"
+    }
+  },
+  "cloudflare": {
+    "pages": {
+      "name": "oolita",
+      "production_branch": "main",
+      "canonical_deployment": {
+        "id": "7a283945-2970-48bb-8cb8-5a6aee554fd8",
+        "url": "https://7a283945.oolita.pages.dev",
+        "environment": "production",
+        "created_on": "2026-08-23T13:07:23.779757Z",
+        "latest_stage": "success",
+        "aliases": [
+          "https://oolita.es",
+          "https://www.oolita.es"
+        ],
+        "branch": "main",
+        "commit_hash": "5fbfa836e09a294bac22946c01f0a6c0d642c2fe",
+        "commit_message": "Merge e1ed8f6e8779b63b909d1bd32f8311c246566c46 into f9dbbf586fe6ce3fafec9891f2db9e8492f99b91"
+      },
+      "compatibility_date": "2026-08-10",
+      "compatibility_flags": [],
+      "d1_databases": {
+        "OOLITA_SUBSCRIBERS": {
+          "id": "05b1cd1d-52fd-4a11-8142-13ab92a2c712"
+        }
+      },
+      "analytics_engine_datasets": null
+    },
+    "d1_binding_matches": {
+      "pass": true,
+      "detail": {
+        "OOLITA_SUBSCRIBERS": {
+          "id": "05b1cd1d-52fd-4a11-8142-13ab92a2c712"
+        }
+      }
+    },
+    "no_pages_observability_config": {
+      "pass": true,
+      "detail": "Pages production deployment config contains no observability field"
+    },
+    "d1_live_health": {
+      "pass": true,
+      "detail": "HTTP 204"
+    }
+  },
+  "corrections": {
+    "english_dates": {
+      "pass": false,
+      "detail": null
+    },
+    "follow_loading_honeypot": {
+      "pass": true,
+      "detail": null
+    },
+    "homepage_opening": {
+      "pass": true,
+      "detail": null
+    },
+    "fable_cat_explanation": {
+      "pass": true,
+      "detail": null
+    },
+    "free_3_january_reading": {
+      "pass": true,
+      "detail": null
+    },
+    "exists_now_positioning": {
+      "pass": true,
+      "detail": null
+    },
+    "bilingual_excerpt_illustration": {
+      "pass": true,
+      "detail": "Excerpt marker and cat/labyrinth image markup"
+    },
+    "sundays_archive": {
+      "pass": true,
+      "detail": null
+    },
+    "navigation_hierarchy": {
+      "pass": true,
+      "detail": null
+    }
+  },
+  "mobile": {
+    "en": [
+      {
+        "width": 360,
+        "status": 200,
+        "overflow": false,
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "footer": {
+          "x": 0,
+          "y": 10602.421875,
+          "width": 1280,
+          "height": 137.03125,
+          "right": 1280,
+          "bottom": 10739.453125
+        },
+        "header": {
+          "x": 42,
+          "y": 0,
+          "width": 1196,
+          "height": 67.625,
+          "right": 1238,
+          "bottom": 67.625
+        },
+        "year2027": {
+          "text": "2027",
+          "textDecoration": "none",
+          "bg": "rgba(0, 0, 0, 0)",
+          "before": "none",
+          "after": "none",
+          "rect": {
+            "x": 42,
+            "right": 163.484375,
+            "width": 121.484375
+          }
+        },
+        "axe": null,
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "width": 390,
+        "status": 200,
+        "overflow": false,
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "footer": {
+          "x": 0,
+          "y": 10602.421875,
+          "width": 1280,
+          "height": 137.03125,
+          "right": 1280,
+          "bottom": 10739.453125
+        },
+        "header": {
+          "x": 42,
+          "y": 0,
+          "width": 1196,
+          "height": 67.625,
+          "right": 1238,
+          "bottom": 67.625
+        },
+        "year2027": {
+          "text": "2027",
+          "textDecoration": "none",
+          "bg": "rgba(0, 0, 0, 0)",
+          "before": "none",
+          "after": "none",
+          "rect": {
+            "x": 42,
+            "right": 163.484375,
+            "width": 121.484375
+          }
+        },
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "width": 412,
+        "status": 200,
+        "overflow": false,
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "footer": {
+          "x": 0,
+          "y": 10602.421875,
+          "width": 1280,
+          "height": 137.03125,
+          "right": 1280,
+          "bottom": 10739.453125
+        },
+        "header": {
+          "x": 42,
+          "y": 0,
+          "width": 1196,
+          "height": 67.625,
+          "right": 1238,
+          "bottom": 67.625
+        },
+        "year2027": {
+          "text": "2027",
+          "textDecoration": "none",
+          "bg": "rgba(0, 0, 0, 0)",
+          "before": "none",
+          "after": "none",
+          "rect": {
+            "x": 42,
+            "right": 163.484375,
+            "width": 121.484375
+          }
+        },
+        "axe": null,
+        "console_errors": [],
+        "page_errors": []
+      }
+    ],
+    "es": [
+      {
+        "width": 360,
+        "status": 200,
+        "overflow": false,
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "footer": {
+          "x": 0,
+          "y": 10999.4375,
+          "width": 1280,
+          "height": 164.0625,
+          "right": 1280,
+          "bottom": 11163.5
+        },
+        "header": {
+          "x": 42,
+          "y": 0,
+          "width": 1196,
+          "height": 67.625,
+          "right": 1238,
+          "bottom": 67.625
+        },
+        "year2027": null,
+        "axe": null,
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "width": 390,
+        "status": 200,
+        "overflow": false,
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "footer": {
+          "x": 0,
+          "y": 10999.4375,
+          "width": 1280,
+          "height": 164.0625,
+          "right": 1280,
+          "bottom": 11163.5
+        },
+        "header": {
+          "x": 42,
+          "y": 0,
+          "width": 1196,
+          "height": 67.625,
+          "right": 1238,
+          "bottom": 67.625
+        },
+        "year2027": null,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "width": 412,
+        "status": 200,
+        "overflow": false,
+        "scrollWidth": 1280,
+        "innerWidth": 1280,
+        "footer": {
+          "x": 0,
+          "y": 10999.4375,
+          "width": 1280,
+          "height": 164.0625,
+          "right": 1280,
+          "bottom": 11163.5
+        },
+        "header": {
+          "x": 42,
+          "y": 0,
+          "width": 1196,
+          "height": 67.625,
+          "right": 1238,
+          "bottom": 67.625
+        },
+        "year2027": null,
+        "axe": null,
+        "console_errors": [],
+        "page_errors": []
+      }
+    ],
+    "english_2027_clear": {
+      "pass": true,
+      "detail": {
+        "text": "2027",
+        "textDecoration": "none",
+        "bg": "rgba(0, 0, 0, 0)",
+        "before": "none",
+        "after": "none",
+        "rect": {
+          "x": 42,
+          "right": 163.484375,
+          "width": 121.484375
+        }
+      }
+    },
+    "english_no_overflow": {
+      "pass": true,
+      "detail": [
+        {
+          "width": 360,
+          "overflow": false,
+          "scrollWidth": 1280
+        },
+        {
+          "width": 390,
+          "overflow": false,
+          "scrollWidth": 1280
+        },
+        {
+          "width": 412,
+          "overflow": false,
+          "scrollWidth": 1280
+        }
+      ]
+    },
+    "spanish_no_overflow": {
+      "pass": true,
+      "detail": [
+        {
+          "width": 360,
+          "overflow": false,
+          "scrollWidth": 1280
+        },
+        {
+          "width": 390,
+          "overflow": false,
+          "scrollWidth": 1280
+        },
+        {
+          "width": 412,
+          "overflow": false,
+          "scrollWidth": 1280
+        }
+      ]
+    },
+    "footer_layout": {
+      "pass": true,
+      "detail": "Footer remains within viewport at 360/390/412px"
+    }
+  },
+  "signup": {
+    "api": {
+      "invalid": {
+        "status": 400,
+        "body": {
+          "ok": false,
+          "error": "invalid_email"
+        }
+      },
+      "bot": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "state": "recorded"
+        }
+      },
+      "valid": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "state": "active"
+        }
+      },
+      "existing": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "state": "active"
+        }
+      },
+      "stored_row": [
+        {
+          "email": "oolita-audit-32642410040@example.com",
+          "status": "active",
+          "verified_at": null,
+          "unsubscribed_at": null,
+          "language": "en",
+          "interests": "[\"book\",\"field\"]"
+        }
+      ],
+      "bot_stored_count": 0
+    },
+    "invalid_email": {
+      "pass": true,
+      "detail": {
+        "status": 400,
+        "body": {
+          "ok": false,
+          "error": "invalid_email"
+        }
+      }
+    },
+    "honeypot": {
+      "pass": true,
+      "detail": {
+        "response": {
+          "status": 200,
+          "body": {
+            "ok": true,
+            "state": "recorded"
+          }
+        },
+        "stored": 0
+      }
+    },
+    "valid_signup": {
+      "pass": true,
+      "detail": {
+        "response": {
+          "status": 200,
+          "body": {
+            "ok": true,
+            "state": "active"
+          }
+        },
+        "row": {
+          "email": "oolita-audit-32642410040@example.com",
+          "status": "active",
+          "verified_at": null,
+          "unsubscribed_at": null,
+          "language": "en",
+          "interests": "[\"book\",\"field\"]"
+        }
+      }
+    },
+    "existing_subscriber": {
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "state": "active"
+        }
+      }
+    },
+    "double_opt_in": {
+      "pass": false,
+      "detail": "Not enabled: valid consent is immediately active and verified_at remains NULL (single opt-in)."
+    },
+    "runtime_health_state": {
+      "status": "List active · choose what you want to follow.",
+      "statusHidden": false,
+      "buttonDisabled": false,
+      "honeypotHidden": true
+    },
+    "loading_runtime": {
+      "pass": true,
+      "detail": {
+        "status": "List active · choose what you want to follow.",
+        "statusHidden": false,
+        "buttonDisabled": false,
+        "honeypotHidden": true
+      }
+    },
+    "ui_error_state": {
+      "status": "We could not save this. Try again or write to oolita@tutamail.com.",
+      "buttonDisabled": false
+    },
+    "error_state": {
+      "pass": true,
+      "detail": {
+        "status": "We could not save this. Try again or write to oolita@tutamail.com.",
+        "buttonDisabled": false
+      }
+    }
+  },
+  "books": {
+    "mobile": {
+      "en": {
+        "status": 200,
+        "overflow": false,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        }
+      },
+      "es": {
+        "status": 200,
+        "overflow": false,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        }
+      }
+    },
+    "page_count_48": {
+      "pass": true,
+      "detail": {
+        "en": "48",
+        "es": "48"
+      }
+    },
+    "fable_copy": {
+      "pass": true,
+      "detail": null
+    },
+    "bilingual": {
+      "pass": true,
+      "detail": null
+    },
+    "dates_availability": {
+      "pass": false,
+      "detail": null
+    },
+    "mobile_clean": {
+      "pass": true,
+      "detail": null
+    },
+    "images_loaded": {
+      "pass": true,
+      "detail": {
+        "en_bad": 0,
+        "es_bad": 0
+      }
+    }
+  },
+  "sundays": {
+    "expected_published_now": 2,
+    "live_count_en": 2,
+    "live_count_es": 2,
+    "active": [
+      {
+        "n": "1",
+        "date": "2026-08-09",
+        "href": "/en/sundays/01-the-double/"
+      },
+      {
+        "n": "2",
+        "date": "2026-08-16",
+        "href": "/en/sundays/02-the-cat-for-real/"
+      }
+    ],
+    "inactive": [
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22"
+    ],
+    "mobile_overflow_en": false,
+    "mobile_overflow_es": false,
+    "axe_en": {
+      "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+    },
+    "axe_es": {
+      "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+    },
+    "count_correct": {
+      "pass": true,
+      "detail": null
+    },
+    "all_22_present": {
+      "pass": true,
+      "detail": {
+        "en": 22,
+        "es": 22
+      }
+    },
+    "future_inactive": {
+      "pass": true,
+      "detail": [
+        {
+          "n": "1",
+          "href": true
+        },
+        {
+          "n": "2",
+          "href": true
+        },
+        {
+          "n": "3",
+          "href": false
+        },
+        {
+          "n": "4",
+          "href": false
+        },
+        {
+          "n": "5",
+          "href": false
+        },
+        {
+          "n": "6",
+          "href": false
+        },
+        {
+          "n": "7",
+          "href": false
+        },
+        {
+          "n": "8",
+          "href": false
+        },
+        {
+          "n": "9",
+          "href": false
+        },
+        {
+          "n": "10",
+          "href": false
+        },
+        {
+          "n": "11",
+          "href": false
+        },
+        {
+          "n": "12",
+          "href": false
+        },
+        {
+          "n": "13",
+          "href": false
+        },
+        {
+          "n": "14",
+          "href": false
+        },
+        {
+          "n": "15",
+          "href": false
+        },
+        {
+          "n": "16",
+          "href": false
+        },
+        {
+          "n": "17",
+          "href": false
+        },
+        {
+          "n": "18",
+          "href": false
+        },
+        {
+          "n": "19",
+          "href": false
+        },
+        {
+          "n": "20",
+          "href": false
+        },
+        {
+          "n": "21",
+          "href": false
+        },
+        {
+          "n": "22",
+          "href": false
+        }
+      ]
+    },
+    "mobile_grid_clean": {
+      "pass": true,
+      "detail": null
+    },
+    "active_statuses": [
+      {
+        "n": "1",
+        "status": 200,
+        "url": "https://oolita.es/en/sundays/01-the-double/"
+      },
+      {
+        "n": "2",
+        "status": 200,
+        "url": "https://oolita.es/en/sundays/02-the-cat-for-real/"
+      }
+    ],
+    "published_entries_open": {
+      "pass": true,
+      "detail": [
+        {
+          "n": "1",
+          "status": 200,
+          "url": "https://oolita.es/en/sundays/01-the-double/"
+        },
+        {
+          "n": "2",
+          "status": 200,
+          "url": "https://oolita.es/en/sundays/02-the-cat-for-real/"
+        }
+      ]
+    }
+  },
+  "navigation": {
+    "en_groups": [
+      "Read and understand",
+      "Elsewhere",
+      "Project"
+    ],
+    "es_groups": [
+      "Leer y entender",
+      "Fuera de este sitio",
+      "Proyecto"
+    ],
+    "en_numbered": [
+      {
+        "text": "→ Why it is built in code Three.js · the browser as material",
+        "href": "/en/3d-world/"
+      },
+      {
+        "text": "04 Editions Books, textiles and tools for looking closely",
+        "href": "/en/editions/"
+      },
+      {
+        "text": "05 What is a labyrinth One path. One centre. One return.",
+        "href": "/en/what-is-a-labyrinth/"
+      },
+      {
+        "text": "06 What is an ooid The grain of stone the project is named after",
+        "href": "/en/what-is-an-ooid/"
+      },
+      {
+        "text": "07 The posters The nine posters that opened the account",
+        "href": "/en/posters/"
+      },
+      {
+        "text": "08 Labyrinth Locator Entry in the world labyrinth directory ↗",
+        "href": "https://labyrinthlocator.org/labyrinth/oolita"
+      },
+      {
+        "text": "09 Instagram @oolita.es · one image every Sunday ↗",
+        "href": "https://www.instagram.com/oolita.es/"
+      },
+      {
+        "text": "10 Hallazgo · Art Virtual castle · free to enter · opens 16 May 27 · 19:00 CEST ↗",
+        "href": "https://hallazgo.my.canva.site/hallazgo"
+      },
+      {
+        "text": "11 Catalogue In the castle: full catalogue with a key · hardback 16 Sep 27 · public launch 19 Sep 27 ↗",
+        "href": "https://hallazgo.my.canva.site/hallazgo/catlogo"
+      },
+      {
+        "text": "12 About OOLITA Raquel Costantini · provenance and practice",
+        "href": "/en/about/"
+      },
+      {
+        "text": "13 Work with OOLITA Bookshops · education · culture · materials",
+        "href": "/en/work-with-oolita/"
+      },
+      {
+        "text": "3D The 3D world Code · Three.js · opens 3 Jan 27",
+        "href": "/en/3d-world/"
+      },
+      {
+        "text": "14 Contact oolita@tutamail.com",
+        "href": "mailto:oolita@tutamail.com"
+      }
+    ],
+    "es_numbered": [
+      {
+        "text": "→ Por qué está hecho en código Three.js · el navegador como material",
+        "href": "/mundo-3d/"
+      },
+      {
+        "text": "04 Ediciones Libros, textiles y herramientas para mirar de cerca",
+        "href": "/ediciones/"
+      },
+      {
+        "text": "05 Qué es un laberinto Un camino. Un centro. Un regreso.",
+        "href": "/que-es-un-laberinto/"
+      },
+      {
+        "text": "06 Qué es un oolito El grano de piedra que da nombre al proyecto",
+        "href": "/que-es-un-oolito/"
+      },
+      {
+        "text": "07 Los carteles Los nueve carteles de la apertura de la cuenta",
+        "href": "/carteles/"
+      },
+      {
+        "text": "08 Labyrinth Locator Ficha en el directorio mundial ↗",
+        "href": "https://labyrinthlocator.org/labyrinth/oolita"
+      },
+      {
+        "text": "09 Instagram @oolita.es · una imagen cada domingo ↗",
+        "href": "https://www.instagram.com/oolita.es/"
+      },
+      {
+        "text": "10 Hallazgo · Arte Castillo virtual · entrada libre · abre 16.05.27 · 19:00 CEST ↗",
+        "href": "https://hallazgo.my.canva.site/hallazgo"
+      },
+      {
+        "text": "11 Catálogo En el castillo: catálogo completo con clave · tapa dura 16.09.27 · presentación pública 19.09.27 ↗",
+        "href": "https://hallazgo.my.canva.site/hallazgo/catlogo"
+      },
+      {
+        "text": "12 Sobre OOLITA Raquel Costantini · procedencia y práctica",
+        "href": "/sobre-oolita/"
+      },
+      {
+        "text": "13 Colaborar Librerías · educación · cultura · materiales",
+        "href": "/colaborar/"
+      },
+      {
+        "text": "3D El mundo 3D Código · Three.js · abre 03.01.27",
+        "href": "/mundo-3d/"
+      },
+      {
+        "text": "14 Contacto oolita@tutamail.com",
+        "href": "mailto:oolita@tutamail.com"
+      }
+    ],
+    "groups_present": {
+      "pass": true,
+      "detail": null
+    },
+    "numbers_01_14_preserved": {
+      "pass": false,
+      "detail": {
+        "en": [
+          "04",
+          "05",
+          "06",
+          "07",
+          "08",
+          "09",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14"
+        ],
+        "es": [
+          "04",
+          "05",
+          "06",
+          "07",
+          "08",
+          "09",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14"
+        ]
+      }
+    }
+  },
+  "quality": {
+    "sitemap_status": 200,
+    "sitemap_count": 33,
+    "internal_statuses": [
+      {
+        "url": "https://oolita.es/",
+        "status": 200,
+        "final": "https://oolita.es/"
+      },
+      {
+        "url": "https://oolita.es/en/",
+        "status": 200,
+        "final": "https://oolita.es/en/"
+      },
+      {
+        "url": "https://oolita.es/laberinto/",
+        "status": 200,
+        "final": "https://oolita.es/laberinto/"
+      },
+      {
+        "url": "https://oolita.es/en/labyrinth/",
+        "status": 200,
+        "final": "https://oolita.es/en/labyrinth/"
+      },
+      {
+        "url": "https://oolita.es/carteles/",
+        "status": 200,
+        "final": "https://oolita.es/carteles/"
+      },
+      {
+        "url": "https://oolita.es/en/posters/",
+        "status": 200,
+        "final": "https://oolita.es/en/posters/"
+      },
+      {
+        "url": "https://oolita.es/que-es-un-laberinto/",
+        "status": 200,
+        "final": "https://oolita.es/que-es-un-laberinto/"
+      },
+      {
+        "url": "https://oolita.es/en/what-is-a-labyrinth/",
+        "status": 200,
+        "final": "https://oolita.es/en/what-is-a-labyrinth/"
+      },
+      {
+        "url": "https://oolita.es/que-es-un-oolito/",
+        "status": 200,
+        "final": "https://oolita.es/que-es-un-oolito/"
+      },
+      {
+        "url": "https://oolita.es/en/what-is-an-ooid/",
+        "status": 200,
+        "final": "https://oolita.es/en/what-is-an-ooid/"
+      },
+      {
+        "url": "https://oolita.es/ediciones/",
+        "status": 200,
+        "final": "https://oolita.es/ediciones/"
+      },
+      {
+        "url": "https://oolita.es/en/editions/",
+        "status": 200,
+        "final": "https://oolita.es/en/editions/"
+      },
+      {
+        "url": "https://oolita.es/ediciones/libro/",
+        "status": 200,
+        "final": "https://oolita.es/ediciones/libro/"
+      },
+      {
+        "url": "https://oolita.es/en/editions/book/",
+        "status": 200,
+        "final": "https://oolita.es/en/editions/book/"
+      },
+      {
+        "url": "https://oolita.es/ediciones/camiseta/",
+        "status": 200,
+        "final": "https://oolita.es/ediciones/camiseta/"
+      },
+      {
+        "url": "https://oolita.es/en/editions/t-shirt/",
+        "status": 200,
+        "final": "https://oolita.es/en/editions/t-shirt/"
+      },
+      {
+        "url": "https://oolita.es/domingos/",
+        "status": 200,
+        "final": "https://oolita.es/domingos/"
+      },
+      {
+        "url": "https://oolita.es/en/sundays/",
+        "status": 200,
+        "final": "https://oolita.es/en/sundays/"
+      },
+      {
+        "url": "https://oolita.es/domingos/01-el-doble/",
+        "status": 200,
+        "final": "https://oolita.es/domingos/01-el-doble/"
+      },
+      {
+        "url": "https://oolita.es/en/sundays/01-the-double/",
+        "status": 200,
+        "final": "https://oolita.es/en/sundays/01-the-double/"
+      },
+      {
+        "url": "https://oolita.es/domingos/02-el-gato-de-verdad/",
+        "status": 200,
+        "final": "https://oolita.es/domingos/02-el-gato-de-verdad/"
+      },
+      {
+        "url": "https://oolita.es/en/sundays/02-the-cat-for-real/",
+        "status": 200,
+        "final": "https://oolita.es/en/sundays/02-the-cat-for-real/"
+      },
+      {
+        "url": "https://oolita.es/cabo-de-gata/",
+        "status": 200,
+        "final": "https://oolita.es/cabo-de-gata/"
+      },
+      {
+        "url": "https://oolita.es/en/cabo-de-gata/",
+        "status": 200,
+        "final": "https://oolita.es/en/cabo-de-gata/"
+      },
+      {
+        "url": "https://oolita.es/sobre-oolita/",
+        "status": 200,
+        "final": "https://oolita.es/sobre-oolita/"
+      },
+      {
+        "url": "https://oolita.es/en/about/",
+        "status": 200,
+        "final": "https://oolita.es/en/about/"
+      },
+      {
+        "url": "https://oolita.es/colaborar/",
+        "status": 200,
+        "final": "https://oolita.es/colaborar/"
+      },
+      {
+        "url": "https://oolita.es/en/work-with-oolita/",
+        "status": 200,
+        "final": "https://oolita.es/en/work-with-oolita/"
+      },
+      {
+        "url": "https://oolita.es/privacidad/",
+        "status": 200,
+        "final": "https://oolita.es/privacidad/"
+      },
+      {
+        "url": "https://oolita.es/en/privacy/",
+        "status": 200,
+        "final": "https://oolita.es/en/privacy/"
+      },
+      {
+        "url": "https://oolita.es/mundo-3d/",
+        "status": 200,
+        "final": "https://oolita.es/mundo-3d/"
+      },
+      {
+        "url": "https://oolita.es/en/3d-world/",
+        "status": 200,
+        "final": "https://oolita.es/en/3d-world/"
+      },
+      {
+        "url": "https://oolita.es/reels/",
+        "status": 200,
+        "final": "https://oolita.es/reels/"
+      }
+    ],
+    "representative": [
+      {
+        "path": "/",
+        "status": 200,
+        "title": true,
+        "description": true,
+        "canonical": "https://oolita.es/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/"
+          }
+        ],
+        "h1_count": 1,
+        "overflow": false,
+        "bad_images": 0,
+        "missing_alt": 0,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "path": "/en/",
+        "status": 200,
+        "title": true,
+        "description": true,
+        "canonical": "https://oolita.es/en/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/"
+          }
+        ],
+        "h1_count": 1,
+        "overflow": false,
+        "bad_images": 0,
+        "missing_alt": 0,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "path": "/ediciones/libro/",
+        "status": 200,
+        "title": true,
+        "description": true,
+        "canonical": "https://oolita.es/ediciones/libro/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/ediciones/libro/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/editions/book/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/ediciones/libro/"
+          }
+        ],
+        "h1_count": 1,
+        "overflow": false,
+        "bad_images": 0,
+        "missing_alt": 0,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "path": "/en/editions/book/",
+        "status": 200,
+        "title": true,
+        "description": true,
+        "canonical": "https://oolita.es/en/editions/book/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/ediciones/libro/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/editions/book/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/ediciones/libro/"
+          }
+        ],
+        "h1_count": 1,
+        "overflow": false,
+        "bad_images": 0,
+        "missing_alt": 0,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "path": "/domingos/",
+        "status": 200,
+        "title": true,
+        "description": true,
+        "canonical": "https://oolita.es/domingos/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/domingos/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/sundays/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/domingos/"
+          }
+        ],
+        "h1_count": 1,
+        "overflow": false,
+        "bad_images": 0,
+        "missing_alt": 0,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "path": "/en/sundays/",
+        "status": 200,
+        "title": true,
+        "description": true,
+        "canonical": "https://oolita.es/en/sundays/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/domingos/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/sundays/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/domingos/"
+          }
+        ],
+        "h1_count": 1,
+        "overflow": false,
+        "bad_images": 0,
+        "missing_alt": 0,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "path": "/laberinto/",
+        "status": 200,
+        "title": true,
+        "description": true,
+        "canonical": "https://oolita.es/laberinto/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/laberinto/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/labyrinth/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/laberinto/"
+          }
+        ],
+        "h1_count": 1,
+        "overflow": false,
+        "bad_images": 0,
+        "missing_alt": 0,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      },
+      {
+        "path": "/en/labyrinth/",
+        "status": 200,
+        "title": true,
+        "description": true,
+        "canonical": "https://oolita.es/en/labyrinth/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/laberinto/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/labyrinth/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/laberinto/"
+          }
+        ],
+        "h1_count": 1,
+        "overflow": false,
+        "bad_images": 0,
+        "missing_alt": 0,
+        "axe": {
+          "error": "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md"
+        },
+        "console_errors": [],
+        "page_errors": []
+      }
+    ],
+    "robots_status": 200,
+    "robots_has_sitemap": true,
+    "broken_internal_links": {
+      "pass": true,
+      "detail": []
+    },
+    "seo_metadata": {
+      "pass": true,
+      "detail": []
+    },
+    "mobile_overflow": {
+      "pass": true,
+      "detail": []
+    },
+    "images": {
+      "pass": true,
+      "detail": []
+    },
+    "javascript_console": {
+      "pass": true,
+      "detail": []
+    },
+    "accessibility_serious_critical": {
+      "pass": true,
+      "detail": []
+    },
+    "robots_sitemap": {
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    }
+  },
+  "errors": []
+}
