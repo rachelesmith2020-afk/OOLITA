@@ -31,7 +31,7 @@ jobs:
           npm install --no-save playwright @axe-core/playwright
           npx playwright install --with-deps chromium
 
-      - name: Patch audit runner to use explicit browser contexts
+      - name: Patch audit runner for explicit contexts and final wording invariant
         shell: bash
         run: |
           python3 - <<'PY'
@@ -48,6 +48,11 @@ jobs:
           if old2 not in s:
               raise SystemExit('context close patch target missing')
           s=s.replace(old2,new2,1)
+          old3="enDesk.bodyText.includes('OOLITA begins with a three-metre classical labyrinth')&&esDesk.bodyText.includes('OOLITA comienza con un laberinto clásico de tres metros')"
+          new3="enDesk.bodyText.includes('OOLITA begins with a three-metre classical labyrinth')&&enDesk.bodyText.includes('built from stone')&&!enDesk.bodyText.includes('loose calcarenite')&&esDesk.bodyText.includes('OOLITA comienza con un laberinto clásico de tres metros')"
+          if old3 not in s:
+              raise SystemExit('homepage invariant patch target missing')
+          s=s.replace(old3,new3,1)
           p.write_text(s)
           PY
 
