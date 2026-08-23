@@ -8,6 +8,7 @@
 - Applies the final public identity, release-date and provenance-safe wording layer.
 - Applies the 23 Aug live SEO audit repair as the last bundle mutation.
 - Applies the agreed reader-assessment priority fixes after the SEO repair.
+- Applies the non-critical SEO consistency follow-up last.
 """
 from __future__ import annotations
 
@@ -146,8 +147,8 @@ try:
 finally:
     sys.argv = old_argv
 
-# Reader-facing hierarchy/factual changes come last so neither the identity nor
-# SEO normalisation pass can restore the copy the reader audit is replacing.
+# Reader-facing hierarchy/factual changes come after the identity and critical
+# SEO normalisation passes so those earlier layers cannot restore superseded copy.
 reader_script = HERE / "apply_reader_assessment_v1.py"
 if not reader_script.is_file():
     raise SystemExit(f"Missing reader-assessment layer: {reader_script}")
@@ -155,5 +156,17 @@ old_argv = sys.argv[:]
 sys.argv = [str(reader_script), str(ROOT)]
 try:
     runpy.run_path(str(reader_script), run_name="__main__")
+finally:
+    sys.argv = old_argv
+
+# Non-critical SEO consistency runs last because it adds structured data and
+# corrects visible archive copy after all reader-facing mutations are final.
+followup_script = HERE / "apply_seo_followup_v1.py"
+if not followup_script.is_file():
+    raise SystemExit(f"Missing SEO follow-up layer: {followup_script}")
+old_argv = sys.argv[:]
+sys.argv = [str(followup_script), str(ROOT)]
+try:
+    runpy.run_path(str(followup_script), run_name="__main__")
 finally:
     sys.argv = old_argv
