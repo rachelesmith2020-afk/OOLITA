@@ -52,3 +52,6 @@ run_layer("apply_book_excerpt_v1.py")
 run_layer("apply_sunday_archive_v1.py")
 run_layer("apply_seo_followup_v1.py")
 run_layer("apply_menu_hierarchy_v1.py")
+# Final visual layer: content/SEO/functionality above stays authoritative; this
+# changes spatial hierarchy and presentation only.
+run_layer("apply_art_restage_v1.py")
