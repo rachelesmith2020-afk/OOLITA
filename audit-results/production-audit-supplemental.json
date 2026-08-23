@@ -1,0 +1,113 @@
+{
+  "generated_at": "2026-08-23T13:33:27.824Z",
+  "source_build_status": "failure",
+  "visible_dates": {
+    "home": [
+      "3 Jan 2027",
+      "9 Aug 26",
+      "3 Jan 27",
+      "31 January 2027",
+      "3 January 2027",
+      "16 May 27",
+      "16 Sep 27",
+      "19 Sep 27"
+    ],
+    "book": [
+      "31 January 2027"
+    ],
+    "english_home_unambiguous": {
+      "pass": true,
+      "detail": [
+        "3 Jan 2027",
+        "9 Aug 26",
+        "3 Jan 27",
+        "31 January 2027",
+        "3 January 2027",
+        "16 May 27",
+        "16 Sep 27",
+        "19 Sep 27"
+      ]
+    },
+    "english_book_unambiguous": {
+      "pass": true,
+      "detail": [
+        "31 January 2027"
+      ]
+    }
+  },
+  "mobile": {
+    "en": [
+      {
+        "width": 360,
+        "innerWidth": 360,
+        "scrollWidth": 360,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "collisions": [],
+        "header": {
+          "left": 16,
+          "right": 344,
+          "top": 0,
+          "bottom": 70.625,
+          "width": 328,
+          "height": 70.625
+        },
+        "hero": {
+          "left": 0,
+          "right": 360,
+          "top": 118.625,
+          "bottom": 1524.234375,
+          "width": 360,
+          "height": 1405.609375
+        },
+        "footer": {
+          "left": 0,
+          "right": 360,
+          "top": 9295.328125,
+          "bottom": 9508.703125,
+          "width": 360,
+          "height": 213.375
+        },
+        "footerOverlaps": [
+          [
+            "oolita@tutamail.com",
+            "For collaborators / stockists"
+          ]
+        ],
+        "yearStyle": {
+          "text": "2027",
+          "textDecoration": "none",
+          "background": "rgb(241, 231, 212)",
+          "before": "none",
+          "after": "none",
+          "rect": {
+            "left": 92.9375,
+            "right": 172.9375,
+            "top": 1620.75,
+            "bottom": 1652.65625,
+            "width": 80,
+            "height": 31.90625
+          }
+        },
+        "consoleErrors": [],
+        "pageErrors": [],
+        "axe": []
+      }
+    ]
+  },
+  "books": {},
+  "sundays": {},
+  "navigation": {},
+  "accessibility": {},
+  "errors": [
+    "Error: Please use browser.newContext()\n Please check out https://github.com/dequelabs/axe-core-npm/blob/develop/packages/playwright/error-handling.md\n    at AxeBuilder.analyze (file:///home/runner/work/OOLITA/OOLITA/node_modules/@axe-core/playwright/dist/index.mjs:218:13)\n    at async inspect (file:///home/runner/work/OOLITA/OOLITA/.github/audit/supplemental-audit.mjs:58:24)\n    at async file:///home/runner/work/OOLITA/OOLITA/.github/audit/supplemental-audit.mjs:77:17"
+  ]
+}
