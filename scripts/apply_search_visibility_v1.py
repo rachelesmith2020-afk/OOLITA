@@ -71,10 +71,14 @@ run_layer("apply_book_excerpt_v1.py")
 run_layer("apply_sunday_archive_v1.py")
 run_layer("apply_seo_followup_v1.py")
 run_layer("apply_menu_hierarchy_v1.py")
-# Final visual layers. All copy, SEO, forms and routes above remain authoritative;
-# these passes change only spatial presentation and responsive legibility.
+# Reader-facing visual layers.
 run_layer("apply_art_restage_v1.py")
 run_layer("apply_mobile_english_2027_fix_v1.py")
 run_layer("apply_visual_spacing_cleanup_v1.py")
 run_layer("apply_mobile_footer_cleanup_v1.py")
 run_layer("apply_home_overlay_reset_v1.py")
+# Always finish with the two idempotent quality layers after every other
+# transformation. This prevents mirrored-origin CSS or a later visual pass from
+# reintroducing the PIEDRA/STONE collision or low-contrast secondary text.
+run_layer("apply_visual_spacing_cleanup_v1.py")
+run_layer("apply_contrast_accessibility_v1.py")
