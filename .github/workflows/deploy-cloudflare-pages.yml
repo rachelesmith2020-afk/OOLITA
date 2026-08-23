@@ -276,3 +276,5 @@ jobs:
           done
           echo 'Deployment succeeded; status receipt push was skipped after retries.'
           exit 0
+
+# Production propagation trigger for exact homepage wording: built from stone.
