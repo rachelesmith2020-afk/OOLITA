@@ -75,6 +75,8 @@ html = homepage.read_text(encoding="utf-8")
 for old in (
     "laid by hand in 2021 from loose calcarenite",
     "laid by hand in 2021 from stone",
+    "laid by hand from loose calcarenite",
+    "laid by hand from stone",
 ):
     html = html.replace(old, "built from stone")
 homepage.write_text(html, encoding="utf-8")
