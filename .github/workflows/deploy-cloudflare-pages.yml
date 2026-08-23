@@ -65,7 +65,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: oolita-${{ github.event_name }}-${{ github.ref }}
@@ -248,36 +248,21 @@ jobs:
         shell: bash
         run: python3 scripts/submit_indexnow.py site/sitemap.xml search/indexnow-key.txt
 
-      - name: Record deployment and service status
+      - name: Summarize deployment and service checks
         if: ${{ always() && steps.deploy_site.outcome == 'success' }}
-        continue-on-error: true
         shell: bash
         run: |
-          set -euo pipefail
-          now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          mkdir -p deploy-status service-status
-          printf 'commit=%s\nrun_id=%s\ndeployed_at=%s\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$now" > deploy-status/latest.txt
-          printf 'commit=%s\nrun_id=%s\nchecked_at=%s\nanalytics_binding=%s\nanalytics_endpoint=%s\nindexnow=%s\n' \
-            "$GITHUB_SHA" "$GITHUB_RUN_ID" "$now" \
-            '${{ steps.analytics_binding.outcome }}' \
-            '${{ steps.analytics_verify.outcome }}' \
-            '${{ steps.indexnow.outcome }}' > service-status/latest.txt
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add deploy-status/latest.txt service-status/latest.txt
-          if git diff --cached --quiet; then
-            exit 0
-          fi
-          git commit -m 'Record OOLITA deployment and service status [skip ci]'
-          for attempt in 1 2 3; do
-            if git pull --rebase origin main && git push origin HEAD:main; then
-              exit 0
-            fi
-            git rebase --abort || true
-            sleep 2
-          done
-          echo 'Deployment succeeded; status receipt push was skipped after retries.'
-          exit 0
+          {
+            echo '### OOLITA production deployment'
+            echo ''
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Run: $GITHUB_RUN_ID"
+            echo "- Deployed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "- Analytics binding cleanup: ${{ steps.analytics_binding.outcome }}"
+            echo "- Analytics endpoint: ${{ steps.analytics_verify.outcome }}"
+            echo "- IndexNow: ${{ steps.indexnow.outcome }}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
 # Production propagation trigger for exact homepage wording: built from stone.
 # Production propagation verification trigger after live audit, 2026-08-23.
+# Deployment receipts are now run summaries, so main remains the deployable commit.
