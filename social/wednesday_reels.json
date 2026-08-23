@@ -1,0 +1,105 @@
+{
+  "account": "@oolita.es",
+  "timezone": "Europe/London",
+  "publish_time": "18:00",
+  "spain_time": "19:00",
+  "series": "Wednesday line · Sunday the image, Wednesday the movement",
+  "audio": "El levante · OOLITA",
+  "reels": [
+    {
+      "id": "R01", "date": "2026-08-26", "title": "La memoria del mar / The memory of the sea", "asset": "poster:05",
+      "caption": "LA MEMORIA DEL MAR\n\nOolita toma su nombre de las dunas fósiles oolíticas de Los Escullos, Cabo de Gata. En agua cálida y poco profunda, granos sueltos se redondearon capa sobre capa hasta formar oolitos. El viento levantó las dunas; las dunas se endurecieron en piedra.\n\n—\n\nTHE MEMORY OF THE SEA\n\nOolita takes its name from the oolitic fossil dunes of Los Escullos, Cabo de Gata. In warm shallow water, loose grains rounded layer by layer into ooids. Wind built the dunes; the dunes hardened into stone.\n\nLos nueve carteles · The nine posters — oolita.es/carteles/",
+      "first_comment": "Calcarenita oolítica · dunas fósiles de Los Escullos · oolitic fossil dunes, Cabo de Gata\n#oolita #cabodegata #losescullos #dunasfosiles #geologia"
+    },
+    {
+      "id": "R02", "date": "2026-09-02", "title": "OOLITA", "asset": "poster:01",
+      "caption": "OOLITA\n\nUn laberinto de piedra en Los Escullos, Cabo de Gata. Un camino. Un centro. Un regreso.\n\n—\n\nA stone labyrinth in Los Escullos, Cabo de Gata. One path. One centre. One return.\n\nLos nueve carteles · The nine posters — oolita.es/carteles/",
+      "first_comment": "Laberinto clásico de piedra · stone labyrinth · Los Escullos, Cabo de Gata\n#oolita #cabodegata #losescullos #laberinto #landart"
+    },
+    {
+      "id": "R03", "date": "2026-09-09", "title": "Piedra / Papel / Código", "asset": "poster:02",
+      "caption": "PIEDRA / PAPEL / CÓDIGO\n\nTres materiales sostienen Oolita. Piedra: el laberinto, puesto a mano en 2021. Papel: una fábula bilingüe de 48 páginas. Código: un mundo caminable, todavía en construcción.\n\n—\n\nSTONE / PAPER / CODE\n\nThree materials hold Oolita. Stone: the labyrinth, laid by hand in 2021. Paper: a 48-page bilingual fable. Code: a walkable world, still under construction.\n\noolita.es/carteles/",
+      "first_comment": "Piedra, libro y mundo 3D · stone, book and 3D world\n#oolita #cabodegata #landart #libroilustrado #threejs"
+    },
+    {
+      "id": "R04", "date": "2026-09-16", "title": "22 domingos / 22 Sundays", "asset": "poster:03",
+      "caption": "22 DOMINGOS\n\nDel 9 de agosto al 3 de enero, una imagen cada domingo. La serie tiene la forma de un laberinto: una entrada, tres circuitos, un centro, el regreso y la salida.\n\n—\n\n22 SUNDAYS\n\nFrom 9 August to 3 January, one image every Sunday. The series takes the form of a labyrinth: an entrance, three circuits, a centre, the return and the exit.\n\nDomingo: la imagen. Miércoles: el movimiento. Sigue @oolita.es.\nSunday: the image. Wednesday: the movement. Follow @oolita.es.",
+      "first_comment": "Una serie de 22 domingos hasta el 3 de enero · a 22-Sunday series to 3 January\n#oolita #cabodegata #losescullos #laberinto #artecontemporaneo"
+    },
+    {
+      "id": "R05", "date": "2026-09-23", "title": "Hecho para caminar / Made to be walked", "asset": "poster:07",
+      "caption": "HECHO PARA CAMINAR\n\nOolita es un laberinto clásico de piedra en Los Escullos. Es público, permanente y está siempre abierto. No hace falta reservar. Camina despacio y con respeto.\n\n—\n\nMADE TO BE WALKED\n\nOolita is a classical stone labyrinth at Los Escullos. It is public, permanent and always open. No booking is required. Walk slowly and respectfully.",
+      "first_comment": "Laberinto público en Los Escullos, Parque Natural Cabo de Gata-Níjar\n#oolita #cabodegata #losescullos #laberinto #landart"
+    },
+    {
+      "id": "R06", "date": "2026-09-30", "title": "En construcción, en código / Under construction, in code", "asset": "poster:08",
+      "caption": "EN CONSTRUCCIÓN, EN CÓDIGO\n\nUna Oolita digital se está construyendo a partir de mediciones del terreno real de Los Escullos. Todavía no está abierta. El mundo digital de Oolita abre el 3 de enero de 2027.\n\n—\n\nUNDER CONSTRUCTION, IN CODE\n\nA digital Oolita is being built from measurements of the real terrain at Los Escullos. It is not open yet. The digital Oolita world opens on 3 January 2027.",
+      "first_comment": "Los Escullos medido y reconstruido en 3D · surveyed terrain rebuilt in 3D\n#oolita #cabodegata #losescullos #threejs #artevirtual"
+    },
+    {
+      "id": "R07", "date": "2026-10-07", "title": "Hallado, no tomado / Found, not taken", "asset": "poster:06",
+      "caption": "HALLADO, NO TOMADO\n\nNada entra en Hallazgo si su ciclo no ha terminado: flores caídas, vainas secas, plumas mudadas, conchas vaciadas por el mar. No se corta nada vivo. No se rompe ninguna rama.\n\n—\n\nFOUND, NOT TAKEN\n\nNothing enters Hallazgo unless its cycle is complete: fallen flowers, dry pods, shed feathers, shells emptied by the sea. Nothing living is cut. No branch is broken.\n\nHallazgo · Raquel Costantini · Oolita",
+      "first_comment": "Hallazgo: encontrado, registrado, no tomado vivo · found, recorded, nothing living taken\n#oolita #hallazgo #cabodegata #artecontemporaneo #naturaleza"
+    },
+    {
+      "id": "R08", "date": "2026-10-14", "title": "Un camino. Un centro. Un regreso. / One path. One centre. One return.", "asset": "poster:04",
+      "caption": "UN CAMINO. UN CENTRO. UN REGRESO.\n\nUn laberinto no es un dédalo. Tiene un solo camino de entrada, hacia el centro y de vuelta. No hay decisiones, atajos ni callejones sin salida.\n\n—\n\nONE PATH. ONE CENTRE. ONE RETURN.\n\nA labyrinth is not a maze. It has one path in, to the centre and back out. There are no choices, shortcuts or dead ends.",
+      "first_comment": "Laberinto, no dédalo · labyrinth, not maze\n#oolita #laberinto #labyrinth #cabodegata #losescullos"
+    },
+    {
+      "id": "R09", "date": "2026-10-21", "title": "Para los días en que el mundo suena demasiado fuerte", "asset": "poster:09",
+      "caption": "PARA LOS DÍAS EN QUE EL MUNDO SUENA DEMASIADO FUERTE\n\nOolita es también una fábula bilingüe de 48 páginas. Electro, un gato real de esta costa, camina el laberinto. El libro se muestra el 1 de noviembre y estará disponible el 31 de enero.\n\n—\n\nFOR THE DAYS WHEN THE WORLD SOUNDS TOO LOUD\n\nOolita is also a 48-page bilingual fable. Electro, a real cat from this coast, walks the labyrinth. The book is shown on 1 November and will be available on 31 January.",
+      "first_comment": "Oolita · fábula bilingüe ES/EN · bilingual illustrated fable\n#oolita #libroilustrado #bilingualbooks #cabodegata #literatura"
+    },
+    {
+      "id": "R10", "date": "2026-10-28", "title": "El Abrigo de la Duna / The reading cave", "asset": "abrigo:room",
+      "caption": "EL ABRIGO DE LA DUNA\n\nUna sala de lectura dentro de una hendidura de la duna fósil. Silla, mesa, lámpara, alfombra, libros. Un lugar para detenerse dentro del mundo de Oolita.\n\n—\n\nTHE READING CAVE\n\nA reading room inside a hollow in the fossil dune. Chair, table, lamp, rug, books. A place to stop inside the world of Oolita.\n\nEl Abrigo forma parte del mundo 3D que abre el 3 de enero de 2027.",
+      "first_comment": "El Abrigo de la Duna · sala de lectura de Oolita · Los Escullos\n#oolita #elabrigo #cabodegata #artevirtual #interiordesign"
+    },
+    {
+      "id": "R11", "date": "2026-11-04", "title": "Dos guiños de diseño / Two design nods", "asset": "abrigo:design",
+      "caption": "DOS GUIÑOS DE DISEÑO\n\nLa lámpara hace un guiño al Arco de Achille y Pier Giacomo Castiglioni, 1962. La mesa parte de la Coffee Table de Isamu Noguchi, 1944, pero aquí la base se rehace como una sola masa irregular.\n\nLos modelos de El Abrigo fueron construidos para Oolita: referencias reconocibles, no productos originales.\n\n—\n\nTWO DESIGN NODS\n\nThe lamp nods to the Arco by Achille and Pier Giacomo Castiglioni, 1962. The table begins with Isamu Noguchi's 1944 Coffee Table, but here the base is remade as a single irregular mass.\n\nThe El Abrigo models were built for Oolita: recognisable references, not original products.",
+      "first_comment": "Castiglioni · Noguchi · diseño citado dentro de una obra virtual\n#oolita #diseno #designhistory #artevirtual #elabrigo"
+    },
+    {
+      "id": "R12", "date": "2026-11-11", "title": "ⵣ · yaz", "asset": "abrigo:yaz",
+      "caption": "ⵣ · YAZ\n\nEn el sillón de El Abrigo aparece ⵣ, yaz, una letra del alfabeto tifinagh y un símbolo central de la identidad amazigh. Debajo, una alfombra construida como un guiño a la tradición Azilal del Alto Atlas.\n\nNo están ahí como decoración anónima: se nombran porque tienen procedencia.\n\n—\n\nⵣ · YAZ\n\nOn the chair in El Abrigo is ⵣ, yaz, a letter of the Tifinagh alphabet and a central symbol of Amazigh identity. Beneath it, a rug built as a nod to the Azilal tradition of the High Atlas.\n\nThey are named because they have a provenance.",
+      "first_comment": "ⵣ · tifinagh · amazigh · Azilal · Alto Atlas\n#oolita #amazigh #tifinagh #azilal #elabrigo"
+    },
+    {
+      "id": "R13", "date": "2026-11-18", "title": "La estantería / The shelf", "asset": "abrigo:shelf",
+      "caption": "LA ESTANTERÍA\n\nSeis lomos dentro de El Abrigo: Machado, Thoreau, Humboldt, Darwin, San Juan de la Cruz y Ovidio. No es una lista de libros bonitos. Es una pequeña biblioteca sobre caminar, mirar, registrar y cambiar de forma.\n\n—\n\nTHE SHELF\n\nSix spines inside El Abrigo: Machado, Thoreau, Humboldt, Darwin, San Juan de la Cruz and Ovid. Not a list of beautiful books: a small library about walking, looking, recording and changing form.",
+      "first_comment": "La biblioteca de El Abrigo · six books inside Oolita\n#oolita #biblioteca #literatura #elabrigo #cabodegata"
+    },
+    {
+      "id": "R14", "date": "2026-11-25", "title": "Machado · Campos de Castilla", "asset": "cover:machado",
+      "caption": "MACHADO · CAMPOS DE CASTILLA\n\nCaminar y paisaje. El camino no como escenario, sino como forma de pensar. Por eso Machado abre la biblioteca de El Abrigo.\n\n—\n\nMACHADO · CAMPOS DE CASTILLA\n\nWalking and landscape. The road not as scenery, but as a way of thinking. That is why Machado opens the library of El Abrigo.",
+      "first_comment": "Antonio Machado · Campos de Castilla · biblioteca de El Abrigo\n#oolita #machado #camposdecastilla #literatura #elabrigo"
+    },
+    {
+      "id": "R15", "date": "2026-12-02", "title": "Thoreau · Walden", "asset": "cover:walden",
+      "caption": "THOREAU · WALDEN\n\nUna habitación, un paisaje y una pregunta por lo esencial. Walden entra en El Abrigo porque leer también puede ser una forma de retirarse lo justo para volver a mirar.\n\n—\n\nTHOREAU · WALDEN\n\nA room, a landscape and a question about what is essential. Walden enters El Abrigo because reading can also be a way of withdrawing just far enough to look again.",
+      "first_comment": "Henry David Thoreau · Walden · biblioteca de El Abrigo\n#oolita #thoreau #walden #literatura #elabrigo"
+    },
+    {
+      "id": "R16", "date": "2026-12-09", "title": "Humboldt · Cuadros de la naturaleza", "asset": "cover:humboldt",
+      "caption": "HUMBOLDT · CUADROS DE LA NATURALEZA\n\nAntes de que ecología fuese una palabra, Humboldt escribía el mundo como una red de relaciones. Piedra, clima, plantas, altura, mirada: nada aislado.\n\n—\n\nHUMBOLDT · VIEWS OF NATURE\n\nBefore ecology was a word, Humboldt wrote the world as a network of relations. Stone, climate, plants, altitude, observation: nothing isolated.",
+      "first_comment": "Alexander von Humboldt · Cuadros de la naturaleza · Views of Nature\n#oolita #humboldt #naturaleza #literatura #elabrigo"
+    },
+    {
+      "id": "R17", "date": "2026-12-16", "title": "Darwin · El viaje del Beagle", "asset": "cover:beagle",
+      "caption": "DARWIN · EL VIAJE DEL BEAGLE\n\nUn joven naturalista leyendo costas, fósiles, animales y piedra mientras viaja. El mundo como cuaderno de campo.\n\n—\n\nDARWIN · THE VOYAGE OF THE BEAGLE\n\nA young naturalist reading coasts, fossils, animals and stone while travelling. The world as field notebook.",
+      "first_comment": "Charles Darwin · El viaje del Beagle · The Voyage of the Beagle\n#oolita #darwin #beagle #historianatural #elabrigo"
+    },
+    {
+      "id": "R18", "date": "2026-12-23", "title": "San Juan de la Cruz · Poesías", "asset": "cover:sanjuan",
+      "caption": "SAN JUAN DE LA CRUZ · POESÍAS\n\nLa noche, el camino, el centro. El volumen más quieto de la estantería de El Abrigo.\n\n—\n\nSAN JUAN DE LA CRUZ · POEMS\n\nThe night, the path, the centre. The quietest volume on the shelf in El Abrigo.",
+      "first_comment": "San Juan de la Cruz · poesía · biblioteca de El Abrigo\n#oolita #sanjuandelacruz #poesia #literatura #elabrigo"
+    },
+    {
+      "id": "R19", "date": "2026-12-30", "title": "Ovidio · Las metamorfosis", "asset": "cover:ovid",
+      "caption": "OVIDIO · LAS METAMORFOSIS\n\nForma cambiando en forma. Arena, piedra, camino, libro, mundo. Cuatro días después, el 3 de enero, la puerta de Oolita se abre.\n\n—\n\nOVID · METAMORPHOSES\n\nForm changing into form. Sand, stone, path, book, world. Four days later, on 3 January, the door to Oolita opens.\n\nSigue @oolita.es para la apertura · Follow @oolita.es for the opening.",
+      "first_comment": "Ovidio · Metamorfosis · último miércoles antes de la apertura\n#oolita #ovidio #metamorfosis #literatura #elabrigo"
+    }
+  ]
+}
