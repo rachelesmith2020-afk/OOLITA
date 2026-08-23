@@ -59,3 +59,5 @@ jobs:
           git commit -m 'Record production build diagnostic [skip ci]' || exit 0
           git pull --rebase origin audit/live-production-20260823
           git push origin HEAD:audit/live-production-20260823
+
+# rerun after mobile-2027 date-normalisation fix
