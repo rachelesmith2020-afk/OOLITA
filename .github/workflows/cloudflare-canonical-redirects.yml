@@ -1,0 +1,81 @@
+name: OOLITA Cloudflare canonical redirects
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/cloudflare-canonical-redirects.yml'
+      - 'scripts/configure_cloudflare_redirects.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cloudflare-canonical-redirects.yml'
+      - 'scripts/configure_cloudflare_redirects.py'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type APPLY to reconcile OOLITA redirect rules'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oolita-cloudflare-canonical-redirects
+  cancel-in-progress: false
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
+
+jobs:
+  check:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate redirect manager syntax
+        run: python3 -m py_compile scripts/configure_cloudflare_redirects.py
+
+      - name: Read current Cloudflare redirect state
+        run: python3 scripts/configure_cloudflare_redirects.py
+
+  apply:
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'APPLY') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Require Cloudflare token
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+
+      - name: Reconcile Cloudflare canonical redirect
+        run: python3 scripts/configure_cloudflare_redirects.py --apply
+
+      - name: Verify canonical redirects live
+        shell: bash
+        run: |
+          set -euo pipefail
+          check_redirect() {
+            url="$1"
+            expected="$2"
+            headers="$(curl -sS -D - -o /dev/null --max-redirs 0 "$url")"
+            code="$(printf '%s\n' "$headers" | awk 'NR==1 {print $2}')"
+            location="$(printf '%s\n' "$headers" | awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]*:[[:space:]]*/, ""); sub(/\r$/, ""); print; exit}')"
+            printf '%s -> HTTP %s %s\n' "$url" "$code" "$location"
+            test "$code" = "301"
+            test "$location" = "$expected"
+          }
+
+          check_redirect 'http://www.oolita.es/EN/EDITIONS/BOOK/' 'https://oolita.es/en/editions/book/'
+          check_redirect 'https://www.oolita.es/en/' 'https://oolita.es/en/'
+          check_redirect 'https://oolita.es/LABERINTO/' 'https://oolita.es/laberinto/'
