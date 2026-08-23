@@ -1,4 +1,4 @@
-name: One-shot OOLITA contrast diagnostic
+name: One-shot OOLITA contrast deploy and verification
 
 on:
   push:
@@ -10,83 +10,136 @@ permissions:
   contents: write
 
 concurrency:
-  group: oolita-contrast-diagnostic-once
+  group: oolita-contrast-final
   cancel-in-progress: true
 
 jobs:
-  audit:
+  deploy-and-verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
     steps:
-      - uses: actions/checkout@v4
-      - name: Install browser and Axe
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Require Cloudflare token
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
+
+      - name: Reconstruct production site
+        shell: bash
+        run: bash scripts/build_site_for_deploy.sh
+
+      - name: Apply production layers and contrast last
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/apply_direction_v3.py site
+          python3 scripts/growth_prep.py site
+          python3 scripts/apply_growth_v1.py site
+          python3 scripts/apply_commerce.py site commerce/catalog.json
+          python3 scripts/apply_list_completion_v1.py site
+          python3 scripts/apply_follow_transition_v1.py site
+          python3 scripts/apply_release_calendar_v1.py site
+          python3 scripts/apply_audit_fixes_v1.py site
+          python3 scripts/apply_first_party_analytics_v1.py site
+          python3 scripts/apply_search_visibility_v1.py site
+          python3 scripts/apply_visual_spacing_cleanup_v1.py site
+          python3 scripts/apply_contrast_accessibility_v1.py site
+
+      - name: Validate Pages Functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check functions/api/event.js
+          node --check functions/api/subscribe.js
+          node --check functions/api/unsubscribe.js
+          python3 scripts/configure_cloudflare_analytics.py
+          npx --yes wrangler@latest pages functions build functions --outfile /tmp/oolita-worker.js
+
+      - name: Deploy repaired production site
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@latest pages deploy site --project-name=oolita --branch=main --commit-dirty=true
+
+      - name: Wait for live contrast marker
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            html="$(curl -fsSL -H 'Cache-Control: no-cache' "https://oolita.es/?contrast-live=$GITHUB_RUN_ID-$attempt" || true)"
+            if [[ "$html" == *'oolita-contrast-accessibility-v1'* ]]; then
+              echo "Contrast layer live on attempt $attempt."
+              exit 0
+            fi
+            echo "Waiting for contrast layer ($attempt/30)…"
+            sleep 5
+          done
+          echo 'Contrast layer did not reach oolita.es in time.' >&2
+          exit 1
+
+      - name: Install Chromium and Axe
         shell: bash
         run: |
           set -euo pipefail
           npm install --no-save playwright@latest axe-core@latest
           npx playwright install --with-deps chromium
-      - name: Capture unique live contrast failures
+
+      - name: Verify zero live contrast violations across sitemap
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p audit-results
           node <<'NODE'
           const fs = require('fs');
           const { chromium } = require('playwright');
           const axePath = require.resolve('axe-core/axe.min.js');
-          const urls = [
-            'https://oolita.es/',
-            'https://oolita.es/en/',
-            'https://oolita.es/ediciones/libro/',
-            'https://oolita.es/en/editions/book/',
-            'https://oolita.es/domingos/',
-            'https://oolita.es/en/sundays/'
-          ];
+          const sitemap = fs.readFileSync('site/sitemap.xml','utf8');
+          const urls = [...sitemap.matchAll(/<loc>\s*(https:\/\/oolita\.es[^<]+)\s*<\/loc>/gi)].map(m=>m[1].trim());
+          if (!urls.length) throw new Error('No oolita.es URLs found in sitemap');
           (async()=>{
             const browser = await chromium.launch({headless:true});
-            const report = {generated_at:new Date().toISOString(), pages:[], total_nodes:0};
-            for (const url of urls) {
-              const page = await browser.newPage({viewport:{width:1280,height:900}});
-              await page.goto(url + '?contrast-summary=' + Date.now(), {waitUntil:'networkidle'});
-              await page.addScriptTag({path:axePath});
-              const raw = await page.evaluate(async()=>{
-                const out = await axe.run(document, {runOnly:{type:'rule',values:['color-contrast']}});
-                return out.violations.flatMap(v => v.nodes.map(n => ({target:n.target, failureSummary:n.failureSummary})));
-              });
-              const groups = new Map();
-              for (const item of raw) {
-                const selector = Array.isArray(item.target) ? item.target[0] : item.target;
-                const key = selector.replace(/:nth-child\(\d+\)/g, ':nth-child(*)');
-                if (!groups.has(key)) groups.set(key,{selector:key,count:0,example_selector:selector,failureSummary:item.failureSummary});
-                groups.get(key).count++;
+            const failures=[];
+            for (const width of [1280,390]) {
+              const height = width === 1280 ? 900 : 844;
+              for (const url of urls) {
+                const page = await browser.newPage({viewport:{width,height}});
+                page.setDefaultNavigationTimeout(20000);
+                await page.goto(url + (url.includes('?')?'&':'?') + 'contrast-verify=' + Date.now(), {waitUntil:'domcontentloaded'});
+                await page.addScriptTag({path:axePath});
+                const result = await page.evaluate(async()=>{
+                  const out = await axe.run(document, {runOnly:{type:'rule',values:['color-contrast']}});
+                  return out.violations.flatMap(v => v.nodes.map(n => ({target:n.target,summary:n.failureSummary})));
+                });
+                if (result.length) failures.push({width,url,count:result.length,nodes:result.slice(0,8)});
+                console.log(`${width}px ${url} contrast=${result.length}`);
+                await page.close();
               }
-              const unique=[];
-              for (const group of groups.values()) {
-                const details = await page.evaluate((sel)=>{
-                  let el;
-                  try { el = document.querySelector(sel); } catch { return {selectorError:true}; }
-                  if (!el) return {missing:true};
-                  const cs=getComputedStyle(el);
-                  return {text:(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,140),color:cs.color,background:cs.backgroundColor,opacity:cs.opacity,fontSize:cs.fontSize,fontWeight:cs.fontWeight,className:(typeof el.className==='string'?el.className:'')};
-                }, group.example_selector);
-                unique.push({...group,details});
-              }
-              report.pages.push({url,node_count:raw.length,unique});
-              report.total_nodes += raw.length;
-              await page.close();
             }
             await browser.close();
-            fs.writeFileSync('audit-results/contrast-summary.json', JSON.stringify(report,null,2));
-            console.log('TOTAL_CONTRAST_NODES=' + report.total_nodes);
+            console.log(`Checked ${urls.length} sitemap URLs at two viewports.`);
+            if (failures.length) {
+              console.error(JSON.stringify(failures,null,2));
+              throw new Error(`Live contrast verification failed on ${failures.length} page/viewport combinations`);
+            }
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
-      - name: Commit summary
+
+      - name: Remove temporary contrast audit files after success
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git pull --rebase origin main
-          git add audit-results/contrast-summary.json
-          git commit -m 'Record live contrast summary [skip ci]'
+          rm -f .github/workflows/contrast-diagnostic-once.yml
+          rm -f audit-results/contrast-diagnostic.json audit-results/contrast-summary.json
+          git add -A .github/workflows/contrast-diagnostic-once.yml audit-results/contrast-diagnostic.json audit-results/contrast-summary.json
+          git commit -m 'Remove completed contrast audit scaffolding [skip ci]'
           git push origin HEAD:main
