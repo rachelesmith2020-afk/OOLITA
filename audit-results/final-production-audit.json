@@ -1,0 +1,2481 @@
+{
+  "generated_at": "2026-08-23T13:42:20.522Z",
+  "target_main_sha": "3d9caa9a1b8e763bd3be5a921963e942fb627c22",
+  "deployment": {
+    "latest": {
+      "id": "12c789b4-a31f-4d44-93d5-491e4eb92cae",
+      "url": "https://12c789b4.oolita.pages.dev",
+      "environment": "production",
+      "created_on": "2026-08-23T13:42:10.405338Z",
+      "status": "success",
+      "branch": "main",
+      "commit_hash": "3d9caa9a1b8e763bd3be5a921963e942fb627c22",
+      "commit_message": "Make production date normalization idempotent",
+      "aliases": [
+        "https://oolita.es",
+        "https://www.oolita.es"
+      ]
+    },
+    "canonical": {
+      "id": "12c789b4-a31f-4d44-93d5-491e4eb92cae",
+      "url": "https://12c789b4.oolita.pages.dev",
+      "environment": "production",
+      "created_on": "2026-08-23T13:42:10.405338Z",
+      "status": "success",
+      "branch": "main",
+      "commit_hash": "3d9caa9a1b8e763bd3be5a921963e942fb627c22",
+      "commit_message": "Make production date normalization idempotent",
+      "aliases": [
+        "https://oolita.es",
+        "https://www.oolita.es"
+      ]
+    },
+    "exact_main_is_production": {
+      "pass": true,
+      "detail": {
+        "target": "3d9caa9a1b8e763bd3be5a921963e942fb627c22",
+        "latest": {
+          "id": "12c789b4-a31f-4d44-93d5-491e4eb92cae",
+          "url": "https://12c789b4.oolita.pages.dev",
+          "environment": "production",
+          "created_on": "2026-08-23T13:42:10.405338Z",
+          "status": "success",
+          "branch": "main",
+          "commit_hash": "3d9caa9a1b8e763bd3be5a921963e942fb627c22",
+          "commit_message": "Make production date normalization idempotent",
+          "aliases": [
+            "https://oolita.es",
+            "https://www.oolita.es"
+          ]
+        }
+      }
+    },
+    "production_branch_main": {
+      "pass": true,
+      "detail": "main"
+    },
+    "latest_main_live_fingerprint": {
+      "pass": true,
+      "detail": "Latest-main homepage overlay-reset marker is live in EN and ES"
+    }
+  },
+  "cloudflare": {
+    "pages_config": {
+      "compatibility_date": "2026-08-10",
+      "compatibility_flags": [],
+      "d1_databases": {
+        "OOLITA_SUBSCRIBERS": {
+          "id": "05b1cd1d-52fd-4a11-8142-13ab92a2c712"
+        }
+      },
+      "analytics_engine_datasets": null
+    },
+    "d1_binding": {
+      "pass": true,
+      "detail": {
+        "OOLITA_SUBSCRIBERS": {
+          "id": "05b1cd1d-52fd-4a11-8142-13ab92a2c712"
+        }
+      }
+    },
+    "tracing_observability_clean": {
+      "pass": true,
+      "detail": "No Pages production observability/tracing field"
+    },
+    "wrangler_clean": {
+      "pass": true,
+      "detail": "wrangler.toml has D1 production binding and no [observability] table"
+    },
+    "live_d1_health": {
+      "pass": true,
+      "detail": "HTTP 204"
+    }
+  },
+  "corrections": {
+    "english_dates": {
+      "pass": true,
+      "detail": {
+        "sample": "til the digital path opens. 22 SUNDAYS 22 DOMINGOS THE 3D WORLD OPENS 3 Jan 2027 00:00 CET 132 DAYS / DÍAS 09 HOURS / HORAS 17 MIN 37 SEC / SEG 22 SUNDAYS The same path, "
+      }
+    },
+    "follow_loading_honeypot": {
+      "pass": true,
+      "detail": null
+    },
+    "homepage_opening": {
+      "pass": true,
+      "detail": null
+    },
+    "fable_cat": {
+      "pass": true,
+      "detail": null
+    },
+    "free_3_january_reading": {
+      "pass": true,
+      "detail": null
+    },
+    "exists_now": {
+      "pass": true,
+      "detail": null
+    },
+    "bilingual_excerpt_illustration": {
+      "pass": true,
+      "detail": null
+    },
+    "sundays_archive": {
+      "pass": true,
+      "detail": null
+    },
+    "navigation_hierarchy": {
+      "pass": true,
+      "detail": {
+        "en": [
+          "Read and understand",
+          "Elsewhere",
+          "Project"
+        ],
+        "es": [
+          "Leer y entender",
+          "Fuera de este sitio",
+          "Proyecto"
+        ]
+      }
+    }
+  },
+  "mobile": {
+    "en": [
+      {
+        "width": 360,
+        "innerWidth": 360,
+        "scrollWidth": 360,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "collisions": [],
+        "header": {
+          "left": 16,
+          "right": 344,
+          "top": 0,
+          "bottom": 70.625,
+          "width": 328,
+          "height": 70.625
+        },
+        "hero": {
+          "left": 0,
+          "right": 360,
+          "top": 118.625,
+          "bottom": 1474.6875,
+          "width": 360,
+          "height": 1356.0625
+        },
+        "footer": {
+          "left": 0,
+          "right": 360,
+          "top": 9245.78125,
+          "bottom": 9490.234375,
+          "width": 360,
+          "height": 244.453125
+        },
+        "footerOverlaps": [],
+        "yearStyle": {
+          "text": "2027",
+          "textDecoration": "none",
+          "background": "rgb(241, 231, 212)",
+          "before": "none",
+          "after": "none",
+          "rect": {
+            "left": 92.9375,
+            "right": 172.9375,
+            "top": 1571.203125,
+            "bottom": 1603.109375,
+            "width": 80,
+            "height": 31.90625
+          }
+        },
+        "axe": [],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "width": 390,
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "collisions": [],
+        "header": {
+          "left": 17.15625,
+          "right": 372.84375,
+          "top": 0,
+          "bottom": 55.625,
+          "width": 355.6875,
+          "height": 55.625
+        },
+        "hero": {
+          "left": 0,
+          "right": 390,
+          "top": 103.625,
+          "bottom": 1472.375,
+          "width": 390,
+          "height": 1368.75
+        },
+        "footer": {
+          "left": 0,
+          "right": 390,
+          "top": 9258.09375,
+          "bottom": 9502.546875,
+          "width": 390,
+          "height": 244.453125
+        },
+        "footerOverlaps": [],
+        "yearStyle": {
+          "text": "2027",
+          "textDecoration": "none",
+          "background": "rgb(241, 231, 212)",
+          "before": "none",
+          "after": "none",
+          "rect": {
+            "left": 94.09375,
+            "right": 174.09375,
+            "top": 1568.890625,
+            "bottom": 1600.796875,
+            "width": 80,
+            "height": 31.90625
+          }
+        },
+        "axe": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "nodes": 8,
+            "help": "Elements must meet minimum color contrast ratio thresholds"
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "width": 412,
+        "innerWidth": 412,
+        "scrollWidth": 412,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "collisions": [],
+        "header": {
+          "left": 18.125,
+          "right": 393.875,
+          "top": 0,
+          "bottom": 55.625,
+          "width": 375.75,
+          "height": 55.625
+        },
+        "hero": {
+          "left": 0,
+          "right": 412,
+          "top": 103.625,
+          "bottom": 1481.65625,
+          "width": 412,
+          "height": 1378.03125
+        },
+        "footer": {
+          "left": 0,
+          "right": 412,
+          "top": 9169.0625,
+          "bottom": 9399.328125,
+          "width": 412,
+          "height": 230.265625
+        },
+        "footerOverlaps": [],
+        "yearStyle": {
+          "text": "2027",
+          "textDecoration": "none",
+          "background": "rgb(241, 231, 212)",
+          "before": "none",
+          "after": "none",
+          "rect": {
+            "left": 95.0625,
+            "right": 175.0625,
+            "top": 1578.171875,
+            "bottom": 1610.078125,
+            "width": 80,
+            "height": 31.90625
+          }
+        },
+        "axe": [],
+        "consoleErrors": [],
+        "pageErrors": []
+      }
+    ],
+    "es": [
+      {
+        "width": 360,
+        "innerWidth": 360,
+        "scrollWidth": 360,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Saltar al contenido",
+            "left": -9999,
+            "right": -9858
+          }
+        ],
+        "collisions": [],
+        "header": {
+          "left": 16,
+          "right": 344,
+          "top": 0,
+          "bottom": 70.625,
+          "width": 328,
+          "height": 70.625
+        },
+        "hero": {
+          "left": 0,
+          "right": 360,
+          "top": 118.625,
+          "bottom": 1500.71875,
+          "width": 360,
+          "height": 1382.09375
+        },
+        "footer": {
+          "left": 0,
+          "right": 360,
+          "top": 9552.203125,
+          "bottom": 9850.4375,
+          "width": 360,
+          "height": 298.234375
+        },
+        "footerOverlaps": [],
+        "yearStyle": null,
+        "axe": [],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "width": 390,
+        "innerWidth": 390,
+        "scrollWidth": 390,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Saltar al contenido",
+            "left": -9999,
+            "right": -9858
+          }
+        ],
+        "collisions": [],
+        "header": {
+          "left": 17.15625,
+          "right": 372.84375,
+          "top": 0,
+          "bottom": 55.625,
+          "width": 355.6875,
+          "height": 55.625
+        },
+        "hero": {
+          "left": 0,
+          "right": 390,
+          "top": 103.625,
+          "bottom": 1498.40625,
+          "width": 390,
+          "height": 1394.78125
+        },
+        "footer": {
+          "left": 0,
+          "right": 390,
+          "top": 9459.90625,
+          "bottom": 9690.171875,
+          "width": 390,
+          "height": 230.265625
+        },
+        "footerOverlaps": [],
+        "yearStyle": null,
+        "axe": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "nodes": 8,
+            "help": "Elements must meet minimum color contrast ratio thresholds"
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "width": 412,
+        "innerWidth": 412,
+        "scrollWidth": 412,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Saltar al contenido",
+            "left": -9999,
+            "right": -9858
+          }
+        ],
+        "collisions": [],
+        "header": {
+          "left": 18.125,
+          "right": 393.875,
+          "top": 0,
+          "bottom": 55.625,
+          "width": 375.75,
+          "height": 55.625
+        },
+        "hero": {
+          "left": 0,
+          "right": 412,
+          "top": 103.625,
+          "bottom": 1455.625,
+          "width": 412,
+          "height": 1352
+        },
+        "footer": {
+          "left": 0,
+          "right": 412,
+          "top": 9412.75,
+          "bottom": 9643.015625,
+          "width": 412,
+          "height": 230.265625
+        },
+        "footerOverlaps": [],
+        "yearStyle": null,
+        "axe": [],
+        "consoleErrors": [],
+        "pageErrors": []
+      }
+    ],
+    "english_2027_line_gone": {
+      "pass": true,
+      "detail": {
+        "text": "2027",
+        "textDecoration": "none",
+        "background": "rgb(241, 231, 212)",
+        "before": "none",
+        "after": "none",
+        "rect": {
+          "left": 94.09375,
+          "right": 174.09375,
+          "top": 1568.890625,
+          "bottom": 1600.796875,
+          "width": 80,
+          "height": 31.90625
+        }
+      }
+    },
+    "english_spacing_overflow": {
+      "pass": false,
+      "detail": [
+        {
+          "width": 360,
+          "innerWidth": 360,
+          "scrollWidth": 360,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Skip to content",
+              "left": -9999,
+              "right": -9884
+            }
+          ],
+          "collisions": []
+        },
+        {
+          "width": 390,
+          "innerWidth": 390,
+          "scrollWidth": 390,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Skip to content",
+              "left": -9999,
+              "right": -9884
+            }
+          ],
+          "collisions": []
+        },
+        {
+          "width": 412,
+          "innerWidth": 412,
+          "scrollWidth": 412,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Skip to content",
+              "left": -9999,
+              "right": -9884
+            }
+          ],
+          "collisions": []
+        }
+      ]
+    },
+    "spanish_spacing_overflow": {
+      "pass": false,
+      "detail": [
+        {
+          "width": 360,
+          "innerWidth": 360,
+          "scrollWidth": 360,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Saltar al contenido",
+              "left": -9999,
+              "right": -9858
+            }
+          ],
+          "collisions": []
+        },
+        {
+          "width": 390,
+          "innerWidth": 390,
+          "scrollWidth": 390,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Saltar al contenido",
+              "left": -9999,
+              "right": -9858
+            }
+          ],
+          "collisions": []
+        },
+        {
+          "width": 412,
+          "innerWidth": 412,
+          "scrollWidth": 412,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Saltar al contenido",
+              "left": -9999,
+              "right": -9858
+            }
+          ],
+          "collisions": []
+        }
+      ]
+    },
+    "footer_layout": {
+      "pass": true,
+      "detail": [
+        {
+          "width": 360,
+          "footer": {
+            "left": 0,
+            "right": 360,
+            "top": 9245.78125,
+            "bottom": 9490.234375,
+            "width": 360,
+            "height": 244.453125
+          },
+          "overlaps": []
+        },
+        {
+          "width": 390,
+          "footer": {
+            "left": 0,
+            "right": 390,
+            "top": 9258.09375,
+            "bottom": 9502.546875,
+            "width": 390,
+            "height": 244.453125
+          },
+          "overlaps": []
+        },
+        {
+          "width": 412,
+          "footer": {
+            "left": 0,
+            "right": 412,
+            "top": 9169.0625,
+            "bottom": 9399.328125,
+            "width": 412,
+            "height": 230.265625
+          },
+          "overlaps": []
+        },
+        {
+          "width": 360,
+          "footer": {
+            "left": 0,
+            "right": 360,
+            "top": 9552.203125,
+            "bottom": 9850.4375,
+            "width": 360,
+            "height": 298.234375
+          },
+          "overlaps": []
+        },
+        {
+          "width": 390,
+          "footer": {
+            "left": 0,
+            "right": 390,
+            "top": 9459.90625,
+            "bottom": 9690.171875,
+            "width": 390,
+            "height": 230.265625
+          },
+          "overlaps": []
+        },
+        {
+          "width": 412,
+          "footer": {
+            "left": 0,
+            "right": 412,
+            "top": 9412.75,
+            "bottom": 9643.015625,
+            "width": 412,
+            "height": 230.265625
+          },
+          "overlaps": []
+        }
+      ]
+    }
+  },
+  "signup": {
+    "invalid": {
+      "status": 400,
+      "body": {
+        "ok": false,
+        "error": "invalid_email"
+      }
+    },
+    "bot": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "state": "recorded"
+      }
+    },
+    "runtime": {
+      "status": "List active · choose what you want to follow.",
+      "statusHidden": false,
+      "buttonDisabled": false,
+      "honeypotHidden": true
+    },
+    "saving": {
+      "status": "Saving…",
+      "disabled": true
+    },
+    "success": {
+      "status": "You’re in · thank you for following OOLITA.",
+      "disabled": false
+    },
+    "existing": {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "state": "active"
+      }
+    },
+    "stored": {
+      "email": "oolita-final-audit-32643120020@example.com",
+      "status": "active",
+      "verified_at": null,
+      "unsubscribed_at": null,
+      "language": "en",
+      "interests": "[\"book\",\"field\"]"
+    },
+    "botStored": 0,
+    "errorState": {
+      "status": "We could not save this. Try again or write to oolita@tutamail.com.",
+      "disabled": false
+    },
+    "invalid_email": {
+      "pass": true,
+      "detail": {
+        "status": 400,
+        "body": {
+          "ok": false,
+          "error": "invalid_email"
+        }
+      }
+    },
+    "honeypot": {
+      "pass": true,
+      "detail": {
+        "response": {
+          "status": 200,
+          "body": {
+            "ok": true,
+            "state": "recorded"
+          }
+        },
+        "stored": 0
+      }
+    },
+    "loading_state": {
+      "pass": true,
+      "detail": {
+        "status": "List active · choose what you want to follow.",
+        "statusHidden": false,
+        "buttonDisabled": false,
+        "honeypotHidden": true
+      }
+    },
+    "saving_state": {
+      "pass": true,
+      "detail": {
+        "status": "Saving…",
+        "disabled": true
+      }
+    },
+    "success_state": {
+      "pass": true,
+      "detail": {
+        "status": "You’re in · thank you for following OOLITA.",
+        "disabled": false
+      }
+    },
+    "valid_signup": {
+      "pass": true,
+      "detail": {
+        "row": {
+          "email": "oolita-final-audit-32643120020@example.com",
+          "status": "active",
+          "verified_at": null,
+          "unsubscribed_at": null,
+          "language": "en",
+          "interests": "[\"book\",\"field\"]"
+        }
+      }
+    },
+    "existing_subscriber": {
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "state": "active"
+        }
+      }
+    },
+    "error_state": {
+      "pass": true,
+      "detail": {
+        "status": "We could not save this. Try again or write to oolita@tutamail.com.",
+        "disabled": false
+      }
+    },
+    "double_opt_in_enabled": {
+      "pass": false,
+      "detail": {
+        "status": "active",
+        "verified_at": null,
+        "note": "Current implementation is single opt-in if status is active immediately with verified_at NULL."
+      }
+    }
+  },
+  "books": {
+    "en": {
+      "status": 200,
+      "overflow": false,
+      "outside": [
+        {
+          "tag": "A",
+          "cls": "salta",
+          "text": "Skip to content",
+          "left": -9999,
+          "right": -9884
+        }
+      ],
+      "collisions": [],
+      "spec": [
+        {
+          "k": "Pages",
+          "v": "48"
+        },
+        {
+          "k": "Languages",
+          "v": "Bilingual ES / EN"
+        },
+        {
+          "k": "Format",
+          "v": "210 × 210 mm · hardcover"
+        },
+        {
+          "k": "Author",
+          "v": "Raquel Costantini"
+        },
+        {
+          "k": "Publisher",
+          "v": "Vestini Tribe"
+        },
+        {
+          "k": "Year",
+          "v": "2027"
+        },
+        {
+          "k": "Printing",
+          "v": "On demand, one at a time"
+        }
+      ],
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 3,
+          "help": "Elements must meet minimum color contrast ratio thresholds"
+        }
+      ],
+      "badImages": [],
+      "bodySample": " the text asks for. How long it takes to arrive. The print edition comes out on 31 January 2027, a month after the three-dimensional world opens. That order is deliberate: first you walk the labyrinth, then"
+    },
+    "es": {
+      "status": 200,
+      "overflow": false,
+      "outside": [
+        {
+          "tag": "A",
+          "cls": "salta",
+          "text": "Saltar al contenido",
+          "left": -9999,
+          "right": -9858
+        }
+      ],
+      "collisions": [],
+      "spec": [
+        {
+          "k": "Páginas",
+          "v": "48"
+        },
+        {
+          "k": "Idiomas",
+          "v": "Bilingüe ES / EN"
+        },
+        {
+          "k": "Formato",
+          "v": "210 × 210 mm · tapa dura"
+        },
+        {
+          "k": "Autora",
+          "v": "Raquel Costantini"
+        },
+        {
+          "k": "Editorial",
+          "v": "Vestini Tribe"
+        },
+        {
+          "k": "Año",
+          "v": "2027"
+        },
+        {
+          "k": "Impresión",
+          "v": "Bajo demanda, uno a uno"
+        }
+      ],
+      "axe": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 3,
+          "help": "Elements must meet minimum color contrast ratio thresholds"
+        }
+      ],
+      "badImages": []
+    },
+    "page_count_48": {
+      "pass": true,
+      "detail": {
+        "en": [
+          {
+            "k": "Pages",
+            "v": "48"
+          },
+          {
+            "k": "Languages",
+            "v": "Bilingual ES / EN"
+          },
+          {
+            "k": "Format",
+            "v": "210 × 210 mm · hardcover"
+          },
+          {
+            "k": "Author",
+            "v": "Raquel Costantini"
+          },
+          {
+            "k": "Publisher",
+            "v": "Vestini Tribe"
+          },
+          {
+            "k": "Year",
+            "v": "2027"
+          },
+          {
+            "k": "Printing",
+            "v": "On demand, one at a time"
+          }
+        ],
+        "es": [
+          {
+            "k": "Páginas",
+            "v": "48"
+          },
+          {
+            "k": "Idiomas",
+            "v": "Bilingüe ES / EN"
+          },
+          {
+            "k": "Formato",
+            "v": "210 × 210 mm · tapa dura"
+          },
+          {
+            "k": "Autora",
+            "v": "Raquel Costantini"
+          },
+          {
+            "k": "Editorial",
+            "v": "Vestini Tribe"
+          },
+          {
+            "k": "Año",
+            "v": "2027"
+          },
+          {
+            "k": "Impresión",
+            "v": "Bajo demanda, uno a uno"
+          }
+        ]
+      }
+    },
+    "bilingual_excerpt": {
+      "pass": true,
+      "detail": null
+    },
+    "cat_fable": {
+      "pass": true,
+      "detail": null
+    },
+    "dates_availability": {
+      "pass": true,
+      "detail": {
+        "en": "actly what the text asks for. How long it takes to arrive. The print edition comes out on 31 January 2027, a month after the three-dimensional world opens. That order is deliberate: first you walk the labyrinth, then you hold the book.",
+        "es": "acio, que es justo lo que pide el texto. Qué tarda en llegar. La edición en papel sale el 31 de enero de 2027, un mes después de que abra el mundo en tres dimensiones. Ese orden es deliberado: primero se camina el laberinto y después se ti"
+      }
+    },
+    "mobile_clean": {
+      "pass": false,
+      "detail": {
+        "enOutside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "esOutside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Saltar al contenido",
+            "left": -9999,
+            "right": -9858
+          }
+        ],
+        "enCollisions": [],
+        "esCollisions": []
+      }
+    },
+    "images_loaded": {
+      "pass": true,
+      "detail": {
+        "enBad": [],
+        "esBad": []
+      }
+    }
+  },
+  "sundays": {
+    "expected": 2,
+    "countEn": "2",
+    "countEs": "2",
+    "tiles": [
+      {
+        "n": 1,
+        "date": "2026-08-09",
+        "href": "/en/sundays/01-the-double/",
+        "current": false
+      },
+      {
+        "n": 2,
+        "date": "2026-08-16",
+        "href": "/en/sundays/02-the-cat-for-real/",
+        "current": false
+      },
+      {
+        "n": 3,
+        "date": "2026-08-23",
+        "href": null,
+        "current": true
+      },
+      {
+        "n": 4,
+        "date": "2026-08-30",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 5,
+        "date": "2026-09-06",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 6,
+        "date": "2026-09-13",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 7,
+        "date": "2026-09-20",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 8,
+        "date": "2026-09-27",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 9,
+        "date": "2026-10-04",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 10,
+        "date": "2026-10-11",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 11,
+        "date": "2026-10-18",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 12,
+        "date": "2026-10-25",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 13,
+        "date": "2026-11-01",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 14,
+        "date": "2026-11-08",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 15,
+        "date": "2026-11-15",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 16,
+        "date": "2026-11-22",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 17,
+        "date": "2026-11-29",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 18,
+        "date": "2026-12-06",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 19,
+        "date": "2026-12-13",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 20,
+        "date": "2026-12-20",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 21,
+        "date": "2026-12-27",
+        "href": null,
+        "current": false
+      },
+      {
+        "n": 22,
+        "date": "2027-01-03",
+        "href": null,
+        "current": false
+      }
+    ],
+    "activeStatuses": [
+      {
+        "n": 1,
+        "status": 200,
+        "url": "https://oolita.es/en/sundays/01-the-double/"
+      },
+      {
+        "n": 2,
+        "status": 200,
+        "url": "https://oolita.es/en/sundays/02-the-cat-for-real/"
+      }
+    ],
+    "gridEn": {
+      "left": 17.15625,
+      "right": 372.84375,
+      "top": 917.515625,
+      "bottom": 1454.640625,
+      "width": 355.6875,
+      "height": 537.125
+    },
+    "gridEs": {
+      "left": 17.15625,
+      "right": 372.84375,
+      "top": 917.515625,
+      "bottom": 1454.640625,
+      "width": 355.6875,
+      "height": 537.125
+    },
+    "overflowEn": false,
+    "overflowEs": false,
+    "outsideEn": [
+      {
+        "tag": "A",
+        "cls": "salta",
+        "text": "Skip to content",
+        "left": -9999,
+        "right": -9884
+      }
+    ],
+    "outsideEs": [
+      {
+        "tag": "A",
+        "cls": "salta",
+        "text": "Saltar al contenido",
+        "left": -9999,
+        "right": -9858
+      }
+    ],
+    "axeEn": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": 68,
+        "help": "Elements must meet minimum color contrast ratio thresholds"
+      }
+    ],
+    "axeEs": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": 68,
+        "help": "Elements must meet minimum color contrast ratio thresholds"
+      }
+    ],
+    "count_correct": {
+      "pass": true,
+      "detail": {
+        "expected": 2,
+        "en": "2",
+        "es": "2"
+      }
+    },
+    "dates_correct": {
+      "pass": true,
+      "detail": [
+        {
+          "n": 1,
+          "date": "2026-08-09"
+        },
+        {
+          "n": 2,
+          "date": "2026-08-16"
+        },
+        {
+          "n": 3,
+          "date": "2026-08-23"
+        },
+        {
+          "n": 4,
+          "date": "2026-08-30"
+        },
+        {
+          "n": 5,
+          "date": "2026-09-06"
+        },
+        {
+          "n": 6,
+          "date": "2026-09-13"
+        },
+        {
+          "n": 7,
+          "date": "2026-09-20"
+        },
+        {
+          "n": 8,
+          "date": "2026-09-27"
+        },
+        {
+          "n": 9,
+          "date": "2026-10-04"
+        },
+        {
+          "n": 10,
+          "date": "2026-10-11"
+        },
+        {
+          "n": 11,
+          "date": "2026-10-18"
+        },
+        {
+          "n": 12,
+          "date": "2026-10-25"
+        },
+        {
+          "n": 13,
+          "date": "2026-11-01"
+        },
+        {
+          "n": 14,
+          "date": "2026-11-08"
+        },
+        {
+          "n": 15,
+          "date": "2026-11-15"
+        },
+        {
+          "n": 16,
+          "date": "2026-11-22"
+        },
+        {
+          "n": 17,
+          "date": "2026-11-29"
+        },
+        {
+          "n": 18,
+          "date": "2026-12-06"
+        },
+        {
+          "n": 19,
+          "date": "2026-12-13"
+        },
+        {
+          "n": 20,
+          "date": "2026-12-20"
+        },
+        {
+          "n": 21,
+          "date": "2026-12-27"
+        },
+        {
+          "n": 22,
+          "date": "2027-01-03"
+        }
+      ]
+    },
+    "published_open": {
+      "pass": true,
+      "detail": [
+        {
+          "n": 1,
+          "status": 200,
+          "url": "https://oolita.es/en/sundays/01-the-double/"
+        },
+        {
+          "n": 2,
+          "status": 200,
+          "url": "https://oolita.es/en/sundays/02-the-cat-for-real/"
+        }
+      ]
+    },
+    "future_inactive": {
+      "pass": true,
+      "detail": [
+        {
+          "n": 1,
+          "href": true
+        },
+        {
+          "n": 2,
+          "href": true
+        },
+        {
+          "n": 3,
+          "href": false
+        },
+        {
+          "n": 4,
+          "href": false
+        },
+        {
+          "n": 5,
+          "href": false
+        },
+        {
+          "n": 6,
+          "href": false
+        },
+        {
+          "n": 7,
+          "href": false
+        },
+        {
+          "n": 8,
+          "href": false
+        },
+        {
+          "n": 9,
+          "href": false
+        },
+        {
+          "n": 10,
+          "href": false
+        },
+        {
+          "n": 11,
+          "href": false
+        },
+        {
+          "n": 12,
+          "href": false
+        },
+        {
+          "n": 13,
+          "href": false
+        },
+        {
+          "n": 14,
+          "href": false
+        },
+        {
+          "n": 15,
+          "href": false
+        },
+        {
+          "n": 16,
+          "href": false
+        },
+        {
+          "n": 17,
+          "href": false
+        },
+        {
+          "n": 18,
+          "href": false
+        },
+        {
+          "n": 19,
+          "href": false
+        },
+        {
+          "n": 20,
+          "href": false
+        },
+        {
+          "n": 21,
+          "href": false
+        },
+        {
+          "n": 22,
+          "href": false
+        }
+      ]
+    },
+    "mobile_grid": {
+      "pass": false,
+      "detail": {
+        "en": {
+          "left": 17.15625,
+          "right": 372.84375,
+          "top": 917.515625,
+          "bottom": 1454.640625,
+          "width": 355.6875,
+          "height": 537.125
+        },
+        "es": {
+          "left": 17.15625,
+          "right": 372.84375,
+          "top": 917.515625,
+          "bottom": 1454.640625,
+          "width": 355.6875,
+          "height": 537.125
+        }
+      }
+    }
+  },
+  "navigation": {
+    "en": [
+      {
+        "n": "01",
+        "text": "01 Los Escullos The walkable labyrinth · Cabo de Gata-Níjar →",
+        "href": "/en/labyrinth/"
+      },
+      {
+        "n": "02",
+        "text": "02 22 Sundays The series archive · 9 Aug 26 → 3 Jan 27 →",
+        "href": "/en/sundays/"
+      },
+      {
+        "n": "03",
+        "text": "03 Cabo de Gata Field publications, materials and collaborations →",
+        "href": "/en/cabo-de-gata/"
+      },
+      {
+        "n": "04",
+        "text": "04 Editions Books, textiles and tools for looking closely",
+        "href": "/en/editions/"
+      },
+      {
+        "n": "05",
+        "text": "05 What is a labyrinth One path. One centre. One return.",
+        "href": "/en/what-is-a-labyrinth/"
+      },
+      {
+        "n": "06",
+        "text": "06 What is an ooid The grain of stone the project is named after",
+        "href": "/en/what-is-an-ooid/"
+      },
+      {
+        "n": "07",
+        "text": "07 The posters The nine posters that opened the account",
+        "href": "/en/posters/"
+      },
+      {
+        "n": "08",
+        "text": "08 Labyrinth Locator Entry in the world labyrinth directory ↗",
+        "href": "https://labyrinthlocator.org/labyrinth/oolita"
+      },
+      {
+        "n": "09",
+        "text": "09 Instagram @oolita.es · one image every Sunday ↗",
+        "href": "https://www.instagram.com/oolita.es/"
+      },
+      {
+        "n": "10",
+        "text": "10 Hallazgo · Art Virtual castle · free to enter · opens 16 May 27 · 19:00 CEST ↗",
+        "href": "https://hallazgo.my.canva.site/hallazgo"
+      },
+      {
+        "n": "11",
+        "text": "11 Catalogue In the castle: full catalogue with a key · hardback 16 Sep 27 · public launch 19 Sep 27",
+        "href": "https://hallazgo.my.canva.site/hallazgo/catlogo"
+      },
+      {
+        "n": "12",
+        "text": "12 About OOLITA Raquel Costantini · provenance and practice",
+        "href": "/en/about/"
+      },
+      {
+        "n": "13",
+        "text": "13 Work with OOLITA Bookshops · education · culture · materials",
+        "href": "/en/work-with-oolita/"
+      },
+      {
+        "n": "14",
+        "text": "14 Contact oolita@tutamail.com",
+        "href": "mailto:oolita@tutamail.com"
+      }
+    ],
+    "es": [
+      {
+        "n": "01",
+        "text": "01 Los Escullos El laberinto caminable · Cabo de Gata-Níjar →",
+        "href": "/laberinto/"
+      },
+      {
+        "n": "02",
+        "text": "02 22 domingos El archivo de la serie · 09.08.26 → 03.01.27 →",
+        "href": "/domingos/"
+      },
+      {
+        "n": "03",
+        "text": "03 Cabo de Gata Publicaciones de campo, materiales y colaboraciones →",
+        "href": "/cabo-de-gata/"
+      },
+      {
+        "n": "04",
+        "text": "04 Ediciones Libros, textiles y herramientas para mirar de cerca",
+        "href": "/ediciones/"
+      },
+      {
+        "n": "05",
+        "text": "05 Qué es un laberinto Un camino. Un centro. Un regreso.",
+        "href": "/que-es-un-laberinto/"
+      },
+      {
+        "n": "06",
+        "text": "06 Qué es un oolito El grano de piedra que da nombre al proyecto",
+        "href": "/que-es-un-oolito/"
+      },
+      {
+        "n": "07",
+        "text": "07 Los carteles Los nueve carteles de la apertura de la cuenta",
+        "href": "/carteles/"
+      },
+      {
+        "n": "08",
+        "text": "08 Labyrinth Locator Ficha en el directorio mundial ↗",
+        "href": "https://labyrinthlocator.org/labyrinth/oolita"
+      },
+      {
+        "n": "09",
+        "text": "09 Instagram @oolita.es · una imagen cada domingo ↗",
+        "href": "https://www.instagram.com/oolita.es/"
+      },
+      {
+        "n": "10",
+        "text": "10 Hallazgo · Arte Castillo virtual · entrada libre · abre 16.05.27 · 19:00 CEST ↗",
+        "href": "https://hallazgo.my.canva.site/hallazgo"
+      },
+      {
+        "n": "11",
+        "text": "11 Catálogo En el castillo: catálogo completo con clave · tapa dura 16.09.27 · presentación pública ",
+        "href": "https://hallazgo.my.canva.site/hallazgo/catlogo"
+      },
+      {
+        "n": "12",
+        "text": "12 Sobre OOLITA Raquel Costantini · procedencia y práctica",
+        "href": "/sobre-oolita/"
+      },
+      {
+        "n": "13",
+        "text": "13 Colaborar Librerías · educación · cultura · materiales",
+        "href": "/colaborar/"
+      },
+      {
+        "n": "14",
+        "text": "14 Contacto oolita@tutamail.com",
+        "href": "mailto:oolita@tutamail.com"
+      }
+    ],
+    "enGroups": [
+      "Read and understand",
+      "Elsewhere",
+      "Project"
+    ],
+    "esGroups": [
+      "Leer y entender",
+      "Fuera de este sitio",
+      "Proyecto"
+    ],
+    "numbers_01_14": {
+      "pass": true,
+      "detail": {
+        "missingEn": [],
+        "missingEs": [],
+        "en": [
+          {
+            "n": "01",
+            "text": "01 Los Escullos The walkable labyrinth · Cabo de Gata-Níjar →",
+            "href": "/en/labyrinth/"
+          },
+          {
+            "n": "02",
+            "text": "02 22 Sundays The series archive · 9 Aug 26 → 3 Jan 27 →",
+            "href": "/en/sundays/"
+          },
+          {
+            "n": "03",
+            "text": "03 Cabo de Gata Field publications, materials and collaborations →",
+            "href": "/en/cabo-de-gata/"
+          },
+          {
+            "n": "04",
+            "text": "04 Editions Books, textiles and tools for looking closely",
+            "href": "/en/editions/"
+          },
+          {
+            "n": "05",
+            "text": "05 What is a labyrinth One path. One centre. One return.",
+            "href": "/en/what-is-a-labyrinth/"
+          },
+          {
+            "n": "06",
+            "text": "06 What is an ooid The grain of stone the project is named after",
+            "href": "/en/what-is-an-ooid/"
+          },
+          {
+            "n": "07",
+            "text": "07 The posters The nine posters that opened the account",
+            "href": "/en/posters/"
+          },
+          {
+            "n": "08",
+            "text": "08 Labyrinth Locator Entry in the world labyrinth directory ↗",
+            "href": "https://labyrinthlocator.org/labyrinth/oolita"
+          },
+          {
+            "n": "09",
+            "text": "09 Instagram @oolita.es · one image every Sunday ↗",
+            "href": "https://www.instagram.com/oolita.es/"
+          },
+          {
+            "n": "10",
+            "text": "10 Hallazgo · Art Virtual castle · free to enter · opens 16 May 27 · 19:00 CEST ↗",
+            "href": "https://hallazgo.my.canva.site/hallazgo"
+          },
+          {
+            "n": "11",
+            "text": "11 Catalogue In the castle: full catalogue with a key · hardback 16 Sep 27 · public launch 19 Sep 27",
+            "href": "https://hallazgo.my.canva.site/hallazgo/catlogo"
+          },
+          {
+            "n": "12",
+            "text": "12 About OOLITA Raquel Costantini · provenance and practice",
+            "href": "/en/about/"
+          },
+          {
+            "n": "13",
+            "text": "13 Work with OOLITA Bookshops · education · culture · materials",
+            "href": "/en/work-with-oolita/"
+          },
+          {
+            "n": "14",
+            "text": "14 Contact oolita@tutamail.com",
+            "href": "mailto:oolita@tutamail.com"
+          }
+        ],
+        "es": [
+          {
+            "n": "01",
+            "text": "01 Los Escullos El laberinto caminable · Cabo de Gata-Níjar →",
+            "href": "/laberinto/"
+          },
+          {
+            "n": "02",
+            "text": "02 22 domingos El archivo de la serie · 09.08.26 → 03.01.27 →",
+            "href": "/domingos/"
+          },
+          {
+            "n": "03",
+            "text": "03 Cabo de Gata Publicaciones de campo, materiales y colaboraciones →",
+            "href": "/cabo-de-gata/"
+          },
+          {
+            "n": "04",
+            "text": "04 Ediciones Libros, textiles y herramientas para mirar de cerca",
+            "href": "/ediciones/"
+          },
+          {
+            "n": "05",
+            "text": "05 Qué es un laberinto Un camino. Un centro. Un regreso.",
+            "href": "/que-es-un-laberinto/"
+          },
+          {
+            "n": "06",
+            "text": "06 Qué es un oolito El grano de piedra que da nombre al proyecto",
+            "href": "/que-es-un-oolito/"
+          },
+          {
+            "n": "07",
+            "text": "07 Los carteles Los nueve carteles de la apertura de la cuenta",
+            "href": "/carteles/"
+          },
+          {
+            "n": "08",
+            "text": "08 Labyrinth Locator Ficha en el directorio mundial ↗",
+            "href": "https://labyrinthlocator.org/labyrinth/oolita"
+          },
+          {
+            "n": "09",
+            "text": "09 Instagram @oolita.es · una imagen cada domingo ↗",
+            "href": "https://www.instagram.com/oolita.es/"
+          },
+          {
+            "n": "10",
+            "text": "10 Hallazgo · Arte Castillo virtual · entrada libre · abre 16.05.27 · 19:00 CEST ↗",
+            "href": "https://hallazgo.my.canva.site/hallazgo"
+          },
+          {
+            "n": "11",
+            "text": "11 Catálogo En el castillo: catálogo completo con clave · tapa dura 16.09.27 · presentación pública ",
+            "href": "https://hallazgo.my.canva.site/hallazgo/catlogo"
+          },
+          {
+            "n": "12",
+            "text": "12 Sobre OOLITA Raquel Costantini · procedencia y práctica",
+            "href": "/sobre-oolita/"
+          },
+          {
+            "n": "13",
+            "text": "13 Colaborar Librerías · educación · cultura · materiales",
+            "href": "/colaborar/"
+          },
+          {
+            "n": "14",
+            "text": "14 Contacto oolita@tutamail.com",
+            "href": "mailto:oolita@tutamail.com"
+          }
+        ]
+      }
+    },
+    "groups_clear": {
+      "pass": true,
+      "detail": {
+        "en": [
+          "Read and understand",
+          "Elsewhere",
+          "Project"
+        ],
+        "es": [
+          "Leer y entender",
+          "Fuera de este sitio",
+          "Proyecto"
+        ]
+      }
+    }
+  },
+  "quality": {
+    "sitemapStatus": 200,
+    "sitemapCount": 33,
+    "internalCount": 33,
+    "broken": [],
+    "representative": [
+      {
+        "path": "/",
+        "status": 200,
+        "title": "OOLITA — Piedra, papel y código en Cabo de Gata",
+        "description": "OOLITA empieza con un laberinto de piedra en Los Escullos, Cabo de Gata, y crece en una fábula, publicaciones de campo, ediciones textiles y un mundo 3D.",
+        "canonical": "https://oolita.es/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Saltar al contenido",
+            "left": -9999,
+            "right": -9858
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "nodes": 8,
+            "help": "Elements must meet minimum color contrast ratio thresholds"
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "path": "/en/",
+        "status": 200,
+        "title": "OOLITA — Stone, paper and code in Cabo de Gata",
+        "description": "OOLITA begins with a stone labyrinth at Los Escullos, Cabo de Gata, and grows into a fable, field publications, textile editions and a 3D world.",
+        "canonical": "https://oolita.es/en/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "nodes": 8,
+            "help": "Elements must meet minimum color contrast ratio thresholds"
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "path": "/ediciones/libro/",
+        "status": 200,
+        "title": "El libro — una fábula de laberinto para días ruidosos · OOLITA",
+        "description": "Cuarenta y ocho páginas, en español y en inglés a la vez. La senda del laberinto de Los Escullos, en papel: se lee despacio y se queda cerca.",
+        "canonical": "https://oolita.es/ediciones/libro/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/ediciones/libro/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/editions/book/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/ediciones/libro/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Saltar al contenido",
+            "left": -9999,
+            "right": -9858
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "nodes": 3,
+            "help": "Elements must meet minimum color contrast ratio thresholds"
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "path": "/en/editions/book/",
+        "status": 200,
+        "title": "The book — a labyrinth fable for loud days · OOLITA",
+        "description": "Forty-eight pages, in Spanish and English at once. The path of the Los Escullos labyrinth, on paper: read slowly, kept close.",
+        "canonical": "https://oolita.es/en/editions/book/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/ediciones/libro/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/editions/book/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/ediciones/libro/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "nodes": 3,
+            "help": "Elements must meet minimum color contrast ratio thresholds"
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "path": "/domingos/",
+        "status": 200,
+        "title": "22 domingos — el camino hacia la apertura de OOLITA",
+        "description": "Una imagen cada domingo, del 9 de agosto de 2026 al 3 de enero de 2027: la serie que acompaña la apertura del laberinto OOLITA de Los Escullos.",
+        "canonical": "https://oolita.es/domingos/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/domingos/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/sundays/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/domingos/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Saltar al contenido",
+            "left": -9999,
+            "right": -9858
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "nodes": 68,
+            "help": "Elements must meet minimum color contrast ratio thresholds"
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "path": "/en/sundays/",
+        "status": 200,
+        "title": "22 Sundays — the path to the opening of OOLITA",
+        "description": "One image every Sunday, 9 August 2026 to 3 January 2027: the series leading to the opening of the OOLITA labyrinth at Los Escullos, Cabo de Gata.",
+        "canonical": "https://oolita.es/en/sundays/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/domingos/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/sundays/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/domingos/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "nodes": 68,
+            "help": "Elements must meet minimum color contrast ratio thresholds"
+          }
+        ],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "path": "/laberinto/",
+        "status": 200,
+        "title": "Laberinto de Los Escullos: cómo llegar · OOLITA",
+        "description": "Laberinto clásico de piedra de 3 m, hecho a mano en 2021 sobre una duna fósil en Los Escullos, Cabo de Gata. Cómo llegar y visitarlo con cuidado.",
+        "canonical": "https://oolita.es/laberinto/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/laberinto/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/labyrinth/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/laberinto/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Saltar al contenido",
+            "left": -9999,
+            "right": -9858
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "path": "/en/labyrinth/",
+        "status": 200,
+        "title": "Los Escullos labyrinth: how to get there · OOLITA",
+        "description": "A 3-metre classical stone labyrinth, laid by hand in 2021 on a fossil dune at Los Escullos, Cabo de Gata. How to find it and what to expect.",
+        "canonical": "https://oolita.es/en/labyrinth/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/laberinto/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/labyrinth/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/laberinto/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "path": "/sobre-oolita/",
+        "status": 200,
+        "title": "Sobre OOLITA · Raquel Costantini",
+        "description": "La procedencia de OOLITA: el laberinto de Los Escullos, piedra, papel y código, y la práctica de Raquel Costantini en Cabo de Gata.",
+        "canonical": "https://oolita.es/sobre-oolita/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/sobre-oolita/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/about/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/sobre-oolita/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Saltar al contenido",
+            "left": -9999,
+            "right": -9858
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [],
+        "consoleErrors": [],
+        "pageErrors": []
+      },
+      {
+        "path": "/en/about/",
+        "status": 200,
+        "title": "About OOLITA · Raquel Costantini",
+        "description": "The provenance of OOLITA: the Los Escullos labyrinth, stone, paper and code, and Raquel Costantini's practice in Cabo de Gata.",
+        "canonical": "https://oolita.es/en/about/",
+        "hreflang": [
+          {
+            "lang": "es",
+            "href": "https://oolita.es/sobre-oolita/"
+          },
+          {
+            "lang": "en",
+            "href": "https://oolita.es/en/about/"
+          },
+          {
+            "lang": "x-default",
+            "href": "https://oolita.es/sobre-oolita/"
+          }
+        ],
+        "h1": 1,
+        "headers": 1,
+        "footers": 1,
+        "overflow": false,
+        "outside": [
+          {
+            "tag": "A",
+            "cls": "salta",
+            "text": "Skip to content",
+            "left": -9999,
+            "right": -9884
+          }
+        ],
+        "badImages": [],
+        "missingAlt": [],
+        "axe": [],
+        "consoleErrors": [],
+        "pageErrors": []
+      }
+    ],
+    "robotsStatus": 200,
+    "robotsHasSitemap": true,
+    "severeAccessibility": [
+      {
+        "path": "/",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": 8,
+        "help": "Elements must meet minimum color contrast ratio thresholds"
+      },
+      {
+        "path": "/en/",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": 8,
+        "help": "Elements must meet minimum color contrast ratio thresholds"
+      },
+      {
+        "path": "/ediciones/libro/",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": 3,
+        "help": "Elements must meet minimum color contrast ratio thresholds"
+      },
+      {
+        "path": "/en/editions/book/",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": 3,
+        "help": "Elements must meet minimum color contrast ratio thresholds"
+      },
+      {
+        "path": "/domingos/",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": 68,
+        "help": "Elements must meet minimum color contrast ratio thresholds"
+      },
+      {
+        "path": "/en/sundays/",
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": 68,
+        "help": "Elements must meet minimum color contrast ratio thresholds"
+      }
+    ],
+    "broken_internal_links": {
+      "pass": true,
+      "detail": []
+    },
+    "english_spanish_hreflang": {
+      "pass": true,
+      "detail": []
+    },
+    "seo_metadata": {
+      "pass": true,
+      "detail": []
+    },
+    "mobile_overflow": {
+      "pass": false,
+      "detail": [
+        {
+          "path": "/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Saltar al contenido",
+              "left": -9999,
+              "right": -9858
+            }
+          ]
+        },
+        {
+          "path": "/en/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Skip to content",
+              "left": -9999,
+              "right": -9884
+            }
+          ]
+        },
+        {
+          "path": "/ediciones/libro/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Saltar al contenido",
+              "left": -9999,
+              "right": -9858
+            }
+          ]
+        },
+        {
+          "path": "/en/editions/book/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Skip to content",
+              "left": -9999,
+              "right": -9884
+            }
+          ]
+        },
+        {
+          "path": "/domingos/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Saltar al contenido",
+              "left": -9999,
+              "right": -9858
+            }
+          ]
+        },
+        {
+          "path": "/en/sundays/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Skip to content",
+              "left": -9999,
+              "right": -9884
+            }
+          ]
+        },
+        {
+          "path": "/laberinto/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Saltar al contenido",
+              "left": -9999,
+              "right": -9858
+            }
+          ]
+        },
+        {
+          "path": "/en/labyrinth/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Skip to content",
+              "left": -9999,
+              "right": -9884
+            }
+          ]
+        },
+        {
+          "path": "/sobre-oolita/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Saltar al contenido",
+              "left": -9999,
+              "right": -9858
+            }
+          ]
+        },
+        {
+          "path": "/en/about/",
+          "overflow": false,
+          "outside": [
+            {
+              "tag": "A",
+              "cls": "salta",
+              "text": "Skip to content",
+              "left": -9999,
+              "right": -9884
+            }
+          ]
+        }
+      ]
+    },
+    "forms_images": {
+      "pass": true,
+      "detail": []
+    },
+    "header_footer_consistency": {
+      "pass": true,
+      "detail": []
+    },
+    "javascript_clean": {
+      "pass": true,
+      "detail": []
+    },
+    "accessibility_no_serious_critical": {
+      "pass": false,
+      "detail": [
+        {
+          "path": "/",
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 8,
+          "help": "Elements must meet minimum color contrast ratio thresholds"
+        },
+        {
+          "path": "/en/",
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 8,
+          "help": "Elements must meet minimum color contrast ratio thresholds"
+        },
+        {
+          "path": "/ediciones/libro/",
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 3,
+          "help": "Elements must meet minimum color contrast ratio thresholds"
+        },
+        {
+          "path": "/en/editions/book/",
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 3,
+          "help": "Elements must meet minimum color contrast ratio thresholds"
+        },
+        {
+          "path": "/domingos/",
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 68,
+          "help": "Elements must meet minimum color contrast ratio thresholds"
+        },
+        {
+          "path": "/en/sundays/",
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 68,
+          "help": "Elements must meet minimum color contrast ratio thresholds"
+        }
+      ]
+    },
+    "robots_sitemap": {
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    }
+  },
+  "errors": []
+}
