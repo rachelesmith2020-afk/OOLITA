@@ -128,6 +128,10 @@ grep -Fq '48-page bilingual fable' site/en/posters/index.html
 # obsolete desktop/laptop PIEDRA or STONE rule from surviving future deploys.
 python3 scripts/apply_visual_spacing_cleanup_v1.py site
 
+# Re-apply the final WCAG contrast layer on every reconstruction. This prevents
+# older opacity-based secondary-text styling from returning via the live mirror.
+python3 scripts/apply_contrast_accessibility_v1.py site
+
 # The clean origin must not introduce Cloudflare zone-layer email rewriting.
 if grep -RIl --include='*.html' '/cdn-cgi/l/email-protection' site >/tmp/oolita-obfuscated-mail.txt; then
   echo 'Cloudflare-obfuscated email links found in reconstructed origin; refusing to deploy:'
