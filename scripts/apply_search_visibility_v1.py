@@ -65,8 +65,9 @@ finally:
     sys.argv = old_argv
 
 # This is the final public-content pass. It runs after the 3D page exists so
-# the same footer/legal identity applies to every public HTML route.
-identity_script = HERE / "apply_public_identity_v2.py"
+# the same footer/legal identity applies to every public HTML route, including
+# the mirrored 404 shell, before sitemap and IndexNow publication.
+identity_script = HERE / "apply_public_identity_v3.py"
 if not identity_script.is_file():
     raise SystemExit(f"Missing public identity layer: {identity_script}")
 old_argv = sys.argv[:]
