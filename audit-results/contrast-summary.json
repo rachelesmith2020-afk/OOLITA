@@ -1,0 +1,1542 @@
+{
+  "generated_at": "2026-08-23T15:08:25.213Z",
+  "pages": [
+    {
+      "url": "https://oolita.es/",
+      "node_count": 21,
+      "unique": [
+        {
+          "selector": ".claim-en",
+          "count": 1,
+          "example_selector": ".claim-en",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "A labyrinth fable for loud days",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "16px",
+            "fontWeight": "500",
+            "className": "claim-en art-manifesto art-manifesto--echo"
+          }
+        },
+        {
+          "selector": "a[data-oolita-event=\"home-3d-world-material\"] > .glo",
+          "count": 1,
+          "example_selector": "a[data-oolita-event=\"home-3d-world-material\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Three.js · el navegador como material",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".menu-group-label.rot:nth-child(*)",
+          "count": 3,
+          "example_selector": ".menu-group-label.rot:nth-child(1)",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 8.0pt (10.72px), font weight: bold). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Leer y entender",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "10.72px",
+            "fontWeight": "700",
+            "className": "rot menu-group-label"
+          }
+        },
+        {
+          "selector": "a[data-oolita-event=\"home-editions\"] > .glo",
+          "count": 1,
+          "example_selector": "a[data-oolita-event=\"home-editions\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Libros, textiles y herramientas para mirar de cerca",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila[href$=\"que-es-un-laberinto/\"] > .glo",
+          "count": 1,
+          "example_selector": ".fila[href$=\"que-es-un-laberinto/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Un camino. Un centro. Un regreso.",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila[href$=\"que-es-un-oolito/\"] > .glo",
+          "count": 1,
+          "example_selector": ".fila[href$=\"que-es-un-oolito/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "El grano de piedra que da nombre al proyecto",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": "a[href$=\"carteles/\"] > .glo",
+          "count": 1,
+          "example_selector": "a[href$=\"carteles/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Los nueve carteles de la apertura de la cuenta",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila:nth-child(*) > .glo",
+          "count": 4,
+          "example_selector": ".fila:nth-child(7) > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Ficha en el directorio mundial ↗",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": "a[href$=\"sobre-oolita/\"] > .glo",
+          "count": 1,
+          "example_selector": "a[href$=\"sobre-oolita/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Raquel Costantini · procedencia y práctica",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila[href$=\"colaborar/\"] > .glo",
+          "count": 1,
+          "example_selector": ".fila[href$=\"colaborar/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Librerías · educación · cultura · materiales",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": "a[data-oolita-event=\"home-3d-world\"] > .glo",
+          "count": 1,
+          "example_selector": "a[data-oolita-event=\"home-3d-world\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Código · Three.js · abre 03.01.27",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila[href=\"mailto:oolita@tutamail.com\"] > .glo",
+          "count": 1,
+          "example_selector": ".fila[href=\"mailto:oolita@tutamail.com\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "oolita@tutamail.com",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".follow-status",
+          "count": 1,
+          "example_selector": ".follow-status",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 9.8pt (13.12px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Lista activa · tú eliges qué seguir.",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "13.12px",
+            "fontWeight": "400",
+            "className": "follow-status"
+          }
+        },
+        {
+          "selector": ".follow-privacy",
+          "count": 1,
+          "example_selector": ".follow-privacy",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.26 (foreground color: #5c734d, background color: #f1e7d4, font size: 9.4pt (12.48px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Responsable: Vestini Tribe. Usamos tu correo, idioma, intereses elegidos y registro de consentimiento para gestionar la suscripción y adapta",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.76",
+            "fontSize": "12.48px",
+            "fontWeight": "400",
+            "className": "follow-privacy"
+          }
+        },
+        {
+          "selector": ".follow-privacy > a[href=\"mailto:oolita@tutamail.com\"]",
+          "count": 1,
+          "example_selector": ".follow-privacy > a[href=\"mailto:oolita@tutamail.com\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.26 (foreground color: #5c734d, background color: #f1e7d4, font size: 9.4pt (12.48px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "oolita@tutamail.com",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "12.48px",
+            "fontWeight": "400",
+            "className": ""
+          }
+        },
+        {
+          "selector": ".follow-privacy > a[href$=\"privacidad/\"]",
+          "count": 1,
+          "example_selector": ".follow-privacy > a[href$=\"privacidad/\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.26 (foreground color: #5c734d, background color: #f1e7d4, font size: 9.4pt (12.48px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Política de privacidad",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "12.48px",
+            "fontWeight": "400",
+            "className": ""
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://oolita.es/en/",
+      "node_count": 21,
+      "unique": [
+        {
+          "selector": ".claim-en",
+          "count": 1,
+          "example_selector": ".claim-en",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Una fábula de laberinto para días ruidosos",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "16px",
+            "fontWeight": "500",
+            "className": "claim-en art-manifesto art-manifesto--echo"
+          }
+        },
+        {
+          "selector": "a[data-oolita-event=\"home-3d-world-material\"] > .glo",
+          "count": 1,
+          "example_selector": "a[data-oolita-event=\"home-3d-world-material\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Three.js · the browser as material",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".menu-group-label.rot:nth-child(*)",
+          "count": 3,
+          "example_selector": ".menu-group-label.rot:nth-child(1)",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 8.0pt (10.72px), font weight: bold). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Read and understand",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "10.72px",
+            "fontWeight": "700",
+            "className": "rot menu-group-label"
+          }
+        },
+        {
+          "selector": "a[data-oolita-event=\"home-editions\"] > .glo",
+          "count": 1,
+          "example_selector": "a[data-oolita-event=\"home-editions\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Books, textiles and tools for looking closely",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila[href$=\"what-is-a-labyrinth/\"] > .glo",
+          "count": 1,
+          "example_selector": ".fila[href$=\"what-is-a-labyrinth/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "One path. One centre. One return.",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila[href$=\"what-is-an-ooid/\"] > .glo",
+          "count": 1,
+          "example_selector": ".fila[href$=\"what-is-an-ooid/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "The grain of stone the project is named after",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": "a[href$=\"posters/\"] > .glo",
+          "count": 1,
+          "example_selector": "a[href$=\"posters/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "The nine posters that opened the account",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila:nth-child(*) > .glo",
+          "count": 4,
+          "example_selector": ".fila:nth-child(7) > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Entry in the world labyrinth directory ↗",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": "a[href$=\"about/\"] > .glo",
+          "count": 1,
+          "example_selector": "a[href$=\"about/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Raquel Costantini · provenance and practice",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila[href$=\"work-with-oolita/\"] > .glo",
+          "count": 1,
+          "example_selector": ".fila[href$=\"work-with-oolita/\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Bookshops · education · culture · materials",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": "a[data-oolita-event=\"home-3d-world\"] > .glo",
+          "count": 1,
+          "example_selector": "a[data-oolita-event=\"home-3d-world\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Code · Three.js · opens 3 Jan 27",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".fila[href=\"mailto:oolita@tutamail.com\"] > .glo",
+          "count": 1,
+          "example_selector": ".fila[href=\"mailto:oolita@tutamail.com\"] > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.46 (foreground color: #58704a, background color: #f1e7d4, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "oolita@tutamail.com",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.78",
+            "fontSize": "13.5px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": ".follow-status",
+          "count": 1,
+          "example_selector": ".follow-status",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 9.8pt (13.12px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "List active · choose what you want to follow.",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "13.12px",
+            "fontWeight": "400",
+            "className": "follow-status"
+          }
+        },
+        {
+          "selector": ".follow-privacy",
+          "count": 1,
+          "example_selector": ".follow-privacy",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.26 (foreground color: #5c734d, background color: #f1e7d4, font size: 9.4pt (12.48px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Controller: Vestini Tribe. We use your email, language, selected interests and consent record to manage the subscription and tailor news to ",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.76",
+            "fontSize": "12.48px",
+            "fontWeight": "400",
+            "className": "follow-privacy"
+          }
+        },
+        {
+          "selector": ".follow-privacy > a[href=\"mailto:oolita@tutamail.com\"]",
+          "count": 1,
+          "example_selector": ".follow-privacy > a[href=\"mailto:oolita@tutamail.com\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.26 (foreground color: #5c734d, background color: #f1e7d4, font size: 9.4pt (12.48px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "oolita@tutamail.com",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "12.48px",
+            "fontWeight": "400",
+            "className": ""
+          }
+        },
+        {
+          "selector": ".follow-privacy > a[href$=\"privacy/\"]",
+          "count": 1,
+          "example_selector": ".follow-privacy > a[href$=\"privacy/\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.26 (foreground color: #5c734d, background color: #f1e7d4, font size: 9.4pt (12.48px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Privacy policy",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "12.48px",
+            "fontWeight": "400",
+            "className": ""
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://oolita.es/ediciones/libro/",
+      "node_count": 3,
+      "unique": [
+        {
+          "selector": "figcaption",
+          "count": 1,
+          "example_selector": "figcaption",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #6c7f5c, background color: #f1e7d4, font size: 9.1pt (12.16px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Extracto e ilustración de la edición bilingüe.",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.68",
+            "fontSize": "12.16px",
+            "fontWeight": "400",
+            "className": ""
+          }
+        },
+        {
+          "selector": ".book-excerpt-page[lang=\"es\"] > .book-excerpt-lang",
+          "count": 1,
+          "example_selector": ".book-excerpt-page[lang=\"es\"] > .book-excerpt-lang",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.29 (foreground color: #728461, background color: #f1e7d4, font size: 8.6pt (11.52px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "ES",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.65",
+            "fontSize": "11.52px",
+            "fontWeight": "400",
+            "className": "book-excerpt-lang"
+          }
+        },
+        {
+          "selector": ".book-excerpt-page[lang=\"en\"] > .book-excerpt-lang",
+          "count": 1,
+          "example_selector": ".book-excerpt-page[lang=\"en\"] > .book-excerpt-lang",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.29 (foreground color: #728461, background color: #f1e7d4, font size: 8.6pt (11.52px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "EN",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.65",
+            "fontSize": "11.52px",
+            "fontWeight": "400",
+            "className": "book-excerpt-lang"
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://oolita.es/en/editions/book/",
+      "node_count": 3,
+      "unique": [
+        {
+          "selector": "figcaption",
+          "count": 1,
+          "example_selector": "figcaption",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.54 (foreground color: #6c7f5c, background color: #f1e7d4, font size: 9.1pt (12.16px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Excerpt and illustration from the bilingual edition.",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.68",
+            "fontSize": "12.16px",
+            "fontWeight": "400",
+            "className": ""
+          }
+        },
+        {
+          "selector": ".book-excerpt-page[lang=\"es\"] > .book-excerpt-lang",
+          "count": 1,
+          "example_selector": ".book-excerpt-page[lang=\"es\"] > .book-excerpt-lang",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.29 (foreground color: #728461, background color: #f1e7d4, font size: 8.6pt (11.52px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "ES",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.65",
+            "fontSize": "11.52px",
+            "fontWeight": "400",
+            "className": "book-excerpt-lang"
+          }
+        },
+        {
+          "selector": ".book-excerpt-page[lang=\"en\"] > .book-excerpt-lang",
+          "count": 1,
+          "example_selector": ".book-excerpt-page[lang=\"en\"] > .book-excerpt-lang",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.29 (foreground color: #728461, background color: #f1e7d4, font size: 8.6pt (11.52px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "EN",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.65",
+            "fontSize": "11.52px",
+            "fontWeight": "400",
+            "className": "book-excerpt-lang"
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://oolita.es/domingos/",
+      "node_count": 68,
+      "unique": [
+        {
+          "selector": ".sunday-field-note",
+          "count": 1,
+          "example_selector": ".sunday-field-note",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.71 (foreground color: #687c58, background color: #f1e7d4, font size: 12.6pt (16.8px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Entrada → centro → regreso → salida. Los domingos 11 y 12 contienen el giro.",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.7",
+            "fontSize": "16.8px",
+            "fontWeight": "400",
+            "className": "sunday-field-note"
+          }
+        },
+        {
+          "selector": "a[data-sunday=\"1\"] > .sunday-tile-date",
+          "count": 1,
+          "example_selector": "a[data-sunday=\"1\"] > .sunday-tile-date",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 8.6pt (11.52px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "09.08",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "11.52px",
+            "fontWeight": "400",
+            "className": "sunday-tile-date"
+          }
+        },
+        {
+          "selector": "a[data-sunday=\"1\"] > .sunday-tile-state[data-sunday-state=\"\"]",
+          "count": 1,
+          "example_selector": "a[data-sunday=\"1\"] > .sunday-tile-state[data-sunday-state=\"\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 7.4pt (9.92px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "abierto",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "9.92px",
+            "fontWeight": "400",
+            "className": "sunday-tile-state"
+          }
+        },
+        {
+          "selector": "a[data-sunday=\"2\"] > .sunday-tile-date",
+          "count": 1,
+          "example_selector": "a[data-sunday=\"2\"] > .sunday-tile-date",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 8.6pt (11.52px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "16.08",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "11.52px",
+            "fontWeight": "400",
+            "className": "sunday-tile-date"
+          }
+        },
+        {
+          "selector": "a[data-sunday=\"2\"] > .sunday-tile-state[data-sunday-state=\"\"]",
+          "count": 1,
+          "example_selector": "a[data-sunday=\"2\"] > .sunday-tile-state[data-sunday-state=\"\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 7.4pt (9.92px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "abierto",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "9.92px",
+            "fontWeight": "400",
+            "className": "sunday-tile-state"
+          }
+        },
+        {
+          "selector": ".sunday-field-axis > span:nth-child(*)",
+          "count": 2,
+          "example_selector": ".sunday-field-axis > span:nth-child(1)",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.85 (foreground color: #7f8e6d, background color: #f1e7d4, font size: 8.4pt (11.2px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "hacia dentro",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.2px",
+            "fontWeight": "400",
+            "className": ""
+          }
+        },
+        {
+          "selector": ".espera.fila:nth-child(*) > .num",
+          "count": 19,
+          "example_selector": ".espera.fila:nth-child(5) > .num",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 12.0pt (15.96px), font weight: bold). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "03",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "15.96px",
+            "fontWeight": "700",
+            "className": "num"
+          }
+        },
+        {
+          "selector": ".espera.fila:nth-child(*) > .cuerpo > .nombre",
+          "count": 19,
+          "example_selector": ".espera.fila:nth-child(5) > .cuerpo > .nombre",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 15.6pt (20.8px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Por venir",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "20.8px",
+            "fontWeight": "600",
+            "className": "nombre"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-08-23\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-08-23\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "23.08.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-08-30\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-08-30\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "30.08.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-09-06\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-09-06\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "06.09.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-09-13\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-09-13\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "13.09.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-09-20\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-09-20\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "20.09.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-09-27\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-09-27\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "27.09.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-10-04\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-10-04\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "04.10.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-10-11\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-10-11\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "11.10.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": ".centro > .num",
+          "count": 1,
+          "example_selector": ".centro > .num",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.52 (foreground color: #bf8474, background color: #f1e7d4, font size: 12.0pt (15.96px), font weight: bold). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "11",
+            "color": "rgb(160, 71, 57)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "15.96px",
+            "fontWeight": "700",
+            "className": "num"
+          }
+        },
+        {
+          "selector": ".centro > .cuerpo > .nombre",
+          "count": 1,
+          "example_selector": ".centro > .cuerpo > .nombre",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 15.6pt (20.8px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Por venir",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "20.8px",
+            "fontWeight": "600",
+            "className": "nombre"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-10-18\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-10-18\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "18.10.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-10-25\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-10-25\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "25.10.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-01\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-01\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "01.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-08\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-08\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "08.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-15\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-15\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "15.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-22\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-22\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "22.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-29\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-29\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "29.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-12-06\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-12-06\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "06.12.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-12-13\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-12-13\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "13.12.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-12-20\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-12-20\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "20.12.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-12-27\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-12-27\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "27.12.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": ".espera.fila:nth-child(*) > .cuerpo > .glo",
+          "count": 1,
+          "example_selector": ".espera.fila:nth-child(24) > .cuerpo > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 10.8pt (14.448px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "El mundo abre a las 00:00 CET",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "14.448px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2027-01-03\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2027-01-03\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "03.01.27",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://oolita.es/en/sundays/",
+      "node_count": 68,
+      "unique": [
+        {
+          "selector": ".sunday-field-note",
+          "count": 1,
+          "example_selector": ".sunday-field-note",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.71 (foreground color: #687c58, background color: #f1e7d4, font size: 12.6pt (16.8px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "Entrance → centre → return → exit. Sundays 11 and 12 hold the turn.",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.7",
+            "fontSize": "16.8px",
+            "fontWeight": "400",
+            "className": "sunday-field-note"
+          }
+        },
+        {
+          "selector": "a[data-sunday=\"1\"] > .sunday-tile-date",
+          "count": 1,
+          "example_selector": "a[data-sunday=\"1\"] > .sunday-tile-date",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 8.6pt (11.52px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "09.08",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "11.52px",
+            "fontWeight": "400",
+            "className": "sunday-tile-date"
+          }
+        },
+        {
+          "selector": "a[data-sunday=\"1\"] > .sunday-tile-state[data-sunday-state=\"\"]",
+          "count": 1,
+          "example_selector": "a[data-sunday=\"1\"] > .sunday-tile-state[data-sunday-state=\"\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 7.4pt (9.92px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "open",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "9.92px",
+            "fontWeight": "400",
+            "className": "sunday-tile-state"
+          }
+        },
+        {
+          "selector": "a[data-sunday=\"2\"] > .sunday-tile-date",
+          "count": 1,
+          "example_selector": "a[data-sunday=\"2\"] > .sunday-tile-date",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 8.6pt (11.52px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "16.08",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "11.52px",
+            "fontWeight": "400",
+            "className": "sunday-tile-date"
+          }
+        },
+        {
+          "selector": "a[data-sunday=\"2\"] > .sunday-tile-state[data-sunday-state=\"\"]",
+          "count": 1,
+          "example_selector": "a[data-sunday=\"2\"] > .sunday-tile-state[data-sunday-state=\"\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.88 (foreground color: #647955, background color: #f1e7d4, font size: 7.4pt (9.92px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "open",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "0.72",
+            "fontSize": "9.92px",
+            "fontWeight": "400",
+            "className": "sunday-tile-state"
+          }
+        },
+        {
+          "selector": ".sunday-field-axis > span:nth-child(*)",
+          "count": 2,
+          "example_selector": ".sunday-field-axis > span:nth-child(1)",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.85 (foreground color: #7f8e6d, background color: #f1e7d4, font size: 8.4pt (11.2px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "inward",
+            "color": "rgb(45, 78, 35)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.2px",
+            "fontWeight": "400",
+            "className": ""
+          }
+        },
+        {
+          "selector": ".espera.fila:nth-child(*) > .num",
+          "count": 19,
+          "example_selector": ".espera.fila:nth-child(5) > .num",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 12.0pt (15.96px), font weight: bold). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "03",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "15.96px",
+            "fontWeight": "700",
+            "className": "num"
+          }
+        },
+        {
+          "selector": ".espera.fila:nth-child(*) > .cuerpo > .nombre",
+          "count": 19,
+          "example_selector": ".espera.fila:nth-child(5) > .cuerpo > .nombre",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 15.6pt (20.8px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "To come",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "20.8px",
+            "fontWeight": "600",
+            "className": "nombre"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-08-23\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-08-23\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "23.08.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-08-30\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-08-30\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "30.08.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-09-06\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-09-06\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "06.09.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-09-13\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-09-13\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "13.09.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-09-20\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-09-20\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "20.09.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-09-27\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-09-27\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "27.09.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-10-04\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-10-04\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "04.10.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-10-11\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-10-11\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "11.10.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": ".centro > .num",
+          "count": 1,
+          "example_selector": ".centro > .num",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.52 (foreground color: #bf8474, background color: #f1e7d4, font size: 12.0pt (15.96px), font weight: bold). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "11",
+            "color": "rgb(160, 71, 57)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "15.96px",
+            "fontWeight": "700",
+            "className": "num"
+          }
+        },
+        {
+          "selector": ".centro > .cuerpo > .nombre",
+          "count": 1,
+          "example_selector": ".centro > .cuerpo > .nombre",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 15.6pt (20.8px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "To come",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "20.8px",
+            "fontWeight": "600",
+            "className": "nombre"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-10-18\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-10-18\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "18.10.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-10-25\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-10-25\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "25.10.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-01\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-01\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "01.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-08\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-08\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "08.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-15\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-15\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "15.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-22\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-22\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "22.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-11-29\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-11-29\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "29.11.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-12-06\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-12-06\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "06.12.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-12-13\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-12-13\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "13.12.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-12-20\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-12-20\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "20.12.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2026-12-27\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2026-12-27\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "27.12.26",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        },
+        {
+          "selector": ".espera.fila:nth-child(*) > .cuerpo > .glo",
+          "count": 1,
+          "example_selector": ".espera.fila:nth-child(24) > .cuerpo > .glo",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 10.8pt (14.448px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "The world opens at 00:00 CET",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "14.448px",
+            "fontWeight": "400",
+            "className": "glo"
+          }
+        },
+        {
+          "selector": "time[datetime=\"2027-01-03\"]",
+          "count": 1,
+          "example_selector": "time[datetime=\"2027-01-03\"]",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.76 (foreground color: #8d8d72, background color: #f1e7d4, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1",
+          "details": {
+            "text": "03.01.27",
+            "color": "rgb(79, 86, 54)",
+            "background": "rgba(0, 0, 0, 0)",
+            "opacity": "1",
+            "fontSize": "11.5px",
+            "fontWeight": "400",
+            "className": "cuando"
+          }
+        }
+      ]
+    }
+  ],
+  "total_nodes": 184
+}
