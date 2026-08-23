@@ -6,6 +6,12 @@ on:
       - audit/live-production-20260823
     paths:
       - '.github/workflows/production-audit-temp.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/production-audit-temp.yml'
+      - '.github/audit/**'
 
 permissions:
   contents: write
@@ -21,6 +27,8 @@ jobs:
     steps:
       - name: Check out isolated audit branch
         uses: actions/checkout@v4
+        with:
+          ref: audit/live-production-20260823
 
       - name: Install browser audit dependencies
         run: |
