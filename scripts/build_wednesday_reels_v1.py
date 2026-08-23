@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import binascii
 import html
 import json
 import subprocess
@@ -86,8 +87,52 @@ def make_focus(src: Path, out: Path, xfrac: float) -> None:
     encode(src, out, vf)
 
 
+def _valid_media(path: Path) -> bool:
+    probe = subprocess.run(
+        ["ffmpeg", "-v", "error", "-i", str(path), "-f", "null", "-"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    return probe.returncode == 0
+
+
 def decode_b64(text: str, target: Path) -> None:
-    target.write_bytes(base64.b64decode(text))
+    """Decode a banked image strictly; repair only a single proven stray char.
+
+    One historical shelf source was committed with one extra base64 data
+    character. We do not synthesize or pad image bytes. If strict decoding
+    fails with the characteristic 1-mod-4 length, try deleting one encoded
+    character, require JPEG SOI/EOI markers, then require ffmpeg to decode the
+    recovered image cleanly. Any other corruption still fails the build.
+    """
+    clean = "".join(text.split())
+    try:
+        target.write_bytes(base64.b64decode(clean, validate=True))
+        if not _valid_media(target):
+            raise SystemExit(f"Decoded media is not valid: {target}")
+        return
+    except binascii.Error as exc:
+        if len(clean) % 4 != 1:
+            raise SystemExit(f"Invalid base64 source for {target}: {exc}") from exc
+
+    # Search from the tail first because the malformed source entered the repo
+    # through a bounded text write. Only a candidate that is a complete JPEG
+    # and decodes cleanly through ffmpeg is accepted.
+    for i in range(len(clean) - 1, -1, -1):
+        candidate = clean[:i] + clean[i + 1:]
+        try:
+            data = base64.b64decode(candidate, validate=True)
+        except binascii.Error:
+            continue
+        if not (data.startswith(b"\xff\xd8") and data.endswith(b"\xff\xd9")):
+            continue
+        target.write_bytes(data)
+        if _valid_media(target):
+            print(f"repaired one stray base64 character in {target.name} at encoded index {i}")
+            return
+
+    raise SystemExit(f"Could not conservatively repair malformed base64 source for {target}")
 
 
 def build_index(data: dict, outdir: Path) -> None:
