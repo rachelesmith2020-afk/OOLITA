@@ -59,6 +59,16 @@ done
 # Bank the complete Wednesday Reel line during deployment. Reels are rendered
 # from canonical site poster assets plus the approved, repository-banked Abrigo
 # sources. Runtime publishing never renders or improvises content.
+# GitHub's current Ubuntu runner does not include ffmpeg by default, so install
+# the declared build dependency there rather than allowing reel banking to make
+# every site validation fail. Local builds still require ffmpeg to be installed.
+if ! command -v ffmpeg >/dev/null 2>&1; then
+  if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+    echo 'Installing ffmpeg for the OOLITA Wednesday reel bank.'
+    sudo apt-get update -qq
+    sudo apt-get install -y -qq ffmpeg
+  fi
+fi
 command -v ffmpeg >/dev/null 2>&1 || {
   echo 'ERROR: ffmpeg is required to build the OOLITA Wednesday reel bank.' >&2
   exit 1
