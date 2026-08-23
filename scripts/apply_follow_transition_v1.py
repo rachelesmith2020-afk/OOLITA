@@ -11,7 +11,8 @@ subprocess.run([sys.executable, "scripts/apply_follow_mobile_finish.py", str(ROO
 # The deployment mirror now starts from a live origin on which later final
 # passes have already published newer identity/date wording. Normalize only
 # the intermediate source strings expected by the older strict transformers;
-# apply_public_identity_v2.py restores the current public wording at the end.
+# apply_release_calendar_v1.py and apply_public_identity_v2.py restore the
+# current public wording later in the same build.
 for path in ROOT.rglob("*.html"):
     text = path.read_text(encoding="utf-8")
     text = text.replace(
@@ -21,6 +22,14 @@ for path in ROOT.rglob("*.html"):
     text = text.replace(
         "OOLITA · A Vestini Tribe project · Raquel Costantini, artist and author",
         "OOLITA · Raquel Costantini",
+    )
+    text = text.replace(
+        "Castillo virtual · entrada libre · abre 16.05.27 · 19:00 CEST ↗",
+        "Obra de Raquel Costantini ↗",
+    )
+    text = text.replace(
+        "Virtual castle · free to enter · opens 16.05.27 · 19:00 CEST ↗",
+        "Work by Raquel Costantini ↗",
     )
     text = text.replace(
         "En el castillo: catálogo completo con clave · tapa dura 16.09.27 · presentación pública 19.09.27 ↗",
