@@ -57,3 +57,5 @@ else:
     raise SystemExit(
         f"Unexpected homepage material wording: found neither {old!r} nor {new!r}"
     )
+
+# Propagation trigger: 2026-08-23 13:00 Europe/London.
