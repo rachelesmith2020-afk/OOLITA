@@ -1,4 +1,4 @@
-name: One-shot OOLITA live hero verification
+name: One-shot OOLITA force deploy and hero verification
 
 on:
   push:
@@ -9,29 +9,79 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: oolita-one-shot-hero-fix
+  cancel-in-progress: false
+
 jobs:
-  verify:
+  deploy-and-verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
     steps:
       - name: Check out main
         uses: actions/checkout@v4
         with:
           ref: main
 
+      - name: Require Cloudflare token
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
+
+      - name: Reconstruct production site
+        shell: bash
+        run: bash scripts/build_site_for_deploy.sh
+
+      - name: Apply production layers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/apply_direction_v3.py site
+          python3 scripts/growth_prep.py site
+          python3 scripts/apply_growth_v1.py site
+          python3 scripts/apply_commerce.py site commerce/catalog.json
+          python3 scripts/apply_list_completion_v1.py site
+          python3 scripts/apply_follow_transition_v1.py site
+          python3 scripts/apply_release_calendar_v1.py site
+          python3 scripts/apply_audit_fixes_v1.py site
+          python3 scripts/apply_first_party_analytics_v1.py site
+          python3 scripts/apply_search_visibility_v1.py site
+          # Re-apply last so this wins even if a later production layer carries old art-field CSS.
+          python3 scripts/apply_visual_spacing_cleanup_v1.py site
+
+      - name: Validate Pages Functions and Cloudflare binding state
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check functions/api/event.js
+          node --check functions/api/subscribe.js
+          node --check functions/api/unsubscribe.js
+          python3 scripts/configure_cloudflare_analytics.py
+          npx --yes wrangler@latest pages functions build functions --outfile /tmp/oolita-worker.js
+
+      - name: Force production deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@latest pages deploy site --project-name=oolita --branch=main --commit-dirty=true
+
       - name: Wait for repaired production HTML
         shell: bash
         run: |
           set -euo pipefail
-          for attempt in $(seq 1 30); do
+          for attempt in $(seq 1 24); do
             html="$(curl -fsSL -H 'Cache-Control: no-cache' "https://oolita.es/?hero-verify=$GITHUB_RUN_ID-$attempt" || true)"
             if printf '%s' "$html" | grep -Fq 'font-size:clamp(4.25rem,10vw,9rem)!important' \
               && printf '%s' "$html" | grep -Fq 'white-space:nowrap!important'; then
               echo "Repaired production CSS found on attempt $attempt."
               exit 0
             fi
-            echo "Waiting for repaired production HTML ($attempt/30)…"
-            sleep 10
+            echo "Waiting for repaired production HTML ($attempt/24)…"
+            sleep 5
           done
           echo 'Repaired homepage CSS did not reach production in time.' >&2
           exit 1
@@ -43,7 +93,7 @@ jobs:
           npm install --no-save playwright@latest
           npx playwright install --with-deps chromium
 
-      - name: Verify Spanish and English hero geometry
+      - name: Verify live Spanish and English geometry
         shell: bash
         run: |
           set -euo pipefail
@@ -51,44 +101,50 @@ jobs:
           const { chromium } = require('playwright');
           (async () => {
             const browser = await chromium.launch({headless:true});
-            for (const [url, expected] of [['https://oolita.es/','PIEDRA'],['https://oolita.es/en/','STONE']]) {
-              const page = await browser.newPage({viewport:{width:909,height:685}});
-              await page.goto(url + '?geometry-verify=' + Date.now(), {waitUntil:'networkidle'});
-              const result = await page.evaluate((expected) => {
-                const field = document.querySelector('#oolita-art-field-stone');
-                const copy = field?.querySelector('.art-copy');
-                const kicker = field?.querySelector('.art-kicker');
-                const word = field?.querySelector('.art-word');
-                const caption = field?.querySelector('.art-caption');
-                if (!field || !copy || !kicker || !word || !caption) return {missing:true};
-                const wr = word.getBoundingClientRect();
-                const cr = copy.getBoundingClientRect();
-                const kr = kicker.getBoundingClientRect();
-                const cap = caption.getBoundingClientRect();
-                const cs = getComputedStyle(word);
-                return {
-                  text: word.textContent.trim(),
-                  whiteSpace: cs.whiteSpace,
-                  wordWidth: wr.width,
-                  wordHeight: wr.height,
-                  copyWidth: cr.width,
-                  kickerBottom: kr.bottom,
-                  wordTop: wr.top,
-                  captionTop: cap.top,
-                  wordBottom: wr.bottom,
-                  viewport: innerWidth,
-                  scrollWidth: document.documentElement.scrollWidth
-                };
-              }, expected);
-              console.log(url, result);
-              if (result.missing) throw new Error(url + ' missing stone field nodes');
-              if (result.text !== expected) throw new Error(url + ' wrong word: ' + result.text);
-              if (result.whiteSpace !== 'nowrap') throw new Error(url + ' word can wrap');
-              if (result.wordWidth > result.copyWidth + 1) throw new Error(url + ' word exceeds copy width');
-              if (result.kickerBottom > result.wordTop + 1) throw new Error(url + ' kicker overlaps word');
-              if (result.captionTop < result.wordBottom - 1) throw new Error(url + ' caption overlaps word');
-              if (result.scrollWidth > result.viewport + 1) throw new Error(url + ' horizontal overflow');
-              await page.close();
+            const cases = [
+              ['https://oolita.es/','PIEDRA'],
+              ['https://oolita.es/en/','STONE']
+            ];
+            for (const width of [909, 390]) {
+              for (const [url, expected] of cases) {
+                const page = await browser.newPage({viewport:{width,height:685}});
+                await page.goto(url + '?geometry-verify=' + Date.now(), {waitUntil:'networkidle'});
+                const result = await page.evaluate((expected) => {
+                  const field = document.querySelector('#oolita-art-field-stone');
+                  const copy = field?.querySelector('.art-copy');
+                  const kicker = field?.querySelector('.art-kicker');
+                  const word = field?.querySelector('.art-word');
+                  const caption = field?.querySelector('.art-caption');
+                  if (!field || !copy || !kicker || !word || !caption) return {missing:true};
+                  const wr = word.getBoundingClientRect();
+                  const cr = copy.getBoundingClientRect();
+                  const kr = kicker.getBoundingClientRect();
+                  const cap = caption.getBoundingClientRect();
+                  const cs = getComputedStyle(word);
+                  return {
+                    text: word.textContent.trim(),
+                    whiteSpace: cs.whiteSpace,
+                    wordWidth: wr.width,
+                    wordHeight: wr.height,
+                    copyWidth: cr.width,
+                    kickerBottom: kr.bottom,
+                    wordTop: wr.top,
+                    captionTop: cap.top,
+                    wordBottom: wr.bottom,
+                    viewport: innerWidth,
+                    scrollWidth: document.documentElement.scrollWidth
+                  };
+                }, expected);
+                console.log(width, url, result);
+                if (result.missing) throw new Error(width + ' ' + url + ' missing stone field nodes');
+                if (result.text !== expected) throw new Error(width + ' ' + url + ' wrong word: ' + result.text);
+                if (result.whiteSpace !== 'nowrap') throw new Error(width + ' ' + url + ' word can wrap');
+                if (result.wordWidth > result.copyWidth + 1) throw new Error(width + ' ' + url + ' word exceeds copy width');
+                if (result.kickerBottom > result.wordTop + 1) throw new Error(width + ' ' + url + ' kicker overlaps word');
+                if (result.captionTop < result.wordBottom - 1) throw new Error(width + ' ' + url + ' caption overlaps word');
+                if (result.scrollWidth > result.viewport + 1) throw new Error(width + ' ' + url + ' horizontal overflow');
+                await page.close();
+              }
             }
             await browser.close();
           })().catch(err => { console.error(err); process.exit(1); });
