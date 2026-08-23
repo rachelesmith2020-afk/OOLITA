@@ -1,0 +1,67 @@
+name: Temporary production deploy for OOLITA art restage
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/temp-production-art-restage.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-production:
+    if: ${{ github.head_ref == 'art-restage-production-deploy' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and apply final layers
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/build_site_for_deploy.sh
+          python3 scripts/apply_direction_v3.py site
+          python3 scripts/growth_prep.py site
+          python3 scripts/apply_growth_v1.py site
+          python3 scripts/apply_commerce.py site commerce/catalog.json
+          python3 scripts/apply_list_completion_v1.py site
+          python3 scripts/apply_follow_transition_v1.py site
+          python3 scripts/apply_release_calendar_v1.py site
+          python3 scripts/apply_audit_fixes_v1.py site
+          python3 scripts/apply_first_party_analytics_v1.py site
+          python3 scripts/apply_search_visibility_v1.py site
+          python3 scripts/configure_cloudflare_analytics.py
+      - name: Deploy production
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f wrangler.toml ]; then mv wrangler.toml /tmp/oolita-wrangler.toml; fi
+          npx --yes wrangler@latest pages deploy site --project-name=oolita --branch=main --commit-dirty=true
+      - name: Verify production homepage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import time, urllib.request
+          expected=("oolita-visual-spacing-cleanup-v1","oolita-mobile-2027-fix-v1","oolita-art-restage-v1")
+          for attempt in range(1,25):
+              url=f"https://oolita.es/en/?verify={int(time.time())}"
+              try:
+                  req=urllib.request.Request(url,headers={"Cache-Control":"no-cache","User-Agent":"OOLITA-deploy-verifier/1.0"})
+                  with urllib.request.urlopen(req,timeout=20) as r:
+                      html=r.read().decode("utf-8","replace")
+              except Exception as exc:
+                  print("attempt",attempt,"request failed",exc)
+                  html=""
+              missing=[x for x in expected if x not in html]
+              if not missing:
+                  print("Production homepage verified with visual cleanup markers.")
+                  raise SystemExit(0)
+              print("attempt",attempt,"missing",missing)
+              time.sleep(5)
+          raise SystemExit("Production homepage did not expose visual cleanup in time")
+          PY
