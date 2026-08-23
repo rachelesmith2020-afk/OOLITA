@@ -1,0 +1,107 @@
+name: One-shot OOLITA live hero verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-homepage-hero-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Wait for repaired production HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 30); do
+            html="$(curl -fsSL -H 'Cache-Control: no-cache' "https://oolita.es/?hero-verify=$GITHUB_RUN_ID-$attempt" || true)"
+            if printf '%s' "$html" | grep -Fq 'font-size:clamp(4.25rem,10vw,9rem)!important' \
+              && printf '%s' "$html" | grep -Fq 'white-space:nowrap!important'; then
+              echo "Repaired production CSS found on attempt $attempt."
+              exit 0
+            fi
+            echo "Waiting for repaired production HTML ($attempt/30)…"
+            sleep 10
+          done
+          echo 'Repaired homepage CSS did not reach production in time.' >&2
+          exit 1
+
+      - name: Install Playwright Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@latest
+          npx playwright install --with-deps chromium
+
+      - name: Verify Spanish and English hero geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({headless:true});
+            for (const [url, expected] of [['https://oolita.es/','PIEDRA'],['https://oolita.es/en/','STONE']]) {
+              const page = await browser.newPage({viewport:{width:909,height:685}});
+              await page.goto(url + '?geometry-verify=' + Date.now(), {waitUntil:'networkidle'});
+              const result = await page.evaluate((expected) => {
+                const field = document.querySelector('#oolita-art-field-stone');
+                const copy = field?.querySelector('.art-copy');
+                const kicker = field?.querySelector('.art-kicker');
+                const word = field?.querySelector('.art-word');
+                const caption = field?.querySelector('.art-caption');
+                if (!field || !copy || !kicker || !word || !caption) return {missing:true};
+                const wr = word.getBoundingClientRect();
+                const cr = copy.getBoundingClientRect();
+                const kr = kicker.getBoundingClientRect();
+                const cap = caption.getBoundingClientRect();
+                const cs = getComputedStyle(word);
+                return {
+                  text: word.textContent.trim(),
+                  whiteSpace: cs.whiteSpace,
+                  wordWidth: wr.width,
+                  wordHeight: wr.height,
+                  copyWidth: cr.width,
+                  kickerBottom: kr.bottom,
+                  wordTop: wr.top,
+                  captionTop: cap.top,
+                  wordBottom: wr.bottom,
+                  viewport: innerWidth,
+                  scrollWidth: document.documentElement.scrollWidth
+                };
+              }, expected);
+              console.log(url, result);
+              if (result.missing) throw new Error(url + ' missing stone field nodes');
+              if (result.text !== expected) throw new Error(url + ' wrong word: ' + result.text);
+              if (result.whiteSpace !== 'nowrap') throw new Error(url + ' word can wrap');
+              if (result.wordWidth > result.copyWidth + 1) throw new Error(url + ' word exceeds copy width');
+              if (result.kickerBottom > result.wordTop + 1) throw new Error(url + ' kicker overlaps word');
+              if (result.captionTop < result.wordBottom - 1) throw new Error(url + ' caption overlaps word');
+              if (result.scrollWidth > result.viewport + 1) throw new Error(url + ' horizontal overflow');
+              await page.close();
+            }
+            await browser.close();
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
+
+      - name: Remove this one-shot workflow after success
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --rebase origin main
+          rm -f .github/workflows/verify-homepage-hero-once.yml
+          git add .github/workflows/verify-homepage-hero-once.yml
+          git commit -m 'Remove one-shot live hero verification [skip ci]'
+          git push origin HEAD:main
