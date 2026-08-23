@@ -1,0 +1,93 @@
+name: One-shot OOLITA contrast diagnostic
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/contrast-diagnostic-once.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser and Axe
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@latest axe-core@latest
+          npx playwright install --with-deps chromium
+      - name: Print exact live contrast failures
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const axePath = require.resolve('axe-core/axe.min.js');
+          const urls = [
+            'https://oolita.es/',
+            'https://oolita.es/en/',
+            'https://oolita.es/ediciones/libro/',
+            'https://oolita.es/en/editions/book/',
+            'https://oolita.es/domingos/',
+            'https://oolita.es/en/sundays/'
+          ];
+          (async()=>{
+            const browser = await chromium.launch({headless:true});
+            let total = 0;
+            for (const url of urls) {
+              const page = await browser.newPage({viewport:{width:1280,height:900}});
+              await page.goto(url + '?contrast-diagnostic=' + Date.now(), {waitUntil:'networkidle'});
+              await page.addScriptTag({path:axePath});
+              const result = await page.evaluate(async()=>{
+                const out = await axe.run(document, {runOnly:{type:'rule',values:['color-contrast']}});
+                return out.violations.flatMap(v => v.nodes.map(n => ({
+                  id:v.id,
+                  impact:v.impact,
+                  target:n.target,
+                  html:n.html,
+                  failureSummary:n.failureSummary
+                })));
+              });
+              console.log('\n=== ' + url + ' ===');
+              console.log('contrast_nodes=' + result.length);
+              total += result.length;
+              for (const item of result) {
+                const selector = Array.isArray(item.target) ? item.target[0] : item.target;
+                const details = await page.evaluate((sel)=>{
+                  let el;
+                  try { el = document.querySelector(sel); } catch { return {selectorError:true}; }
+                  if (!el) return {missing:true};
+                  const cs = getComputedStyle(el);
+                  const chain=[];
+                  let p=el;
+                  while(p && p.nodeType===1){
+                    const s=getComputedStyle(p);
+                    if (s.opacity !== '1' || s.color !== 'rgba(0, 0, 0, 0)' || s.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+                      chain.push({tag:p.tagName, id:p.id||'', cls:p.className||'', opacity:s.opacity, color:s.color, background:s.backgroundColor});
+                    }
+                    p=p.parentElement;
+                  }
+                  return {
+                    text:(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,160),
+                    color:cs.color,
+                    background:cs.backgroundColor,
+                    opacity:cs.opacity,
+                    fontSize:cs.fontSize,
+                    fontWeight:cs.fontWeight,
+                    chain:chain.slice(0,8)
+                  };
+                }, selector);
+                console.log(JSON.stringify({...item, details}));
+              }
+              await page.close();
+            }
+            await browser.close();
+            console.log('\nTOTAL_CONTRAST_NODES=' + total);
+            if (!total) process.exit(2);
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
