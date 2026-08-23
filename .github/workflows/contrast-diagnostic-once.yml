@@ -7,7 +7,11 @@ on:
       - '.github/workflows/contrast-diagnostic-once.yml'
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: oolita-contrast-diagnostic-once
+  cancel-in-progress: true
 
 jobs:
   audit:
@@ -21,11 +25,13 @@ jobs:
           set -euo pipefail
           npm install --no-save playwright@latest axe-core@latest
           npx playwright install --with-deps chromium
-      - name: Print exact live contrast failures
+      - name: Capture exact live contrast failures
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p audit-results
           node <<'NODE'
+          const fs = require('fs');
           const { chromium } = require('playwright');
           const axePath = require.resolve('axe-core/axe.min.js');
           const urls = [
@@ -38,25 +44,19 @@ jobs:
           ];
           (async()=>{
             const browser = await chromium.launch({headless:true});
-            let total = 0;
+            const report = {generated_at:new Date().toISOString(), pages:[], total:0};
             for (const url of urls) {
               const page = await browser.newPage({viewport:{width:1280,height:900}});
               await page.goto(url + '?contrast-diagnostic=' + Date.now(), {waitUntil:'networkidle'});
               await page.addScriptTag({path:axePath});
-              const result = await page.evaluate(async()=>{
+              const nodes = await page.evaluate(async()=>{
                 const out = await axe.run(document, {runOnly:{type:'rule',values:['color-contrast']}});
                 return out.violations.flatMap(v => v.nodes.map(n => ({
-                  id:v.id,
-                  impact:v.impact,
-                  target:n.target,
-                  html:n.html,
-                  failureSummary:n.failureSummary
+                  id:v.id, impact:v.impact, target:n.target, html:n.html, failureSummary:n.failureSummary
                 })));
               });
-              console.log('\n=== ' + url + ' ===');
-              console.log('contrast_nodes=' + result.length);
-              total += result.length;
-              for (const item of result) {
+              const enriched=[];
+              for (const item of nodes) {
                 const selector = Array.isArray(item.target) ? item.target[0] : item.target;
                 const details = await page.evaluate((sel)=>{
                   let el;
@@ -67,27 +67,32 @@ jobs:
                   let p=el;
                   while(p && p.nodeType===1){
                     const s=getComputedStyle(p);
-                    if (s.opacity !== '1' || s.color !== 'rgba(0, 0, 0, 0)' || s.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-                      chain.push({tag:p.tagName, id:p.id||'', cls:p.className||'', opacity:s.opacity, color:s.color, background:s.backgroundColor});
-                    }
+                    chain.push({tag:p.tagName, id:p.id||'', cls:(typeof p.className==='string'?p.className:''), opacity:s.opacity, color:s.color, background:s.backgroundColor});
                     p=p.parentElement;
                   }
                   return {
-                    text:(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,160),
-                    color:cs.color,
-                    background:cs.backgroundColor,
-                    opacity:cs.opacity,
-                    fontSize:cs.fontSize,
-                    fontWeight:cs.fontWeight,
-                    chain:chain.slice(0,8)
+                    text:(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,180),
+                    color:cs.color, background:cs.backgroundColor, opacity:cs.opacity,
+                    fontSize:cs.fontSize, fontWeight:cs.fontWeight, chain:chain.slice(0,8)
                   };
                 }, selector);
-                console.log(JSON.stringify({...item, details}));
+                enriched.push({...item, selector, details});
               }
+              report.pages.push({url,count:enriched.length,nodes:enriched});
+              report.total += enriched.length;
               await page.close();
             }
             await browser.close();
-            console.log('\nTOTAL_CONTRAST_NODES=' + total);
-            if (!total) process.exit(2);
+            fs.writeFileSync('audit-results/contrast-diagnostic.json', JSON.stringify(report,null,2));
+            console.log('TOTAL_CONTRAST_NODES=' + report.total);
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
+      - name: Commit diagnostic report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add audit-results/contrast-diagnostic.json
+          git commit -m 'Record live contrast diagnostic [skip ci]'
+          git push origin HEAD:main
