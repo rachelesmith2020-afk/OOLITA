@@ -123,6 +123,11 @@ grep -Fq 'La misma senda en tres materiales.' site/index.html
 grep -Fq 'The same path in three materials.' site/en/index.html
 grep -Fq '48-page bilingual fable' site/en/posters/index.html
 
+# Re-apply the final visual spacing layer to the mirrored live origin on every
+# reconstruction. The layer replaces its own prior style block, preventing an
+# obsolete desktop/laptop PIEDRA or STONE rule from surviving future deploys.
+python3 scripts/apply_visual_spacing_cleanup_v1.py site
+
 # The clean origin must not introduce Cloudflare zone-layer email rewriting.
 if grep -RIl --include='*.html' '/cdn-cgi/l/email-protection' site >/tmp/oolita-obfuscated-mail.txt; then
   echo 'Cloudflare-obfuscated email links found in reconstructed origin; refusing to deploy:'
