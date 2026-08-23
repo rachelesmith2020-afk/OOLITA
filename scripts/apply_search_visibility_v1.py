@@ -4,15 +4,18 @@
 - Publishes the IndexNow ownership key at the site root.
 - Ensures robots.txt advertises the sitemap.
 - Updates <lastmod> for pages materially changed on 2026-08-22.
+- Builds the permanent bilingual 3D-world explainer before sitemap checks.
 """
 from __future__ import annotations
 
 import re
+import runpy
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
+HERE = Path(__file__).resolve().parent
 KEY_FILE = Path("search/indexnow-key.txt")
 LASTMOD = "2026-08-22"
 BASE = "https://oolita.es"
@@ -44,6 +47,20 @@ if not ROOT.is_dir():
     raise SystemExit(f"Missing built site: {ROOT}")
 if not KEY_FILE.is_file():
     raise SystemExit(f"Missing IndexNow key file: {KEY_FILE}")
+
+# The 3D-world page is part of the permanent site layer. Running it here means
+# it inherits all earlier direction, commerce, Follow, accessibility and
+# first-party analytics transforms, and its sitemap entries then pass through
+# the normal search-visibility checks below.
+three_d_script = HERE / "apply_3d_world_v1.py"
+if not three_d_script.is_file():
+    raise SystemExit(f"Missing 3D-world build layer: {three_d_script}")
+old_argv = sys.argv[:]
+sys.argv = [str(three_d_script), str(ROOT)]
+try:
+    runpy.run_path(str(three_d_script), run_name="__main__")
+finally:
+    sys.argv = old_argv
 
 key = KEY_FILE.read_text(encoding="utf-8").strip()
 if not re.fullmatch(r"[A-Za-z0-9-]{8,128}", key):
@@ -92,6 +109,9 @@ if sitemap_line not in robots.read_text(encoding="utf-8"):
     raise SystemExit("robots.txt sitemap invariant missing")
 if not (ROOT / f"{key}.txt").is_file():
     raise SystemExit("IndexNow key invariant missing")
+for route in ("mundo-3d/index.html", "en/3d-world/index.html"):
+    if not (ROOT / route).is_file():
+        raise SystemExit(f"3D-world route missing after search layer: {route}")
 
 print(f"search visibility: marked {len(seen)} changed URLs with lastmod {LASTMOD}")
 print("OOLITA search visibility layer validated successfully.")
