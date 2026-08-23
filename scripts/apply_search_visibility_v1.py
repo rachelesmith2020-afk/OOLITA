@@ -50,3 +50,4 @@ def run_layer(filename: str) -> None:
 run_layer("apply_search_visibility_core_v1.py")
 run_layer("apply_book_excerpt_v1.py")
 run_layer("apply_sunday_archive_v1.py")
+run_layer("apply_seo_followup_v1.py")
