@@ -57,3 +57,4 @@ run_layer("apply_menu_hierarchy_v1.py")
 # Production trigger 2026-08-23: publish the validated contemporary-art restage.
 run_layer("apply_art_restage_v1.py")
 run_layer("apply_mobile_english_2027_fix_v1.py")
+run_layer("apply_visual_spacing_cleanup_v1.py")
