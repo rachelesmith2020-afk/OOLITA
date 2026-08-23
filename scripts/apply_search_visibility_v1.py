@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the complete search/identity/reader pipeline, then add the genuine book excerpt."""
+"""Run the final reader-facing deployment layers after search/identity normalization."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -49,3 +49,4 @@ def run_layer(filename: str) -> None:
 
 run_layer("apply_search_visibility_core_v1.py")
 run_layer("apply_book_excerpt_v1.py")
+run_layer("apply_sunday_archive_v1.py")
