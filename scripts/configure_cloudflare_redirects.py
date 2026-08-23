@@ -62,12 +62,24 @@ def api(method: str, url: str, payload=None, *, allow_404: bool = False):
     return body.get("result")
 
 
-def get_zone_id() -> str:
-    query = urllib.parse.urlencode({"name": ZONE_NAME, "account.id": ACCOUNT_ID})
+def _find_exact_zone(params: dict[str, str]) -> list[dict]:
+    query = urllib.parse.urlencode(params)
     zones = api("GET", f"https://api.cloudflare.com/client/v4/zones?{query}") or []
-    exact = [z for z in zones if z.get("name") == ZONE_NAME]
+    return [z for z in zones if z.get("name") == ZONE_NAME]
+
+
+def get_zone_id() -> str:
+    # First prefer the Pages account used by this repository. If the custom
+    # domain's DNS zone lives in another account that the same token can read,
+    # retry without the account filter before declaring it unavailable.
+    exact = _find_exact_zone({"name": ZONE_NAME, "account.id": ACCOUNT_ID})
+    if not exact:
+        exact = _find_exact_zone({"name": ZONE_NAME})
     if len(exact) != 1:
-        raise SystemExit(f"Expected exactly one Cloudflare zone for {ZONE_NAME}; found {len(exact)}")
+        raise SystemExit(
+            f"Cloudflare token does not expose exactly one {ZONE_NAME} zone; found {len(exact)}. "
+            "The Pages token may not have Zone Read/Redirect Rules access, or the DNS zone may live in another Cloudflare account."
+        )
     return exact[0]["id"]
 
 
