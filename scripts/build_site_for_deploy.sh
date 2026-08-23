@@ -56,6 +56,15 @@ for f in "${required[@]}"; do
   fi
 done
 
+# Bank the complete Wednesday Reel line during deployment. Reels are rendered
+# from canonical site poster assets plus the approved, repository-banked Abrigo
+# sources. Runtime publishing never renders or improvises content.
+command -v ffmpeg >/dev/null 2>&1 || {
+  echo 'ERROR: ffmpeg is required to build the OOLITA Wednesday reel bank.' >&2
+  exit 1
+}
+python3 scripts/build_wednesday_reels_v1.py site
+
 # Every URL advertised by the current production sitemap must be present in the
 # reconstructed deployment folder. This is a current invariant, unlike an old
 # historical ZIP file-count.
