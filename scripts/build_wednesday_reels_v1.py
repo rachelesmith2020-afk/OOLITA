@@ -14,7 +14,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SITE = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "site"
 META = ROOT / "social" / "wednesday_reels.json"
-SOURCE = ROOT / "social" / "reel_source.json"
+ROOM_PARTS = [ROOT / "social" / f"reel_room_{i:02d}.b64" for i in range(1, 4)]
+SHELF_SOURCE = ROOT / "social" / "reel_shelf.b64"
+COVERS_SOURCE = ROOT / "social" / "reel_covers.json"
 FPS = 24
 DURATION = 6
 FRAMES = FPS * DURATION
@@ -169,11 +171,12 @@ def main() -> None:
         tmp = Path(td)
         hero = tmp / "abrigo-room.jpg"
         shelf = tmp / "abrigo-shelf.jpg"
-        source = json.loads(SOURCE.read_text(encoding="utf-8"))
-        decode_b64(source["room_jpeg_b64"], hero)
-        decode_b64(source["shelf_jpeg_b64"], shelf)
+        room_b64 = "".join(p.read_text(encoding="utf-8").strip() for p in ROOM_PARTS)
+        decode_b64(room_b64, hero)
+        decode_b64(SHELF_SOURCE.read_text(encoding="utf-8").strip(), shelf)
+        covers = json.loads(COVERS_SOURCE.read_text(encoding="utf-8"))
         cover_files = {}
-        for name, svg in source["covers"].items():
+        for name, svg in covers.items():
             cp = tmp / f"{name}.svg"
             cp.write_text(svg, encoding="utf-8")
             cover_files[name] = cp
