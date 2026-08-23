@@ -12,11 +12,16 @@ subprocess.run([sys.executable, "scripts/apply_follow_mobile_finish.py", str(ROO
 # passes have already published newer identity/date wording. Normalize only
 # the intermediate source strings expected by the older strict transformers;
 # apply_public_identity_v2.py restores the current public wording at the end.
-for rel in ("index.html", "en/index.html", "404.html", "404/index.html"):
-    path = ROOT / rel
-    if not path.is_file():
-        continue
+for path in ROOT.rglob("*.html"):
     text = path.read_text(encoding="utf-8")
+    text = text.replace(
+        "OOLITA · Un proyecto de Vestini Tribe · Raquel Costantini, artista y autora",
+        "OOLITA · Raquel Costantini",
+    )
+    text = text.replace(
+        "OOLITA · A Vestini Tribe project · Raquel Costantini, artist and author",
+        "OOLITA · Raquel Costantini",
+    )
     text = text.replace(
         "En el castillo: catálogo completo con clave · tapa dura 16.09.27 · presentación pública 19.09.27 ↗",
         "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗",
@@ -25,15 +30,6 @@ for rel in ("index.html", "en/index.html", "404.html", "404/index.html"):
         "In the castle: full catalogue with a key · hardback 16.09.27 · public launch 19.09.27 ↗",
         "In the castle: full catalogue with a key · hardback planned for autumn 2027 ↗",
     )
-    if rel in ("404.html", "404/index.html"):
-        text = text.replace(
-            "OOLITA · Un proyecto de Vestini Tribe · Raquel Costantini, artista y autora",
-            "OOLITA · Raquel Costantini",
-        )
-        text = text.replace(
-            "OOLITA · A Vestini Tribe project · Raquel Costantini, artist and author",
-            "OOLITA · Raquel Costantini",
-        )
     path.write_text(text, encoding="utf-8")
 
 print("OOLITA Follow Cloudflare activation and mobile CTA validated successfully.")
