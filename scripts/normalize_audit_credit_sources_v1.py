@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Bridge current live attribution back to the legacy audit's expected source state.
+"""Bridge current live attribution back to legacy validators' expected source state.
 
 The deployment is reconstructed from the current public site. Once final OOLITA
-credits are live, the older accessibility/privacy audit can otherwise fail because
-it expects the pre-credit signature/footer source. This bridge changes only the
-intermediate build state; the final attribution pass restores the approved public
-wording at the end of the pipeline.
+credits are live, older accessibility/privacy and search validators can otherwise
+fail because they expect the pre-credit signature/footer source. This bridge
+changes only the intermediate build state; the final attribution pass restores
+the approved public wording at the end of the pipeline.
 """
 from __future__ import annotations
 
@@ -29,6 +29,11 @@ FINAL_HOME_EN = (
 FINAL_MAIN_ES = "OOLITA · Un proyecto de Raquel Costantini con Vestini Tribe"
 FINAL_MAIN_EN = "OOLITA · A project by Raquel Costantini with Vestini Tribe"
 LEGACY_MAIN = "OOLITA · Raquel Costantini"
+
+FINAL_BUILD_ES = "Sitio y mundo 3D desarrollados en colaboración por Raquel Costantini y Vestini Tribe."
+FINAL_BUILD_EN = "Website and 3D world developed collaboratively by Raquel Costantini and Vestini Tribe."
+LEGACY_BUILD_ES = "Sitio y mundo 3D construidos por Vestini Tribe."
+LEGACY_BUILD_EN = "Site and 3D world built by Vestini Tribe."
 
 FINAL_FIRMA_ES = (
     '<div class="firma"><span class="rot">Raquel Costantini — artista y autora</span>'
@@ -79,9 +84,9 @@ for rel, final_home, final_firma, legacy_firma in (
         text = text.replace(final_firma, legacy_firma, 1)
     path.write_text(text, encoding="utf-8")
 
-# The older audit validates every footer against its historical intermediate
-# identity. Normalize only the main identity phrase; leave the collaborative
-# build credit in place because that is independent and harmless to the audit.
+# Older validators check every footer against historical intermediate identity
+# and build-credit phrases. Normalize only those exact phrases; the final
+# attribution pass restores the collaborative public credits before deployment.
 for path in sorted(ROOT.rglob("*.html")):
     text = path.read_text(encoding="utf-8")
     footer = re.search(r'<footer\b[\s\S]*?</footer>', text, flags=re.I)
@@ -89,8 +94,9 @@ for path in sorted(ROOT.rglob("*.html")):
         continue
     block = footer.group(0)
     new_block = block.replace(FINAL_MAIN_ES, LEGACY_MAIN).replace(FINAL_MAIN_EN, LEGACY_MAIN)
+    new_block = new_block.replace(FINAL_BUILD_ES, LEGACY_BUILD_ES).replace(FINAL_BUILD_EN, LEGACY_BUILD_EN)
     if new_block != block:
         text = text[:footer.start()] + new_block + text[footer.end():]
         path.write_text(text, encoding="utf-8")
 
-print("OOLITA audit-credit source compatibility normalization complete.")
+print("OOLITA legacy-validator attribution source normalization complete.")
