@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Give the book, 3D world and Sundays one clear onward path.
+"""Give the book, labyrinth, 3D world and Sundays one clear onward path.
 
 The existing OOLITA list remains the only signup point. These pages lead back
 to it with the relevant interest already selected, while keeping each page's
@@ -26,40 +26,53 @@ BOOK_PATHS = {
     },
 }
 
+LABYRINTH_BLOCKS = {
+    "laberinto/index.html": """<section class="tramo env" data-reader-next="labyrinth">
+<span class="rot">03.01.27</span><h2 class="grande">El camino continúa en el navegador.</h2>
+<p class="parr">Si no puedes llegar a Los Escullos, el mismo camino abre en 3D el 3 de enero. Sin descarga. Sin cuenta. Sin coste.</p>
+<a class="fila" href="/?follow=3d#seguir-oolita" data-oolita-event="labyrinth-follow-intent"><span class="n">→</span><span class="nom">Avísame cuando abra</span><span class="glo">Mundo 3D · 03.01.27</span></a>
+</section>""",
+    "en/labyrinth/index.html": """<section class="tramo env" data-reader-next="labyrinth">
+<span class="rot">03.01.27</span><h2 class="grande">The path continues in the browser.</h2>
+<p class="parr">If you cannot get to Los Escullos, the same path opens in 3D on 3 January. No download. No account. No cost.</p>
+<a class="fila" href="/en/?follow=3d#follow-oolita" data-oolita-event="labyrinth-follow-intent"><span class="n">→</span><span class="nom">Tell me when it opens</span><span class="glo">3D world · 3 Jan 27</span></a>
+</section>""",
+}
+
 THREE_D_BLOCKS = {
-    "mundo-3d/index.html": '''<section class="tramo env" data-reader-next="3d">
+    "mundo-3d/index.html": """<section class="tramo env" data-reader-next="3d">
 <span class="rot">03.01.27</span><h2 class="grande">El 3 de enero, aquí.</h2>
 <p class="parr">Ese día el enlace se abre. Si quieres que te llegue el aviso, deja tu correo en OOLITA.</p>
 <a class="fila" href="/?follow=3d#seguir-oolita" data-oolita-event="3d-follow-intent"><span class="n">→</span><span class="nom">Avísame cuando abra</span><span class="glo">Mundo 3D · sin descarga · sin cuenta</span></a>
-</section>''',
-    "en/3d-world/index.html": '''<section class="tramo env" data-reader-next="3d">
+</section>""",
+    "en/3d-world/index.html": """<section class="tramo env" data-reader-next="3d">
 <span class="rot">03.01.27</span><h2 class="grande">On 3 January, here.</h2>
 <p class="parr">That day the link opens. If you want the notice, leave your email with OOLITA.</p>
 <a class="fila" href="/en/?follow=3d#follow-oolita" data-oolita-event="3d-follow-intent"><span class="n">→</span><span class="nom">Tell me when it opens</span><span class="glo">3D world · no download · no account</span></a>
-</section>''',
+</section>""",
 }
 
 SUNDAY_BLOCKS = {
-    "domingos/index.html": '''<section class="tramo env" data-reader-next="sundays">
+    "domingos/index.html": """<section class="tramo env" data-reader-next="sundays">
 <span class="rot">03.01.27</span><h2 class="grande">El último domingo abre el mundo.</h2>
 <p class="parr">La serie termina donde empieza el mundo 3D. Si quieres que te llegue el aviso de la apertura, deja tu correo en OOLITA.</p>
 <a class="fila" href="/?follow=3d#seguir-oolita" data-oolita-event="sundays-follow-intent"><span class="n">→</span><span class="nom">Avísame el 3 de enero</span><span class="glo">El último domingo · la salida</span></a>
-</section>''',
-    "en/sundays/index.html": '''<section class="tramo env" data-reader-next="sundays">
+</section>""",
+    "en/sundays/index.html": """<section class="tramo env" data-reader-next="sundays">
 <span class="rot">03.01.27</span><h2 class="grande">The last Sunday opens the world.</h2>
 <p class="parr">The series ends where the 3D world begins. If you want the opening notice, leave your email with OOLITA.</p>
 <a class="fila" href="/en/?follow=3d#follow-oolita" data-oolita-event="sundays-follow-intent"><span class="n">→</span><span class="nom">Tell me on 3 January</span><span class="glo">The last Sunday · the exit</span></a>
-</section>''',
+</section>""",
 }
 
-PREFILL = r'''<script id="oolita-follow-prefill">(function(){
+PREFILL = r"""<script id="oolita-follow-prefill">(function(){
 var interest=new URLSearchParams(location.search).get('follow');
 if(['book','3d','field','textile'].indexOf(interest)===-1)return;
 var form=document.getElementById(document.documentElement.lang==='en'?'oolita-follow-en':'oolita-follow-es');
 if(!form)return;
 var input=form.querySelector('input[name="interest"][value="'+interest+'"]');
 if(input)input.checked=true;
-})();</script>'''
+})();</script>"""
 
 
 def read(rel: str) -> tuple[Path, str]:
@@ -129,6 +142,9 @@ for rel, spec in BOOK_PATHS.items():
     for phrase in spec["phrases"]:
         replace_link_href(rel, phrase, spec["follow"])
 
+for rel, block in LABYRINTH_BLOCKS.items():
+    replace_marked_section(rel, "labyrinth", block)
+
 for rel, block in THREE_D_BLOCKS.items():
     replace_marked_section(rel, "3d", block)
 
@@ -147,6 +163,11 @@ for rel, spec in BOOK_PATHS.items():
     for phrase in spec["phrases"]:
         if phrase not in visible(text):
             raise SystemExit(f"Book invitation missing in {rel}: {phrase}")
+
+for rel in LABYRINTH_BLOCKS:
+    _, text = read(rel)
+    if text.count('data-reader-next="labyrinth"') != 1 or text.count('data-oolita-event="labyrinth-follow-intent"') != 1:
+        raise SystemExit(f"Labyrinth onward path invariant failed in {rel}")
 
 for rel in THREE_D_BLOCKS:
     _, text = read(rel)
