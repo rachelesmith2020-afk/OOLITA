@@ -9,7 +9,7 @@ ROOT_ARG = sys.argv[1] if len(sys.argv) > 1 else "site"
 
 start = SOURCE.index("def r(")
 end = SOURCE.index("\n# Homepage")
-replacement = r'''def r(path, old, new, expected=1):
+replacement = r"""def r(path, old, new, expected=1):
     p = ROOT / path
     if not p.is_file():
         raise SystemExit(f"Missing expected page: {path}")
@@ -41,7 +41,7 @@ replacement = r'''def r(path, old, new, expected=1):
         raise SystemExit(
             f"Unexpected wording state in {path}: found old=0, new=0: {old!r}"
         )
-'''
+"""
 
 patched_source = SOURCE[:start] + replacement + SOURCE[end:]
 sys.argv = [str(HERE / "apply_wording.py"), ROOT_ARG]
@@ -105,9 +105,7 @@ print(
     f"{reviewed_headers} already 2027"
 )
 
-# Homepage — labyrinth name consistency. OOLITA is the name of the labyrinth;
-# what is absent on the ground is signage, not a name. Keep English and Spanish
-# aligned and remove every homepage sentence that incorrectly says otherwise.
+# Homepage wording consistency.
 def replace_homepage_copy(rel_path, old, new):
     page = root / rel_path
     if not page.is_file():
@@ -122,7 +120,7 @@ def replace_homepage_copy(rel_path, old, new):
         print(f"already reviewed {rel_path}: {new_count} occurrence(s): {new!r}")
     else:
         raise SystemExit(
-            f"Unexpected labyrinth-name wording in {rel_path}: "
+            f"Unexpected homepage wording in {rel_path}: "
             f"found neither {old!r} nor {new!r}"
         )
 
@@ -142,6 +140,36 @@ replace_homepage_copy(
     "Nada lo señala sobre el terreno:",
 )
 
+# Final approved English homepage opening. Remove the signage sentence and use
+# "land" rather than locating the labyrinth itself on a fossil dune.
+replace_homepage_copy(
+    "en/index.html",
+    "OOLITA begins with a three-metre classical labyrinth, laid by hand from stone at Los Escullos, on a fossil dune that was seabed a hundred thousand years ago. No sign marks it.",
+    "OOLITA begins with a three-metre classical labyrinth, laid by hand from stone at Los Escullos, on land that was seabed a hundred thousand years ago.",
+)
+
+# SEO consistency: if the old geological wording is present anywhere in the
+# English homepage <head> (description, Open Graph, Twitter or JSON-LD), keep
+# the metadata aligned with the approved visible copy without rewriting any
+# unrelated metadata.
+seo_page = root / "en/index.html"
+seo_text = seo_page.read_text(encoding="utf-8")
+head_end = seo_text.lower().find("</head>")
+if head_end < 0:
+    raise SystemExit("Missing </head> in en/index.html")
+head_end += len("</head>")
+seo_head = seo_text[:head_end]
+seo_tail = seo_text[head_end:]
+seo_old = "on a fossil dune that was seabed a hundred thousand years ago"
+seo_new = "on land that was seabed a hundred thousand years ago"
+seo_count = seo_head.count(seo_old)
+if seo_count:
+    seo_page.write_text(seo_head.replace(seo_old, seo_new) + seo_tail, encoding="utf-8")
+    print(f"patched en/index.html SEO head: {seo_count} occurrence(s): {seo_old!r} -> {seo_new!r}")
+else:
+    print("en/index.html SEO head already contains no old fossil-dune placement wording")
+
 # Production deployment trigger: 2026-08-24 14:15 Europe/London — global header year 2027.
 # Compatibility trigger: final OOLITA book-voice copy, 2026-08-24.
 # Production deployment trigger: labyrinth name consistency, 2026-08-24.
+# Production deployment trigger: homepage land wording + SEO consistency, 2026-08-24.
