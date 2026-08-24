@@ -148,6 +148,12 @@ jobs:
         shell: bash
         run: python3 scripts/apply_first_party_analytics_v1.py site
 
+      - name: Install image tooling
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: Apply and validate search visibility
         shell: bash
         run: python3 scripts/apply_search_visibility_v1.py site
@@ -233,6 +239,12 @@ jobs:
       - name: Apply and validate first-party analytics
         shell: bash
         run: python3 scripts/apply_first_party_analytics_v1.py site
+
+      - name: Install image tooling
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
 
       - name: Apply and validate search visibility
         shell: bash
