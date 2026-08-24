@@ -4,6 +4,9 @@ set -euo pipefail
 rm -rf site
 python3 scripts/mirror_oolita.py site
 python3 scripts/apply_wording_resilient.py site
+# The current live origin already carries the safer access wording. Normalize
+# its structured FAQ copy before the older direction validator checks it.
+python3 scripts/normalize_labyrinth_access_faq_v1.py site
 
 if [ -d overrides ]; then
   cp -a overrides/. site/
