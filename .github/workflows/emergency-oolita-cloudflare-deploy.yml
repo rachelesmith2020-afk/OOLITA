@@ -31,6 +31,10 @@ jobs:
         shell: bash
         run: bash scripts/build_site_for_deploy.sh
 
+      - name: Apply final OOLITA book-voice audit
+        shell: bash
+        run: python3 scripts/apply_voice_audit_v1.py site
+
       - name: Deploy directly to Cloudflare Pages production
         shell: bash
         run: |
@@ -38,4 +42,4 @@ jobs:
             --project-name=oolita \
             --branch=main \
             --commit-hash="${GITHUB_SHA}" \
-            --commit-message="Emergency deploy: 2027 header and mobile layout repairs"
+            --commit-message="OOLITA book-voice audit: remove synthetic prose"
