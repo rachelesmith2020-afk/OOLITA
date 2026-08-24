@@ -32,14 +32,15 @@ for path in ROOT.rglob("*.html"):
         "In the castle: full catalogue with a key · hardback planned for autumn 2027 ↗",
     )
 
-    # A successful submit used to update a status line at the top of the form,
-    # which can be outside the viewport when the visitor is at the submit button.
-    # Make the confirmation unmistakable and bring it into view.
+    # Double opt-in: a new address is pending until the confirmation link is
+    # opened. An address that was already confirmed stays active and only has
+    # its preferences refreshed. The result must also be visibly brought into
+    # view because the status line sits above the submit button.
     old_success = (
         "if(s)s.textContent=lang==='es'?'Ya estás dentro · gracias por seguir OOLITA.':'You’re in · thank you for following OOLITA.';"
     )
     new_success = (
-        "if(s){s.textContent=lang==='es'?'Gracias · ya estás dentro. Nos vemos pronto.':'Thanks · you’re in. See you soon.';"
+        "if(s){s.textContent=j.state==='active'?(lang==='es'?'Gracias · tu correo ya estaba confirmado. Hemos actualizado tus preferencias.':'Thanks · your email was already confirmed. We updated your preferences.'):(lang==='es'?'Gracias · revisa tu correo y confirma el enlace. Nos vemos pronto.':'Thanks · check your email and confirm the link. See you soon.');"
         "s.setAttribute('tabindex','-1');s.style.opacity='1';s.style.textTransform='none';s.style.fontSize='1rem';"
         "s.style.borderTop='1.5px solid currentColor';s.style.borderBottom='1.5px solid currentColor';s.style.padding='1rem 0';"
         "s.focus({preventScroll:true});s.scrollIntoView({behavior:'smooth',block:'center'});}"
@@ -48,9 +49,27 @@ for path in ROOT.rglob("*.html"):
         success_ui_patches += text.count(old_success)
         text = text.replace(old_success, new_success)
 
+    # Fallback for any mirrored page whose client script has already been
+    # transformed independently.
+    text = text.replace(
+        "Ya estás dentro · gracias por seguir OOLITA.",
+        "Gracias · revisa tu correo y confirma el enlace. Nos vemos pronto.",
+    )
+    text = text.replace(
+        "You’re in · thank you for following OOLITA.",
+        "Thanks · check your email and confirm the link. See you soon.",
+    )
+    text = text.replace(
+        "Quiero recibir noticias de OOLITA. Puedo darme de baja en cualquier momento.",
+        "Quiero recibir noticias de OOLITA. Confirmaré mi correo antes de entrar en la lista y puedo darme de baja en cualquier momento.",
+    )
+    text = text.replace(
+        "I want to receive OOLITA news. I can unsubscribe at any time.",
+        "I want to receive OOLITA news. I will confirm my email before joining the list and can unsubscribe at any time.",
+    )
     path.write_text(text, encoding="utf-8")
 
 if success_ui_patches == 0:
-    raise SystemExit("Follow success confirmation UI was not found in the rendered site")
+    raise SystemExit("Double-opt-in success confirmation UI was not found in the rendered site")
 
-print("OOLITA Follow Cloudflare activation, mobile CTA and visible success confirmation validated successfully.")
+print("OOLITA Follow Cloudflare activation, double opt-in copy, mobile CTA and visible success confirmation validated successfully.")

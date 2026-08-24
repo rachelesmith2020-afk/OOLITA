@@ -1,0 +1,58 @@
+name: Validate OOLITA double opt-in
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'functions/api/subscribe.js'
+      - 'functions/api/confirm.js'
+      - 'scripts/apply_follow_transition_v1.py'
+      - '.github/workflows/validate-double-opt-in.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-double-opt-in:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate double-opt-in Pages Functions syntax
+        shell: bash
+        run: |
+          node --check functions/api/subscribe.js
+          node --check functions/api/confirm.js
+          python3 -m py_compile scripts/apply_follow_transition_v1.py
+
+      - name: Validate free confirmation-mail transport
+        shell: bash
+        run: |
+          grep -q 'https://api.resend.com/emails' functions/api/subscribe.js
+          grep -q 'OOLITA_RESEND_API_KEY' functions/api/subscribe.js
+          if grep -q '/email/sending/send' functions/api/subscribe.js; then
+            echo 'Paid Cloudflare Email Sending endpoint must not be used for OOLITA double opt-in.' >&2
+            exit 1
+          fi
+
+      - name: Validate visible post-submit confirmation UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/build_site_for_deploy.sh
+          python3 scripts/apply_direction_v3.py site
+          python3 scripts/growth_prep.py site
+          python3 scripts/apply_growth_v1.py site
+          python3 scripts/apply_commerce.py site commerce/catalog.json
+          python3 scripts/apply_list_completion_v1.py site
+          python3 scripts/apply_follow_transition_v1.py site
+          grep -R -q 'Thanks · check your email and confirm the link. See you soon.' site/en site/index.html
+          grep -R -q 'Gracias · revisa tu correo y confirma el enlace. Nos vemos pronto.' site
+
+      - name: Build Pages Functions bundle
+        shell: bash
+        run: npx --yes wrangler@latest pages functions build functions --outfile /tmp/oolita-worker.js
+
+# Focused validation for PR #60.

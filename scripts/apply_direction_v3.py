@@ -43,11 +43,14 @@ def replace_regex(path, pattern, replacement, *, must_contain=None, flags=re.S):
     print(f"direction patched {path}: {pattern[:70]!r}")
 
 
-def replace_all(path, old, new):
+def replace_all(path, old, new, *, optional=False):
     p, s = text(path)
     if old not in s:
         if new in s:
             print(f"already direction-reviewed {path}: {new[:60]!r}")
+            return
+        if optional:
+            print(f"optional direction literal absent {path}: {old[:60]!r}")
             return
         raise SystemExit(f"Direction literal missing in {path}: {old[:120]!r}")
     p.write_text(s.replace(old, new), encoding="utf-8")
@@ -120,15 +123,20 @@ for path in ("laberinto/index.html", "en/labyrinth/index.html"):
     s = s.replace('      "publicAccess": true,\n', '')
     p.write_text(s, encoding="utf-8")
 
+# The FAQ JSON-LD has changed shape on the live origin over time. Treat these
+# exact legacy literals as optional while keeping the final required/forbidden
+# invariants below strict.
 replace_all(
     "laberinto/index.html",
     '            "text": "Sí, es gratis, y no: está al aire libre, siempre abierto, sin entradas ni horarios."',
     '            "text": "No hay entrada ni reserva. Es un lugar sin personal; si lo visitas, acércate con cuidado y respeto por el entorno."',
+    optional=True,
 )
 replace_all(
     "en/labyrinth/index.html",
     '            "text": "Yes, it is free, and no: it is in the open air, always open, no tickets and no opening hours."',
     '            "text": "There is no ticket or booking. The labyrinth is unstaffed; if you visit, approach it lightly and respectfully."',
+    optional=True,
 )
 replace_regex(
     "laberinto/index.html",
