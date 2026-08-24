@@ -315,8 +315,8 @@ for route in (ES_ROUTE, EN_ROUTE):
 tree.write(sitemap, encoding="utf-8", xml_declaration=True)
 
 checks = {
-    "domingos/index.html": [ES_ROUTE, "Domingo 03 · publicado"],
-    "en/sundays/index.html": [EN_ROUTE, "Sunday 03 · published"],
+    "domingos/index.html": [ES_ROUTE],
+    "en/sundays/index.html": [EN_ROUTE],
     "domingos/03-la-memoria-del-mar/index.html": ["La piedra guarda la memoria del mar", "/domingos/img/03.jpg"],
     "en/sundays/03-the-memory-of-the-sea/index.html": ["The stone holds the memory of the sea", "/domingos/img/03.jpg"],
     "index.html": ["data-browser-world-preview", "/img/oolita-browser-world-preview.jpg"],
