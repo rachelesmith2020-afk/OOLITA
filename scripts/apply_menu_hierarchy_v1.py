@@ -3,7 +3,7 @@
 
 The three primary OOLITA entrances (01–03) already have their own visual class
 and remain untouched. This pass groups the long secondary run without changing
-link targets, numbering, credits or the wider visual system.
+current first-party link targets, numbering, credits or the wider visual system.
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 BASE = "https://oolita.es"
-LASTMOD = "2026-08-23"
+LASTMOD = "2026-08-24"
 CHANGED_PATHS = {"/", "/en/"}
 
 STYLE = '''<style id="oolita-menu-hierarchy-style">
@@ -112,18 +112,23 @@ for rel, needles in required.items():
         if needle not in text:
             raise SystemExit(f"Menu hierarchy invariant missing in {rel}: {needle}")
 
+# Hallazgo is now first-party. The live-origin mirror passes through the edge
+# rewriter, so legacy Canva destinations must not be required by this validator.
+# Both former Hallazgo links may resolve to the same first-party catalogue route;
+# requiring that route once is sufficient while the strict final gate rejects
+# every surviving Canva hostname later in the pipeline.
 for rel, hrefs in {
     "index.html": (
         "/ediciones/", "/que-es-un-laberinto/", "/que-es-un-oolito/", "/carteles/",
         "https://labyrinthlocator.org/labyrinth/oolita", "https://www.instagram.com/oolita.es/",
-        "https://hallazgo.my.canva.site/hallazgo", "https://hallazgo.my.canva.site/hallazgo/catlogo",
-        "/sobre-oolita/", "/colaborar/", "/mundo-3d/", "mailto:oolita@tutamail.com",
+        "/catalogo-hallazgo/", "/sobre-oolita/", "/colaborar/", "/mundo-3d/",
+        "mailto:oolita@tutamail.com",
     ),
     "en/index.html": (
         "/en/editions/", "/en/what-is-a-labyrinth/", "/en/what-is-an-ooid/", "/en/posters/",
         "https://labyrinthlocator.org/labyrinth/oolita", "https://www.instagram.com/oolita.es/",
-        "https://hallazgo.my.canva.site/hallazgo", "https://hallazgo.my.canva.site/hallazgo/catlogo",
-        "/en/about/", "/en/work-with-oolita/", "/en/3d-world/", "mailto:oolita@tutamail.com",
+        "/en/hallazgo-catalogue/", "/en/about/", "/en/work-with-oolita/", "/en/3d-world/",
+        "mailto:oolita@tutamail.com",
     ),
 }.items():
     _, text = page(rel)
