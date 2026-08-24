@@ -76,6 +76,9 @@ run_layer("apply_menu_hierarchy_v1.py")
 run_layer("apply_soft_marketing_v1.py")
 run_layer("publish_sunday03_and_3d_preview_v1.py")
 run_layer("apply_engagement_depth_v1.py")
+# Public provenance/practice credential: keep it on About and Labyrinth only,
+# with a live external link to the Veriditas facilitator directory.
+run_layer("apply_veriditas_facilitator_v1.py")
 # Reader-facing visual layers.
 run_layer("apply_art_restage_v1.py")
 run_layer("apply_mobile_english_2027_fix_v1.py")
