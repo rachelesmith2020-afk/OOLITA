@@ -42,6 +42,16 @@ normalise = {
             "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗",
         ),
     ),
+    "404/index.html": (
+        (
+            "Una edición en tapa dura que reúne el cuerpo completo de la obra · catálogo completo en el castillo con clave · 16.09.27 · presentación pública 19.09.27 ↗",
+            "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗",
+        ),
+        (
+            "En el castillo: catálogo completo con clave · tapa dura 16.09.27 · presentación pública 19.09.27 ↗",
+            "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗",
+        ),
+    ),
 }
 for rel, replacements in normalise.items():
     target = ROOT / rel
