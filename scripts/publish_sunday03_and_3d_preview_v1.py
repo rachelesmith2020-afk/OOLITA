@@ -241,6 +241,10 @@ for sunday_rel, sunday_config in SUNDAY_SCHEMA.items():
 def publish_tile(path: str, href: str, label: str) -> None:
     target = ROOT / path
     text = target.read_text(encoding="utf-8")
+    # The later archive layer replaces the published tile with a richer archive
+    # row. Rebuilds begin from the live site, so accept that final form.
+    if href in text and 'data-sunday-archive-row="3"' in text:
+        return
     pattern = r'<a\b[^>]*data-sunday="3"[^>]*>[\s\S]*?</a>'
     match = re.search(pattern, text)
     if not match:
