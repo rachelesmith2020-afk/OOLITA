@@ -53,3 +53,56 @@ try:
     runpy.run_path(str(core), run_name="__main__")
 finally:
     sys.argv = old_argv
+
+# Hallazgo is already visible from the OOLITA directory. Give the catalogue the
+# weight of a publication without turning the homepage into a sales page. Keep
+# the reading-room key and the confirmed September dates in view.
+final_hallazgo = {
+    "en/index.html": (
+        ("<span class=\"nom\">Catalogue</span>", "<span class=\"nom\">Hallazgo — the catalogue</span>"),
+        (
+            "In the castle: full catalogue with a key · hardback planned for autumn 2027 ↗",
+            "A hardback publication bringing together the complete body of work · full catalogue in the castle with a key · 16 Sep 27 · public launch 19 Sep 27 ↗",
+        ),
+    ),
+    "index.html": (
+        ("<span class=\"nom\">Catálogo</span>", "<span class=\"nom\">Hallazgo — el catálogo</span>"),
+        (
+            "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗",
+            "Una edición en tapa dura que reúne el cuerpo completo de la obra · catálogo completo en el castillo con clave · 16.09.27 · presentación pública 19.09.27 ↗",
+        ),
+    ),
+}
+for rel, replacements in final_hallazgo.items():
+    target = ROOT / rel
+    text = target.read_text(encoding="utf-8")
+    for old, new in replacements:
+        if old in text:
+            text = text.replace(old, new, 1)
+        elif new not in text:
+            raise SystemExit(f"Expected Hallazgo catalogue wording missing in {rel}: {old!r}")
+    target.write_text(text, encoding="utf-8")
+
+required_final = {
+    "en/index.html": (
+        "Hallazgo — the catalogue",
+        "A hardback publication bringing together the complete body of work",
+        "full catalogue in the castle with a key",
+        "16 Sep 27",
+        "public launch 19 Sep 27",
+    ),
+    "index.html": (
+        "Hallazgo — el catálogo",
+        "Una edición en tapa dura que reúne el cuerpo completo de la obra",
+        "catálogo completo en el castillo con clave",
+        "16.09.27",
+        "presentación pública 19.09.27",
+    ),
+}
+for rel, needles in required_final.items():
+    text = (ROOT / rel).read_text(encoding="utf-8")
+    for needle in needles:
+        if needle not in text:
+            raise SystemExit(f"Hallazgo catalogue validation failed in {rel}: {needle!r}")
+
+print("Hallazgo catalogue publication wording validated in Spanish and English.")
