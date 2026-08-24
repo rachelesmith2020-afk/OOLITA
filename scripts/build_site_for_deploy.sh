@@ -220,8 +220,15 @@ python3 scripts/apply_contrast_accessibility_v1.py site
 # the browser-world preview to the viewport and restore compact 22-Sundays tiles.
 python3 scripts/apply_mobile_layout_repairs_v1.py site
 
-# Keep the English 3D-world launch notice in natural, direct English.
+# Keep the English 3D-world launch notice in natural, direct English and ensure
+# its signup path survives the reconstruction unchanged.
 python3 scripts/apply_launch_notice_wording_v1.py site
+grep -Fq 'Leave your email with OOLITA and we’ll let you know when it opens.' site/en/3d-world/index.html
+if grep -Fq 'That day the link opens. If you want the notice, leave your email with OOLITA.' site/en/3d-world/index.html; then
+  echo 'Old 3D-world launch notice survived the wording pass.'
+  exit 1
+fi
+grep -Fq 'href="/en/?follow=3d#follow-oolita"' site/en/3d-world/index.html
 
 # The clean origin must not introduce Cloudflare zone-layer email rewriting.
 if grep -RIl --include='*.html' '/cdn-cgi/l/email-protection' site >/tmp/oolita-obfuscated-mail.txt; then
@@ -246,3 +253,4 @@ echo 'OOLITA deployment bundle validated.'
 # Production propagation trigger: resilient labyrinth access FAQ normalization.
 # Production propagation trigger: Veriditas credential compatibility bridge.
 # Production propagation trigger: retire the Wednesday/Reels page cleanly.
+# Production propagation trigger: validate the English 3D launch notice and follow href.
