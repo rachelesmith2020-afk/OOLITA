@@ -1,0 +1,95 @@
+name: Verify live Sunday image row
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-sunday-row-live.yml'
+
+permissions:
+  contents: read
+  statuses: write
+
+concurrency:
+  group: oolita-live-sunday-row-verify
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify published Sunday image row on Cloudflare and oolita.es
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          verify_page() {
+            host="$1"
+            route="$2"
+            label="$3"
+            for attempt in $(seq 1 24); do
+              url="${host}${route}?verify=${GITHUB_SHA}-${attempt}"
+              html="$(curl -fsSL -H 'Cache-Control: no-cache' --retry 2 --retry-delay 2 "$url" || true)"
+              if [ -n "$html" ]; then
+                ok=1
+                for n in 1 2 3; do
+                  grep -Fq "data-sunday-image-tile data-sunday=\"${n}\"" <<<"$html" || ok=0
+                done
+                grep -Fq 'grid-template-columns:repeat(4,minmax(0,1fr))!important' <<<"$html" || ok=0
+                grep -Fq 'align-items:start!important' <<<"$html" || ok=0
+                grep -Fq 'aspect-ratio:4/5!important' <<<"$html" || ok=0
+                if [ "$ok" = 1 ]; then
+                  echo "Verified ${label}: Sundays 01–03 are equal image tiles in one aligned mobile row."
+                  return 0
+                fi
+              fi
+              echo "Waiting for ${label} propagation (attempt ${attempt}/24)..."
+              sleep 5
+            done
+            echo "Live Sunday-row verification failed for ${label}."
+            return 1
+          }
+
+          verify_page 'https://oolita.pages.dev' '/domingos/' 'Cloudflare Pages Spanish Sundays'
+          verify_page 'https://oolita.pages.dev' '/en/sundays/' 'Cloudflare Pages English Sundays'
+          verify_page 'https://oolita.es' '/domingos/' 'oolita.es Spanish Sundays'
+          verify_page 'https://oolita.es' '/en/sundays/' 'oolita.es English Sundays'
+
+      - name: Record verified production status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          repo = os.environ['GITHUB_REPOSITORY']
+          sha = os.environ['GITHUB_SHA']
+          token = os.environ['GH_TOKEN']
+          url = f'https://api.github.com/repos/{repo}/statuses/{sha}'
+          payload = json.dumps({
+              'state': 'success',
+              'context': 'production/sunday-row',
+              'description': 'Sunday 01–03 mobile image row verified live on Cloudflare and oolita.es',
+          }).encode('utf-8')
+          request = urllib.request.Request(
+              url,
+              data=payload,
+              method='POST',
+              headers={
+                  'Authorization': f'Bearer {token}',
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'OOLITA-live-sunday-row-verifier',
+                  'Content-Type': 'application/json',
+              },
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              if response.status not in (200, 201):
+                  raise SystemExit(f'GitHub status write failed: HTTP {response.status}')
+          print('Recorded production/sunday-row success status.')
+          PY
