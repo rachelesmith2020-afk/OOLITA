@@ -128,16 +128,14 @@ def publish_tile(path: str, href: str, label: str) -> None:
     match = re.search(pattern, text)
     if not match:
         raise SystemExit(f"Sunday 03 tile missing in {path}")
-    tile = match.group(0)
-    tile = re.sub(r'class="[^"]*"', 'class="sunday-tile is-published"', tile, count=1)
-    tile = re.sub(r'\saria-disabled="true"', "", tile)
-    if " aria-label=" in tile:
-        tile = re.sub(r'aria-label="[^"]*"', f'aria-label="{label}"', tile)
-    else:
-        tile = tile.replace("<a ", f'<a aria-label="{label}" ', 1)
-    if " href=" not in tile:
-        tile = tile.replace(" data-sunday-tile", f' href="{href}" data-sunday-tile', 1)
-    tile = re.sub(r'(<span class="sunday-tile-state" data-sunday-state>)[^<]*(</span>)', r'\1abierto\2' if path.startswith("domingos/") else r'\1open\2', tile)
+    state = "abierto" if path.startswith("domingos/") else "open"
+    tile = (
+        f'<a class="sunday-tile is-published" href="{href}" data-sunday-tile '
+        f'data-sunday="3" data-date="2026-08-23" aria-label="{label}">'
+        f'<span class="sunday-tile-n">03</span>'
+        f'<span class="sunday-tile-date">23.08</span>'
+        f'<span class="sunday-tile-state" data-sunday-state>{state}</span></a>'
+    )
     target.write_text(text[:match.start()] + tile + text[match.end():], encoding="utf-8")
 
 
