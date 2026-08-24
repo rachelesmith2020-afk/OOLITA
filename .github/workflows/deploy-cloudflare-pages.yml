@@ -30,6 +30,7 @@ on:
       - 'scripts/configure_cloudflare_subscribers.py'
       - 'scripts/verify_cloudflare_analytics.py'
       - 'scripts/submit_indexnow.py'
+      - 'scripts/audit_live_seo_v1.py'
       - 'functions/**'
       - 'search/**'
       - 'commerce/**'
@@ -63,6 +64,7 @@ on:
       - 'scripts/configure_cloudflare_subscribers.py'
       - 'scripts/verify_cloudflare_analytics.py'
       - 'scripts/submit_indexnow.py'
+      - 'scripts/audit_live_seo_v1.py'
       - 'functions/**'
       - 'search/**'
       - 'commerce/**'
@@ -134,9 +136,11 @@ jobs:
         shell: bash
         run: python3 scripts/apply_search_visibility_v1.py site
 
-      - name: Validate analytics function syntax
+      - name: Validate Pages Functions syntax
         shell: bash
-        run: node --check functions/api/event.js
+        run: |
+          node --check functions/api/event.js
+          node --check functions/_middleware.js
 
       - name: Build Pages Functions bundle
         shell: bash
@@ -214,9 +218,11 @@ jobs:
         shell: bash
         run: python3 scripts/apply_search_visibility_v1.py site
 
-      - name: Validate analytics function syntax
+      - name: Validate Pages Functions syntax
         shell: bash
-        run: node --check functions/api/event.js
+        run: |
+          node --check functions/api/event.js
+          node --check functions/_middleware.js
 
       - name: Remove unsupported Analytics Engine binding
         id: analytics_binding
@@ -258,6 +264,12 @@ jobs:
         shell: bash
         run: python3 scripts/submit_indexnow.py site/sitemap.xml search/indexnow-key.txt
 
+      - name: Audit live technical SEO
+        id: live_seo
+        continue-on-error: true
+        shell: bash
+        run: python3 scripts/audit_live_seo_v1.py https://oolita.es
+
       - name: Summarize deployment and service checks
         if: ${{ always() && steps.deploy_site.outcome == 'success' }}
         shell: bash
@@ -271,6 +283,7 @@ jobs:
             echo "- Analytics binding cleanup: ${{ steps.analytics_binding.outcome }}"
             echo "- Analytics endpoint: ${{ steps.analytics_verify.outcome }}"
             echo "- IndexNow: ${{ steps.indexnow.outcome }}"
+            echo "- Live technical SEO: ${{ steps.live_seo.outcome }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
 # Production propagation trigger for exact homepage wording: built from stone.
