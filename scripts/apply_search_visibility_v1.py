@@ -152,10 +152,14 @@ en_home.write_text(en_home_text, encoding="utf-8")
 # The same pass uses "loose stones", refreshes changed sitemap routes and rejects
 # factual/wording stragglers plus broken internal hrefs.
 run_layer("normalize_labyrinth_fossil_dunes_v1.py")
+# The production mirror can retain the retired Canva Hallazgo host outside href
+# attributes (metadata/inline data). Scrub it before the final Hallazgo gate so
+# the deployed bundle contains only first-party catalogue routes.
+run_layer("preclean_hallazgo_legacy_urls_v1.py")
 # Final Hallazgo access copy runs after the geological normalizer because this
 # sentence describes the approved 3D castle replica standing on the fossil dune.
-# It changes no hrefs, validates both Editions SEO alternates/canonicals, removes
-# the former keyed-castle wording and refreshes both sitemap routes.
+# It validates first-party hrefs, Editions SEO alternates/canonicals, removes the
+# former keyed-castle wording and refreshes the relevant sitemap routes.
 run_layer("normalize_hallazgo_3d_castle_access_v1.py")
 
 # Deployment trigger: mobile stone field grid specificity fix, 2026-08-23.
@@ -175,3 +179,4 @@ run_layer("normalize_hallazgo_3d_castle_access_v1.py")
 # Deployment trigger: rerun corrected location validator in production, 2026-08-24.
 # Deployment trigger: pre-normalize regenerated English homepage location claim, 2026-08-24.
 # Deployment trigger: Hallazgo 3D-castle keypad explanation, 2026-08-24.
+# Deployment trigger: retire residual Canva Hallazgo host before final gate, 2026-08-24.
