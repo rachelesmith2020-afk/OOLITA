@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 5
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
+      CLOUDFLARE_ZONE_ID: d637c2a2909ff813adc29989796088f1
     steps:
       - name: Purge complete OOLITA custom-domain cache
         shell: bash
@@ -24,21 +24,11 @@ jobs:
           set -euo pipefail
           test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
           python3 - <<'PY'
-          import json, os, urllib.parse, urllib.request
+          import json, os, urllib.request
 
           token = os.environ['CLOUDFLARE_API_TOKEN']
+          zone_id = os.environ['CLOUDFLARE_ZONE_ID']
           headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
-
-          # Resolve by zone name only. Some scoped Cloudflare tokens can read the
-          # zone but return no result when account.id is also supplied.
-          query = urllib.parse.urlencode({'name': 'oolita.es'})
-          req = urllib.request.Request('https://api.cloudflare.com/client/v4/zones?' + query, headers=headers)
-          with urllib.request.urlopen(req, timeout=30) as r:
-              payload = json.load(r)
-          if not payload.get('success') or not payload.get('result'):
-              raise SystemExit('Could not resolve Cloudflare zone for oolita.es: ' + json.dumps(payload))
-          zone_id = payload['result'][0]['id']
-
           body = json.dumps({'purge_everything': True}).encode()
           purge = urllib.request.Request(
               f'https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache',
