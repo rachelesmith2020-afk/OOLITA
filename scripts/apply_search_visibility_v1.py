@@ -71,6 +71,10 @@ run_layer("apply_book_excerpt_v1.py")
 run_layer("apply_sunday_archive_v1.py")
 run_layer("apply_seo_followup_v1.py")
 run_layer("apply_menu_hierarchy_v1.py")
+# The reconstructed live homepage may carry inline links inside otherwise
+# unchanged source paragraphs. Normalize those visible-text-equivalent sources
+# before the legacy literal-string soft-marketing transformer runs.
+run_layer("normalize_soft_marketing_sources_v1.py")
 # Final content pass: strengthen invitation and conversion while preserving the
 # restrained artistic voice established by the reader-assessment layers.
 run_layer("apply_soft_marketing_v1.py")
