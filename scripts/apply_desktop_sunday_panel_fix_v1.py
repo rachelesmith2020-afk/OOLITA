@@ -76,3 +76,4 @@ print("OOLITA desktop Sunday panel containment validated in both homepages.")
 
 # Production propagation trigger: align published Sunday images on mobile with asset guards.
 # Production propagation trigger: include corrected fossil-dune gate after mobile Sunday repair.
+# Production propagation trigger: validate first-party Hallazgo menu routes before deploying Sunday row.
