@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""Corrected final gate: preserve the labyrinth beside the fossil dunes while
-restoring the Batería de San Felipe exception only in its own context."""
+"""Final factual/SEO gate with a narrow English location-phrase assertion.
+
+The v1 gate already rejects actual wrong labyrinth-on-fossil-dune claims across
+all HTML and scopes the San Felipe exception to battery context. This wrapper
+retains those checks but limits the additional exact-wording assertion to the
+principal English location pages, so geology/story pages are not rejected merely
+for mentioning both the labyrinth and fossil dunes.
+"""
 from pathlib import Path
-import re
 import sys
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
@@ -10,40 +15,35 @@ HERE = Path(__file__).resolve().parent
 v1 = HERE / "normalize_labyrinth_fossil_dunes_v1.py"
 source = v1.read_text(encoding="utf-8")
 
-# v1's only deployment-breaking defect is that the San Felipe restoration loop
-# applies globally. Disable that loop while retaining all of v1's factual, SEO,
-# sitemap and href checks.
-needle = "        for old, new in BATTERY_REPLACEMENTS:\n            text = text.replace(old, new)\n"
-replacement = "        # San Felipe restoration is context-scoped by v2 after v1 completes.\n        pass\n"
-if needle not in source:
-    raise SystemExit("Could not locate v1 battery-restoration loop")
-source = source.replace(needle, replacement, 1)
+start_marker = "# Every corrected English page that discusses the labyrinth's fossil-dune"
+end_marker = "# Mark corrected public routes fresh for search engines and the existing"
+start = source.find(start_marker)
+end = source.find(end_marker, start)
+if start < 0 or end < 0:
+    raise SystemExit("Could not locate v1 English exact-wording assertion block")
+
+narrow_check = '''# Require the approved exact phrase only on principal English location pages.
+# The BAD_LOCATION_PATTERNS gate above already rejects actual wrong location
+# claims everywhere, including Sunday/geology pages.
+ENGLISH_LOCATION_PAGES = {
+    "en/index.html",
+    "en/labyrinth/index.html",
+    "en/cabo-de-gata/index.html",
+    "en/3d-world/index.html",
+}
+for rel in sorted(changed & ENGLISH_LOCATION_PAGES):
+    text = (ROOT / rel).read_text(encoding="utf-8").lower()
+    if "beside the fossil dunes" not in text:
+        raise SystemExit(
+            f"English location wording lacks approved 'beside the fossil dunes' phrase: {rel}"
+        )
+
+'''
+source = source[:start] + narrow_check + source[end:]
 namespace = {"__name__": "__main__", "__file__": str(v1)}
 exec(compile(source, str(v1), "exec"), namespace)
 
-# Restore only the historically correct nearby battery statement. Never apply a
-# bare global replacement, because that was what moved the labyrinth back onto
-# a fossil dune.
-for path in ROOT.rglob("*.html"):
-    text = path.read_text(encoding="utf-8")
-    before = text
-    text = re.sub(
-        r"(Bater[ií]a de San Felipe.{0,320}?)(?:stands on land beside the fossil dunes|stands beside the same fossil dunes|stands on the same fossil dunes)",
-        r"\1stands on a fossil dune",
-        text,
-        flags=re.I | re.S,
-    )
-    text = re.sub(
-        r"(Bater[ií]a de San Felipe.{0,320}?)(?:se levanta en terreno junto a las dunas fósiles|se levanta junto a las mismas dunas fósiles|se levanta sobre las mismas dunas fósiles)",
-        r"\1se levanta sobre una duna fósil",
-        text,
-        flags=re.I | re.S,
-    )
-    if text != before:
-        path.write_text(text, encoding="utf-8")
-        print(f"San Felipe fossil-dune exception restored: {path.relative_to(ROOT)}")
-
-# Final principal-page assertions after the exception restoration.
+# Principal-page assertions remain explicit after the complete v1 gate.
 for rel, phrase in (
     ("en/index.html", "beside the fossil dunes"),
     ("en/labyrinth/index.html", "beside the fossil dunes"),
