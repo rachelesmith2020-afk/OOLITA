@@ -35,6 +35,7 @@ PRODUCTS = {
                 "currency": "eur",
                 "old_label": "Avísame cuando pueda comprarlo",
                 "buy_label": "Comprar el libro",
+                "prelaunch_hrefs": ("/?follow=book#seguir-oolita",),
             },
             {
                 "path": "en/editions/book/index.html",
@@ -43,6 +44,7 @@ PRODUCTS = {
                 "currency": "gbp",
                 "old_label": "Tell me when I can buy it",
                 "buy_label": "Buy the book",
+                "prelaunch_hrefs": ("/en/?follow=book#follow-oolita",),
             },
         ],
     },
@@ -56,6 +58,7 @@ PRODUCTS = {
                 "currency": "eur",
                 "old_label": "Avísame cuando pueda comprarla",
                 "buy_label": "Comprar la edición",
+                "prelaunch_hrefs": (),
             },
             {
                 "path": "en/editions/t-shirt/index.html",
@@ -64,6 +67,7 @@ PRODUCTS = {
                 "currency": "gbp",
                 "old_label": "Tell me when I can buy it",
                 "buy_label": "Buy the edition",
+                "prelaunch_hrefs": (),
             },
         ],
     },
@@ -78,6 +82,17 @@ def valid_payment_link(url: str) -> bool:
     return parts.scheme == "https" and parts.hostname in {"buy.stripe.com", "checkout.stripe.com"}
 
 
+def valid_prelaunch_href(href: str, allowed_first_party: tuple[str, ...]) -> bool:
+    """Allow the legacy mailto or an explicitly approved first-party interest path.
+
+    A deployment rebuild mirrors the current live site, whose final reader layer
+    already routes the book CTA into the OOLITA follow form. That is still a
+    pre-launch, non-purchase state; only the exact declared paths are accepted so
+    an arbitrary URL cannot pass commerce validation.
+    """
+    return href.startswith("mailto:") or href in allowed_first_party
+
+
 def patch_page(
     path: str,
     checkout_key: str,
@@ -86,6 +101,7 @@ def patch_page(
     old_label: str,
     buy_label: str,
     payment_link: str | None,
+    prelaunch_hrefs: tuple[str, ...],
 ):
     p = ROOT / path
     if not p.is_file():
@@ -120,8 +136,8 @@ def patch_page(
         print(f"commerce live: {path} -> Stripe {currency.upper()}")
     else:
         href = re.search(r'href="([^"]+)"', anchor)
-        if not href or not href.group(1).startswith("mailto:"):
-            raise SystemExit(f"Expected pre-launch mailto checkout in {path}")
+        if not href or not valid_prelaunch_href(href.group(1), prelaunch_hrefs):
+            raise SystemExit(f"Expected approved pre-launch interest link in {path}")
         if buy_label in anchor:
             raise SystemExit(f"Buy label present without payment link in {path}")
         if 'data-commerce-state=' not in anchor:
@@ -182,6 +198,7 @@ for product_key, spec in PRODUCTS.items():
             page["old_label"],
             page["buy_label"],
             payment_link,
+            page["prelaunch_hrefs"],
         )
 
 print("OOLITA EUR/GBP commerce configuration validated successfully.")
