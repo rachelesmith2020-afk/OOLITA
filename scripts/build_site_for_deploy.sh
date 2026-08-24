@@ -59,24 +59,101 @@ for f in "${required[@]}"; do
   fi
 done
 
-# Bank only the approved nine Wednesday poster Reels during deployment.
-# They are silent and built from the canonical poster assets. The rejected
-# later Reel experiments are not part of this deployment bank.
-# GitHub's current Ubuntu runner does not include ffmpeg by default, so install
-# the declared build dependency there rather than allowing reel banking to make
-# every site validation fail. Local builds still require ffmpeg to be installed.
-if ! command -v ffmpeg >/dev/null 2>&1; then
-  if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
-    echo 'Installing ffmpeg for the OOLITA Wednesday reel bank.'
-    sudo apt-get update -qq
-    sudo apt-get install -y -qq ffmpeg
-  fi
-fi
-command -v ffmpeg >/dev/null 2>&1 || {
-  echo 'ERROR: ffmpeg is required to build the OOLITA Wednesday reel bank.' >&2
-  exit 1
+# Retire the Wednesday/Reels page completely. The current origin may still
+# contain the old page while this deploy is being reconstructed, so remove the
+# page, reverse every link/copy insertion that advertised it, remove it from the
+# sitemap, and leave permanent redirects for any already-shared old URLs.
+python3 - <<'PY'
+from pathlib import Path
+import re
+import shutil
+
+root = Path('site')
+replacements = {
+    'index.html': (
+        '\n  <a class="fila" href="/reels/"><span class="n">R</span><span class="nom">Los miércoles</span><span class="glo">Nueve carteles en movimiento · sin música</span></a>',
+        '',
+    ),
+    'en/index.html': (
+        '\n  <a class="fila" href="/reels/"><span class="n">R</span><span class="nom">The Wednesdays</span><span class="glo">Nine posters in motion · no music</span></a>',
+        '',
+    ),
+    'carteles/index.html': (
+        'Los carteles también se mueven: <a href="/reels/">nueve reels silenciosos, uno cada miércoles</a>. Después de los carteles, una imagen cada domingo hasta la apertura:',
+        'Después de los carteles, una imagen cada domingo hasta la apertura:',
+    ),
+    'en/posters/index.html': (
+        'The posters also move: <a href="/reels/">nine silent reels, one each Wednesday</a>. After the posters, one image every Sunday until the opening:',
+        'After the posters, one image every Sunday until the opening:',
+    ),
+    'domingos/index.html': (
+        'La serie no empezó aquí. Antes de los domingos hubo <a href="/carteles/">nueve carteles</a>, y esos carteles volvieron <a href="/reels/">en movimiento, uno cada miércoles</a>',
+        'La serie no empezó aquí. Antes de los domingos hubo <a href="/carteles/">nueve carteles</a>',
+    ),
+    'en/sundays/index.html': (
+        'The series did not start here. Before the Sundays there were <a href="/en/posters/">nine posters</a>, and those posters returned <a href="/reels/">in motion, one each Wednesday</a>',
+        'The series did not start here. Before the Sundays there were <a href="/en/posters/">nine posters</a>',
+    ),
 }
-python3 scripts/build_wednesday_reels_v1.py site
+
+for relative, (old, new) in replacements.items():
+    path = root / relative
+    text = path.read_text(encoding='utf-8')
+    if old in text:
+        path.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+sitemap = root / 'sitemap.xml'
+text = sitemap.read_text(encoding='utf-8')
+text = re.sub(
+    r'\s*<url>\s*<loc>https://oolita\.es/reels/</loc>.*?</url>\s*',
+    '\n',
+    text,
+    flags=re.I | re.S,
+)
+sitemap.write_text(text, encoding='utf-8')
+
+shutil.rmtree(root / 'reels', ignore_errors=True)
+
+redirects = root / '_redirects'
+existing = redirects.read_text(encoding='utf-8') if redirects.exists() else ''
+rules = [
+    '/reels /carteles/ 301',
+    '/reels/ /carteles/ 301',
+    '/reels/* /carteles/ 301',
+]
+lines = existing.splitlines()
+for rule in rules:
+    if rule not in lines:
+        lines.append(rule)
+redirects.write_text('\n'.join(line for line in lines if line.strip()) + '\n', encoding='utf-8')
+
+bad = []
+needles = (
+    'href="/reels/"',
+    "href='/reels/'",
+    'https://oolita.es/reels/',
+    '>The Wednesdays<',
+    '>Los miércoles<',
+    'Nine posters in motion · no music',
+    'Nueve carteles en movimiento · sin música',
+)
+for path in root.rglob('*'):
+    if not path.is_file() or path.name == '_redirects':
+        continue
+    if path.suffix.lower() not in {'.html', '.xml', '.json', '.txt', '.js', '.css'}:
+        continue
+    content = path.read_text(encoding='utf-8', errors='ignore')
+    for needle in needles:
+        if needle in content:
+            bad.append(f'{path}: {needle}')
+if (root / 'reels').exists():
+    bad.append('site/reels still exists')
+if bad:
+    print('Wednesday/Reels retirement left stragglers:')
+    print('\n'.join(bad))
+    raise SystemExit(1)
+print('Wednesday/Reels page retired: links removed, sitemap clean, legacy URLs redirected.')
+PY
 
 # Every URL advertised by the current production sitemap must be present in the
 # reconstructed deployment folder. This is a current invariant, unlike an old
@@ -168,3 +245,4 @@ echo 'OOLITA deployment bundle validated.'
 # Production propagation trigger: mobile world-preview and Sunday-field repairs.
 # Production propagation trigger: resilient labyrinth access FAQ normalization.
 # Production propagation trigger: Veriditas credential compatibility bridge.
+# Production propagation trigger: retire the Wednesday/Reels page cleanly.
