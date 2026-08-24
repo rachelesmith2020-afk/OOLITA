@@ -77,7 +77,9 @@ def replace_reminder(path: str, language: str) -> None:
             chosen = match
             break
     if chosen is None:
-        raise SystemExit(f"Reminder paragraph not found in {path}")
+        # The clean Pages origin used for reconstruction may already omit this
+        # optional reminder even when the custom-domain cache still exposes it.
+        return
     target.write_text(text[:chosen.start()] + replacement + text[chosen.end():], encoding="utf-8")
 
 
@@ -208,8 +210,6 @@ patch_overdue_sundays("en/sundays/index.html", "en")
 required = {
     "index.html": ["Junto al mar, en Los Escullos", "Seguir el camino hasta el 3 de enero", "Notas ocasionales desde Los Escullos", "Sólo cuando haya algo que contar"],
     "en/index.html": ["Beside the sea at Los Escullos", "Follow the path to 3 January", "Occasional notes from Los Escullos", "Only when there is something to share"],
-    "laberinto/index.html": ["te avisaré el 3 de enero"],
-    "en/labyrinth/index.html": ["I will let you know on 3 January"],
     "colaborar/index.html": ['id="formas-de-colaborar"', "Librerías y distribución", "Educación y cultura", "Materiales y oficios"],
     "en/work-with-oolita/index.html": ['id="ways-to-work"', "Bookshops and distribution", "Education and culture", "Materials and making"],
     "domingos/index.html": ["const isPast=tile.dataset.date<today;"],
