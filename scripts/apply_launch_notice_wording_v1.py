@@ -7,6 +7,7 @@ ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 PAGE = ROOT / "en/index.html"
 OLD = "That day the link opens. If you want the notice, leave your email with OOLITA."
 NEW = "Leave your email with OOLITA and we’ll let you know when it opens."
+SUPERSEDING = "to be notified when the world opens."
 
 if not PAGE.is_file():
     raise SystemExit("Missing expected homepage: en/index.html")
@@ -20,5 +21,7 @@ if old_count:
     print(f"patched en/index.html launch notice: {old_count} occurrence(s)")
 elif new_count:
     print(f"launch notice already reviewed: {new_count} occurrence(s)")
+elif SUPERSEDING in text:
+    print("launch notice already superseded by Follow OOLITA wording")
 else:
     raise SystemExit("Unexpected launch-notice wording state in en/index.html")
