@@ -94,7 +94,11 @@ run_layer("apply_contrast_accessibility_v1.py")
 # generic AI/marketing diction after every other content layer has finished.
 run_layer("apply_voice_audit_v1.py")
 run_layer("apply_voice_audit_spanish_editions_v1.py")
+# Final credit safeguard: distinguish artistic authorship, book publishing and
+# the collaborative website/Three.js build after every other content layer.
+run_layer("apply_attribution_consistency_v1.py")
 
 # Deployment trigger: mobile stone field grid specificity fix, 2026-08-23.
 # Deployment trigger: final OOLITA book-voice audit, 2026-08-24.
 # Deployment trigger: final Spanish Editions voice pass, 2026-08-24.
+# Deployment trigger: attribution consistency, 2026-08-24.
