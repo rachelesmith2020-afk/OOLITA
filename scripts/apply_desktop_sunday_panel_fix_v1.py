@@ -73,3 +73,5 @@ for rel in ("index.html", "en/index.html"):
             raise SystemExit(f"Desktop Sunday panel invariant failed in {rel}: {needle}")
 
 print("OOLITA desktop Sunday panel containment validated in both homepages.")
+
+# Production propagation trigger: align published Sunday images on mobile.
