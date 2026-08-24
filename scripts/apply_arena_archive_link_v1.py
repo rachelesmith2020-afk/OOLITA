@@ -67,7 +67,7 @@ PAGES = (
     {
         "rel": "en/about/index.html",
         "paragraph_markers": (
-            "None replaces the other.",
+            "None replaces the others.",
             "Everything meets here: oolita.es.",
         ),
         "section_headings": (
