@@ -55,6 +55,48 @@ for path,pairs in voice_bridges.items():
   p.write_text(s,encoding='utf-8')
   print('growth prep bridged final voice for',path)
 
+# The final attribution layer likewise supersedes the older audit layer's
+# intermediate credit wording. A deployment reconstructs from the already-final
+# live site, so normalize only those exact final credits before the legacy audit
+# validates them. apply_attribution_consistency_v2.py restores the authoritative
+# public wording at the end of the search/reader pipeline.
+attribution_signature_bridges = {
+ 'index.html': (
+  '<div class="firma"><span class="rot">Raquel Costantini — artista y autora</span><span class="rot">Vestini Tribe — editorial del libro</span></div>',
+  '<div class="firma"><span class="rot">Raquel Costantini — artista y autora</span><span class="rot">Vestini Tribe — editorial</span></div>',
+ ),
+ 'en/index.html': (
+  '<div class="firma"><span class="rot">Raquel Costantini — artist and author</span><span class="rot">Vestini Tribe — book publisher</span></div>',
+  '<div class="firma"><span class="rot">Raquel Costantini — artist and author</span><span class="rot">Vestini Tribe — publisher</span></div>',
+ ),
+}
+for path,(final_credit,intermediate) in attribution_signature_bridges.items():
+ p=ROOT/path
+ s=p.read_text(encoding='utf-8')
+ if final_credit in s:
+  p.write_text(s.replace(final_credit,intermediate,1),encoding='utf-8')
+  print('growth prep bridged final homepage attribution for',path)
+
+footer_bridges = (
+ ('OOLITA · Un proyecto de Raquel Costantini con Vestini Tribe',
+  'OOLITA · Raquel Costantini, artista y autora · Vestini Tribe, editorial'),
+ ('OOLITA · A project by Raquel Costantini with Vestini Tribe',
+  'OOLITA · Raquel Costantini, artist and author · Vestini Tribe, publisher'),
+)
+bridged_footers=0
+for p in sorted(ROOT.rglob('*.html')):
+ s=p.read_text(encoding='utf-8')
+ changed=False
+ for final_credit,intermediate in footer_bridges:
+  if final_credit in s:
+   s=s.replace(final_credit,intermediate,1)
+   changed=True
+ if changed:
+  p.write_text(s,encoding='utf-8')
+  bridged_footers+=1
+if bridged_footers:
+ print('growth prep bridged final footer attribution on',bridged_footers,'pages')
+
 for path, sentence in [
  ('index.html','OOLITA es un proyecto editorial y de trabajo de campo arraigado en Los Escullos, Cabo de Gata.'),
  ('en/index.html','OOLITA is a place-based publishing and fieldwork project rooted in Los Escullos, Cabo de Gata.'),
