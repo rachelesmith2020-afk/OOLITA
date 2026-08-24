@@ -75,6 +75,7 @@ run_layer("apply_menu_hierarchy_v1.py")
 # restrained artistic voice established by the reader-assessment layers.
 run_layer("apply_soft_marketing_v1.py")
 run_layer("publish_sunday03_and_3d_preview_v1.py")
+run_layer("apply_engagement_depth_v1.py")
 # Reader-facing visual layers.
 run_layer("apply_art_restage_v1.py")
 run_layer("apply_mobile_english_2027_fix_v1.py")
