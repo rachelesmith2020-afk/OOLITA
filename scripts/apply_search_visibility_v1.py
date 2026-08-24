@@ -132,9 +132,10 @@ run_layer("finalize_reels_retirement_v1.py")
 # explicit on the English page, with the Hallazgo hardback immediately after
 # the first OOLITA book and T-shirt.
 run_layer("normalize_editions_hallazgo_hardback_v1.py")
-# Absolute final factual/SEO gate: every labyrinth-location claim must say that
-# the work is on land beside the fossil dunes, never on a fossil dune. This also
-# refreshes changed sitemap routes and rejects broken internal hrefs.
+# Absolute final factual/SEO gate: the labyrinth is on land beside the fossil
+# dunes; the nearby Batería de San Felipe is allowed to stand on a fossil dune.
+# The same pass uses "loose stones", refreshes changed sitemap routes and rejects
+# factual/wording stragglers plus broken internal hrefs.
 run_layer("normalize_labyrinth_fossil_dunes_v1.py")
 
 # Deployment trigger: mobile stone field grid specificity fix, 2026-08-23.
@@ -149,3 +150,4 @@ run_layer("normalize_labyrinth_fossil_dunes_v1.py")
 # Deployment trigger: actual hreflang link validator fix, 2026-08-24.
 # Deployment trigger: labyrinth beside-fossil-dunes factual correction, 2026-08-24.
 # Deployment trigger: Hallazgo hardback Editions sequence, 2026-08-24.
+# Deployment trigger: San Felipe fossil-dune exception + loose-stones wording, 2026-08-24.
