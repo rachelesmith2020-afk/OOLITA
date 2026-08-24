@@ -58,25 +58,43 @@ else:
         f"Unexpected homepage material wording: found neither {old!r} nor {new!r}"
     )
 
-# Homepage header — show only the launch year. The same HTML serves mobile and
-# desktop, so this applies to both layouts in Spanish and English.
-for rel in ("index.html", "en/index.html"):
-    page = Path(ROOT_ARG) / rel
-    if not page.is_file():
-        raise SystemExit(f"Missing expected homepage: {rel}")
+# Site header — show only the launch year. Mobile and desktop share the same
+# markup, so changing the header source applies to both layouts. Apply this to
+# every Spanish and English HTML page that carries the global header, while
+# leaving any date ranges in page content untouched.
+root = Path(ROOT_ARG)
+old_years = ("· 2026–2027", "· 2026—2027", "· 2026-2027")
+patched_headers = 0
+reviewed_headers = 0
+for page in sorted(root.rglob("*.html")):
     text = page.read_text(encoding="utf-8")
+    boundaries = [pos for token in ("<main", "<h1", "<article") if (pos := text.find(token)) >= 0]
+    header_end = min(boundaries) if boundaries else min(len(text), 12000)
+    head = text[:header_end]
+    tail = text[header_end:]
+
     changed = False
-    for old_year in ("· 2026–2027", "· 2026—2027", "· 2026-2027"):
-        if old_year in text:
-            text = text.replace(old_year, "· 2027", 1)
+    for old_year in old_years:
+        if old_year in head:
+            head = head.replace(old_year, "· 2027", 1)
             changed = True
             break
-    if changed:
-        page.write_text(text, encoding="utf-8")
-        print(f"patched {rel}: homepage header year -> 2027")
-    elif "· 2027" in text:
-        print(f"already reviewed {rel}: homepage header year is 2027")
-    else:
-        raise SystemExit(f"Unexpected homepage header year state in {rel}")
 
-# Propagation trigger: 2026-08-24 14:00 Europe/London — homepage header year 2027.
+    rel = page.relative_to(root)
+    if changed:
+        page.write_text(head + tail, encoding="utf-8")
+        patched_headers += 1
+        print(f"patched {rel}: site header year -> 2027")
+    elif "· 2027" in head:
+        reviewed_headers += 1
+        print(f"already reviewed {rel}: site header year is 2027")
+
+if patched_headers + reviewed_headers < 2:
+    raise SystemExit("Global Spanish/English header year was not found on enough pages")
+
+print(
+    f"site header year verified: {patched_headers} patched, "
+    f"{reviewed_headers} already 2027"
+)
+
+# Propagation trigger: 2026-08-24 14:04 Europe/London — global header year 2027.
