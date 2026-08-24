@@ -28,6 +28,27 @@ if not mobile_repair.is_file():
     raise SystemExit(f"Missing final mobile Sunday repair: {mobile_repair}")
 subprocess.run(["python3", str(mobile_repair), "site"], check=True)
 
+# Sunday 01 is the only published source that is not an exact 4:5 frame
+# (417x518; 02 and 03 are exact 4:5). The mobile tile is exactly 4:5, so
+# object-fit:cover can shave the outermost edge and hide the thin green line
+# that is visible in the Instagram artwork. Preserve the complete artwork in
+# the final deployed Sunday field instead of cropping any edge pixels.
+for rel in ("domingos/index.html", "en/sundays/index.html"):
+    page = Path("site") / rel
+    if not page.is_file():
+        raise SystemExit(f"Missing final Sunday page while preserving artwork edge: {rel}")
+    text = page.read_text(encoding="utf-8")
+    old = "object-fit:cover!important;"
+    new = "object-fit:contain!important;"
+    if old not in text:
+        raise SystemExit(f"Expected mobile Sunday cover rule missing in {rel}")
+    text = text.replace(old, new, 1)
+    page.write_text(text, encoding="utf-8")
+    final_text = page.read_text(encoding="utf-8")
+    if new not in final_text:
+        raise SystemExit(f"Sunday artwork edge-preservation rule failed in {rel}")
+    print(f"Sunday artwork edge preserved without cropping: {rel}")
+
 if not ACCOUNT_ID or not TOKEN:
     raise SystemExit("Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN")
 
