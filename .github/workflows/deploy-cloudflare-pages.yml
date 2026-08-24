@@ -27,6 +27,7 @@ on:
       - 'scripts/publish_sunday03_and_3d_preview_v1.py'
       - 'scripts/apply_engagement_depth_v1.py'
       - 'scripts/configure_cloudflare_analytics.py'
+      - 'scripts/configure_cloudflare_redirects.py'
       - 'scripts/configure_cloudflare_subscribers.py'
       - 'scripts/verify_cloudflare_analytics.py'
       - 'scripts/submit_indexnow.py'
@@ -61,6 +62,7 @@ on:
       - 'scripts/publish_sunday03_and_3d_preview_v1.py'
       - 'scripts/apply_engagement_depth_v1.py'
       - 'scripts/configure_cloudflare_analytics.py'
+      - 'scripts/configure_cloudflare_redirects.py'
       - 'scripts/configure_cloudflare_subscribers.py'
       - 'scripts/verify_cloudflare_analytics.py'
       - 'scripts/submit_indexnow.py'
@@ -236,6 +238,12 @@ jobs:
           set -euo pipefail
           npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
 
+      - name: Configure canonical host redirect
+        id: canonical_redirect
+        continue-on-error: true
+        shell: bash
+        run: python3 scripts/configure_cloudflare_redirects.py
+
       - name: Verify first-party analytics endpoint
         id: analytics_verify
         continue-on-error: true
@@ -282,6 +290,7 @@ jobs:
             echo "- Deployed: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "- Analytics binding cleanup: ${{ steps.analytics_binding.outcome }}"
             echo "- Analytics endpoint: ${{ steps.analytics_verify.outcome }}"
+            echo "- Canonical host redirect: ${{ steps.canonical_redirect.outcome }}"
             echo "- IndexNow: ${{ steps.indexnow.outcome }}"
             echo "- Live technical SEO: ${{ steps.live_seo.outcome }}"
           } >> "$GITHUB_STEP_SUMMARY"
