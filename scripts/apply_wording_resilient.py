@@ -106,7 +106,7 @@ print(
 )
 
 # Homepage wording consistency.
-def replace_homepage_copy(rel_path, old, new):
+def replace_homepage_copy(rel_path, old, new, superseding=None):
     page = root / rel_path
     if not page.is_file():
         raise SystemExit(f"Missing expected homepage: {rel_path}")
@@ -118,6 +118,8 @@ def replace_homepage_copy(rel_path, old, new):
         print(f"patched {rel_path}: {old_count} occurrence(s): {old!r} -> {new!r}")
     elif new_count > 0:
         print(f"already reviewed {rel_path}: {new_count} occurrence(s): {new!r}")
+    elif superseding and superseding in text:
+        print(f"already superseded {rel_path}: {superseding[:52]!r}")
     else:
         raise SystemExit(
             f"Unexpected homepage wording in {rel_path}: "
@@ -128,6 +130,7 @@ replace_homepage_copy(
     "en/index.html",
     "No sign, no name.",
     "No sign marks it.",
+    "OOLITA begins with a three-metre classical labyrinth, laid by hand from stone at Los Escullos, on land that was seabed a hundred thousand years ago.",
 )
 replace_homepage_copy(
     "en/index.html",
