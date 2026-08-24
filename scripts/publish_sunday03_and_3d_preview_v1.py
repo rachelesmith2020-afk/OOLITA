@@ -157,18 +157,18 @@ def add_world_preview(path: str, language: str) -> None:
 <img src="/img/oolita-browser-world-preview.jpg" alt="The Hallazgo gallery on the dune at golden hour, the figure and the cat on the track before it, Morrón de Mateo and Cerro de la Viña named — modelled on Los Escullos, Cabo de Gata." width="1080" height="1350" loading="lazy" decoding="async">
 <figcaption>The third material: Los Escullos raised in the browser. One still; the full path opens on 3 January.</figcaption>
 </figure>"""
-    anchor = re.search(r'<section\b[^>]*\bid="cabo-de-gata"[^>]*>', text, flags=re.I)
+    anchor = re.search(r"<section\b[^>]*\bid=[\"']cabo-de-gata[\"'][^>]*>", text, flags=re.I)
     if not anchor:
         # Later reader-facing transforms may replace the section wrapper while
         # preserving the Cabo de Gata pillar. Insert before that stable route.
-        route = \"/en/cabo-de-gata/\" if language == \"en\" else \"/cabo-de-gata/\"
+        route = "/en/cabo-de-gata/" if language == "en" else "/cabo-de-gata/"
         anchor = re.search(
-            rf'<a\b[^>]*href="{re.escape(route)}"[^>]*>',
+            rf"<a\b[^>]*href=[\"']{re.escape(route)}[\"'][^>]*>",
             text,
             flags=re.I,
         )
     if not anchor:
-        raise SystemExit(f\"Homepage Cabo de Gata anchor missing: {path}\")
+        raise SystemExit(f"Homepage Cabo de Gata anchor missing: {path}")
     pos = anchor.start()
     text = text[:pos] + block + text[pos:]
     target.write_text(text, encoding="utf-8")
