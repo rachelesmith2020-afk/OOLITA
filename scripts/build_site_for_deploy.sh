@@ -154,3 +154,4 @@ count=$(find site -type f | wc -l | tr -d ' ')
 echo "Validated current-origin deployment file count: $count"
 echo 'OOLITA deployment bundle validated.'
 # Production propagation trigger: desktop Sunday-panel containment.
+# Production propagation trigger: integrated desktop, reels and 3D fixes.
