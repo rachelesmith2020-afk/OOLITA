@@ -64,6 +64,74 @@ function confirmationOrigin(requestUrl) {
   return "https://oolita.es";
 }
 
+function confirmationEmailHtml(spanish, confirmUrl) {
+  const lang = spanish ? "es" : "en";
+  const preheader = spanish ? "Confirma tu correo para seguir OOLITA." : "Confirm your email to follow OOLITA.";
+  const heading = spanish ? "Confirma tu correo" : "Confirm your email";
+  const intro = spanish ? "Has pedido seguir OOLITA." : "You asked to follow OOLITA.";
+  const detail = spanish
+    ? "Confirma tu correo para recibir noticias del proyecto."
+    : "Confirm your email to receive news from the project.";
+  const button = spanish ? "Confirmar correo ↗" : "Confirm email ↗";
+  const promise = spanish
+    ? "Una sola lista. Sin publicidad. Baja cuando quieras."
+    : "One list. No advertising. Unsubscribe whenever you like.";
+  const ignore = spanish
+    ? "Si no has hecho esta solicitud, puedes ignorar este mensaje."
+    : "If you did not make this request, you can ignore this message.";
+
+  return `<!doctype html>
+<html lang="${lang}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>${heading} · OOLITA</title>
+</head>
+<body style="margin:0;padding:0;background:#f1e6cf;color:#132572;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">${preheader}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f1e6cf;border-collapse:collapse;">
+    <tr>
+      <td align="center" style="padding:48px 20px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;border-collapse:collapse;">
+          <tr>
+            <td style="padding:0 0 44px;font-family:'Instrument Sans',Arial,sans-serif;color:#132572;">
+              <a href="https://oolita.es/" style="color:#132572;text-decoration:none;" aria-label="OOLITA">
+                <span style="display:block;font-size:30px;line-height:1;letter-spacing:0.08em;font-weight:600;">OOLITA</span>
+                <span style="display:block;margin-top:9px;font-size:12px;line-height:1.2;letter-spacing:0.12em;text-transform:uppercase;">Los Escullos</span>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="border-top:1px solid #132572;padding:42px 0 0;">
+              <h1 style="margin:0 0 28px;font-family:'Instrument Serif',Georgia,serif;font-size:48px;line-height:0.98;font-weight:400;letter-spacing:-0.02em;color:#132572;">${heading}</h1>
+              <p style="margin:0 0 10px;font-family:'Instrument Sans',Arial,sans-serif;font-size:18px;line-height:1.5;color:#132572;">${intro}</p>
+              <p style="margin:0 0 34px;font-family:'Instrument Sans',Arial,sans-serif;font-size:18px;line-height:1.5;color:#132572;">${detail}</p>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+                <tr>
+                  <td bgcolor="#132572" style="background:#132572;">
+                    <a href="${confirmUrl}" style="display:inline-block;padding:15px 22px;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;line-height:1.1;font-weight:600;color:#f1e6cf;text-decoration:none;border:1px solid #132572;">${button}</a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:36px 0 0;font-family:'Instrument Sans',Arial,sans-serif;font-size:14px;line-height:1.5;color:#132572;">${promise}</p>
+              <p style="margin:9px 0 0;font-family:'Instrument Sans',Arial,sans-serif;font-size:14px;line-height:1.5;color:#132572;">${ignore}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:48px 0 0;font-family:'Instrument Sans',Arial,sans-serif;font-size:12px;line-height:1.5;color:#132572;">
+              <div style="border-top:1px solid #132572;padding-top:16px;">OOLITA · Los Escullos</div>
+              <div><a href="https://oolita.es/" style="color:#132572;text-decoration:underline;text-underline-offset:3px;">oolita.es</a></div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
 async function sendConfirmation(env, email, language, confirmationToken, requestUrl) {
   const cfg = emailConfig(env);
   if (!cfg || !TOKEN_RE.test(confirmationToken)) throw new Error("email_service_unavailable");
@@ -72,11 +140,9 @@ async function sendConfirmation(env, email, language, confirmationToken, request
   const spanish = language === "es";
   const subject = spanish ? "Confirma tu correo · OOLITA" : "Confirm your email · OOLITA";
   const text = spanish
-    ? `Has pedido seguir OOLITA. Confirma tu correo abriendo este enlace:\n\n${confirmUrl}\n\nSi no has hecho esta solicitud, puedes ignorar este mensaje.`
-    : `You asked to follow OOLITA. Confirm your email by opening this link:\n\n${confirmUrl}\n\nIf you did not make this request, you can ignore this message.`;
-  const html = spanish
-    ? `<p>Has pedido seguir OOLITA.</p><p><a href="${confirmUrl}">Confirma tu correo</a></p><p>Si no has hecho esta solicitud, puedes ignorar este mensaje.</p>`
-    : `<p>You asked to follow OOLITA.</p><p><a href="${confirmUrl}">Confirm your email</a></p><p>If you did not make this request, you can ignore this message.</p>`;
+    ? `Has pedido seguir OOLITA.\n\nConfirma tu correo para recibir noticias del proyecto:\n\n${confirmUrl}\n\nUna sola lista. Sin publicidad. Baja cuando quieras.\n\nSi no has hecho esta solicitud, puedes ignorar este mensaje.\n\nOOLITA · Los Escullos\nhttps://oolita.es/`
+    : `You asked to follow OOLITA.\n\nConfirm your email to receive news from the project:\n\n${confirmUrl}\n\nOne list. No advertising. Unsubscribe whenever you like.\n\nIf you did not make this request, you can ignore this message.\n\nOOLITA · Los Escullos\nhttps://oolita.es/`;
+  const html = confirmationEmailHtml(spanish, confirmUrl);
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
