@@ -143,6 +143,9 @@ python3 scripts/apply_contrast_accessibility_v1.py site
 # the browser-world preview to the viewport and restore compact 22-Sundays tiles.
 python3 scripts/apply_mobile_layout_repairs_v1.py site
 
+# Keep the English 3D-world launch notice in natural, direct English.
+python3 scripts/apply_launch_notice_wording_v1.py site
+
 # The clean origin must not introduce Cloudflare zone-layer email rewriting.
 if grep -RIl --include='*.html' '/cdn-cgi/l/email-protection' site >/tmp/oolita-obfuscated-mail.txt; then
   echo 'Cloudflare-obfuscated email links found in reconstructed origin; refusing to deploy:'
