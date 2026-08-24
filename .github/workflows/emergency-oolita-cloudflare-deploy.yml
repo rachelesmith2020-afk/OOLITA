@@ -1,0 +1,41 @@
+name: Emergency OOLITA Cloudflare deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/emergency-oolita-cloudflare-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-now:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Require Cloudflare token
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
+
+      - name: Reconstruct current production and apply final repairs
+        shell: bash
+        run: bash scripts/build_site_for_deploy.sh
+
+      - name: Deploy directly to Cloudflare Pages production
+        shell: bash
+        run: |
+          npx --yes wrangler@latest pages deploy site \
+            --project-name=oolita \
+            --branch=main \
+            --commit-hash="${GITHUB_SHA}" \
+            --commit-message="Emergency deploy: 2027 header and mobile layout repairs"
