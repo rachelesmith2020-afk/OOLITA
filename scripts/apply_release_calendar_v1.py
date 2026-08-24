@@ -20,6 +20,10 @@ normalise = {
             "Virtual castle · free to enter · opens 16.05.27 · 19:00 CEST ↗",
         ),
         (
+            "A hardback publication bringing together the complete body of work · full catalogue in the castle with a key · 16 Sep 27 · public launch 19 Sep 27 ↗",
+            "In the castle: full catalogue with a key · hardback planned for autumn 2027 ↗",
+        ),
+        (
             "In the castle: full catalogue with a key · hardback 16 Sep 27 · public launch 19 Sep 27 ↗",
             "In the castle: full catalogue with a key · hardback planned for autumn 2027 ↗",
         ),
@@ -29,6 +33,10 @@ normalise = {
         ),
     ),
     "index.html": (
+        (
+            "Una edición en tapa dura que reúne el cuerpo completo de la obra · catálogo completo en el castillo con clave · 16.09.27 · presentación pública 19.09.27 ↗",
+            "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗",
+        ),
         (
             "En el castillo: catálogo completo con clave · tapa dura 16.09.27 · presentación pública 19.09.27 ↗",
             "En el castillo: catálogo completo con clave · tapa dura prevista para otoño de 2027 ↗",
