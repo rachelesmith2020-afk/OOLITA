@@ -128,6 +128,10 @@ run_layer("apply_three_page_seo_v1.py")
 # Absolute final gate: retire the former Wednesday/Reels route after every SEO,
 # archive, menu and visual pass so nothing downstream can reintroduce it.
 run_layer("finalize_reels_retirement_v1.py")
+# Absolute final Editions copy gate: keep the approved physical-edition order
+# explicit on the English page, with the Hallazgo hardback immediately after
+# the first OOLITA book and T-shirt.
+run_layer("normalize_editions_hallazgo_hardback_v1.py")
 # Absolute final factual/SEO gate: every labyrinth-location claim must say that
 # the work is on land beside the fossil dunes, never on a fossil dune. This also
 # refreshes changed sitemap routes and rejects broken internal hrefs.
@@ -144,3 +148,4 @@ run_layer("normalize_labyrinth_fossil_dunes_v1.py")
 # Deployment trigger: three-page SEO/content polish, 2026-08-24.
 # Deployment trigger: actual hreflang link validator fix, 2026-08-24.
 # Deployment trigger: labyrinth beside-fossil-dunes factual correction, 2026-08-24.
+# Deployment trigger: Hallazgo hardback Editions sequence, 2026-08-24.
