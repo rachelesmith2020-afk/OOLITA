@@ -342,10 +342,12 @@ def main() -> None:
     if pages_status != 200 or "noindex" not in pages_headers.get("x-robots-tag", "").lower():
         issues.append("PAGES.DEV preview origin is indexable; expected X-Robots-Tag: noindex")
 
+    # Cache only assets that remain public. The Wednesday/Reels route is retired
+    # and permanently redirects to /carteles/, so probing its former MP4 here
+    # would be a stale audit straggler rather than a production-cache invariant.
     cache_probes = {
         BASE + "/fonts/instrument-sans-var-latin.woff2": (31536000, True),
         BASE + "/domingos/img/03.jpg": (2592000, False),
-        BASE + "/reels/r01.mp4": (2592000, False),
     }
     for cache_url, (minimum_age, immutable) in cache_probes.items():
         cache_status, _, cache_headers, _, _ = request(cache_url, method="HEAD")
