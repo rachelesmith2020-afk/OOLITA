@@ -9,6 +9,7 @@ enquiries actionable. It also labels elapsed, unpublished Sundays honestly.
 from __future__ import annotations
 
 from datetime import datetime
+from html import unescape
 from pathlib import Path
 import re
 import sys
@@ -61,19 +62,23 @@ def replace_reminder(path: str, language: str) -> None:
     marker = "te avisaré cuando se abra" if language == "es" else "let you know when it opens"
     if marker in text:
         return
-    # The live origin may place an inline mail link inside this sentence and
-    # its paragraph class has changed across earlier design layers. Match the
-    # distinctive obsolete promise, but never cross a paragraph boundary.
-    phrase = r"llamo de vuelta" if language == "es" else r"call you back"
-    pattern = rf'<p\b[^>]*>(?:(?!</p>)[\s\S])*?{phrase}(?:(?!</p>)[\s\S])*?</p>'
     if language == "es":
         replacement = '<p class="parr">¿Quieres que te avise cuando se abra? <a href="mailto:oolita@tutamail.com?subject=OOLITA%20%C2%B7%20apertura%203D">Déjame tu correo</a> y te avisaré el 3 de enero.</p>'
+        date, cues = "3 de enero", ("aviso", "avise", "correo", "escribe", "escríbeme")
     else:
         replacement = '<p class="parr">Would you like to know when it opens? <a href="mailto:oolita@tutamail.com?subject=OOLITA%20%C2%B7%203D%20opening">Leave your email</a> and I will let you know on 3 January.</p>'
-    new_text, count = re.subn(pattern, replacement, text, count=1, flags=re.I | re.S)
-    if count != 1:
+        date, cues = "3 january", ("know", "email", "write", "notify")
+    matches = list(re.finditer(r"<p\b[^>]*>[\s\S]*?</p>", text, flags=re.I))
+    chosen = None
+    for match in matches:
+        visible = unescape(re.sub(r"<[^>]+>", " ", match.group(0)))
+        visible = re.sub(r"\s+", " ", visible).strip().lower()
+        if date in visible and any(cue in visible for cue in cues):
+            chosen = match
+            break
+    if chosen is None:
         raise SystemExit(f"Reminder paragraph not found in {path}")
-    target.write_text(new_text, encoding="utf-8")
+    target.write_text(text[:chosen.start()] + replacement + text[chosen.end():], encoding="utf-8")
 
 
 # Put the visitor's experience before the institutional classification.
