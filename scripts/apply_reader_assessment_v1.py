@@ -146,7 +146,7 @@ regex_required(
 regex_required(
     "en/index.html",
     r'<p class="parr definicion">[\s\S]*?</p>',
-    '<p class="parr definicion">OOLITA begins with a three-metre classical labyrinth, laid by hand from loose calcarenite at Los Escullos, on a fossil dune that was seabed a hundred thousand years ago. No sign, no name.</p>',
+    '<p class="parr definicion">OOLITA begins with a three-metre classical labyrinth, laid by hand from stone at Los Escullos, on a fossil dune that was seabed a hundred thousand years ago. No sign, no name.</p>',
     "OOLITA begins with a three-metre classical labyrinth",
 )
 
