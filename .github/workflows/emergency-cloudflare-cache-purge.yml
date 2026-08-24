@@ -18,7 +18,7 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
     steps:
-      - name: Purge OOLITA custom-domain cache
+      - name: Purge complete OOLITA custom-domain cache
         shell: bash
         run: |
           set -euo pipefail
@@ -38,17 +38,7 @@ jobs:
               raise SystemExit('Could not resolve Cloudflare zone for oolita.es: ' + json.dumps(payload))
           zone_id = payload['result'][0]['id']
 
-          files = [
-              'https://oolita.es/',
-              'https://oolita.es/en/',
-              'https://oolita.es/domingos/',
-              'https://oolita.es/en/sundays/',
-              'https://www.oolita.es/',
-              'https://www.oolita.es/en/',
-              'https://www.oolita.es/domingos/',
-              'https://www.oolita.es/en/sundays/',
-          ]
-          body = json.dumps({'files': files}).encode()
+          body = json.dumps({'purge_everything': True}).encode()
           purge = urllib.request.Request(
               f'https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache',
               data=body, headers=headers, method='POST'
@@ -57,5 +47,5 @@ jobs:
               result = json.load(r)
           if not result.get('success'):
               raise SystemExit('Cloudflare cache purge failed: ' + json.dumps(result))
-          print('Purged OOLITA URLs from Cloudflare cache:', ', '.join(files))
+          print('Purged the complete OOLITA Cloudflare cache for oolita.es')
           PY
