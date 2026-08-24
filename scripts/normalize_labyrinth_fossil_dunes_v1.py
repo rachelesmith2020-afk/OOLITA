@@ -119,10 +119,11 @@ ARTWORK_SURFACE_REPLACEMENTS = (
     (re.compile(r'("artworkSurface"\s*:\s*")Duna fósil(" )?', re.I), None),
 )
 
-# The generic labyrinth correction above deliberately catches every old singular
-# fossil-dune formulation. Restore only the historically correct San Felipe
-# statement afterwards. This also repairs pages already normalized by the prior
-# deployment, which may contain "stands beside the same fossil dunes".
+# The generic labyrinth correction above deliberately catches old singular
+# fossil-dune formulations. Restore the historically correct San Felipe wording
+# only when the local context actually names the battery. A global replacement
+# here can otherwise turn the corrected labyrinth wording back into the error
+# this deployment gate is designed to reject.
 BATTERY_REPLACEMENTS = (
     ("stands beside the same fossil dunes", "stands on a fossil dune"),
     ("stands on the same fossil dunes", "stands on a fossil dune"),
@@ -159,7 +160,14 @@ for path in sorted(ROOT.rglob("*.html")):
             flags=re.I,
         )
         for old, new in BATTERY_REPLACEMENTS:
-            text = text.replace(old, new)
+            battery_pattern = re.compile(
+                rf"(Bater[ií]a de San Felipe.{{0,260}}?){re.escape(old)}",
+                re.I | re.S,
+            )
+            text = battery_pattern.sub(
+                lambda match, replacement=new: match.group(1) + replacement,
+                text,
+            )
     else:
         # Even geology explainers must not describe the labyrinth stones as a
         # proven calcarenite material.
