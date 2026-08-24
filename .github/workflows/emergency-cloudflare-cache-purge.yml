@@ -1,0 +1,61 @@
+name: Emergency Cloudflare cache purge
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/emergency-cloudflare-cache-purge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
+    steps:
+      - name: Purge OOLITA custom-domain cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
+          python3 - <<'PY'
+          import json, os, urllib.parse, urllib.request
+
+          token = os.environ['CLOUDFLARE_API_TOKEN']
+          account = os.environ['CLOUDFLARE_ACCOUNT_ID']
+          headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+
+          query = urllib.parse.urlencode({'name': 'oolita.es', 'account.id': account})
+          req = urllib.request.Request('https://api.cloudflare.com/client/v4/zones?' + query, headers=headers)
+          with urllib.request.urlopen(req, timeout=30) as r:
+              payload = json.load(r)
+          if not payload.get('success') or not payload.get('result'):
+              raise SystemExit('Could not resolve Cloudflare zone for oolita.es: ' + json.dumps(payload))
+          zone_id = payload['result'][0]['id']
+
+          files = [
+              'https://oolita.es/',
+              'https://oolita.es/en/',
+              'https://oolita.es/domingos/',
+              'https://oolita.es/en/sundays/',
+              'https://www.oolita.es/',
+              'https://www.oolita.es/en/',
+              'https://www.oolita.es/domingos/',
+              'https://www.oolita.es/en/sundays/',
+          ]
+          body = json.dumps({'files': files}).encode()
+          purge = urllib.request.Request(
+              f'https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache',
+              data=body, headers=headers, method='POST'
+          )
+          with urllib.request.urlopen(purge, timeout=30) as r:
+              result = json.load(r)
+          if not result.get('success'):
+              raise SystemExit('Cloudflare cache purge failed: ' + json.dumps(result))
+          print('Purged OOLITA URLs from Cloudflare cache:', ', '.join(files))
+          PY
