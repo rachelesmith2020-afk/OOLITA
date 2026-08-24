@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Normalize known homepage source paragraphs before the legacy soft-marketing pass.
 
-The live site may contain inline links inside text that the older pass compares as
-one literal string. Normalize only paragraphs whose visible text is already the
-approved source wording, preserving the paragraph tag and attributes.
+The reconstructed site can contain inline markup or small wording drift inside
+paragraphs that an older transformer compares as literal strings. Normalize only
+unique, already-approved source paragraphs before that transformer runs.
 """
 from __future__ import annotations
 
@@ -27,6 +27,11 @@ SOURCES = {
     ),
 }
 
+UNIQUE_CUES = {
+    ("index.html", SOURCES["index.html"][1]): ("cuadernos", "color natural", "fibra de pita"),
+    ("en/index.html", SOURCES["en/index.html"][1]): ("field books", "natural colour", "pita fibre"),
+}
+
 
 def visible(html: str) -> str:
     return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", html))).strip()
@@ -43,14 +48,19 @@ for rel, sources in SOURCES.items():
     for source in sources:
         if source in text:
             continue
+        cues = UNIQUE_CUES.get((rel, source))
         matched = False
         for match in list(re.finditer(r'(<p\b[^>]*>)([\s\S]*?)(</p>)', text, flags=re.I)):
-            if visible(match.group(2)) == source:
+            rendered = visible(match.group(2))
+            rendered_l = rendered.lower()
+            equivalent = rendered == source
+            uniquely_identified = bool(cues) and all(cue in rendered_l for cue in cues)
+            if equivalent or uniquely_identified:
                 text = text[:match.start()] + match.group(1) + source + match.group(3) + text[match.end():]
                 matched = True
                 break
         if matched:
-            print(f"normalized inline homepage source in {rel}: {source[:70]}")
+            print(f"normalized homepage source in {rel}: {source[:70]}")
     path.write_text(text, encoding="utf-8")
 
 print("OOLITA soft-marketing source compatibility normalization complete.")
