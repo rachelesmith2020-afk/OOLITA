@@ -47,7 +47,7 @@ THREE_D_BLOCKS = {
 </section>""",
     "en/3d-world/index.html": """<section class="tramo env" data-reader-next="3d">
 <span class="rot">03.01.27</span><h2 class="grande">On 3 January, here.</h2>
-<p class="parr">That day the link opens. If you want the notice, leave your email with OOLITA.</p>
+<p class="parr">Leave your email with OOLITA and we’ll let you know when it opens.</p>
 <a class="fila" href="/en/?follow=3d#follow-oolita" data-oolita-event="3d-follow-intent"><span class="n">→</span><span class="nom">Tell me when it opens</span><span class="glo">3D world · no download · no account</span></a>
 </section>""",
 }
