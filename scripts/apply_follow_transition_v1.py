@@ -67,9 +67,39 @@ for path in ROOT.rglob("*.html"):
         "I want to receive OOLITA news. I can unsubscribe at any time.",
         "I want to receive OOLITA news. I will confirm my email before joining the list and can unsubscribe at any time.",
     )
+
+    # "book" is the stable machine-facing interest key used by existing
+    # follow links and subscriber data. Only the public category label is
+    # plural so it covers both the OOLITA and Hallazgo books.
+    text = text.replace(
+        "Elige lo que quieres seguir: mundo 3D, libro, publicaciones de campo o ediciones textiles.",
+        "Elige lo que quieres seguir: mundo 3D, libros, publicaciones de campo o ediciones textiles.",
+    )
+    text = text.replace(
+        '<input type="checkbox" name="interest" value="book"><span>Libro</span>',
+        '<input type="checkbox" name="interest" value="book"><span>Libros</span>',
+    )
+    text = text.replace(
+        "Choose what you want to follow: the 3D world, book, field publications or textile editions.",
+        "Choose what you want to follow: the 3D world, books, field publications or textile editions.",
+    )
+    text = text.replace(
+        '<input type="checkbox" name="interest" value="book"><span>Book</span>',
+        '<input type="checkbox" name="interest" value="book"><span>Books</span>',
+    )
+
+    if 'id="oolita-follow-en"' in text:
+        expected = '<input type="checkbox" name="interest" value="book"><span>Books</span>'
+        if text.count(expected) != 1 or '<span>Book</span>' in text:
+            raise SystemExit(f"English Books interest label invariant failed in {path.relative_to(ROOT)}")
+    if 'id="oolita-follow-es"' in text:
+        expected = '<input type="checkbox" name="interest" value="book"><span>Libros</span>'
+        if text.count(expected) != 1 or '<span>Libro</span>' in text:
+            raise SystemExit(f"Spanish Libros interest label invariant failed in {path.relative_to(ROOT)}")
+
     path.write_text(text, encoding="utf-8")
 
 if success_ui_patches == 0:
     raise SystemExit("Double-opt-in success confirmation UI was not found in the rendered site")
 
-print("OOLITA Follow Cloudflare activation, double opt-in copy, mobile CTA and visible success confirmation validated successfully.")
+print("OOLITA Follow Cloudflare activation, double opt-in copy, plural Books/Libros interest, mobile CTA and visible success confirmation validated successfully.")
