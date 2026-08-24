@@ -105,5 +105,43 @@ print(
     f"{reviewed_headers} already 2027"
 )
 
+# Homepage — labyrinth name consistency. OOLITA is the name of the labyrinth;
+# what is absent on the ground is signage, not a name. Keep English and Spanish
+# aligned and remove every homepage sentence that incorrectly says otherwise.
+def replace_homepage_copy(rel_path, old, new):
+    page = root / rel_path
+    if not page.is_file():
+        raise SystemExit(f"Missing expected homepage: {rel_path}")
+    text = page.read_text(encoding="utf-8")
+    old_count = text.count(old)
+    new_count = text.count(new)
+    if old_count > 0:
+        page.write_text(text.replace(old, new), encoding="utf-8")
+        print(f"patched {rel_path}: {old_count} occurrence(s): {old!r} -> {new!r}")
+    elif new_count > 0:
+        print(f"already reviewed {rel_path}: {new_count} occurrence(s): {new!r}")
+    else:
+        raise SystemExit(
+            f"Unexpected labyrinth-name wording in {rel_path}: "
+            f"found neither {old!r} nor {new!r}"
+        )
+
+replace_homepage_copy(
+    "en/index.html",
+    "No sign, no name.",
+    "No sign marks it.",
+)
+replace_homepage_copy(
+    "en/index.html",
+    "There is no sign, no name, nothing marking it on the ground:",
+    "Nothing marks it on the ground:",
+)
+replace_homepage_copy(
+    "index.html",
+    "No lleva cartel, ni nombre, ni nada que lo señale sobre el terreno:",
+    "Nada lo señala sobre el terreno:",
+)
+
 # Production deployment trigger: 2026-08-24 14:15 Europe/London — global header year 2027.
 # Compatibility trigger: final OOLITA book-voice copy, 2026-08-24.
+# Production deployment trigger: labyrinth name consistency, 2026-08-24.
