@@ -20,6 +20,7 @@ on:
       - 'scripts/apply_release_calendar_v1.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
       - 'scripts/apply_follow_mobile_finish.py'
+      - 'scripts/normalize_audit_credit_sources_v1.py'
       - 'scripts/apply_audit_fixes_v1.py'
       - 'scripts/apply_desktop_sunday_panel_fix_v1.py'
       - 'scripts/apply_first_party_analytics_v1.py'
@@ -57,6 +58,7 @@ on:
       - 'scripts/apply_release_calendar_v1.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
       - 'scripts/apply_follow_mobile_finish.py'
+      - 'scripts/normalize_audit_credit_sources_v1.py'
       - 'scripts/apply_audit_fixes_v1.py'
       - 'scripts/apply_desktop_sunday_panel_fix_v1.py'
       - 'scripts/apply_first_party_analytics_v1.py'
@@ -129,6 +131,10 @@ jobs:
       - name: Apply and validate release calendar
         shell: bash
         run: python3 scripts/apply_release_calendar_v1.py site
+
+      - name: Normalize live attribution for legacy audit
+        shell: bash
+        run: python3 scripts/normalize_audit_credit_sources_v1.py site
 
       - name: Apply and validate accessibility, discovery and privacy audit fixes
         shell: bash
@@ -211,6 +217,10 @@ jobs:
       - name: Apply and validate release calendar
         shell: bash
         run: python3 scripts/apply_release_calendar_v1.py site
+
+      - name: Normalize live attribution for legacy audit
+        shell: bash
+        run: python3 scripts/normalize_audit_credit_sources_v1.py site
 
       - name: Apply and validate accessibility, discovery and privacy audit fixes
         shell: bash
