@@ -31,6 +31,14 @@ def replace_once(path, old, new, marker=None):
     p.write_text(s.replace(old, new, 1), encoding="utf-8")
     print(f"list completion patched {path}")
 
+# Work with OOLITA speaks in the collective project voice. The growth layer
+# regenerates this page, so enforce the approved heading after growth has run.
+replace_once(
+    "en/work-with-oolita/index.html",
+    "Tell me what you have in mind.",
+    "Tell us what you have in mind.",
+)
+
 # Product-specific field-publication CTA.
 replace_once("ediciones/index.html", "<span class=\"nom\">Avísame cuando avance</span>", "<span class=\"nom\">Avísame cuando empiecen las publicaciones de campo</span>")
 replace_once("en/editions/index.html", "<span class=\"nom\">Tell me when it develops</span>", "<span class=\"nom\">Tell me when field publications begin</span>")
@@ -104,6 +112,7 @@ required = {
     "en/editions/index.html": ["Tell me when field publications begin"],
     "ediciones/libro/index.html": ["destinos de envío"],
     "en/editions/book/index.html": ["shipping territories"],
+    "en/work-with-oolita/index.html": ["Tell us what you have in mind."],
 }
 for path, needles in required.items():
     _, s = read(path)
