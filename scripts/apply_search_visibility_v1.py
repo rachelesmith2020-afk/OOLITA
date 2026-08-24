@@ -169,3 +169,4 @@ run_layer("normalize_labyrinth_fossil_dunes_v1.py")
 # Deployment trigger: location-only fossil-dune validator fix, 2026-08-24.
 # Deployment trigger: rerun corrected location validator in production, 2026-08-24.
 # Deployment trigger: pre-normalize regenerated English homepage location claim, 2026-08-24.
+# Deployment trigger: deploy scoped San Felipe exception plus mobile Sunday row, 2026-08-24.
