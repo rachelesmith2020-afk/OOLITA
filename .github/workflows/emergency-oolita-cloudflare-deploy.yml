@@ -33,7 +33,9 @@ jobs:
 
       - name: Apply final OOLITA book-voice audit
         shell: bash
-        run: python3 scripts/apply_voice_audit_v1.py site
+        run: |
+          python3 scripts/apply_voice_audit_v1.py site
+          python3 scripts/apply_voice_audit_spanish_editions_v1.py site
 
       - name: Deploy directly to Cloudflare Pages production
         shell: bash
@@ -42,4 +44,4 @@ jobs:
             --project-name=oolita \
             --branch=main \
             --commit-hash="${GITHUB_SHA}" \
-            --commit-message="OOLITA book-voice audit: remove synthetic prose"
+            --commit-message="OOLITA book-voice audit: final Spanish Editions pass"
