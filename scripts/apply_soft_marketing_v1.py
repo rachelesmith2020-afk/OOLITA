@@ -55,6 +55,24 @@ def insert_before_contact(path: str, block: str, marker: str) -> None:
     target.write_text(text[:match.start()] + block + text[match.start():], encoding="utf-8")
 
 
+def replace_reminder(path: str, language: str) -> None:
+    """Replace the reminder paragraph while tolerating an inline mail link."""
+    target, text = read(path)
+    marker = "te avisaré cuando se abra" if language == "es" else "let you know when it opens"
+    if marker in text:
+        return
+    phrase = r"¿Te aviso cuando se abra la puerta\?" if language == "es" else r"Would you like me to let you know when the door opens\?"
+    pattern = rf'<p\b[^>]*class=["\'][^"\']*\bparr\b[^"\']*["\'][^>]*>(?=[\s\S]{{0,500}}{phrase})[\s\S]*?</p>'
+    if language == "es":
+        replacement = '<p class="parr">¿Quieres que te avise cuando se abra? <a href="mailto:oolita@tutamail.com?subject=OOLITA%20%C2%B7%20apertura%203D">Déjame tu correo</a> y te avisaré el 3 de enero.</p>'
+    else:
+        replacement = '<p class="parr">Would you like to know when it opens? <a href="mailto:oolita@tutamail.com?subject=OOLITA%20%C2%B7%203D%20opening">Leave your email</a> and I will let you know on 3 January.</p>'
+    new_text, count = re.subn(pattern, replacement, text, count=1, flags=re.I | re.S)
+    if count != 1:
+        raise SystemExit(f"Reminder paragraph not found in {path}")
+    target.write_text(new_text, encoding="utf-8")
+
+
 # Put the visitor's experience before the institutional classification.
 for path, definition in (
     ("index.html", '<p class="parr definicion">OOLITA es un proyecto editorial y de trabajo de campo arraigado en Los Escullos, Cabo de Gata.</p>'),
@@ -116,17 +134,8 @@ replace_all(
 replace_all("en/index.html", "The aim is not to bring more people to one point. It is to support slower visits, local knowledge and care for the living landscape.", "")
 
 # Replace the telephone-like reminder wording with the action actually offered.
-replace_all(
-    "laberinto/index.html",
-    "¿Te aviso cuando se abra la puerta? Escríbeme y te llamo de vuelta el 3 de enero.",
-    "Déjame tu correo y te avisaré cuando se abra, el 3 de enero.",
-)
-replace_all(
-    "en/labyrinth/index.html",
-    "Would you like me to let you know when the door opens? Write to me and I will call you back on 3 January.",
-    "Leave your email and I will let you know when it opens, on 3 January.",
-    required=False,
-)
+replace_reminder("laberinto/index.html", "es")
+replace_reminder("en/labyrinth/index.html", "en")
 
 # Turn the collaboration page into three specific, quiet routes.
 collab_es = '''<section class="tramo env" id="formas-de-colaborar" data-soft-marketing-collaboration>
@@ -191,7 +200,8 @@ patch_overdue_sundays("en/sundays/index.html", "en")
 required = {
     "index.html": ["Junto al mar, en Los Escullos", "Seguir el camino hasta el 3 de enero", "Notas ocasionales desde Los Escullos", "Sólo cuando haya algo que contar"],
     "en/index.html": ["Beside the sea at Los Escullos", "Follow the path to 3 January", "Occasional notes from Los Escullos", "Only when there is something to share"],
-    "laberinto/index.html": ["Déjame tu correo y te avisaré"],
+    "laberinto/index.html": ["te avisaré el 3 de enero"],
+    "en/labyrinth/index.html": ["I will let you know on 3 January"],
     "colaborar/index.html": ['id="formas-de-colaborar"', "Librerías y distribución", "Educación y cultura", "Materiales y oficios"],
     "en/work-with-oolita/index.html": ['id="ways-to-work"', "Bookshops and distribution", "Education and culture", "Materials and making"],
     "domingos/index.html": ["const isPast=tile.dataset.date<today;"],
