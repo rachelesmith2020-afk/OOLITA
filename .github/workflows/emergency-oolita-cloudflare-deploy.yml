@@ -45,3 +45,5 @@ jobs:
             --branch=main \
             --commit-hash="${GITHUB_SHA}" \
             --commit-message="OOLITA book-voice audit: final Spanish Editions pass"
+
+# Redeploy after wording validator compatibility update, 2026-08-24.
