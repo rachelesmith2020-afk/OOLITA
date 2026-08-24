@@ -56,6 +56,20 @@ def insert_before_contact(path: str, block: str, marker: str) -> None:
     target.write_text(text[:match.start()] + block + text[match.start():], encoding="utf-8")
 
 
+def remove_paragraph_containing(path: str, phrase: str) -> None:
+    target, text = read(path)
+    matches = list(re.finditer(r"<p\b[^>]*>[\s\S]*?</p>", text, flags=re.I))
+    ranges: list[tuple[int, int]] = []
+    for match in matches:
+        visible = unescape(re.sub(r"<[^>]+>", " ", match.group(0)))
+        visible = re.sub(r"\s+", " ", visible).strip()
+        if phrase in visible:
+            ranges.append((match.start(), match.end()))
+    for start, end in reversed(ranges):
+        text = text[:start] + text[end:]
+    target.write_text(text, encoding="utf-8")
+
+
 def replace_reminder(path: str, language: str) -> None:
     """Replace the reminder paragraph while tolerating an inline mail link."""
     target, text = read(path)
@@ -89,6 +103,8 @@ for path, definition in (
     ("en/index.html", '<p class="parr definicion">OOLITA is a place-based publishing and fieldwork project rooted in Los Escullos, Cabo de Gata.</p>'),
 ):
     replace_all(path, definition, "", required=False)
+remove_paragraph_containing("index.html", "proyecto editorial y de trabajo de campo arraigado")
+remove_paragraph_containing("en/index.html", "place-based publishing and fieldwork project rooted")
 
 replace_all(
     "index.html",
