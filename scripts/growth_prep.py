@@ -17,6 +17,40 @@ for rel in ('404.html','404/index.html'):
   p.write_text(home,encoding='utf-8')
   print('growth prep restored homepage-shell 404',rel)
 
+# The final Editions pass explains Hallazgo access through the first-party 3D
+# San Felipe replica and points the catalogue link at OOLITA. The legacy release
+# calendar still validates the former keyed-castle sentence and Canva href, so
+# bridge only those exact final forms back to its intermediate source. The final
+# search pass restores the approved first-party copy and href after validation.
+hallazgo_access_bridges = {
+ 'en/editions/index.html': (
+  'On the 3D site, the full catalogue of works is housed inside the castle — a digital replica of the 1771 Batería de San Felipe, standing on the fossil dune not far from the labyrinth at Los Escullos. The catalogue is secured by a keypad, and subscribers will receive the code in the launch newsletter.',
+  'The full catalogue remains inside the castle, with a key.',
+  '/en/hallazgo-catalogue/',
+ ),
+ 'ediciones/index.html': (
+  'En el sitio 3D, el catálogo completo de obras se encuentra dentro del castillo — una réplica digital de la Batería de San Felipe de 1771, situada sobre la duna fósil no lejos del laberinto de Los Escullos. El catálogo está protegido por un teclado numérico, y los suscriptores recibirán el código en el boletín de lanzamiento.',
+  'El catálogo completo permanece dentro del castillo, con clave.',
+  '/catalogo-hallazgo/',
+ ),
+}
+legacy_hallazgo_href='https://hallazgo.my.canva.site/hallazgo/catlogo'
+for path,(final_copy,intermediate_copy,final_href) in hallazgo_access_bridges.items():
+ p=ROOT/path
+ if not p.is_file():
+  continue
+ s=p.read_text(encoding='utf-8')
+ changed=False
+ if final_copy in s:
+  s=s.replace(final_copy,intermediate_copy,1)
+  changed=True
+ if f'href="{final_href}"' in s:
+  s=s.replace(f'href="{final_href}"',f'href="{legacy_hallazgo_href}"',1)
+  changed=True
+ if changed:
+  p.write_text(s,encoding='utf-8')
+  print('growth prep bridged final Hallazgo access copy for',path)
+
 # The final book-voice pass deliberately supersedes older growth copy. The
 # growth and soft-marketing layers still validate their historical intermediate
 # wording, so normalize only these approved final blocks before those validators.
