@@ -78,6 +78,23 @@ run_layer("apply_menu_hierarchy_v1.py")
 # contains its final reader-facing marketing layer, and later editorial passes
 # have legitimately superseded several of the transformer's source strings.
 run_layer("normalize_soft_marketing_sources_v1.py")
+
+# Growth validation temporarily restores an institutional definition paragraph
+# that the final live homepage intentionally omits. This single cleanup is the
+# only still-relevant effect of the retired soft-marketing layer; remove it
+# directly without re-running that layer over newer editorial copy.
+for rel, definition in (
+    ("index.html", '<p class="parr definicion">OOLITA es un proyecto editorial y de trabajo de campo arraigado en Los Escullos, Cabo de Gata.</p>'),
+    ("en/index.html", '<p class="parr definicion">OOLITA is a place-based publishing and fieldwork project rooted in Los Escullos, Cabo de Gata.</p>'),
+):
+    page = ROOT / rel
+    if not page.is_file():
+        raise SystemExit(f"Missing homepage while removing legacy definition: {rel}")
+    text = page.read_text(encoding="utf-8")
+    if definition in text:
+        page.write_text(text.replace(definition, ""), encoding="utf-8")
+        print(f"removed legacy taxonomy-first definition from {rel}")
+
 print("OOLITA final soft-marketing state preserved; legacy transformer skipped.")
 run_layer("publish_sunday03_and_3d_preview_v1.py")
 run_layer("apply_engagement_depth_v1.py")
