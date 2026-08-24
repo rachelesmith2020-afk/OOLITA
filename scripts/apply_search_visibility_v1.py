@@ -152,3 +152,4 @@ run_layer("normalize_labyrinth_fossil_dunes_v1.py")
 # Deployment trigger: Hallazgo hardback Editions sequence, 2026-08-24.
 # Deployment trigger: San Felipe fossil-dune exception + loose-stones wording, 2026-08-24.
 # Deployment trigger: location-only fossil-dune validator fix, 2026-08-24.
+# Deployment trigger: rerun corrected location validator in production, 2026-08-24.
