@@ -128,6 +128,10 @@ grep -Fq '48-page bilingual fable' site/en/posters/index.html
 # obsolete desktop/laptop PIEDRA or STONE rule from surviving future deploys.
 python3 scripts/apply_visual_spacing_cleanup_v1.py site
 
+# The Sunday art field lives inside the hero's narrow right column. Prevent the
+# general viewport-width art-field rule from covering the desktop hero copy.
+python3 scripts/apply_desktop_sunday_panel_fix_v1.py site
+
 # Re-apply the final WCAG contrast layer on every reconstruction. This prevents
 # older opacity-based secondary-text styling from returning via the live mirror.
 python3 scripts/apply_contrast_accessibility_v1.py site
