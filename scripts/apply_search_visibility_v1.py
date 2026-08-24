@@ -152,6 +152,11 @@ en_home.write_text(en_home_text, encoding="utf-8")
 # The same pass uses "loose stones", refreshes changed sitemap routes and rejects
 # factual/wording stragglers plus broken internal hrefs.
 run_layer("normalize_labyrinth_fossil_dunes_v1.py")
+# Final Hallazgo access copy runs after the geological normalizer because this
+# sentence describes the approved 3D castle replica standing on the fossil dune.
+# It changes no hrefs, validates both Editions SEO alternates/canonicals, removes
+# the former keyed-castle wording and refreshes both sitemap routes.
+run_layer("normalize_hallazgo_3d_castle_access_v1.py")
 
 # Deployment trigger: mobile stone field grid specificity fix, 2026-08-23.
 # Deployment trigger: final OOLITA book-voice audit, 2026-08-24.
@@ -169,4 +174,4 @@ run_layer("normalize_labyrinth_fossil_dunes_v1.py")
 # Deployment trigger: location-only fossil-dune validator fix, 2026-08-24.
 # Deployment trigger: rerun corrected location validator in production, 2026-08-24.
 # Deployment trigger: pre-normalize regenerated English homepage location claim, 2026-08-24.
-# Deployment trigger: deploy scoped San Felipe exception plus mobile Sunday row, 2026-08-24.
+# Deployment trigger: Hallazgo 3D-castle keypad explanation, 2026-08-24.
