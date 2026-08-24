@@ -80,6 +80,8 @@ run_layer("normalize_soft_marketing_sources_v1.py")
 run_layer("apply_soft_marketing_v1.py")
 run_layer("publish_sunday03_and_3d_preview_v1.py")
 run_layer("apply_engagement_depth_v1.py")
+# Keep the external research trail attached to the About material section.
+run_layer("apply_arena_archive_link_v1.py")
 # Public provenance/practice credential: keep it on About and Labyrinth only,
 # with a live external link to the Veriditas facilitator directory.
 run_layer("apply_veriditas_facilitator_v1.py")
@@ -109,3 +111,4 @@ run_layer("apply_reader_paths_v1.py")
 # Deployment trigger: final Spanish Editions voice pass, 2026-08-24.
 # Deployment trigger: attribution consistency, 2026-08-24.
 # Deployment trigger: direct reader paths including the labyrinth, 2026-08-24.
+# Deployment trigger: Are.na process archive link, 2026-08-24.
