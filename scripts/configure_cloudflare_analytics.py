@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -17,6 +18,15 @@ ACCOUNT_ID = os.environ.get("CLOUDFLARE_ACCOUNT_ID", "").strip()
 TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
 PROJECT = "oolita"
 BINDING = "OOLITA_ANALYTICS"
+
+# Search visibility and engagement layers run after the initial site build and
+# can reintroduce the rich Sunday archive rows. Re-run the idempotent mobile
+# repair here, immediately before Cloudflare deployment, so Sundays 01–03 are
+# the final compact image tiles that ship to production.
+mobile_repair = Path(__file__).with_name("apply_mobile_layout_repairs_v1.py")
+if not mobile_repair.is_file():
+    raise SystemExit(f"Missing final mobile Sunday repair: {mobile_repair}")
+subprocess.run(["python3", str(mobile_repair), "site"], check=True)
 
 if not ACCOUNT_ID or not TOKEN:
     raise SystemExit("Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN")
