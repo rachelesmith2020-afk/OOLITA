@@ -61,8 +61,11 @@ def replace_reminder(path: str, language: str) -> None:
     marker = "te avisaré cuando se abra" if language == "es" else "let you know when it opens"
     if marker in text:
         return
-    phrase = r"¿Te aviso cuando se abra la puerta\?" if language == "es" else r"Would you like me to let you know when the door opens\?"
-    pattern = rf'<p\b[^>]*class=["\'][^"\']*\bparr\b[^"\']*["\'][^>]*>(?=[\s\S]{{0,500}}{phrase})[\s\S]*?</p>'
+    # The live origin may place an inline mail link inside this sentence and
+    # its paragraph class has changed across earlier design layers. Match the
+    # distinctive obsolete promise, but never cross a paragraph boundary.
+    phrase = r"llamo de vuelta" if language == "es" else r"call you back"
+    pattern = rf'<p\b[^>]*>(?:(?!</p>)[\s\S])*?{phrase}(?:(?!</p>)[\s\S])*?</p>'
     if language == "es":
         replacement = '<p class="parr">¿Quieres que te avise cuando se abra? <a href="mailto:oolita@tutamail.com?subject=OOLITA%20%C2%B7%20apertura%203D">Déjame tu correo</a> y te avisaré el 3 de enero.</p>'
     else:
