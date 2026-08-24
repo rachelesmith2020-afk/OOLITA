@@ -65,24 +65,19 @@ for env_name in ("production", "preview"):
 
 print("OOLITA deployment is no longer blocked by Analytics Engine.")
 
-# Final deployment content invariant. Earlier rendering layers may reconstruct
-# the homepage after the general wording pass, so enforce the approved wording
-# verbatim immediately before Wrangler publishes the finished `site` directory.
+# Final deployment content invariant. The final reader-facing layer replaces the
+# older material-description sentence with the approved experience-first opening.
+# Keep the provenance safeguard, but validate the copy that is actually meant to
+# ship rather than requiring an obsolete phrase.
 homepage = Path("site/en/index.html")
 if not homepage.is_file():
     raise SystemExit("Missing final English homepage: site/en/index.html")
-html = homepage.read_text(encoding="utf-8")
-for old in (
-    "laid by hand in 2021 from loose calcarenite",
-    "laid by hand in 2021 from stone",
-    "laid by hand from loose calcarenite",
-    "laid by hand from stone",
-):
-    html = html.replace(old, "built from stone")
-homepage.write_text(html, encoding="utf-8")
 final = homepage.read_text(encoding="utf-8")
 if "loose calcarenite" in final:
     raise SystemExit("Final homepage still contains disallowed wording: loose calcarenite")
-if "built from stone" not in final:
-    raise SystemExit("Final homepage does not contain approved wording: built from stone")
-print("Final English homepage wording verified exactly: built from stone.")
+approved = "Beside the sea at Los Escullos lies a three-metre stone labyrinth."
+if approved not in final:
+    raise SystemExit(f"Final homepage does not contain approved opening: {approved}")
+if "place-based publishing and fieldwork project rooted" in final:
+    raise SystemExit("Final homepage still contains the obsolete taxonomy-first opening")
+print("Final English homepage engagement opening verified exactly.")
