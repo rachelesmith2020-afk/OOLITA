@@ -171,6 +171,13 @@ replace_homepage_copy(
     "El camino, domingo a domingo.",
 )
 
+# Work with OOLITA — English: use the collective project voice.
+replace_homepage_copy(
+    "en/work-with-oolita/index.html",
+    "Tell me what you have in mind.",
+    "Tell us what you have in mind.",
+)
+
 # SEO consistency: if the old geological wording is present anywhere in the
 # English homepage <head> (description, Open Graph, Twitter or JSON-LD), keep
 # the metadata aligned with the approved visible copy without rewriting any
@@ -198,3 +205,4 @@ else:
 # Production deployment trigger: homepage land wording + SEO consistency, 2026-08-24.
 # Production deployment trigger: Cabo de Gata live-and-work wording, 2026-08-24.
 # Production deployment trigger: 22 Sundays homepage heading, 2026-08-24.
+# Production deployment trigger: Work with OOLITA collective voice, 2026-08-24.
