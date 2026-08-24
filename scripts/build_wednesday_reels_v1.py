@@ -133,7 +133,7 @@ def build_index(data: dict, outdir: Path) -> None:
         '<nav class="archive-links" aria-label="Archivos relacionados"><a href="/carteles/">Los nueve carteles</a><a href="/domingos/">22 domingos</a></nav>'
         '<section class="reels" aria-label="Nueve reels">'
         + "".join(cards)
-        + '</section></main><footer class="site-foot"><span>OOLITA reúne la obra y la escritura de Raquel Costantini con la labor editorial de Vestini Tribe.</span><a href="/privacidad/">Privacidad</a></footer></body></html>'
+        + '</section></main><footer class="site-foot"><span>OOLITA · Raquel Costantini, artista y autora · Vestini Tribe, editorial</span><a href="/privacidad/">Privacidad</a></footer></body></html>'
     )
     (outdir / "index.html").write_text(page, encoding="utf-8")
 
