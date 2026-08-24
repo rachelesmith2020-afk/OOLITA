@@ -26,6 +26,10 @@ on:
       - 'scripts/apply_contrast_accessibility_v1.py'
       - 'scripts/apply_first_party_analytics_v1.py'
       - 'scripts/apply_search_visibility_v1.py'
+      - 'scripts/normalize_labyrinth_fossil_dunes_v1.py'
+      - 'scripts/preclean_hallazgo_legacy_urls_v1.py'
+      - 'scripts/normalize_hallazgo_3d_castle_access_v1.py'
+      - 'scripts/normalize_editions_hallazgo_hardback_v1.py'
       - 'scripts/apply_attribution_consistency_v2.py'
       - 'scripts/apply_seo_followup_v1.py'
       - 'scripts/publish_sunday03_and_3d_preview_v1.py'
@@ -66,6 +70,10 @@ on:
       - 'scripts/apply_contrast_accessibility_v1.py'
       - 'scripts/apply_first_party_analytics_v1.py'
       - 'scripts/apply_search_visibility_v1.py'
+      - 'scripts/normalize_labyrinth_fossil_dunes_v1.py'
+      - 'scripts/preclean_hallazgo_legacy_urls_v1.py'
+      - 'scripts/normalize_hallazgo_3d_castle_access_v1.py'
+      - 'scripts/normalize_editions_hallazgo_hardback_v1.py'
       - 'scripts/apply_attribution_consistency_v2.py'
       - 'scripts/apply_seo_followup_v1.py'
       - 'scripts/publish_sunday03_and_3d_preview_v1.py'
@@ -91,9 +99,12 @@ on:
 permissions:
   contents: read
 
+# Keep only the newest run for a branch/ref. Rapid source edits used to queue a
+# separate production attempt for every commit, creating a burst of obsolete
+# failure emails. The newest commit is the only production state that matters.
 concurrency:
   group: oolita-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   validate:
