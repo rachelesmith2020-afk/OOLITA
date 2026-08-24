@@ -58,4 +58,25 @@ else:
         f"Unexpected homepage material wording: found neither {old!r} nor {new!r}"
     )
 
-# Propagation trigger: 2026-08-23 13:00 Europe/London.
+# Homepage header — show only the launch year. The same HTML serves mobile and
+# desktop, so this applies to both layouts in Spanish and English.
+for rel in ("index.html", "en/index.html"):
+    page = Path(ROOT_ARG) / rel
+    if not page.is_file():
+        raise SystemExit(f"Missing expected homepage: {rel}")
+    text = page.read_text(encoding="utf-8")
+    changed = False
+    for old_year in ("· 2026–2027", "· 2026—2027", "· 2026-2027"):
+        if old_year in text:
+            text = text.replace(old_year, "· 2027", 1)
+            changed = True
+            break
+    if changed:
+        page.write_text(text, encoding="utf-8")
+        print(f"patched {rel}: homepage header year -> 2027")
+    elif "· 2027" in text:
+        print(f"already reviewed {rel}: homepage header year is 2027")
+    else:
+        raise SystemExit(f"Unexpected homepage header year state in {rel}")
+
+# Propagation trigger: 2026-08-24 14:00 Europe/London — homepage header year 2027.
