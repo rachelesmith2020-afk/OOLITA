@@ -71,6 +71,10 @@ run_layer("apply_book_excerpt_v1.py")
 run_layer("apply_sunday_archive_v1.py")
 run_layer("apply_seo_followup_v1.py")
 run_layer("apply_menu_hierarchy_v1.py")
+# The reconstructed live homepage may carry inline links inside otherwise
+# unchanged source paragraphs. Normalize those visible-text-equivalent sources
+# before the legacy literal-string soft-marketing transformer runs.
+run_layer("normalize_soft_marketing_sources_v1.py")
 # Final content pass: strengthen invitation and conversion while preserving the
 # restrained artistic voice established by the reader-assessment layers.
 run_layer("apply_soft_marketing_v1.py")
@@ -94,7 +98,11 @@ run_layer("apply_contrast_accessibility_v1.py")
 # generic AI/marketing diction after every other content layer has finished.
 run_layer("apply_voice_audit_v1.py")
 run_layer("apply_voice_audit_spanish_editions_v1.py")
+# Final credit safeguard: distinguish artistic authorship, book publishing and
+# the collaborative website/Three.js build after every other content layer.
+run_layer("apply_attribution_consistency_v2.py")
 
 # Deployment trigger: mobile stone field grid specificity fix, 2026-08-23.
 # Deployment trigger: final OOLITA book-voice audit, 2026-08-24.
 # Deployment trigger: final Spanish Editions voice pass, 2026-08-24.
+# Deployment trigger: attribution consistency, 2026-08-24.
