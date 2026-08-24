@@ -17,7 +17,11 @@ replacement = r"""def r(path, old, new, expected=1):
     old_count = text.count(old)
     new_count = text.count(new)
     superseding = None
-    if old.startswith("¿Te aviso cuando se abra la puerta?"):
+    if old == "Caminar un laberinto sin ir hasta él.":
+        superseding = "El camino, domingo a domingo."
+    elif old == "Walk a labyrinth without going there.":
+        superseding = "The path, one Sunday at a time."
+    elif old.startswith("¿Te aviso cuando se abra la puerta?"):
         superseding = '<a href="/#seguir-oolita">Sigue OOLITA</a> para recibir un aviso cuando se abra el mundo.'
     elif old.startswith("Want to be told when the door opens?"):
         superseding = '<a href="/en/#follow-oolita">Follow OOLITA</a> to be notified when the world opens.'
