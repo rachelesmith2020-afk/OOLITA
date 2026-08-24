@@ -131,7 +131,10 @@ def publish_tile(path: str, href: str, label: str) -> None:
     tile = match.group(0)
     tile = re.sub(r'class="[^"]*"', 'class="sunday-tile is-published"', tile, count=1)
     tile = re.sub(r'\saria-disabled="true"', "", tile)
-    tile = re.sub(r'aria-label="[^"]*"', f'aria-label="{label}"', tile)
+    if " aria-label=" in tile:
+        tile = re.sub(r'aria-label="[^"]*"', f'aria-label="{label}"', tile)
+    else:
+        tile = tile.replace("<a ", f'<a aria-label="{label}" ', 1)
     if " href=" not in tile:
         tile = tile.replace(" data-sunday-tile", f' href="{href}" data-sunday-tile', 1)
     tile = re.sub(r'(<span class="sunday-tile-state" data-sunday-state>)[^<]*(</span>)', r'\1abierto\2' if path.startswith("domingos/") else r'\1open\2', tile)
