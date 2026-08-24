@@ -138,3 +138,4 @@ run_layer("finalize_reels_retirement_v1.py")
 # Deployment trigger: preserve final homepage copy across mirror rebuilds, 2026-08-24.
 # Deployment trigger: final no-straggler Reels retirement gate, 2026-08-24.
 # Deployment trigger: three-page SEO/content polish, 2026-08-24.
+# Deployment trigger: actual hreflang link validator fix, 2026-08-24.

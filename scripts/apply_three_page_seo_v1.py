@@ -170,8 +170,18 @@ for rel, spec in PAGES.items():
         raise SystemExit(f"Final title missing in {rel}")
     if spec["description"] not in text and escape(spec["description"], quote=True) not in text:
         raise SystemExit(f"Final description missing in {rel}")
-    if text.count('hreflang="es"') != 1 or text.count('hreflang="en"') != 1 or text.count('hreflang="x-default"') != 1:
-        raise SystemExit(f"Hreflang count wrong in {rel}")
+    alternate_tags = re.findall(
+        r'<link\b(?=[^>]*\brel=["\']alternate["\'])[^>]*>',
+        text,
+        flags=re.I,
+    )
+    hreflangs = []
+    for tag in alternate_tags:
+        match = re.search(r'\bhreflang=["\']([^"\']+)["\']', tag, flags=re.I)
+        if match:
+            hreflangs.append(match.group(1).lower())
+    if hreflangs.count("es") != 1 or hreflangs.count("en") != 1 or hreflangs.count("x-default") != 1 or len(hreflangs) != 3:
+        raise SystemExit(f"Hreflang link count wrong in {rel}: {hreflangs}")
 
 _, about = read(ABOUT_REL)
 if about.count('data-seo-place="about"') != 1:
