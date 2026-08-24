@@ -21,6 +21,14 @@ replacement = r'''def r(path, old, new, expected=1):
         superseding = '<a href="/#seguir-oolita">Sigue OOLITA</a> para recibir un aviso cuando se abra el mundo.'
     elif old.startswith("Want to be told when the door opens?"):
         superseding = '<a href="/en/#follow-oolita">Follow OOLITA</a> to be notified when the world opens.'
+    elif old.startswith("Está hecho para quien no puede llegar hasta Almería"):
+        superseding = "No todo el mundo puede llegar a Almería. A veces es la distancia. A veces el dinero. A veces el cuerpo."
+    elif old.startswith("It exists for anyone who cannot get to Almería"):
+        superseding = "Not everyone can get to Almería. Sometimes it is distance. Sometimes money. Sometimes the body."
+    elif old == "Los tres dicen lo mismo de tres maneras.":
+        superseding = "Piedra. Papel. Código. Tres materiales, un camino."
+    elif old == "The three say the same thing three ways.":
+        superseding = "Stone. Paper. Code. Three materials, one path."
     if old_count > 0:
         text = text.replace(old, new)
         p.write_text(text, encoding="utf-8")
@@ -42,7 +50,7 @@ exec(compile(patched_source, str(HERE / "apply_wording.py"), "exec"))
 # Homepage — English: keep the material description deliberately plain.
 homepage = Path(ROOT_ARG) / "en/index.html"
 if not homepage.is_file():
-    raise SystemExit("Missing expected page: en/index.html")
+    raise SystemExit("Missing expected homepage: en/index.html")
 text = homepage.read_text(encoding="utf-8")
 old = "from loose calcarenite"
 new = "from stone"
@@ -98,3 +106,4 @@ print(
 )
 
 # Production deployment trigger: 2026-08-24 14:15 Europe/London — global header year 2027.
+# Compatibility trigger: final OOLITA book-voice copy, 2026-08-24.
