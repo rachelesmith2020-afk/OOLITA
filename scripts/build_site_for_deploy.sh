@@ -120,8 +120,8 @@ for i in $(seq 1 9); do
   done
 done
 
-grep -Fq 'El mismo camino, hecho de luz.' site/index.html
-grep -Fq 'The same path, made of light.' site/en/index.html
+grep -Fq 'El camino, domingo a domingo.' site/index.html
+grep -Fq 'The path, one Sunday at a time.' site/en/index.html
 grep -Fq 'La misma senda en tres materiales.' site/index.html
 grep -Fq 'The same path in three materials.' site/en/index.html
 grep -Fq '48-page bilingual fable' site/en/posters/index.html
