@@ -157,10 +157,10 @@ def add_world_preview(path: str, language: str) -> None:
 <img src="/img/oolita-browser-world-preview.jpg" alt="The Hallazgo gallery on the dune at golden hour, the figure and the cat on the track before it, Morrón de Mateo and Cerro de la Viña named — modelled on Los Escullos, Cabo de Gata." width="1080" height="1350" loading="lazy" decoding="async">
 <figcaption>The third material: Los Escullos raised in the browser. One still; the full path opens on 3 January.</figcaption>
 </figure>"""
-    marker = '<section id="cabo-de-gata"' if language == "es" else '<section id="cabo-de-gata"'
-    pos = text.find(marker)
-    if pos < 0:
+    anchor = re.search(r'<section\b[^>]*\bid="cabo-de-gata"[^>]*>', text)
+    if not anchor:
         raise SystemExit(f"Homepage insertion point missing: {path}")
+    pos = anchor.start()
     text = text[:pos] + block + text[pos:]
     target.write_text(text, encoding="utf-8")
 
