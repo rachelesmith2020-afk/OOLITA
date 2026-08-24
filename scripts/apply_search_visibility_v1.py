@@ -162,6 +162,97 @@ run_layer("preclean_hallazgo_legacy_urls_v1.py")
 # former keyed-castle wording and refreshes the relevant sitemap routes.
 run_layer("normalize_hallazgo_3d_castle_access_v1.py")
 
+# Absolute post-transform SEO/copy gate. The geological normalizer can lengthen
+# the Spanish labyrinth description by replacing the former singular dune claim;
+# keep the final description concise and factual after every reader-facing pass.
+LABERINTO_DESCRIPTION = (
+    "Laberinto OOLITA en Los Escullos, Cabo de Gata: un camino de piedras sueltas "
+    "en terreno junto a las dunas fósiles, sin entrada ni reserva."
+)
+laberinto = ROOT / "laberinto/index.html"
+if not laberinto.is_file():
+    raise SystemExit("Missing Spanish labyrinth page at final SEO gate")
+lab_text = laberinto.read_text(encoding="utf-8")
+
+
+def replace_meta_content(html: str, *, attr: str, value: str, content: str) -> str:
+    tag_pattern = re.compile(r'<meta\b[^>]*>', re.I)
+    matched = 0
+
+    def patch(match: re.Match[str]) -> str:
+        nonlocal matched
+        tag = match.group(0)
+        if not re.search(rf'\b{re.escape(attr)}=["\']{re.escape(value)}["\']', tag, flags=re.I):
+            return tag
+        matched += 1
+        if not re.search(r'\bcontent=["\'][^"\']*["\']', tag, flags=re.I):
+            raise SystemExit(f"Meta {attr}={value} has no content attribute")
+        return re.sub(
+            r'\bcontent=(["\'])[^"\']*\1',
+            lambda content_match: f'content={content_match.group(1)}{content}{content_match.group(1)}',
+            tag,
+            count=1,
+            flags=re.I,
+        )
+
+    result = tag_pattern.sub(patch, html)
+    if matched != 1:
+        raise SystemExit(f"Expected exactly one meta {attr}={value}; found {matched}")
+    return result
+
+
+lab_text = replace_meta_content(
+    lab_text, attr="name", value="description", content=LABERINTO_DESCRIPTION
+)
+lab_text = replace_meta_content(
+    lab_text, attr="property", value="og:description", content=LABERINTO_DESCRIPTION
+)
+lab_text = replace_meta_content(
+    lab_text, attr="name", value="twitter:description", content=LABERINTO_DESCRIPTION
+)
+laberinto.write_text(lab_text, encoding="utf-8")
+if len(LABERINTO_DESCRIPTION) > 160:
+    raise SystemExit("Final Spanish labyrinth meta description exceeds 160 characters")
+
+# Final user-approved Cabo opening must survive every subsequent editorial and
+# factual pass. This is intentionally checked at the very end of the content
+# pipeline, after voice normalization and fossil-dune corrections.
+CABO_FINAL = {
+    "cabo-de-gata/index.html": (
+        "OOLITA empieza con un solo laberinto en Los Escullos. Desde ese camino mira Cabo de Gata: "
+        "la piedra, el viento, el agua, las aves, la flora y la gente que vive y trabaja aquí."
+    ),
+    "en/cabo-de-gata/index.html": (
+        "OOLITA begins with one labyrinth at Los Escullos. From that path it looks at Cabo de Gata: "
+        "stone, wind, water, birds, flora and the people who live and work here."
+    ),
+}
+CABO_OLD = {
+    "cabo-de-gata/index.html": (
+        "la piedra, el viento, el agua, las aves, los materiales y la gente que trabaja aquí.",
+        "a través del arte, la observación, los materiales y ediciones hechas con cuidado.",
+    ),
+    "en/cabo-de-gata/index.html": (
+        "stone, wind, water, birds, materials and the people who work here.",
+        "through art, observation, materials and carefully made editions.",
+    ),
+}
+for rel, final_copy in CABO_FINAL.items():
+    cabo_page = ROOT / rel
+    if not cabo_page.is_file():
+        raise SystemExit(f"Missing Cabo de Gata page at final gate: {rel}")
+    cabo_text = cabo_page.read_text(encoding="utf-8")
+    if cabo_text.count(final_copy) != 1:
+        raise SystemExit(f"Approved Cabo de Gata opening missing or duplicated after final transforms: {rel}")
+    for stale in CABO_OLD[rel]:
+        if stale in cabo_text:
+            raise SystemExit(f"Superseded Cabo de Gata wording survived final transforms: {rel}")
+
+print(
+    "Final SEO/copy gate passed: labyrinth description <=160; Cabo flora + "
+    "live-and-work wording survived all transforms with no opening-copy stragglers."
+)
+
 # Deployment trigger: mobile stone field grid specificity fix, 2026-08-23.
 # Deployment trigger: final OOLITA book-voice audit, 2026-08-24.
 # Deployment trigger: final Spanish Editions voice pass, 2026-08-24.
