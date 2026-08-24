@@ -30,8 +30,10 @@ def write(path, text):
 def replace_once(path, old, new, already=None):
     p, s = read(path)
     marker = already or new
-    if marker and marker in s:
-        print(f"growth already present {path}: {marker[:70]!r}")
+    markers = marker if isinstance(marker, (tuple, list)) else (marker,)
+    matched = next((item for item in markers if item and item in s), None)
+    if matched:
+        print(f"growth already present {path}: {matched[:70]!r}")
         return
     if old not in s:
         raise SystemExit(f"Growth source text missing in {path}: {old[:120]!r}")
@@ -88,13 +90,19 @@ replace_once(
     "index.html",
     'Vendrán cuadernos para recorrer el territorio en familia, ensayos con color natural y trabajo con artesanos locales en torno a saberes materiales como la fibra de pita.',
     'Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia, ensayos con color natural y posibles colaboraciones con artesanos locales en torno a saberes materiales como la fibra de pita.',
-    'Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia',
+    (
+        'Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia',
+        'Alrededor de ese camino desarrolla publicaciones de campo, ediciones textiles y colaboraciones arraigadas en Cabo de Gata.',
+    ),
 )
 replace_once(
     "en/index.html",
     'Next will come field books for family visits, experiments with natural colour, and work with local makers around material traditions such as pita fibre.',
     'Directions in development include field books for family visits, experiments with natural colour, and possible collaborations with local makers around material traditions such as pita fibre.',
-    'Directions in development include field books for family visits',
+    (
+        'Directions in development include field books for family visits',
+        'Around that path it is developing field publications, textile editions and collaborations rooted in Cabo de Gata.',
+    ),
 )
 replace_once(
     "ediciones/camiseta/index.html",
@@ -259,9 +267,10 @@ for path, contact_marker, addition, marker in [
 
     old_contact = contact_marker + '<span class="n">12</span>'
     new_contact = contact_marker + '<span class="n">14</span>'
+    plain_contact_14 = '<a class="fila" href="mailto:oolita@tutamail.com"><span class="n">14</span>'
     if old_contact in s:
         p.write_text(s.replace(old_contact, new_contact, 1), encoding="utf-8")
-    elif new_contact not in s:
+    elif new_contact not in s and plain_contact_14 not in s:
         raise SystemExit(f"Could not assign contact number 14 in {path}")
 
 # About and collaboration now occupy rows 12 and 13, so Contact is row 14.
