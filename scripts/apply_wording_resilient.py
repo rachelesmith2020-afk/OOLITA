@@ -159,6 +159,18 @@ replace_homepage_copy(
     "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
 )
 
+# 22 Sundays homepage heading: keep it concrete and tied to the weekly series.
+replace_homepage_copy(
+    "en/index.html",
+    "The same path, made of light.",
+    "The path, one Sunday at a time.",
+)
+replace_homepage_copy(
+    "index.html",
+    "El mismo camino, hecho de luz.",
+    "El camino, domingo a domingo.",
+)
+
 # SEO consistency: if the old geological wording is present anywhere in the
 # English homepage <head> (description, Open Graph, Twitter or JSON-LD), keep
 # the metadata aligned with the approved visible copy without rewriting any
@@ -185,3 +197,4 @@ else:
 # Production deployment trigger: labyrinth name consistency, 2026-08-24.
 # Production deployment trigger: homepage land wording + SEO consistency, 2026-08-24.
 # Production deployment trigger: Cabo de Gata live-and-work wording, 2026-08-24.
+# Production deployment trigger: 22 Sundays homepage heading, 2026-08-24.
