@@ -148,6 +148,14 @@ replace_homepage_copy(
     "OOLITA begins with a three-metre classical labyrinth, laid by hand from stone at Los Escullos, on land that was seabed a hundred thousand years ago.",
 )
 
+# Final approved English Cabo de Gata homepage wording: include the people who
+# live as well as work there, and use the agreed land-care phrasing.
+replace_homepage_copy(
+    "en/index.html",
+    "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from people who work here and leave the place as it was.",
+    "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
+)
+
 # SEO consistency: if the old geological wording is present anywhere in the
 # English homepage <head> (description, Open Graph, Twitter or JSON-LD), keep
 # the metadata aligned with the approved visible copy without rewriting any
@@ -173,3 +181,4 @@ else:
 # Compatibility trigger: final OOLITA book-voice copy, 2026-08-24.
 # Production deployment trigger: labyrinth name consistency, 2026-08-24.
 # Production deployment trigger: homepage land wording + SEO consistency, 2026-08-24.
+# Production deployment trigger: Cabo de Gata live-and-work wording, 2026-08-24.
