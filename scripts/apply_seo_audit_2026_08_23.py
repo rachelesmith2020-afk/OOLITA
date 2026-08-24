@@ -235,10 +235,11 @@ def _remove_spa_catchall() -> None:
 def _merge_headers() -> None:
     path = ROOT / "_headers"
     current = path.read_text(encoding="utf-8") if path.is_file() else ""
-    marker = "# OOLITA SEO audit 2026-08-23"
-    if marker in current:
-        return
-    addition = f'''\n{marker}
+
+    audit_marker = "# OOLITA SEO audit 2026-08-23"
+    if audit_marker not in current:
+        current = current.rstrip() + f"""
+{audit_marker}
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
@@ -256,8 +257,31 @@ def _merge_headers() -> None:
 
 /favicon.ico
   Cache-Control: public, max-age=2592000
-'''
-    path.write_text(current.rstrip() + "\n" + addition.lstrip(), encoding="utf-8")
+"""
+
+    technical_marker = "# OOLITA technical SEO 2026-08-24"
+    if technical_marker not in current:
+        current = current.rstrip() + f"""
+{technical_marker}
+https://oolita.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.oolita.pages.dev/*
+  X-Robots-Tag: noindex
+
+/domingos/img/*
+  Cache-Control: public, max-age=2592000
+
+/carteles/img/*
+  Cache-Control: public, max-age=2592000
+
+/img/*
+  Cache-Control: public, max-age=2592000
+
+/reels/*
+  Cache-Control: public, max-age=2592000
+"""
+    path.write_text(current.lstrip() + "\n", encoding="utf-8")
 
 
 def _write_assets() -> None:
@@ -276,6 +300,20 @@ def _validate() -> None:
     error_html = (ROOT / "404.html").read_text(encoding="utf-8")
     if 'name="robots" content="noindex,follow"' not in error_html:
         raise SystemExit("404.html missing noindex,follow")
+    headers_text = (ROOT / "_headers").read_text(encoding="utf-8")
+    required_header_rules = (
+        "https://oolita.pages.dev/*",
+        "https://:version.oolita.pages.dev/*",
+        "X-Robots-Tag: noindex",
+        "/fonts/*",
+        "max-age=31536000, immutable",
+        "/domingos/img/*",
+        "/reels/*",
+    )
+    for rule in required_header_rules:
+        if rule not in headers_text:
+            raise SystemExit(f"Required technical header rule missing: {rule}")
+
     redirects = ROOT / "_redirects"
     if redirects.is_file() and re.search(r"(?m)^\s*/\*\s+/index\.html\s+200\s*$", redirects.read_text(encoding="utf-8"), flags=re.I):
         raise SystemExit("SPA 200 catch-all still present in _redirects")
