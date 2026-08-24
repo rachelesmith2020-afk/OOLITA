@@ -136,6 +136,10 @@ python3 scripts/apply_desktop_sunday_panel_fix_v1.py site
 # older opacity-based secondary-text styling from returning via the live mirror.
 python3 scripts/apply_contrast_accessibility_v1.py site
 
+# Repair the two mobile regressions inherited from the mirrored origin: constrain
+# the browser-world preview to the viewport and restore compact 22-Sundays tiles.
+python3 scripts/apply_mobile_layout_repairs_v1.py site
+
 # The clean origin must not introduce Cloudflare zone-layer email rewriting.
 if grep -RIl --include='*.html' '/cdn-cgi/l/email-protection' site >/tmp/oolita-obfuscated-mail.txt; then
   echo 'Cloudflare-obfuscated email links found in reconstructed origin; refusing to deploy:'
@@ -155,3 +159,4 @@ echo "Validated current-origin deployment file count: $count"
 echo 'OOLITA deployment bundle validated.'
 # Production propagation trigger: desktop Sunday-panel containment.
 # Production propagation trigger: integrated desktop, reels and 3D fixes.
+# Production propagation trigger: mobile world-preview and Sunday-field repairs.
