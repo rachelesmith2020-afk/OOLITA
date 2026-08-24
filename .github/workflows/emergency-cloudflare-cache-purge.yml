@@ -27,10 +27,11 @@ jobs:
           import json, os, urllib.parse, urllib.request
 
           token = os.environ['CLOUDFLARE_API_TOKEN']
-          account = os.environ['CLOUDFLARE_ACCOUNT_ID']
           headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
 
-          query = urllib.parse.urlencode({'name': 'oolita.es', 'account.id': account})
+          # Resolve by zone name only. Some scoped Cloudflare tokens can read the
+          # zone but return no result when account.id is also supplied.
+          query = urllib.parse.urlencode({'name': 'oolita.es'})
           req = urllib.request.Request('https://api.cloudflare.com/client/v4/zones?' + query, headers=headers)
           with urllib.request.urlopen(req, timeout=30) as r:
               payload = json.load(r)
