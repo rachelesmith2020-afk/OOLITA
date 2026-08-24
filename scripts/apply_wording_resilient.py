@@ -97,4 +97,4 @@ print(
     f"{reviewed_headers} already 2027"
 )
 
-# Propagation trigger: 2026-08-24 14:04 Europe/London — global header year 2027.
+# Production deployment trigger: 2026-08-24 14:15 Europe/London — global header year 2027.
