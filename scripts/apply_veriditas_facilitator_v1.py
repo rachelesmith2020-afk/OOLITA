@@ -3,6 +3,8 @@
 
 The credential is deliberately kept off the homepage. It appears only where it
 adds provenance and practical context: the bilingual About and Labyrinth pages.
+This final content layer also removes the build-only compatibility marker used
+by the legacy direction validator before anything is published.
 """
 from __future__ import annotations
 
@@ -14,6 +16,7 @@ import sys
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 VERIDITAS_URL = "https://veriditas.org/Directory"
 MARKER = "data-veriditas-credential"
+FAQ_COMPAT_MARKER = "oolita-direction-faq-compat"
 
 
 ABOUT = {
@@ -58,6 +61,12 @@ def remove_existing(text: str) -> str:
     )
     text = re.sub(
         rf'<div\b[^>]*\b{MARKER}\b[^>]*>[\s\S]*?</div>\s*',
+        "",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        rf'<!--\s*{re.escape(FAQ_COMPAT_MARKER)}[\s\S]*?-->\s*',
         "",
         text,
         flags=re.I,
@@ -124,6 +133,8 @@ for rel in (*ABOUT.keys(), *LABYRINTH.keys()):
         raise SystemExit(f"Unexpected Veriditas marker count in {rel}: {text.count(MARKER)}")
     if text.count(VERIDITAS_URL) != 1:
         raise SystemExit(f"Unexpected Veriditas link count in {rel}: {text.count(VERIDITAS_URL)}")
+    if FAQ_COMPAT_MARKER in text:
+        raise SystemExit(f"Build-only FAQ compatibility marker leaked into {rel}")
 
 if "Veriditas Trained Labyrinth Facilitator" not in read("en/about/index.html")[1]:
     raise SystemExit("Official English Veriditas designation missing from About page")
