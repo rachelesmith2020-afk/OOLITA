@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import re
 import shutil
 import sys
@@ -48,7 +49,6 @@ def make_page(source: str, target: str, language: str) -> None:
             "16 de agosto de 2026": "23 de agosto de 2026",
             "2026-08-16T19:00:00+02:00": "2026-08-23T19:00:00+02:00",
             "/domingos/img/02": "/domingos/img/03",
-            '"position": 2': '"position": 3',
         }
         article = """<article class="tramo">
 <span class="rot">Domingo 03 de 22 · 23 de agosto de 2026</span>
@@ -84,7 +84,6 @@ def make_page(source: str, target: str, language: str) -> None:
             "16 August 2026": "23 August 2026",
             "2026-08-16T19:00:00+02:00": "2026-08-23T19:00:00+02:00",
             "/domingos/img/02": "/domingos/img/03",
-            '"position": 2': '"position": 3',
         }
         article = """<article class="tramo">
 <span class="rot">Sunday 03 of 22 · 23 August 2026</span>
@@ -119,6 +118,124 @@ def make_page(source: str, target: str, language: str) -> None:
 
 make_page("domingos/02-el-gato-de-verdad/index.html", "domingos/03-la-memoria-del-mar/index.html", "es")
 make_page("en/sundays/02-the-cat-for-real/index.html", "en/sundays/03-the-memory-of-the-sea/index.html", "en")
+
+
+JSONLD_RE = re.compile(
+    r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>[\s\S]*?</script>',
+    flags=re.I,
+)
+
+SUNDAY_SCHEMA = {
+    "domingos/03-la-memoria-del-mar/index.html": {
+        "url": "https://oolita.es/domingos/03-la-memoria-del-mar/",
+        "headline": "La memoria del mar",
+        "alternativeHeadline": "The Memory of the Sea",
+        "description": "La piedra guarda la memoria del mar: una historia breve sobre los oolitos, la duna fósil y el origen del nombre OOLITA.",
+        "section": "22 domingos",
+        "language": "es",
+        "imageCaption": "Domingo 03 de la serie 22 domingos de OOLITA: La memoria del mar.",
+        "crumbs": [
+            ("OOLITA", "https://oolita.es/"),
+            ("Domingos", "https://oolita.es/domingos/"),
+            ("03 · La memoria del mar", "https://oolita.es/domingos/03-la-memoria-del-mar/"),
+        ],
+    },
+    "en/sundays/03-the-memory-of-the-sea/index.html": {
+        "url": "https://oolita.es/en/sundays/03-the-memory-of-the-sea/",
+        "headline": "The Memory of the Sea",
+        "alternativeHeadline": "La memoria del mar",
+        "description": "The stone holds the memory of the sea: a short story about ooids, the fossil dune and the origin of the name OOLITA.",
+        "section": "22 Sundays",
+        "language": "en",
+        "imageCaption": "Sunday 03 of OOLITA's 22 Sundays series: The Memory of the Sea.",
+        "crumbs": [
+            ("OOLITA", "https://oolita.es/en/"),
+            ("Sundays", "https://oolita.es/en/sundays/"),
+            ("03 · The Memory of the Sea", "https://oolita.es/en/sundays/03-the-memory-of-the-sea/"),
+        ],
+    },
+}
+
+
+def normalise_sunday_schema(rel: str, config: dict[str, object]) -> None:
+    path = ROOT / rel
+    text = path.read_text(encoding="utf-8")
+    article = None
+    extras: list[dict[str, object]] = []
+    for match in JSONLD_RE.finditer(text):
+        raw = re.sub(r"^<script\b[^>]*>|</script>$", "", match.group(0), flags=re.I)
+        try:
+            payload = json.loads(raw.strip())
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"Invalid source JSON-LD in {rel}: {exc}") from exc
+        nodes = payload.get("@graph", []) if isinstance(payload, dict) and isinstance(payload.get("@graph"), list) else [payload]
+        for node in nodes:
+            if not isinstance(node, dict):
+                continue
+            kind = node.get("@type")
+            if kind == "Article" and article is None:
+                article = node
+            elif kind not in {"Article", "BreadcrumbList"}:
+                extras.append(node)
+    if article is None:
+        raise SystemExit(f"Sunday Article JSON-LD missing in {rel}")
+
+    url = str(config["url"])
+    article.update(
+        {
+            "@id": url + "#article",
+            "url": url,
+            "headline": config["headline"],
+            "alternativeHeadline": config["alternativeHeadline"],
+            "description": config["description"],
+            "articleSection": config["section"],
+            "position": 3,
+            "inLanguage": config["language"],
+        }
+    )
+    image = article.get("image")
+    if not isinstance(image, dict):
+        image = {"@type": "ImageObject"}
+        article["image"] = image
+    image.update(
+        {
+            "url": "https://oolita.es/domingos/img/03.jpg",
+            "contentUrl": "https://oolita.es/domingos/img/03.jpg",
+            "caption": config["imageCaption"],
+        }
+    )
+
+    breadcrumb_id = url + "#breadcrumb"
+    breadcrumb = {
+        "@type": "BreadcrumbList",
+        "@id": breadcrumb_id,
+        "itemListElement": [
+            {"@type": "ListItem", "position": position, "name": name, "item": item}
+            for position, (name, item) in enumerate(config["crumbs"], start=1)
+        ],
+    }
+    article["breadcrumb"] = {"@id": breadcrumb_id}
+    payload = {"@context": "https://schema.org", "@graph": [article, breadcrumb, *extras]}
+    script = '<script type="application/ld+json">' + json.dumps(
+        payload, ensure_ascii=False, separators=(",", ":")
+    ) + "</script>"
+    text = JSONLD_RE.sub("", text)
+    if "</head>" not in text:
+        raise SystemExit(f"Missing </head> while normalising Sunday schema: {rel}")
+    text = text.replace("</head>", script + "\n</head>", 1)
+    path.write_text(text, encoding="utf-8")
+
+    positions = [item["position"] for item in breadcrumb["itemListElement"]]
+    if positions != [1, 2, 3]:
+        raise SystemExit(f"Sunday breadcrumb positions invalid in {rel}: {positions}")
+    serialised = json.dumps(payload, ensure_ascii=False)
+    stale = ("El gato de la fábula", "The cat in the fable", "Domingo 2 de", "Sunday 2 of")
+    if any(needle in serialised for needle in stale):
+        raise SystemExit(f"Stale Sunday 02 schema remains in {rel}")
+
+
+for sunday_rel, sunday_config in SUNDAY_SCHEMA.items():
+    normalise_sunday_schema(sunday_rel, sunday_config)
 
 
 def publish_tile(path: str, href: str, label: str) -> None:
