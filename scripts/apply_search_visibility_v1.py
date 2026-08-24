@@ -123,6 +123,9 @@ run_layer("apply_voice_audit_spanish_editions_v1.py")
 run_layer("apply_attribution_consistency_v2.py")
 # Final onward paths from the book, labyrinth, 3D world and Sundays into the OOLITA list.
 run_layer("apply_reader_paths_v1.py")
+# Absolute final gate: retire the former Wednesday/Reels route after every SEO,
+# archive, menu and visual pass so nothing downstream can reintroduce it.
+run_layer("finalize_reels_retirement_v1.py")
 
 # Deployment trigger: mobile stone field grid specificity fix, 2026-08-23.
 # Deployment trigger: final OOLITA book-voice audit, 2026-08-24.
@@ -131,3 +134,4 @@ run_layer("apply_reader_paths_v1.py")
 # Deployment trigger: direct reader paths including the labyrinth, 2026-08-24.
 # Deployment trigger: Are.na process archive link, 2026-08-24.
 # Deployment trigger: preserve final homepage copy across mirror rebuilds, 2026-08-24.
+# Deployment trigger: final no-straggler Reels retirement gate, 2026-08-24.
