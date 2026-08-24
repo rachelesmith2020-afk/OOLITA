@@ -177,6 +177,10 @@ def inject_style(text: str, *, rel: str) -> str:
 
 
 def published_image_tile(number: int, href: str, *, language: str) -> str:
+    for ext in ("avif", "jpg"):
+        asset = ROOT / "domingos" / "img" / f"{number:02d}-180.{ext}"
+        if not asset.is_file():
+            raise SystemExit(f"Missing published Sunday thumbnail asset: {asset}")
     iso_date, short_date = SUNDAYS[number]
     if language == "en":
         aria = f"Sunday {number:02d} · published {short_date}"
