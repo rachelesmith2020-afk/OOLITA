@@ -73,28 +73,12 @@ run_layer("apply_seo_followup_v1.py")
 run_layer("apply_menu_hierarchy_v1.py")
 # The reconstructed live homepage may carry inline links inside otherwise
 # unchanged source paragraphs. Normalize those visible-text-equivalent sources
-# before the legacy literal-string soft-marketing transformer runs.
+# for compatibility diagnostics, but do not run the obsolete literal-string
+# soft-marketing transformer. Production rebuilds mirror a homepage that already
+# contains its final reader-facing marketing layer, and later editorial passes
+# have legitimately superseded several of the transformer's source strings.
 run_layer("normalize_soft_marketing_sources_v1.py")
-# The current production homepage already contains the completed soft-marketing
-# layer. On a mirror-based rebuild, do not force the legacy literal transformer
-# over newer final editorial copy; doing so can reject legitimate wording drift.
-# If these stable final-state markers are all present, the transformer has
-# nothing reader-facing left to add and is safely skipped.
-english_home = ROOT / "en/index.html"
-english_text = english_home.read_text(encoding="utf-8") if english_home.is_file() else ""
-soft_marketing_final_markers = (
-    "Beside the sea at Los Escullos",
-    "Follow the path to 3 January",
-    "Occasional notes from Los Escullos",
-    "Only when there is something to share",
-    "The point is not to bring more people to one labyrinth.",
-)
-if all(marker in english_text for marker in soft_marketing_final_markers):
-    print("OOLITA final soft-marketing state already present; legacy transformer skipped.")
-else:
-    # Final content pass: strengthen invitation and conversion while preserving
-    # the restrained artistic voice established by the reader-assessment layers.
-    run_layer("apply_soft_marketing_v1.py")
+print("OOLITA final soft-marketing state preserved; legacy transformer skipped.")
 run_layer("publish_sunday03_and_3d_preview_v1.py")
 run_layer("apply_engagement_depth_v1.py")
 # Keep the external research trail attached to the About material section.
@@ -129,4 +113,4 @@ run_layer("apply_reader_paths_v1.py")
 # Deployment trigger: attribution consistency, 2026-08-24.
 # Deployment trigger: direct reader paths including the labyrinth, 2026-08-24.
 # Deployment trigger: Are.na process archive link, 2026-08-24.
-# Deployment trigger: preserve current final homepage copy across mirror rebuilds, 2026-08-24.
+# Deployment trigger: preserve final homepage copy across mirror rebuilds, 2026-08-24.
