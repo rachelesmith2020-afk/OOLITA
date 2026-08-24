@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Repair two mobile layout regressions found in the live OOLITA origin.
+"""Repair mobile layout regressions inherited from the live OOLITA origin.
 
 1. Keep the browser-world preview inside the mobile viewport.
-2. Restore compact published tiles inside the 22-Sundays field when an older
-   engagement pass has replaced those tiles with full archive-row markup.
+2. Keep the three published Sunday images as compact image tiles inside the
+   22-Sundays field, aligned on one row with no inherited archive-row offsets.
 
 The deployment is reconstructed from the live origin, so this pass is designed
-as an idempotent final repair: it fixes either the broken inherited state or an
-already-correct state without touching the detailed Sunday archive below it.
+as an idempotent final repair. It accepts either the older rich archive-row
+markup or already-compact published tiles and normalises Sundays 01–03 to the
+same image-tile structure without changing their hrefs.
 """
 from __future__ import annotations
 
@@ -86,11 +87,13 @@ STYLE = r'''<style id="oolita-mobile-layout-repairs-v1">
   }
 }
 
-/* Compact archive field: each of the 22 cells must stay inside its grid track. */
+/* Compact archive field: every cell stays in its track. Published 01–03 use
+   equal image tiles so their thumbnails sit on one clean horizontal line. */
 @media(max-width:640px){
   .sunday-field{max-width:100%!important;overflow:visible!important}
   .sunday-field-grid{
     grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    align-items:start!important;
     width:100%!important;
     max-width:100%!important;
     gap:.45rem!important;
@@ -99,16 +102,56 @@ STYLE = r'''<style id="oolita-mobile-layout-repairs-v1">
     min-width:0!important;
     width:auto!important;
     max-width:100%!important;
+    margin:0!important;
+    padding:0!important;
     overflow:hidden!important;
+    align-self:start!important;
   }
-  .sunday-field-grid .sunday-tile{
+  .sunday-field-grid .sunday-tile,
+  .sunday-field-grid .sunday-image-tile{
     box-sizing:border-box!important;
-    display:flex!important;
     width:100%!important;
     max-width:100%!important;
     min-width:0!important;
+    margin:0!important;
+  }
+  .sunday-field-grid .sunday-tile{
+    display:flex!important;
     aspect-ratio:1/1!important;
     padding:.55rem!important;
+  }
+  .sunday-field-grid .sunday-image-tile{
+    display:block!important;
+    padding:0!important;
+    border:0!important;
+    text-decoration:none!important;
+    line-height:0!important;
+    overflow:hidden!important;
+  }
+  .sunday-field-grid .sunday-image-tile .sunday-archive-thumb{
+    box-sizing:border-box!important;
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:auto!important;
+    margin:0!important;
+    padding:0!important;
+    aspect-ratio:4/5!important;
+    overflow:hidden!important;
+    background:rgba(45,78,35,.12)!important;
+  }
+  .sunday-field-grid .sunday-image-tile picture,
+  .sunday-field-grid .sunday-image-tile img{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:100%!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .sunday-field-grid .sunday-image-tile img{
+    object-fit:cover!important;
+    object-position:center!important;
   }
 }
 </style>'''
@@ -133,20 +176,20 @@ def inject_style(text: str, *, rel: str) -> str:
     return text.replace("</head>", STYLE + "\n</head>", 1)
 
 
-def compact_tile(number: int, href: str, *, language: str) -> str:
+def published_image_tile(number: int, href: str, *, language: str) -> str:
     iso_date, short_date = SUNDAYS[number]
     if language == "en":
-        aria = f"Sunday {number:02d} · published"
-        state = "open"
+        aria = f"Sunday {number:02d} · published {short_date}"
     else:
-        aria = f"Domingo {number:02d} · publicado"
-        state = "abierto"
+        aria = f"Domingo {number:02d} · publicado {short_date}"
     return (
-        f'<a class="sunday-tile is-published" href="{href}" data-sunday-tile '
-        f'data-sunday="{number}" data-date="{iso_date}" aria-label="{aria}">'
-        f'<span class="sunday-tile-n">{number:02d}</span>'
-        f'<span class="sunday-tile-date">{short_date}</span>'
-        f'<span class="sunday-tile-state" data-sunday-state>{state}</span></a>'
+        f'<a class="sunday-image-tile is-published" href="{href}" '
+        f'data-sunday-image-tile data-sunday="{number}" data-date="{iso_date}" aria-label="{aria}">'
+        '<span class="sunday-archive-thumb" aria-hidden="true"><picture>'
+        f'<source type="image/avif" srcset="/domingos/img/{number:02d}-180.avif">'
+        f'<img src="/domingos/img/{number:02d}-180.jpg" alt="" width="180" height="225" '
+        'loading="lazy" decoding="async">'
+        '</picture></span></a>'
     )
 
 
@@ -161,33 +204,29 @@ def repair_sunday_field(rel: str, *, language: str) -> None:
         raise SystemExit(f"Sunday compact field missing in {rel}")
 
     inner = field_match.group(2)
-    repaired = 0
+    normalised = 0
 
-    rich_pattern = re.compile(
-        r'<a\b(?=[^>]*\bdata-sunday-archive-row=["\'](\d{1,2})["\'])(?=[^>]*\bhref=["\']([^"\']+)["\'])[^>]*>[\s\S]*?</a>',
-        flags=re.I,
-    )
-
-    def replace_rich(match: re.Match[str]) -> str:
-        nonlocal repaired
-        number = int(match.group(1))
-        href = match.group(2)
-        if number not in SUNDAYS:
-            raise SystemExit(f"Unexpected Sunday number {number} inside compact field in {rel}")
-        repaired += 1
-        return compact_tile(number, href, language=language)
-
-    inner = rich_pattern.sub(replace_rich, inner)
-
-    # A malformed rich row must never survive inside the compact 22-cell field.
-    if "data-sunday-archive-row" in inner:
-        raise SystemExit(f"Archive-row markup remains inside compact Sunday field in {rel}")
+    # Normalise the first three published cells only. Match either the rich
+    # archive row inherited from the engagement layer or an older compact tile;
+    # preserve the existing href exactly.
+    for number in (1, 2, 3):
+        pattern = re.compile(
+            rf'<a\b(?=[^>]*\b(?:data-sunday-archive-row|data-sunday)=["\']{number}["\'])'
+            r'(?=[^>]*\bhref=["\']([^"\']+)["\'])[^>]*>[\s\S]*?</a>',
+            flags=re.I,
+        )
+        match = pattern.search(inner)
+        if not match:
+            raise SystemExit(f"Published Sunday {number:02d} missing from compact field in {rel}")
+        href = match.group(1)
+        tile = published_image_tile(number, href, language=language)
+        inner = inner[:match.start()] + tile + inner[match.end():]
+        normalised += 1
 
     text = text[:field_match.start(2)] + inner + text[field_match.end(2):]
     text = inject_style(text, rel=rel)
     path.write_text(text, encoding="utf-8")
 
-    # Published Sundays 01–03 should now be genuine compact tiles.
     _, verified = read(rel)
     field = re.search(
         r'<ol\b[^>]*class=["\'][^"\']*\bsunday-field-grid\b[^"\']*["\'][^>]*>[\s\S]*?</ol>',
@@ -198,13 +237,17 @@ def repair_sunday_field(rel: str, *, language: str) -> None:
         raise SystemExit(f"Sunday field disappeared after repair in {rel}")
     block = field.group(0)
     for number in (1, 2, 3):
-        if not re.search(
-            rf'<a\b[^>]*class=["\'][^"\']*\bsunday-tile\b[^"\']*["\'][^>]*data-sunday=["\']{number}["\']',
-            block,
-            flags=re.I,
-        ):
-            raise SystemExit(f"Published compact Sunday {number:02d} missing in {rel}")
-    print(f"mobile Sunday field repaired {rel}: {repaired} malformed row(s) restored")
+        required = (
+            f'data-sunday-image-tile data-sunday="{number}"',
+            f'/domingos/img/{number:02d}-180.avif',
+            f'/domingos/img/{number:02d}-180.jpg',
+        )
+        for needle in required:
+            if needle not in block:
+                raise SystemExit(f"Sunday image-tile invariant missing in {rel}: {needle}")
+    if "data-sunday-archive-row" in block:
+        raise SystemExit(f"Rich archive-row markup remains inside compact Sunday field in {rel}")
+    print(f"mobile Sunday image row normalised {rel}: {normalised} published image tile(s)")
 
 
 def repair_home_preview(rel: str) -> None:
@@ -229,4 +272,4 @@ for rel in ("index.html", "en/index.html", "domingos/index.html", "en/sundays/in
     if STYLE_ID not in text:
         raise SystemExit(f"Mobile repair style missing in {rel}")
 
-print("OOLITA mobile preview and Sunday-field repairs validated successfully.")
+print("OOLITA mobile preview and Sunday image-row repairs validated successfully.")
