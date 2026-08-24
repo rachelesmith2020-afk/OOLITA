@@ -132,6 +132,21 @@ run_layer("finalize_reels_retirement_v1.py")
 # explicit on the English page, with the Hallazgo hardback immediately after
 # the first OOLITA book and T-shirt.
 run_layer("normalize_editions_hallazgo_hardback_v1.py")
+
+# A later reader-facing transform can recreate the old homepage sentence
+# "It stands on a fossil dune." Normalize that exact location claim before the
+# final factual gate. Using "is on land beside" also avoids the San Felipe-only
+# restoration rule from mistaking the labyrinth for the battery.
+en_home = ROOT / "en/index.html"
+if not en_home.is_file():
+    raise SystemExit("Missing English homepage before final fossil-dune gate")
+en_home_text = en_home.read_text(encoding="utf-8")
+en_home_text = en_home_text.replace(
+    "It stands on a fossil dune.",
+    "It is on land beside the fossil dunes.",
+)
+en_home.write_text(en_home_text, encoding="utf-8")
+
 # Absolute final factual/SEO gate: the labyrinth is on land beside the fossil
 # dunes; the nearby Batería de San Felipe is allowed to stand on a fossil dune.
 # The same pass uses "loose stones", refreshes changed sitemap routes and rejects
@@ -153,3 +168,4 @@ run_layer("normalize_labyrinth_fossil_dunes_v1.py")
 # Deployment trigger: San Felipe fossil-dune exception + loose-stones wording, 2026-08-24.
 # Deployment trigger: location-only fossil-dune validator fix, 2026-08-24.
 # Deployment trigger: rerun corrected location validator in production, 2026-08-24.
+# Deployment trigger: pre-normalize regenerated English homepage location claim, 2026-08-24.
