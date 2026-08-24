@@ -93,31 +93,87 @@ BREADCRUMBS: dict[str, list[tuple[str, str]]] = {
     "en/3d-world/index.html": [("OOLITA", "/en/"), ("3D world", "/en/3d-world/")],
 }
 
-BREADCRUMB_MARKER = '"@type":"BreadcrumbList"'
+JSONLD_SCRIPT_RE = re.compile(
+    r'(<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>)([\s\S]*?)(</script>)',
+    flags=re.I,
+)
 
 
-def breadcrumb_json(items: list[tuple[str, str]]) -> str:
-    payload = {
+def breadcrumb_payload(items: list[tuple[str, str]], route: str) -> dict[str, object]:
+    identifier = BASE + route + "#breadcrumb"
+    return {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
+        "@id": identifier,
         "itemListElement": [
-            {"@type": "ListItem", "position": pos, "name": name, "item": BASE + route}
-            for pos, (name, route) in enumerate(items, start=1)
+            {"@type": "ListItem", "position": pos, "name": name, "item": BASE + item_route}
+            for pos, (name, item_route) in enumerate(items, start=1)
         ],
     }
-    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+
+
+def normalise_breadcrumb_schema(rel: str, items: list[tuple[str, str]]) -> None:
+    path, text = read(rel)
+    before = text
+    route = "/" + rel.removesuffix("index.html")
+    canonical = breadcrumb_payload(items, route)
+    breadcrumb_id = str(canonical["@id"])
+
+    def rewrite_script(match: re.Match[str]) -> str:
+        try:
+            payload = json.loads(match.group(2).strip())
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"Invalid JSON-LD while normalising breadcrumbs in {rel}: {exc}") from exc
+
+        # Remove standalone or @graph breadcrumb copies. One canonical entity is
+        # inserted below; nested Article/WebPage properties reference its @id.
+        if isinstance(payload, dict) and payload.get("@type") == "BreadcrumbList":
+            return ""
+
+        def rewrite(value: object) -> None:
+            if isinstance(value, dict):
+                graph = value.get("@graph")
+                if isinstance(graph, list):
+                    value["@graph"] = [
+                        node
+                        for node in graph
+                        if not (isinstance(node, dict) and node.get("@type") == "BreadcrumbList")
+                    ]
+                for key, child in list(value.items()):
+                    if (
+                        key == "breadcrumb"
+                        and isinstance(child, dict)
+                        and child.get("@type") == "BreadcrumbList"
+                    ):
+                        value[key] = {"@id": breadcrumb_id}
+                    else:
+                        rewrite(child)
+            elif isinstance(value, list):
+                for child in value:
+                    rewrite(child)
+
+        rewrite(payload)
+        return (
+            match.group(1)
+            + json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+            + match.group(3)
+        )
+
+    text = JSONLD_SCRIPT_RE.sub(rewrite_script, text)
+    script = (
+        '<script type="application/ld+json">'
+        + json.dumps(canonical, ensure_ascii=False, separators=(",", ":"))
+        + "</script>"
+    )
+    if "</head>" not in text:
+        raise SystemExit(f"Missing </head> while normalising breadcrumbs: {rel}")
+    text = text.replace("</head>", script + "\n</head>", 1)
+    if write_if_changed(path, before, text):
+        changed_routes.add(route)
 
 
 for rel, items in BREADCRUMBS.items():
-    path, text = read(rel)
-    before = text
-    if BREADCRUMB_MARKER not in text:
-        script = f'<script type="application/ld+json">{breadcrumb_json(items)}</script>'
-        if "</head>" not in text:
-            raise SystemExit(f"Missing </head> while adding breadcrumbs: {rel}")
-        text = text.replace("</head>", script + "\n</head>", 1)
-    if write_if_changed(path, before, text):
-        changed_routes.add("/" + rel.removesuffix("index.html"))
+    normalise_breadcrumb_schema(rel, items)
 
 
 # 3. Fix the single description that the built-site audit found over 160 chars.
