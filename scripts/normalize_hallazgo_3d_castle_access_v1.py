@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 SITEMAP = ROOT / "sitemap.xml"
 BASE = "https://oolita.es"
-LASTMOD = "2026-08-24"
+LASTMOD = "2026-08-25"
 LEGACY_HOST = "hallazgo.my.canva.site"
 LEGACY_HREF_RE = re.compile(
     r'(?P<prefix>href\s*=\s*["\'])https?://hallazgo\.my\.canva\.site[^"\']*(?P<suffix>["\'])',
@@ -27,6 +27,14 @@ PAGES = {
         "alternates": {"en": "https://oolita.es/en/editions/", "es": "https://oolita.es/ediciones/"},
         "anchor": "Hallazgo — the catalogue",
         "href": "/en/hallazgo-catalogue/",
+        "final_paragraph": (
+            '<p class="parr"><a href="/en/hallazgo-catalogue/">Hallazgo — the catalogue ↗</a> '
+            'follows the first OOLITA book and T-shirt: a hardback publication bringing together the complete body of work. '
+            'Published 16 September 2027; public launch, 19 September. '
+            'On the 3D site, the full catalogue of works is housed inside the castle — a digital replica of the 1771 Batería de San Felipe, '
+            'standing on the fossil dune not far from the labyrinth at Los Escullos. The catalogue is secured by a keypad, and subscribers '
+            'will receive the code in the launch newsletter.</p>'
+        ),
     },
     "ediciones/index.html": {
         "old": "El catálogo completo permanece dentro del castillo, con clave.",
@@ -36,6 +44,14 @@ PAGES = {
         "alternates": {"en": "https://oolita.es/en/editions/", "es": "https://oolita.es/ediciones/"},
         "anchor": "Hallazgo — el catálogo",
         "href": "/catalogo-hallazgo/",
+        "final_paragraph": (
+            '<p class="parr"><a href="/catalogo-hallazgo/">Hallazgo — el catálogo ↗</a> '
+            'llega después del libro y la camiseta de OOLITA: una edición en tapa dura que reúne el cuerpo completo de la obra. '
+            'Se publica el 16 de septiembre de 2027; presentación pública, 19 de septiembre. '
+            'En el sitio 3D, el catálogo completo de obras se encuentra dentro del castillo — una réplica digital de la Batería de San Felipe de 1771, '
+            'situada sobre la duna fósil no lejos del laberinto de Los Escullos. El catálogo está protegido por un teclado numérico, y los suscriptores '
+            'recibirán el código en el boletín de lanzamiento.</p>'
+        ),
     },
 }
 
@@ -85,27 +101,30 @@ for rel, cfg in PAGES.items():
     text = page.read_text(encoding="utf-8")
     before = text
 
-    if cfg["new"] not in text:
-        if text.count(cfg["old"]) != 1:
-            raise SystemExit(f"Hallazgo access source drifted in {rel}: expected one former access sentence.")
-        text = text.replace(cfg["old"], cfg["new"], 1)
-
-    anchor_re = re.compile(
-        rf'(<a\b[^>]*\bhref=["\'])([^"\']+)(["\'][^>]*>\s*{re.escape(cfg["anchor"])}\s*↗?\s*</a>)',
-        flags=re.I,
+    # This gate runs after the geological and Editions-sequence normalizers. Those
+    # passes can legitimately alter words inside the already-current Hallazgo
+    # paragraph, so exact old/new sentence matching is not a reliable source test.
+    # Isolate the single Hallazgo paragraph by its unique catalogue label and
+    # atomically restore the approved final paragraph instead.
+    paragraph_re = re.compile(
+        rf'<p\b[^>]*class=["\'][^"\']*\bparr\b[^"\']*["\'][^>]*>.*?{re.escape(cfg["anchor"])}.*?</p>',
+        flags=re.I | re.S,
     )
-    match = anchor_re.search(text)
-    if not match:
-        raise SystemExit(f"Hallazgo catalogue anchor missing in {rel}")
-    if match.group(2) != cfg["href"]:
-        text = text[:match.start(2)] + cfg["href"] + text[match.end(2):]
+    matches = list(paragraph_re.finditer(text))
+    if len(matches) != 1:
+        raise SystemExit(f"Expected exactly one Hallazgo Editions paragraph in {rel}; found {len(matches)}")
+    match = matches[0]
+    if match.group(0) != cfg["final_paragraph"]:
+        text = text[:match.start()] + cfg["final_paragraph"] + text[match.end():]
 
     if text != before:
         page.write_text(text, encoding="utf-8")
         changed_routes.add(cfg["route"])
-        print(f"Hallazgo 3D-castle access copy/href updated: {rel}")
+        print(f"Hallazgo final Editions paragraph normalized: {rel}")
 
     text = page.read_text(encoding="utf-8")
+    if text.count(cfg["final_paragraph"]) != 1:
+        raise SystemExit(f"Hallazgo final Editions paragraph missing or duplicated in {rel}")
     if text.count(cfg["new"]) != 1:
         raise SystemExit(f"Hallazgo final access explanation must appear exactly once in {rel}")
     if cfg["old"] in text:
