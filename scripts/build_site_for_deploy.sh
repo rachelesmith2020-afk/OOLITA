@@ -25,9 +25,8 @@ PYWRAP
 
 bash /tmp/oolita-build-site-for-deploy.sh
 
-# Emergency visual-integrity fix: do not ship or reference the corrupted
-# first-party JPEG. Both catalogue pages use the verified 737x822 source that
-# has been visually checked in-browser.
+# Visual-integrity fix: do not ship or reference the corrupted first-party JPEG.
+# Both catalogue pages use the verified 737x822 source that has been checked in-browser.
 python3 - <<'PY'
 from pathlib import Path
 
@@ -52,6 +51,23 @@ if broken.exists():
 
 print('Hallazgo catalogue normalized to verified 737x822 source; corrupted local asset excluded.')
 PY
+
+# Instagram/Meta can retain an older Hallazgo document that still references the
+# retired first-party JPEG URL. Keep that legacy URL alive as a temporary 302 to
+# the verified source, and tell browsers not to retain Hallazgo HTML while this
+# cache recovery is active.
+cat >> site/_redirects <<'EOF'
+/hallazgo/hallazgo-catalogue-cover.jpg https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000 302
+EOF
+
+cat >> site/_headers <<'EOF'
+/catalogo-hallazgo/
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+/en/hallazgo-catalogue/
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+/hallazgo/hallazgo-catalogue-cover.jpg
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+EOF
 
 # Keep both custom-404 filesystem forms available to downstream validators.
 if [ -f site/404.html ] && [ ! -f site/404/index.html ]; then
