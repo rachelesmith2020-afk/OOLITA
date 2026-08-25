@@ -21,7 +21,7 @@ CORE = HERE / "apply_growth_v1.py"
 SENTINELS = {
     "ediciones/index.html": {
         "legacy_marker": "Las ediciones son la parte que puedes conservar.",
-        "current_marker": "Hallazgo — el catálogo",
+        "current_marker": "El libro y la camiseta son las dos primeras ediciones.",
         "sentinel": "<!-- growth-v2 compatibility: Las ediciones son la parte que puedes conservar. -->",
     },
     "en/editions/index.html": {
