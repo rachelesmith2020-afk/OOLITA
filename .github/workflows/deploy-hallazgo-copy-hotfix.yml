@@ -31,21 +31,6 @@ jobs:
           set -euo pipefail
           test -n "${CLOUDFLARE_API_TOKEN:-}"
 
-      - name: Bypass obsolete local Hallazgo cover preservation gate
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('scripts/build_site_for_deploy.sh')
-          text = p.read_text(encoding='utf-8')
-          start = text.index('# Preserve the currently published Hallazgo catalogue cover while deploying')
-          end_marker = "print(f'Published Hallazgo cover preserved: {len(data)} bytes, image/jpeg')\nPY\n\n"
-          end = text.index(end_marker, start) + len(end_marker)
-          text = text[:start] + "# Hallazgo catalogue cover remains on its current external image URL during this copy-only deployment.\n\n" + text[end:]
-          text = text.replace('  site/hallazgo/hallazgo-catalogue-cover.jpg\n', '')
-          p.write_text(text, encoding='utf-8')
-          PY
-
       - name: Reconstruct and validate complete site
         shell: bash
         run: bash scripts/build_site_for_deploy.sh
@@ -90,14 +75,25 @@ jobs:
         shell: bash
         run: python3 scripts/apply_first_party_analytics_v1.py site
 
-      - name: Validate concise Hallazgo copy and existing catalogue image URL
+      - name: Install image tooling
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Apply and validate search visibility
+        shell: bash
+        run: python3 scripts/apply_search_visibility_v1.py site
+
+      - name: Validate concise Hallazgo copy and preserved catalogue image
         shell: bash
         run: |
           set -euo pipefail
           grep -Fq 'Hardback catalogue of the complete Hallazgo body of work · in the 3D castle from 16 Sep 27 · public launch 19 Sep 27 ↗' site/en/index.html
           grep -Fq 'Catálogo en tapa dura de la obra completa de Hallazgo · en el castillo 3D desde el 16.09.27 · presentación pública 19.09.27 ↗' site/index.html
-          grep -Fq 'lh3.googleusercontent.com' site/en/hallazgo-catalogue/index.html
-          grep -Fq 'lh3.googleusercontent.com' site/catalogo-hallazgo/index.html
+          test -f site/hallazgo/hallazgo-catalogue-cover.jpg
+          grep -Fq '/hallazgo/hallazgo-catalogue-cover.jpg' site/en/hallazgo-catalogue/index.html
+          grep -Fq '/hallazgo/hallazgo-catalogue-cover.jpg' site/catalogo-hallazgo/index.html
 
       - name: Validate Pages Functions syntax
         shell: bash
