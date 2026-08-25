@@ -164,8 +164,14 @@ for path, old, new in [
 required = {
     "index.html": ["De un camino, un paisaje más amplio.", "Publicaciones de campo, materiales y colaboraciones"],
     "en/index.html": ["From one path, a wider landscape.", "Field publications, materials and collaborations"],
-    "ediciones/index.html": ["Libros, textiles y herramientas para mirar de cerca.", "Cada edición dirá quién la hizo"],
-    "en/editions/index.html": ["Books, textiles and tools for looking closely.", "Each edition will state who made it"],
+    "ediciones/index.html": [
+        "Libros, textiles y herramientas para mirar de cerca.",
+        "Después vendrá la edición de tapa dura de Hallazgo",
+    ],
+    "en/editions/index.html": [
+        "Books, textiles and tools for looking closely.",
+        "After them will come the Hallazgo hardback",
+    ],
     "ediciones/libro/index.html": ["Los datos de impresión y entrega se indicarán en esta página."],
     "en/editions/book/index.html": ["Printing and delivery details will be stated on this page."],
     "ediciones/camiseta/index.html": ["La primera edición textil lleva el laberinto a la tela."],
