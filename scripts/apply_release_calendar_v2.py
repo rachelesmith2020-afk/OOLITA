@@ -18,13 +18,17 @@ ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 HERE = Path(__file__).resolve().parent
 CORE = HERE / "apply_release_calendar_v1.py"
 
+ES_CONCISE_HALLAZGO = "Edición en tapa dura · obra completa en Castillo 3D · acceso con código · lanzamiento 16.09.27 · presentación 19.09.27"
+ES_LEGACY_HALLAZGO = "Hallazgo — el catálogo"
+
 COMPAT = {
     "ediciones/index.html": {
         "old": '<p class="parr">El libro sale el 31 de enero de 2027. La primera edición textil llega el 28 de marzo, cuando su diseño termine de desvelarse domingo a domingo.</p>',
         "new": '<p class="parr">El libro sale el 31 de enero de 2027. La primera edición textil llega el 11 de abril. Los detalles y la historia del diseño se irán desvelando domingo a domingo hasta entonces.</p>',
         "current_markers": (
             "Después vendrá la edición de tapa dura de Hallazgo",
-            "Edición en tapa dura · obra completa en Castillo 3D · acceso con código · lanzamiento 16.09.27 · presentación 19.09.27",
+            ES_CONCISE_HALLAZGO,
+            ES_LEGACY_HALLAZGO,
         ),
     },
     "en/editions/index.html": {
@@ -45,6 +49,17 @@ for rel, cfg in COMPAT.items():
     if not page.is_file():
         raise SystemExit(f"Missing Editions page for release compatibility: {rel}")
     text = page.read_text(encoding="utf-8")
+
+    # The final concise Spanish Hallazgo link deliberately dropped the legacy
+    # catalogue label. v1 uses that label only as a structural locator before a
+    # later normalizer restores the concise public copy. Restore it temporarily
+    # in-place so v1 can atomically normalize the existing paragraph rather than
+    # trying to insert a duplicate at a retired paragraph boundary.
+    if rel == "ediciones/index.html" and ES_CONCISE_HALLAZGO in text and ES_LEGACY_HALLAZGO not in text:
+        text = text.replace(ES_CONCISE_HALLAZGO, ES_LEGACY_HALLAZGO, 1)
+        page.write_text(text, encoding="utf-8")
+        print("release v2 restored structural Hallazgo label for Spanish Editions compatibility")
+
     if cfg["old"] in text or cfg["new"] in text:
         continue
     if not any(marker in text for marker in cfg["current_markers"]):
