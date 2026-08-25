@@ -53,13 +53,15 @@ if len(data) != 89203:
 if not (data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9')):
     raise SystemExit('Hallazgo cover is not a valid JPEG')
 
-dest = Path('site/images/hallazgo-cover.jpg')
+dest = Path('site/images/hallazgo-cover-v2.jpg')
 dest.parent.mkdir(parents=True, exist_ok=True)
 dest.write_bytes(data)
 
 for rel in ('catalogo-hallazgo/index.html', 'en/hallazgo-catalogue/index.html'):
     page = Path('site') / rel
     text = page.read_text(encoding='utf-8')
+    text = text.replace('https://oolita.es/images/hallazgo-cover.jpg', 'https://oolita.es/images/hallazgo-cover-v2.jpg')
+    text = text.replace('/images/hallazgo-cover.jpg', '/images/hallazgo-cover-v2.jpg')
     text = text.replace('width="737" height="822"', 'width="1377" height="1536"')
     text = text.replace('content="737"', 'content="1377"')
     text = text.replace('content="822"', 'content="1536"')
@@ -70,21 +72,21 @@ print(f'Exact Hallazgo cover reconstructed: {len(data)} bytes, sha256={actual_sh
 PY
 
 # Verify the first-party Hallazgo cover and ensure both catalogue pages use the
-# root-relative path. No Google Drive or googleusercontent image URL is allowed.
+# new cache-busting path. No Google Drive or googleusercontent image URL is allowed.
 python3 - <<'PY'
 from pathlib import Path
 import hashlib
 
-asset = Path('site/images/hallazgo-cover.jpg')
+asset = Path('site/images/hallazgo-cover-v2.jpg')
 if not asset.is_file():
-    raise SystemExit('Missing first-party Hallazgo cover: site/images/hallazgo-cover.jpg')
+    raise SystemExit('Missing first-party Hallazgo cover: site/images/hallazgo-cover-v2.jpg')
 data = asset.read_bytes()
 expected_sha256 = 'd640577f126ef809b04cfd83d9eb158ce71d4d7fbe114a30ad6c8793a26ce180'
 if hashlib.sha256(data).hexdigest() != expected_sha256:
     raise SystemExit('Hallazgo cover changed after reconstruction')
 
-root_relative = '/images/hallazgo-cover.jpg'
-absolute = 'https://oolita.es/images/hallazgo-cover.jpg'
+root_relative = '/images/hallazgo-cover-v2.jpg'
+absolute = 'https://oolita.es/images/hallazgo-cover-v2.jpg'
 for rel in ('catalogo-hallazgo/index.html', 'en/hallazgo-catalogue/index.html'):
     page = Path('site') / rel
     text = page.read_text(encoding='utf-8')
@@ -100,25 +102,26 @@ for rel in ('catalogo-hallazgo/index.html', 'en/hallazgo-catalogue/index.html'):
 print('Exact first-party Hallazgo cover verified on both catalogue pages.')
 PY
 
-# Keep the retired cover URL working for cached documents, but route it to the
-# new first-party asset rather than Google.
+# Keep both retired cover URLs working for cached documents, but route them to
+# the exact new first-party asset rather than Google.
 cat >> site/_redirects <<'EOF'
-/hallazgo/hallazgo-catalogue-cover.jpg /images/hallazgo-cover.jpg 301
+/hallazgo/hallazgo-catalogue-cover.jpg /images/hallazgo-cover-v2.jpg 301
+/images/hallazgo-cover.jpg /images/hallazgo-cover-v2.jpg 302
 EOF
 
 # Keep the SEO-visible href canonical and validator-safe, but on an actual user
-# click route Instagram's in-app browser to a versioned Hallazgo document URL.
+# click route Instagram's in-app browser to a fresh Hallazgo document URL.
 python3 - <<'PY'
 from pathlib import Path
 
 updates = {
     'index.html': (
         'href="/catalogo-hallazgo/"',
-        'href="/catalogo-hallazgo/" onclick="window.location.href=\'/catalogo-hallazgo/?v=20260825-1544\'; return false;"'
+        'href="/catalogo-hallazgo/" onclick="window.location.href=\'/catalogo-hallazgo/?v=20260825-1939\'; return false;"'
     ),
     'en/index.html': (
         'href="/en/hallazgo-catalogue/"',
-        'href="/en/hallazgo-catalogue/" onclick="window.location.href=\'/en/hallazgo-catalogue/?v=20260825-1544\'; return false;"'
+        'href="/en/hallazgo-catalogue/" onclick="window.location.href=\'/en/hallazgo-catalogue/?v=20260825-1939\'; return false;"'
     ),
 }
 for rel, (old, new) in updates.items():
@@ -142,7 +145,7 @@ cat >> site/_headers <<'EOF'
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 /en/hallazgo-catalogue/
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
-/images/hallazgo-cover.jpg
+/images/hallazgo-cover-v2.jpg
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 EOF
 
