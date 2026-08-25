@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Compatibility wrapper around the reviewed deployment builder. The original
-# builder is preserved beside this file. The Hallazgo catalogue uses the
-# verified Google-hosted source directly until the repository binary is replaced.
+# builder is preserved beside this file. Hallazgo now ships its cover as a
+# first-party asset at /images/hallazgo-cover.jpg.
 python3 - <<'PYWRAP'
 from pathlib import Path
 
@@ -13,51 +13,49 @@ start_marker = '# Preserve the currently published Hallazgo catalogue cover whil
 end_marker = '\nrequired=('
 start = source.index(start_marker)
 end = source.index(end_marker, start)
-replacement = '''# Hallazgo cover is normalized after the reviewed builder completes.\n'''
+replacement = '''# Hallazgo cover is provided by overrides/images/hallazgo-cover.jpg.\n'''
 patched = source[:start] + replacement + source[end:]
 patched = patched.replace('  site/hallazgo/hallazgo-catalogue-cover.jpg\n', '')
 patched = patched.replace(
     '# Production propagation trigger: preserve published Hallazgo cover while shipping copy update.',
-    '# Production propagation trigger: use verified Hallazgo cover source.'
+    '# Production propagation trigger: ship first-party Hallazgo cover.'
 )
 Path('/tmp/oolita-build-site-for-deploy.sh').write_text(patched, encoding='utf-8')
 PYWRAP
 
 bash /tmp/oolita-build-site-for-deploy.sh
 
-# Visual-integrity fix: do not ship or reference the corrupted first-party JPEG.
-# Both catalogue pages use the verified 737x822 source that has been checked in-browser.
+# Verify the first-party Hallazgo cover and ensure both catalogue pages use the
+# root-relative path. No Google Drive or googleusercontent image URL is allowed.
 python3 - <<'PY'
 from pathlib import Path
 
-external = 'https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000'
-absolute = 'https://oolita.es/hallazgo/hallazgo-catalogue-cover.jpg'
-relative = '/hallazgo/hallazgo-catalogue-cover.jpg'
+asset = Path('site/images/hallazgo-cover.jpg')
+if not asset.is_file():
+    raise SystemExit('Missing first-party Hallazgo cover: site/images/hallazgo-cover.jpg')
+data = asset.read_bytes()
+if not (data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9')):
+    raise SystemExit('Hallazgo cover is not a valid JPEG')
+
+root_relative = '/images/hallazgo-cover.jpg'
+absolute = 'https://oolita.es/images/hallazgo-cover.jpg'
 for rel in ('catalogo-hallazgo/index.html', 'en/hallazgo-catalogue/index.html'):
     page = Path('site') / rel
     text = page.read_text(encoding='utf-8')
-    text = text.replace(absolute, external)
-    text = text.replace(relative, external)
-    text = text.replace('https://oolita.es/hallazgo/hallazgo-catalogue-cover.png', external)
-    text = text.replace('/hallazgo/hallazgo-catalogue-cover.png', external)
-    text = text.replace('content="image/png"', 'content="image/jpeg"')
-    page.write_text(text, encoding='utf-8')
-    if external not in text:
-        raise SystemExit(f'Failed to normalize Hallazgo cover in {rel}')
+    if f'src="{root_relative}"' not in text:
+        raise SystemExit(f'Root-relative Hallazgo image src missing in {rel}')
+    if 'lh3.googleusercontent.com' in text or 'drive.google.com' in text:
+        raise SystemExit(f'Google-hosted Hallazgo image reference remains in {rel}')
+    if absolute not in text:
+        raise SystemExit(f'First-party Hallazgo metadata image missing in {rel}')
 
-broken = Path('site/hallazgo/hallazgo-catalogue-cover.jpg')
-if broken.exists():
-    broken.unlink()
-
-print('Hallazgo catalogue normalized to verified 737x822 source; corrupted local asset excluded.')
+print(f'First-party Hallazgo cover verified: {len(data)} bytes, image/jpeg')
 PY
 
-# Instagram/Meta can retain an older Hallazgo document that still references the
-# retired first-party JPEG URL. Keep that legacy URL alive as a temporary 302 to
-# the verified source, and tell browsers not to retain Hallazgo HTML while this
-# cache recovery is active.
+# Keep the retired cover URL working for cached documents, but route it to the
+# new first-party asset rather than Google.
 cat >> site/_redirects <<'EOF'
-/hallazgo/hallazgo-catalogue-cover.jpg https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000 302
+/hallazgo/hallazgo-catalogue-cover.jpg /images/hallazgo-cover.jpg 301
 EOF
 
 # Keep the SEO-visible href canonical and validator-safe, but on an actual user
@@ -96,8 +94,8 @@ cat >> site/_headers <<'EOF'
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 /en/hallazgo-catalogue/
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
-/hallazgo/hallazgo-catalogue-cover.jpg
-  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+/images/hallazgo-cover.jpg
+  Cache-Control: no-cache, must-revalidate, max-age=0
 EOF
 
 # Keep both custom-404 filesystem forms available to downstream validators.
