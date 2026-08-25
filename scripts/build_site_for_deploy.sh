@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Compatibility wrapper around the reviewed deployment builder. The original
 # builder is preserved beside this file. Hallazgo ships its cover as a
-# first-party asset at /images/hallazgo-cover.jpg.
+# first-party asset at /images/hallazgo-cover-v2.jpg.
 python3 - <<'PYWRAP'
 from pathlib import Path
 
