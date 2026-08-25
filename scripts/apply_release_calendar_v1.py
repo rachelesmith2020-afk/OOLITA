@@ -92,6 +92,32 @@ for rel, replacements in normalise.items():
         text = text.replace(old, new)
     target.write_text(text, encoding="utf-8")
 
+# Current production pages can contain the already-final Editions release
+# paragraph with harmless inline markup/spacing introduced by later passes. The
+# legacy core validates one exact HTML source string, so collapse only that one
+# visible paragraph to the canonical final form before the core runs. This is
+# intentionally narrow and idempotent.
+EDITION_PARAGRAPHS = {
+    "ediciones/index.html": (
+        r'<p\b[^>]*class=["\'][^"\']*\bparr\b[^"\']*["\'][^>]*>\s*El libro sale el 31 de enero de 2027\..*?La primera edición textil llega el 11 de abril\..*?Los detalles y la historia del diseño se irán desvelando domingo a domingo hasta entonces\.\s*</p>',
+        '<p class="parr">El libro sale el 31 de enero de 2027. La primera edición textil llega el 11 de abril. Los detalles y la historia del diseño se irán desvelando domingo a domingo hasta entonces.</p>',
+    ),
+    "en/editions/index.html": (
+        r'<p\b[^>]*class=["\'][^"\']*\bparr\b[^"\']*["\'][^>]*>\s*The book comes out on 31 January 2027\..*?The first textile edition follows on 11 April\..*?Details and the story of the design will be revealed Sunday by Sunday until then\.\s*</p>',
+        '<p class="parr">The book comes out on 31 January 2027. The first textile edition follows on 11 April. Details and the story of the design will be revealed Sunday by Sunday until then.</p>',
+    ),
+}
+for rel, (pattern, canonical) in EDITION_PARAGRAPHS.items():
+    target = ROOT / rel
+    if not target.is_file():
+        raise SystemExit(f"Missing Editions page before release-calendar core: {rel}")
+    text = target.read_text(encoding="utf-8")
+    if canonical not in text:
+        patched, count = re.subn(pattern, canonical, text, count=1, flags=re.I | re.S)
+        if count:
+            target.write_text(patched, encoding="utf-8")
+            print(f"release-calendar compatibility normalized final Editions paragraph: {rel}")
+
 core = HERE / "apply_release_calendar_core_v1.py"
 if not core.is_file():
     raise SystemExit(f"Missing release-calendar core: {core}")
