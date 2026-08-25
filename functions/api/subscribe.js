@@ -79,6 +79,7 @@ function confirmationEmailHtml(spanish, confirmUrl) {
   const ignore = spanish
     ? "Si no has hecho esta solicitud, puedes ignorar este mensaje."
     : "If you did not make this request, you can ignore this message.";
+  const markAlt = spanish ? "Marca OOLITA: gato en un laberinto" : "OOLITA mark: cat in a labyrinth";
 
   return `<!doctype html>
 <html lang="${lang}">
@@ -97,6 +98,7 @@ function confirmationEmailHtml(spanish, confirmUrl) {
           <tr>
             <td style="padding:0 0 44px;font-family:'Instrument Sans',Arial,sans-serif;color:#132572;">
               <a href="https://oolita.es/" style="color:#132572;text-decoration:none;" aria-label="OOLITA">
+                <img src="https://oolita.es/favicon.svg" width="92" height="92" alt="${markAlt}" style="display:block;width:92px;height:92px;margin:0 0 22px;border:0;outline:none;text-decoration:none;">
                 <span style="display:block;font-size:30px;line-height:1;letter-spacing:0.08em;font-weight:600;">OOLITA</span>
                 <span style="display:block;margin-top:9px;font-size:12px;line-height:1.2;letter-spacing:0.12em;text-transform:uppercase;">Los Escullos</span>
               </a>
