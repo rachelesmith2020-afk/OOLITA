@@ -1,0 +1,1 @@
+Production deploy trigger for exact self-hosted Hallazgo PNG. Source: overrides/images/Untitled design.png; live path: /images/hallazgo-cover.png.
