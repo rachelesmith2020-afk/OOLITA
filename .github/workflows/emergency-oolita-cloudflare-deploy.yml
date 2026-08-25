@@ -46,4 +46,4 @@ jobs:
             --commit-hash="${GITHUB_SHA}" \
             --commit-message="OOLITA book-voice audit: final Spanish Editions pass"
 
-# Redeploy after wording validator compatibility update, 2026-08-24.
+# Emergency production trigger: publish corrected OOLITA cat favicon, 2026-08-25.
