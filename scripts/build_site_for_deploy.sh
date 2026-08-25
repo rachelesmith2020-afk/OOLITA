@@ -12,12 +12,12 @@ if [ -d overrides ]; then
   cp -a overrides/. site/
 fi
 
-# Publish the exact Hallazgo catalogue cover supplied in Drive. The previous
-# staged base64 chunks were incomplete and could not be decoded reliably. Keep
-# the original PNG format and validate both its signature and exact dimensions.
+# Publish the exact Hallazgo catalogue cover supplied in Drive. Use Google's
+# direct image CDN endpoint rather than the Drive download interstitial, then
+# validate the original PNG signature and exact dimensions before deployment.
 mkdir -p site/hallazgo
 curl --fail --location --retry 3 --retry-delay 1 --silent --show-error \
-  'https://drive.usercontent.google.com/download?id=1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ&export=view&authuser=0' \
+  'https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000' \
   --output site/hallazgo/hallazgo-catalogue-cover.png
 python3 - <<'PY'
 from pathlib import Path
