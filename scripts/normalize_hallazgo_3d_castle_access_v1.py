@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+import runpy
 import sys
 import xml.etree.ElementTree as ET
 
@@ -199,3 +200,17 @@ print(
     "first-party hrefs and routes valid; Canva hrefs and old key sentence absent; "
     "canonical/hreflang valid; sitemap current."
 )
+
+# The release-calendar layer can still recreate the shorter homepage keyed-castle
+# wording and the legacy edge rewrite can make Hallazgo Art point at the catalogue.
+# Run the absolute homepage gate last so the deployable bundle cannot contain
+# either straggler and both first-party destinations are validated as real files.
+finalizer = Path(__file__).resolve().parent / "finalize_hallazgo_home_v1.py"
+if not finalizer.is_file():
+    raise SystemExit(f"Missing Hallazgo homepage finalizer: {finalizer}")
+old_argv = sys.argv[:]
+sys.argv = [str(finalizer), str(ROOT)]
+try:
+    runpy.run_path(str(finalizer), run_name="__main__")
+finally:
+    sys.argv = old_argv
