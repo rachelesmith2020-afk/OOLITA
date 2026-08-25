@@ -26,10 +26,27 @@ PYWRAP
 bash /tmp/oolita-build-site-for-deploy.sh
 
 # Reconstruct the known-good Hallazgo JPEG from versioned repository data.
-# This deliberately overwrites the older corrupted binary that existed in the
-# overrides tree, while keeping the deployed URL fully first-party.
+# The historical chunks contain inconsistent padding, so normalise the base64
+# alphabet and apply padding once after concatenation.
 mkdir -p site/images
-cat assets/hallazgo-cover-b64/part*.txt | tr -d '\n\r ' | base64 --decode > site/images/hallazgo-cover.jpg
+python3 - <<'PY'
+from pathlib import Path
+import base64
+import re
+
+parts = []
+for path in sorted(Path('assets/hallazgo-cover-b64').glob('part*.txt')):
+    chunk = path.read_text(encoding='utf-8')
+    chunk = re.sub(r'[^A-Za-z0-9+/=]', '', chunk)
+    chunk = chunk.replace('=', '')
+    parts.append(chunk)
+if not parts:
+    raise SystemExit('No Hallazgo cover data chunks found')
+encoded = ''.join(parts)
+encoded += '=' * ((4 - len(encoded) % 4) % 4)
+data = base64.b64decode(encoded, validate=True)
+Path('site/images/hallazgo-cover.jpg').write_bytes(data)
+PY
 
 python3 - <<'PY'
 from pathlib import Path
