@@ -130,6 +130,19 @@ def replace_homepage_copy(rel_path, old, new, superseding=None):
             f"found neither {old!r} nor {new!r}"
         )
 
+# Hallazgo catalogue directory description — keep the useful facts, remove the
+# access mechanics from the homepage summary.
+replace_homepage_copy(
+    "en/index.html",
+    "A hardback publication bringing together the complete body of work · full catalogue in the 3D castle · keypad access · code in the launch newsletter · 16 Sep 27 · public launch 19 Sep 27 ↗",
+    "Hardback catalogue of the complete Hallazgo body of work · in the 3D castle from 16 Sep 27 · public launch 19 Sep 27 ↗",
+)
+replace_homepage_copy(
+    "index.html",
+    "Una edición en tapa dura que reúne el cuerpo completo de la obra · catálogo completo en el castillo 3D · acceso por teclado numérico · código en el boletín de lanzamiento · 16.09.27 · presentación pública 19.09.27 ↗",
+    "Catálogo en tapa dura de la obra completa de Hallazgo · en el castillo 3D desde el 16.09.27 · presentación pública 19.09.27 ↗",
+)
+
 replace_homepage_copy(
     "en/index.html",
     "No sign, no name.",
@@ -210,3 +223,4 @@ else:
 # Production deployment trigger: Cabo de Gata live-and-work wording, 2026-08-24.
 # Production deployment trigger: 22 Sundays homepage heading, 2026-08-24.
 # Production deployment trigger: Work with OOLITA collective voice, 2026-08-24.
+# Production deployment trigger: concise Hallazgo catalogue homepage summary, 2026-08-25.
