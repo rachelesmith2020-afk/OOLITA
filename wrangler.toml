@@ -21,3 +21,4 @@ database_name = "OOLITA_SUBSCRIBERS"
 
 # Production propagation trigger: collaboration collective voice, 2026-08-24.
 # Production propagation trigger: footer restage + latest SEO deployment, 2026-08-24.
+# Production propagation trigger: rerun clean main after Hallazgo base64 cleanup, 2026-08-25.
