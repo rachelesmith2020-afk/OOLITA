@@ -65,14 +65,17 @@ if not CORE.is_file():
 # The current public homepage can already carry the newly approved concise
 # Hallazgo summary. The historical v1/core pass does not know that form, so
 # temporarily move only that exact string to its expected intermediate state.
+# growth_prep may also temporarily restore the Spanish homepage shell at the
+# 404 path for legacy validators, so bridge that copy as well.
 home_bridge = {
     "en/index.html": (EN_HOME_CONCISE, EN_HOME_INTERMEDIATE, EN_HOME_LONG),
     "index.html": (ES_HOME_CONCISE, ES_HOME_INTERMEDIATE, ES_HOME_LONG),
+    "404/index.html": (ES_HOME_CONCISE, ES_HOME_INTERMEDIATE, ES_HOME_LONG),
 }
 for rel, (concise, intermediate, long_form) in home_bridge.items():
     page = ROOT / rel
     if not page.is_file():
-        raise SystemExit(f"Missing homepage for release compatibility: {rel}")
+        raise SystemExit(f"Missing homepage shell for release compatibility: {rel}")
     text = page.read_text(encoding="utf-8")
     if concise in text:
         page.write_text(text.replace(concise, intermediate, 1), encoding="utf-8")
@@ -134,7 +137,7 @@ for rel in COMPAT:
 # v1 deliberately restores its older detailed homepage copy after validating
 # the release calendar. Replace only that exact legacy-final string with the
 # approved concise public summary. The detailed keypad/newsletter explanation
-# remains available on the Hallazgo/Edtions pages; the directory stays brief.
+# remains available on the Hallazgo/Editions pages; the directory stays brief.
 home_final = {
     "en/index.html": (EN_HOME_LONG, EN_HOME_CONCISE),
     "index.html": (ES_HOME_LONG, ES_HOME_CONCISE),
