@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Compatibility wrapper around the reviewed deployment builder. The original
-# builder is preserved beside this file. Hallazgo now ships its cover as a
-# first-party asset at /images/hallazgo-cover.jpg.
+# builder is preserved beside this file. Hallazgo ships its cover as a first-
+# party asset at /images/hallazgo-cover.jpg.
 python3 - <<'PYWRAP'
 from pathlib import Path
 
@@ -13,7 +13,7 @@ start_marker = '# Preserve the currently published Hallazgo catalogue cover whil
 end_marker = '\nrequired=('
 start = source.index(start_marker)
 end = source.index(end_marker, start)
-replacement = '''# Hallazgo cover is provided by overrides/images/hallazgo-cover.jpg.\n'''
+replacement = '''# Hallazgo cover is reconstructed after the reviewed builder completes.\n'''
 patched = source[:start] + replacement + source[end:]
 patched = patched.replace('  site/hallazgo/hallazgo-catalogue-cover.jpg\n', '')
 patched = patched.replace(
@@ -25,17 +25,45 @@ PYWRAP
 
 bash /tmp/oolita-build-site-for-deploy.sh
 
-# Verify the first-party Hallazgo cover and ensure both catalogue pages use the
-# root-relative path. No Google Drive or googleusercontent image URL is allowed.
+# Reconstruct the known-good Hallazgo JPEG from versioned repository data.
+# This deliberately overwrites the older corrupted binary that existed in the
+# overrides tree, while keeping the deployed URL fully first-party.
+mkdir -p site/images
+cat assets/hallazgo-cover-b64/part*.txt | tr -d '\n\r ' | base64 --decode > site/images/hallazgo-cover.jpg
+
 python3 - <<'PY'
 from pathlib import Path
 
 asset = Path('site/images/hallazgo-cover.jpg')
-if not asset.is_file():
-    raise SystemExit('Missing first-party Hallazgo cover: site/images/hallazgo-cover.jpg')
 data = asset.read_bytes()
+if len(data) < 15000:
+    raise SystemExit(f'Hallazgo cover unexpectedly small: {len(data)} bytes')
 if not (data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9')):
-    raise SystemExit('Hallazgo cover is not a valid JPEG')
+    raise SystemExit('Hallazgo cover is not a complete JPEG')
+
+sof = {0xC0,0xC1,0xC2,0xC3,0xC5,0xC6,0xC7,0xC9,0xCA,0xCB,0xCD,0xCE,0xCF}
+i = 2
+width = height = None
+while i + 8 < len(data):
+    if data[i] != 0xFF:
+        i += 1
+        continue
+    marker = data[i + 1]
+    i += 2
+    if marker in {0xD8, 0xD9} or 0xD0 <= marker <= 0xD7:
+        continue
+    if i + 2 > len(data):
+        break
+    length = int.from_bytes(data[i:i+2], 'big')
+    if marker in sof and i + 7 <= len(data):
+        height = int.from_bytes(data[i+3:i+5], 'big')
+        width = int.from_bytes(data[i+5:i+7], 'big')
+        break
+    if length < 2:
+        break
+    i += length
+if (width, height) != (737, 822):
+    raise SystemExit(f'Unexpected Hallazgo cover dimensions: {width}x{height}')
 
 root_relative = '/images/hallazgo-cover.jpg'
 absolute = 'https://oolita.es/images/hallazgo-cover.jpg'
@@ -49,7 +77,7 @@ for rel in ('catalogo-hallazgo/index.html', 'en/hallazgo-catalogue/index.html'):
     if absolute not in text:
         raise SystemExit(f'First-party Hallazgo metadata image missing in {rel}')
 
-print(f'First-party Hallazgo cover verified: {len(data)} bytes, image/jpeg')
+print(f'First-party Hallazgo cover verified: {width}x{height}, {len(data)} bytes, image/jpeg')
 PY
 
 # Keep the retired cover URL working for cached documents, but route it to the
