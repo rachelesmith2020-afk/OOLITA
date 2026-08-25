@@ -27,3 +27,6 @@ for page in sorted(ROOT.rglob("*.html")):
 if remaining:
     raise SystemExit("Legacy Hallazgo Canva host remains: " + ", ".join(remaining))
 print(f"Hallazgo legacy-URL preclean passed: {changed} page(s) changed; no Canva-host stragglers.")
+
+# Deployment trigger: re-run full Hallazgo/SEO chain after the Spanish Editions
+# voice validator learned the approved Hallazgo hardback sequence, 2026-08-25.
