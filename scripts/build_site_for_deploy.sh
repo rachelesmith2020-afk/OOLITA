@@ -17,7 +17,7 @@ replacement = r'''# Reconstruct the Hallazgo catalogue cover from versioned repo
 # This keeps the production page fully first-party and removes the circular
 # dependency on either Google Drive or the currently published OOLITA asset.
 mkdir -p site/hallazgo
-cat assets/hallazgo-q75-b64/part*.txt | tr -d '\n\r ' | base64 --decode > site/hallazgo/hallazgo-catalogue-cover.jpg
+cat assets/hallazgo-cover-b64/part*.txt | tr -d '\n\r ' | base64 --decode > site/hallazgo/hallazgo-catalogue-cover.jpg
 python3 - <<'PY'
 from pathlib import Path
 
