@@ -65,11 +65,12 @@ if not CORE.is_file():
 # The current public homepage can already carry the newly approved concise
 # Hallazgo summary. The historical v1/core pass does not know that form, so
 # temporarily move only that exact string to its expected intermediate state.
-# growth_prep may also temporarily restore the Spanish homepage shell at the
-# 404 path for legacy validators, so bridge that copy as well.
+# growth_prep may also temporarily restore the Spanish homepage shell at either
+# custom-404 filesystem form, so bridge both copies as well.
 home_bridge = {
     "en/index.html": (EN_HOME_CONCISE, EN_HOME_INTERMEDIATE, EN_HOME_LONG),
     "index.html": (ES_HOME_CONCISE, ES_HOME_INTERMEDIATE, ES_HOME_LONG),
+    "404.html": (ES_HOME_CONCISE, ES_HOME_INTERMEDIATE, ES_HOME_LONG),
     "404/index.html": (ES_HOME_CONCISE, ES_HOME_INTERMEDIATE, ES_HOME_LONG),
 }
 for rel, (concise, intermediate, long_form) in home_bridge.items():
@@ -141,6 +142,8 @@ for rel in COMPAT:
 home_final = {
     "en/index.html": (EN_HOME_LONG, EN_HOME_CONCISE),
     "index.html": (ES_HOME_LONG, ES_HOME_CONCISE),
+    "404.html": (ES_HOME_LONG, ES_HOME_CONCISE),
+    "404/index.html": (ES_HOME_LONG, ES_HOME_CONCISE),
 }
 for rel, (long_form, concise) in home_final.items():
     page = ROOT / rel
