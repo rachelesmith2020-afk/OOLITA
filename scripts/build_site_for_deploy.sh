@@ -5,6 +5,7 @@ set -euo pipefail
 # builder is preserved beside this file. This wrapper removes the obsolete
 # Hallazgo live-origin cover dependency, normalizes the catalogue cover URL,
 # and keeps both custom-404 filesystem forms available to downstream validators.
+# mirror_oolita.py deliberately skips the replaced broken Hallazgo PNG.
 python3 - <<'PYWRAP'
 from pathlib import Path
 
@@ -26,10 +27,10 @@ PYWRAP
 
 bash /tmp/oolita-build-site-for-deploy.sh
 
-# The current first-party PNG is a stale/broken 18-byte origin artifact. Remove
-# it from the deploy bundle and point both catalogue pages to the stable image
-# source already approved for Hallazgo. This also prevents it being reported as
-# a broken internal href by the final SEO gate.
+# The current first-party PNG is a stale/broken origin artifact. Remove it from
+# the deploy bundle and point both catalogue pages to the stable image source
+# already approved for Hallazgo. This also prevents it being reported as a
+# broken internal href by the final SEO gate.
 rm -f site/hallazgo/hallazgo-catalogue-cover.png site/hallazgo/hallazgo-catalogue-cover.jpg
 python3 - <<'PY'
 from pathlib import Path
