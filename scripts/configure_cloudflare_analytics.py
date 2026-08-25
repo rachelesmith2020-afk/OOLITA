@@ -71,18 +71,9 @@ for rel in ("domingos/index.html", "en/sundays/index.html"):
             raise SystemExit(f"Sunday 01 green-band invariant missing in {rel}: {needle}")
     print(f"Sunday 01 green band restored in compact archive: {rel}")
 
-# Reader-facing voice edits can change contact headings without changing their
-# structure or meaning (for example "Tell me" -> "Tell us"). Prepare stable
-# markers before the strict low-severity gate so mirror-based rebuilds remain
-# idempotent instead of failing on an obsolete literal heading.
-low_severity_bridge = Path(__file__).with_name("prepare_low_severity_anchors_v1.py")
-if not low_severity_bridge.is_file():
-    raise SystemExit(f"Missing low-severity contact-anchor bridge: {low_severity_bridge}")
-subprocess.run(["python3", str(low_severity_bridge), "site"], check=True)
-
-# GSC Wizard's remaining findings are all low-severity editorial/accessibility
-# items. Run this only after the final Sunday rendering repair so title, schema,
-# alt-text and content-depth fixes are the last content changes before upload.
+# Run the strict GSC-Wizard cleanup only after every reader-facing and mobile
+# transform. The gate uses structural insertion points, not literal headings,
+# so a harmless voice edit cannot block a future mirror-based rebuild.
 low_severity = Path(__file__).with_name("final_low_severity_seo_v1.py")
 if not low_severity.is_file():
     raise SystemExit(f"Missing final low-severity SEO gate: {low_severity}")
