@@ -139,11 +139,12 @@ for rel in COMPAT:
 # the release calendar. Replace only that exact legacy-final string with the
 # approved concise public summary. The detailed keypad/newsletter explanation
 # remains available on the Hallazgo/Editions pages; the directory stays brief.
+# The 404 artifacts are compatibility mirrors rather than independent content;
+# synchronize them from the final Spanish homepage after the strict public-home
+# validation so no stale release wording can survive there.
 home_final = {
     "en/index.html": (EN_HOME_LONG, EN_HOME_CONCISE),
     "index.html": (ES_HOME_LONG, ES_HOME_CONCISE),
-    "404.html": (ES_HOME_LONG, ES_HOME_CONCISE),
-    "404/index.html": (ES_HOME_LONG, ES_HOME_CONCISE),
 }
 for rel, (long_form, concise) in home_final.items():
     page = ROOT / rel
@@ -161,5 +162,13 @@ for rel, (long_form, concise) in home_final.items():
         raise SystemExit(f"Concise Hallazgo homepage validation failed: {rel}")
     if long_form in text:
         raise SystemExit(f"Long Hallazgo homepage description survived release pass: {rel}")
+
+final_es = (ROOT / "index.html").read_text(encoding="utf-8")
+for rel in ("404.html", "404/index.html"):
+    page = ROOT / rel
+    if not page.is_file():
+        raise SystemExit(f"Missing custom 404 artifact after release pass: {rel}")
+    page.write_text(final_es, encoding="utf-8")
+    print(f"release v2 synchronized custom 404 artifact with final homepage: {rel}")
 
 print("OOLITA release-calendar v2 completed with concise Hallazgo homepage copy and no compatibility stragglers.")
