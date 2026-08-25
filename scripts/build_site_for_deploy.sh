@@ -60,24 +60,31 @@ cat >> site/_redirects <<'EOF'
 /hallazgo/hallazgo-catalogue-cover.jpg https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000 302
 EOF
 
-# Force the Hallazgo click inside oolita.es to a fresh document URL. The page's
-# canonical remains query-free, so this cache-busting does not change SEO identity.
+# Keep the SEO-visible href canonical and validator-safe, but on an actual user
+# click route Instagram's in-app browser to a versioned Hallazgo document URL.
 python3 - <<'PY'
 from pathlib import Path
 
 updates = {
-    'index.html': ('href="/catalogo-hallazgo/"', 'href="/catalogo-hallazgo/?v=20260825-1540"'),
-    'en/index.html': ('href="/en/hallazgo-catalogue/"', 'href="/en/hallazgo-catalogue/?v=20260825-1540"'),
+    'index.html': (
+        'href="/catalogo-hallazgo/"',
+        'href="/catalogo-hallazgo/" onclick="window.location.href=\'/catalogo-hallazgo/?v=20260825-1544\'; return false;"'
+    ),
+    'en/index.html': (
+        'href="/en/hallazgo-catalogue/"',
+        'href="/en/hallazgo-catalogue/" onclick="window.location.href=\'/en/hallazgo-catalogue/?v=20260825-1544\'; return false;"'
+    ),
 }
 for rel, (old, new) in updates.items():
     page = Path('site') / rel
     text = page.read_text(encoding='utf-8')
-    if old not in text and new not in text:
-        raise SystemExit(f'Hallazgo homepage href not found in {rel}')
-    text = text.replace(old, new)
-    page.write_text(text, encoding='utf-8')
+    if new not in text:
+        if old not in text:
+            raise SystemExit(f'Hallazgo homepage href not found in {rel}')
+        text = text.replace(old, new, 1)
+        page.write_text(text, encoding='utf-8')
 
-print('Hallazgo homepage hrefs versioned for Instagram in-app browser cache recovery.')
+print('Hallazgo homepage clicks versioned for Instagram while canonical hrefs remain clean.')
 PY
 
 cat >> site/_headers <<'EOF'
