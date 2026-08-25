@@ -22,12 +22,15 @@ COMPAT = {
     "ediciones/index.html": {
         "old": '<p class="parr">El libro sale el 31 de enero de 2027. La primera edición textil llega el 28 de marzo, cuando su diseño termine de desvelarse domingo a domingo.</p>',
         "new": '<p class="parr">El libro sale el 31 de enero de 2027. La primera edición textil llega el 11 de abril. Los detalles y la historia del diseño se irán desvelando domingo a domingo hasta entonces.</p>',
-        "current": "Después vendrá la edición de tapa dura de Hallazgo",
+        "current_markers": (
+            "Después vendrá la edición de tapa dura de Hallazgo",
+            "Edición en tapa dura · obra completa en Castillo 3D · acceso con código · lanzamiento 16.09.27 · presentación 19.09.27",
+        ),
     },
     "en/editions/index.html": {
         "old": '<p class="parr">The book comes out on 31 January 2027. The first textile edition follows on 28 March, once its design has been revealed Sunday by Sunday.</p>',
         "new": '<p class="parr">The book comes out on 31 January 2027. The first textile edition follows on 11 April. Details and the story of the design will be revealed Sunday by Sunday until then.</p>',
-        "current": "After them will come the Hallazgo hardback",
+        "current_markers": ("After them will come the Hallazgo hardback", "Hallazgo — the catalogue"),
     },
 }
 
@@ -44,7 +47,7 @@ for rel, cfg in COMPAT.items():
     text = page.read_text(encoding="utf-8")
     if cfg["old"] in text or cfg["new"] in text:
         continue
-    if cfg["current"] not in text:
+    if not any(marker in text for marker in cfg["current_markers"]):
         # A genuinely older source should be handled by the original migration,
         # and an unknown newer state should fail there rather than be bypassed.
         continue
