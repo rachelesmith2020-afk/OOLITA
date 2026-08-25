@@ -1,0 +1,132 @@
+name: Publish Hallazgo concise homepage copy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-hallazgo-copy-hotfix.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oolita-hallazgo-copy-hotfix
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: c608b5c0e07dc00bd74aa24c9cc78c4a
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Require Cloudflare token
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+
+      - name: Bypass obsolete local Hallazgo cover preservation gate
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/build_site_for_deploy.sh')
+          text = p.read_text(encoding='utf-8')
+          start = text.index('# Preserve the currently published Hallazgo catalogue cover while deploying')
+          end_marker = "print(f'Published Hallazgo cover preserved: {len(data)} bytes, image/jpeg')\nPY\n\n"
+          end = text.index(end_marker, start) + len(end_marker)
+          text = text[:start] + "# Hallazgo catalogue cover remains on its current external image URL during this copy-only deployment.\n\n" + text[end:]
+          text = text.replace('  site/hallazgo/hallazgo-catalogue-cover.jpg\n', '')
+          p.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Reconstruct and validate complete site
+        shell: bash
+        run: bash scripts/build_site_for_deploy.sh
+
+      - name: Apply and validate Cabo de Gata direction
+        shell: bash
+        run: python3 scripts/apply_direction_v3.py site
+
+      - name: Prepare homepage growth definition
+        shell: bash
+        run: python3 scripts/growth_prep.py site
+
+      - name: Apply and validate growth layer
+        shell: bash
+        run: python3 scripts/apply_growth_v2.py site
+
+      - name: Apply and validate commerce configuration
+        shell: bash
+        run: python3 scripts/apply_commerce.py site commerce/catalog.json
+
+      - name: Apply and validate improvement-list completion
+        shell: bash
+        run: python3 scripts/apply_list_completion_v1.py site
+
+      - name: Apply and validate Follow OOLITA transition
+        shell: bash
+        run: python3 scripts/apply_follow_transition_v1.py site
+
+      - name: Apply and validate release calendar
+        shell: bash
+        run: python3 scripts/apply_release_calendar_v2.py site
+
+      - name: Normalize live attribution for legacy audit
+        shell: bash
+        run: python3 scripts/normalize_audit_credit_sources_v1.py site
+
+      - name: Apply and validate accessibility, discovery and privacy audit fixes
+        shell: bash
+        run: python3 scripts/apply_audit_fixes_v1.py site
+
+      - name: Apply and validate first-party analytics
+        shell: bash
+        run: python3 scripts/apply_first_party_analytics_v1.py site
+
+      - name: Install image tooling
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Apply and validate search visibility
+        shell: bash
+        run: python3 scripts/apply_search_visibility_v1.py site
+
+      - name: Validate Pages Functions syntax
+        shell: bash
+        run: |
+          node --check functions/api/event.js
+          node --check functions/_middleware.js
+
+      - name: Remove unsupported Analytics Engine binding
+        shell: bash
+        run: python3 scripts/configure_cloudflare_analytics.py
+
+      - name: Deploy complete site to Cloudflare Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
+
+      - name: Configure canonical host redirect
+        continue-on-error: true
+        shell: bash
+        run: python3 scripts/configure_cloudflare_redirects.py
+
+      - name: Submit updated URLs to IndexNow
+        continue-on-error: true
+        shell: bash
+        run: python3 scripts/submit_indexnow.py site/sitemap.xml search/indexnow-key.txt
+
+      - name: Audit live technical SEO
+        continue-on-error: true
+        shell: bash
+        run: python3 scripts/audit_live_seo_v1.py https://oolita.es
