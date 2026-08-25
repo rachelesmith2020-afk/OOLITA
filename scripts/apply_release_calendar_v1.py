@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import runpy
 import sys
 
@@ -151,8 +152,9 @@ for rel, needles in required_final.items():
             raise SystemExit(f"Hallazgo catalogue validation failed in {rel}: {needle!r}")
 
 # The Editions pages acknowledge Hallazgo without folding it into the numbered
-# OOLITA edition sequence or implying that the hardback is already on sale. This
-# is now first-party at source and is deliberately idempotent on live-origin rebuilds.
+# OOLITA edition sequence or implying that the hardback is already on sale. A
+# rebuild starts from live HTML, so normalize an existing single Hallazgo
+# paragraph atomically; insert it only when it is absent; reject duplicates.
 ES_INSERTION_POINT = (
     "Ninguna de las dos es un recuerdo. El libro lleva el camino al papel; la primera edición textil, "
     "a la tela. Las siguientes mirarán también más allá del trazado, hacia el territorio que lo rodea."
@@ -161,17 +163,15 @@ EN_INSERTION_POINT = (
     "Neither is a souvenir. The book carries the path into paper; the first textile edition carries it "
     "into cloth. Future editions will look beyond the path to the wider territory around it."
 )
-ES_EDITIONS_FINAL = (
-    ES_INSERTION_POINT
-    + "\n<p class=\"parr\"><a href=\"/catalogo-hallazgo/\">Hallazgo — el catálogo ↗</a> queda aparte de esta secuencia: "
+ES_EDITIONS_PARAGRAPH = (
+    "<p class=\"parr\"><a href=\"/catalogo-hallazgo/\">Hallazgo — el catálogo ↗</a> queda aparte de esta secuencia: "
     "una edición en tapa dura que reúne el cuerpo completo de la obra. Se publica el 16 de septiembre de 2027; "
     "presentación pública, 19 de septiembre. "
     + ES_ACCESS_FINAL
     + "</p>"
 )
-EN_EDITIONS_FINAL = (
-    EN_INSERTION_POINT
-    + "\n<p class=\"parr\"><a href=\"/en/hallazgo-catalogue/\">Hallazgo — the catalogue ↗</a> sits apart from this sequence: "
+EN_EDITIONS_PARAGRAPH = (
+    "<p class=\"parr\"><a href=\"/en/hallazgo-catalogue/\">Hallazgo — the catalogue ↗</a> sits apart from this sequence: "
     "a hardback publication bringing together the complete body of work. Published 16 September 2027; "
     "public launch, 19 September. "
     + EN_ACCESS_FINAL
@@ -179,26 +179,34 @@ EN_EDITIONS_FINAL = (
 )
 
 editions_hallazgo = {
-    "ediciones/index.html": (ES_INSERTION_POINT, ES_EDITIONS_FINAL),
-    "en/editions/index.html": (EN_INSERTION_POINT, EN_EDITIONS_FINAL),
+    "ediciones/index.html": (ES_INSERTION_POINT, "Hallazgo — el catálogo", ES_EDITIONS_PARAGRAPH),
+    "en/editions/index.html": (EN_INSERTION_POINT, "Hallazgo — the catalogue", EN_EDITIONS_PARAGRAPH),
 }
-for rel, (old, new) in editions_hallazgo.items():
+for rel, (insertion_point, label, final_paragraph) in editions_hallazgo.items():
     target = ROOT / rel
     if not target.is_file():
         raise SystemExit(f"Missing Editions page for Hallazgo publication: {rel}")
     text = target.read_text(encoding="utf-8")
-    label = "Hallazgo — el catálogo" if rel.startswith("ediciones/") else "Hallazgo — the catalogue"
-    if text.count(label) > 1:
+    label_count = text.count(label)
+    if label_count > 1:
         raise SystemExit(f"Hallazgo Editions entry duplicated before release pass in {rel}")
-    if new not in text:
-        # A clean block from a previous deployment may differ only in surrounding
-        # whitespace. If Hallazgo is already present once, validate it below rather
-        # than inserting a second copy.
-        if text.count(label) == 0:
-            if old not in text:
-                raise SystemExit(f"Expected Editions insertion point missing in {rel}")
-            text = text.replace(old, new, 1)
-            target.write_text(text, encoding="utf-8")
+
+    if label_count == 1:
+        paragraph_pattern = re.compile(
+            rf'<p\b[^>]*class=["\'][^"\']*\bparr\b[^"\']*["\'][^>]*>.*?{re.escape(label)}.*?</p>',
+            flags=re.I | re.S,
+        )
+        matches = list(paragraph_pattern.finditer(text))
+        if len(matches) != 1:
+            raise SystemExit(f"Could not isolate single Hallazgo Editions paragraph in {rel}: {len(matches)} matches")
+        match = matches[0]
+        text = text[:match.start()] + final_paragraph + text[match.end():]
+    else:
+        if insertion_point not in text:
+            raise SystemExit(f"Expected Editions insertion point missing in {rel}")
+        text = text.replace(insertion_point, insertion_point + "\n" + final_paragraph, 1)
+
+    target.write_text(text, encoding="utf-8")
 
 required_editions = {
     "ediciones/index.html": (
