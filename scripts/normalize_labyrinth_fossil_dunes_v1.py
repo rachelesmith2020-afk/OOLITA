@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Final factual/SEO gate for the OOLITA labyrinth location and stone wording.
+"""Final factual/SEO gate for OOLITA labyrinth location, stone wording and hrefs.
 
-The labyrinth is on land beside the fossil dunes, not on a fossil dune. The
-Batería de San Felipe is the deliberate exception: it stands on a fossil dune
-nearby. Reader-facing material wording uses "loose stones", not "loose
-calcarenite". This pass runs after every reader-facing transform, updates sitemap
-freshness for changed pages, and rejects broken internal hrefs in the deployment
-bundle.
+Approved facts:
+- the labyrinth is on land beside the fossil dunes;
+- the nearby Batería de San Felipe stands on a fossil dune;
+- the labyrinth material is described as loose stones, not calcarenite.
+
+The pass is deliberately idempotent because production rebuilds start from the
+current live Pages origin. It updates sitemap freshness for changed routes and
+rejects factual, grammar and internal-href stragglers before deployment.
 """
 from __future__ import annotations
 
@@ -19,74 +21,41 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 BASE = "https://oolita.es"
-LASTMOD = "2026-08-24"
+LASTMOD = "2026-08-25"
 
 if not ROOT.is_dir():
     raise SystemExit(f"Missing built site: {ROOT}")
 
-# These geology pages correctly discuss fossil dunes as geological objects.
 GEOLOGY_EXEMPT = {
     "que-es-un-oolito/index.html",
     "en/what-is-an-ooid/index.html",
 }
 
-# Most-specific first. The approved English labyrinth wording is deliberately
-# consistent: "on land beside the fossil dunes". Spanish uses the equivalent
-# "en terreno junto a las dunas fósiles". Material wording is intentionally
-# non-geological: "loose stones" / "piedras sueltas".
-REPLACEMENTS = (
+# Literal location corrections. Keep these specific and idempotent: never use a
+# singular->plural substring replacement that can turn "dunes" into "duness".
+LITERAL_LOCATION_REPLACEMENTS = (
     (
         "stands on the same fossil dune that names the labyrinth: stone that was once sea",
-        "stands beside the same fossil dunes",
+        "stands on a fossil dune",
     ),
     (
         "se levanta sobre la misma duna fósil que da nombre al laberinto: piedra que fue mar",
-        "se levanta junto a las mismas dunas fósiles",
+        "se levanta sobre una duna fósil",
     ),
     (
         "on a fossil dune that was seabed a hundred thousand years ago",
-        "on land beside the fossil dunes",
+        "on land beside the fossil dunes, ground that was seabed a hundred thousand years ago",
     ),
     (
         "sobre una duna fósil que hace cien mil años fue fondo del mar",
-        "en terreno junto a las dunas fósiles",
-    ),
-    (
-        "on a fossil dune beside the Mediterranean",
-        "on land beside the fossil dunes, by the Mediterranean",
-    ),
-    (
-        "sobre una duna fósil junto al Mediterráneo",
-        "en terreno junto a las dunas fósiles, frente al Mediterráneo",
+        "en terreno junto a las dunas fósiles, terreno que hace cien mil años fue fondo del mar",
     ),
     ("on the Playa del Arco fossil dune", "on land beside the fossil dunes"),
     ("on the Los Escullos fossil dune", "on land beside the fossil dunes"),
     ("on the fossil dune", "on land beside the fossil dunes"),
-    ("on a fossil dune", "on land beside the fossil dunes"),
     ("sobre la duna fósil de la Playa del Arco", "en terreno junto a las dunas fósiles"),
     ("sobre la duna fósil de Los Escullos", "en terreno junto a las dunas fósiles"),
     ("sobre la duna fósil", "en terreno junto a las dunas fósiles"),
-    ("sobre una duna fósil", "en terreno junto a las dunas fósiles"),
-    # Noun-phrase fallbacks for alt/caption/metadata variants that do not carry
-    # a locating preposition.
-    ("the Playa del Arco fossil dune", "the fossil dunes at Playa del Arco"),
-    ("the Los Escullos fossil dune", "the fossil dunes of Los Escullos"),
-    ("the same fossil dune", "the same fossil dunes"),
-    ("la duna fósil de la Playa del Arco", "las dunas fósiles de la Playa del Arco"),
-    ("la duna fósil de Los Escullos", "las dunas fósiles de Los Escullos"),
-    ("la misma duna fósil", "las mismas dunas fósiles"),
-    # The stones used for the labyrinth are described visually, not assigned a
-    # geological material type.
-    ("Loose calcarenite", "Loose stones"),
-    ("loose calcarenite", "loose stones"),
-    ("Calcarenita suelta", "Piedras sueltas"),
-    ("calcarenita suelta", "piedras sueltas"),
-)
-
-# A second pass catches HTML/JSON variants that plain string replacement cannot
-# see cleanly. These are location claims, not geological discussion of fossil
-# dunes, so they are safe to normalize without suppressing legitimate geology.
-SECOND_PASS_REPLACEMENTS = (
     ("Piedras sueltas sobre duna fósil", "Piedras sueltas en terreno junto a las dunas fósiles"),
     ("piedras sueltas sobre duna fósil", "piedras sueltas en terreno junto a las dunas fósiles"),
     ("Loose stones on a fossil dune", "Loose stones on land beside the fossil dunes"),
@@ -95,6 +64,13 @@ SECOND_PASS_REPLACEMENTS = (
      '<span class="k">Ground</span><span class="v">Land beside the fossil dunes · Playa del Arco</span>'),
     ('<span class="k">Terreno</span><span class="v">Duna fósil · Playa del Arco</span>',
      '<span class="k">Terreno</span><span class="v">Terreno junto a las dunas fósiles · Playa del Arco</span>'),
+)
+
+MATERIAL_REPLACEMENTS = (
+    ("Loose calcarenite", "Loose stones"),
+    ("loose calcarenite", "loose stones"),
+    ("Calcarenita suelta", "Piedras sueltas"),
+    ("calcarenita suelta", "piedras sueltas"),
 )
 
 ANCHOR_LOCATION_REPLACEMENTS = (
@@ -114,24 +90,80 @@ ANCHOR_LOCATION_REPLACEMENTS = (
     ),
 )
 
-ARTWORK_SURFACE_REPLACEMENTS = (
-    (re.compile(r'("artworkSurface"\s*:\s*")Fossil[ -]dune(" )?', re.I), None),
-    (re.compile(r'("artworkSurface"\s*:\s*")Duna fósil(" )?', re.I), None),
-)
 
-# The generic labyrinth correction above deliberately catches old singular
-# fossil-dune formulations. Restore the historically correct San Felipe wording
-# only when the local context actually names the battery. A global replacement
-# here can otherwise turn the corrected labyrinth wording back into the error
-# this deployment gate is designed to reject.
-BATTERY_REPLACEMENTS = (
-    ("stands beside the same fossil dunes", "stands on a fossil dune"),
-    ("stands on the same fossil dunes", "stands on a fossil dune"),
-    ("stands on land beside the fossil dunes", "stands on a fossil dune"),
-    ("se levanta junto a las mismas dunas fósiles", "se levanta sobre una duna fósil"),
-    ("se levanta sobre las mismas dunas fósiles", "se levanta sobre una duna fósil"),
-    ("se levanta en terreno junto a las dunas fósiles", "se levanta sobre una duna fósil"),
-)
+def repair_battery_context(text: str) -> str:
+    """Restore the singular San Felipe fact only when the battery is named."""
+    english_variants = (
+        "stands beside the same fossil dunes",
+        "stands on the same fossil dunes",
+        "stands on land beside the fossil dunes",
+        "stands on a fossil dunes",
+        "stands on a fossil duness",
+        "stands on a fossil dune",
+    )
+    spanish_variants = (
+        "se levanta junto a las mismas dunas fósiles",
+        "se levanta sobre las mismas dunas fósiles",
+        "se levanta en terreno junto a las dunas fósiles",
+        "se levanta sobre una dunas fósiles",
+        "se levanta sobre una duna fósil",
+    )
+    for old in english_variants:
+        pattern = re.compile(
+            rf"(Bater[ií]a de San Felipe.{{0,320}}?){re.escape(old)}",
+            re.I | re.S,
+        )
+        text = pattern.sub(lambda m: m.group(1) + "stands on a fossil dune", text)
+    for old in spanish_variants:
+        pattern = re.compile(
+            rf"(Bater[ií]a de San Felipe.{{0,320}}?){re.escape(old)}",
+            re.I | re.S,
+        )
+        text = pattern.sub(lambda m: m.group(1) + "se levanta sobre una duna fósil", text)
+    return text
+
+
+def normalize_non_geology_page(text: str) -> str:
+    # Repair malformed output from the previous non-idempotent plural pass first.
+    text = text.replace("fossil duness", "fossil dunes")
+    text = text.replace("a fossil dunes", "a fossil dune")
+    text = text.replace("dunas fósiless", "dunas fósiles")
+    text = text.replace("una dunas fósiles", "una duna fósil")
+
+    for old, new in MATERIAL_REPLACEMENTS:
+        text = text.replace(old, new)
+    for old, new in LITERAL_LOCATION_REPLACEMENTS:
+        text = text.replace(old, new)
+    for pattern, replacement in ANCHOR_LOCATION_REPLACEMENTS:
+        text = pattern.sub(replacement, text)
+
+    # Safe word-boundary fallbacks for noun phrases and material labels.
+    text = re.sub(r"\bthe same fossil dune\b(?!s)", "the same fossil dunes", text, flags=re.I)
+    text = re.sub(r"\bthe Playa del Arco fossil dune\b", "the fossil dunes at Playa del Arco", text, flags=re.I)
+    text = re.sub(r"\bthe Los Escullos fossil dune\b", "the fossil dunes of Los Escullos", text, flags=re.I)
+    text = re.sub(r"\bloose stone\b(?!s)", "loose stones", text, flags=re.I)
+    text = re.sub(r"\bpiedra suelta\b", "piedras sueltas", text, flags=re.I)
+
+    # Generic singular location claims for the labyrinth/work. The San Felipe
+    # statement is restored contextually afterwards.
+    text = re.sub(r"\bon a fossil[ -]dune\b(?!s)", "on land beside the fossil dunes", text, flags=re.I)
+    text = re.sub(r"\bsobre una duna fósil\b(?!es)", "en terreno junto a las dunas fósiles", text, flags=re.I)
+
+    text = re.sub(
+        r'("artworkSurface"\s*:\s*")Fossil[ -]dune("\s*)',
+        r'\1Land beside the fossil dunes\2',
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        r'("artworkSurface"\s*:\s*")Duna fósil("\s*)',
+        r'\1Terreno junto a las dunas fósiles\2',
+        text,
+        flags=re.I,
+    )
+
+    return repair_battery_context(text)
+
 
 changed: set[str] = set()
 for path in sorted(ROOT.rglob("*.html")):
@@ -139,85 +171,61 @@ for path in sorted(ROOT.rglob("*.html")):
     text = path.read_text(encoding="utf-8")
     before = text
 
+    # Material wording is global, including the geology explainers. Location
+    # normalization is skipped on the dedicated geology pages themselves.
+    for old, new in MATERIAL_REPLACEMENTS:
+        text = text.replace(old, new)
+    text = re.sub(r"\bloose stone\b(?!s)", "loose stones", text, flags=re.I)
+    text = re.sub(r"\bpiedra suelta\b", "piedras sueltas", text, flags=re.I)
     if rel not in GEOLOGY_EXEMPT:
-        for old, new in REPLACEMENTS:
-            text = text.replace(old, new)
-        for old, new in SECOND_PASS_REPLACEMENTS:
-            text = text.replace(old, new)
-        for pattern, replacement in ANCHOR_LOCATION_REPLACEMENTS:
-            text = pattern.sub(replacement, text)
-        # Structured-data surface claims are explicit location assertions.
-        text = re.sub(
-            r'("artworkSurface"\s*:\s*")Fossil[ -]dune("\s*)',
-            r'\1Land beside the fossil dunes\2',
-            text,
-            flags=re.I,
-        )
-        text = re.sub(
-            r'("artworkSurface"\s*:\s*")Duna fósil("\s*)',
-            r'\1Terreno junto a las dunas fósiles\2',
-            text,
-            flags=re.I,
-        )
-        for old, new in BATTERY_REPLACEMENTS:
-            battery_pattern = re.compile(
-                rf"(Bater[ií]a de San Felipe.{{0,260}}?){re.escape(old)}",
-                re.I | re.S,
-            )
-            text = battery_pattern.sub(
-                lambda match, replacement=new: match.group(1) + replacement,
-                text,
-            )
-    else:
-        # Even geology explainers must not describe the labyrinth stones as a
-        # proven calcarenite material.
-        for old, new in REPLACEMENTS[-4:]:
-            text = text.replace(old, new)
+        text = normalize_non_geology_page(text)
 
     if text != before:
         path.write_text(text, encoding="utf-8")
         changed.add(rel)
         print(f"labyrinth factual wording normalized: {rel}")
 
-# No material-type stragglers may survive anywhere in reader-facing HTML.
-material_stragglers: list[str] = []
+# Global material and grammar straggler gates.
+stragglers: list[str] = []
 for path in sorted(ROOT.rglob("*.html")):
     rel = path.relative_to(ROOT).as_posix()
     text = path.read_text(encoding="utf-8")
-    for pattern, label in (
+    checks = (
         (r"\bloose\s+calcarenite\b", "loose calcarenite"),
         (r"\bcalcarenita\s+suelta\b", "calcarenita suelta"),
-    ):
+        (r"\ba\s+fossil[ -]dunes\b", "a fossil dunes"),
+        (r"\bfossil[ -]duness\b", "fossil duness"),
+        (r"\buna\s+dunas\s+fósiles\b", "una dunas fósiles"),
+        (r"\bdunas\s+fósiless\b", "dunas fósiless"),
+    )
+    for pattern, label in checks:
         match = re.search(pattern, text, flags=re.I)
         if match:
-            start = max(0, match.start() - 90)
-            end = min(len(text), match.end() + 120)
+            start = max(0, match.start() - 100)
+            end = min(len(text), match.end() + 140)
             context = re.sub(r"\s+", " ", text[start:end]).strip()
-            material_stragglers.append(f"{rel}: {label}: {context}")
+            stragglers.append(f"{rel}: {label}: {context}")
 
-if material_stragglers:
-    print("Disallowed calcarenite wording remains:")
-    print("\n".join(material_stragglers))
+if stragglers:
+    print("Disallowed material/grammar stragglers remain:")
+    print("\n".join(stragglers))
     raise SystemExit(1)
 
-# Validate only explicit *location claims*. A page may legitimately discuss a
-# singular fossil dune geologically (for example a Sunday article description),
-# so a bare occurrence of "fossil dune" is not an error. The patterns below
-# catch the actual wrong assertion: the labyrinth/work being on one.
+# Validate explicit location claims. A singular fossil dune may be discussed
+# geologically, but outside the geology explainers the only allowed placement
+# claim is the named San Felipe battery statement.
 location_stragglers: list[str] = []
 allowed_battery_patterns = (
-    re.compile(r"Bater[ií]a de San Felipe.{0,260}?stands on a fossil[ -]dune", re.I | re.S),
-    re.compile(r"Bater[ií]a de San Felipe.{0,260}?se levanta sobre una duna fósil", re.I | re.S),
+    re.compile(r"Bater[ií]a de San Felipe.{0,320}?stands on a fossil[ -]dune(?!s)", re.I | re.S),
+    re.compile(r"Bater[ií]a de San Felipe.{0,320}?se levanta sobre una duna fósil(?!es)", re.I | re.S),
 )
 BAD_LOCATION_PATTERNS = (
-    (re.compile(r"\b(?:stands|sits|lies|is|laid|built|placed|occupies)\s+on\s+(?:an?\s+)?(?:<[^>]+>\s*)*fossil[ -]dune\b", re.I | re.S), "English on-fossil-dune location claim"),
-    (re.compile(r"\bon\s+(?:an?\s+)?(?:<[^>]+>\s*)*fossil[ -]dune\b", re.I | re.S), "English on-fossil-dune location claim"),
-    (re.compile(r"\b(?:se encuentra|se sitúa|está|ocupa|se levanta|fue colocado)\s+sobre\s+(?:una?\s+|la\s+)?(?:<[^>]+>\s*)*duna fósil\b", re.I | re.S), "Spanish sobre-duna-fósil location claim"),
-    (re.compile(r"\bsobre\s+(?:una?\s+|la\s+)?(?:<[^>]+>\s*)*duna fósil\b", re.I | re.S), "Spanish sobre-duna-fósil location claim"),
+    (re.compile(r"\b(?:stands|sits|lies|is|laid|built|placed|occupies)\s+on\s+(?:an?\s+)?(?:<[^>]+>\s*)*fossil[ -]dune\b(?!s)", re.I | re.S), "English on-fossil-dune location claim"),
+    (re.compile(r"\bon\s+(?:an?\s+)?(?:<[^>]+>\s*)*fossil[ -]dune\b(?!s)", re.I | re.S), "English on-fossil-dune location claim"),
+    (re.compile(r"\b(?:se encuentra|se sitúa|está|ocupa|se levanta|fue colocado)\s+sobre\s+(?:una?\s+|la\s+)?(?:<[^>]+>\s*)*duna fósil\b(?!es)", re.I | re.S), "Spanish sobre-duna-fósil location claim"),
+    (re.compile(r"\bsobre\s+(?:una?\s+|la\s+)?(?:<[^>]+>\s*)*duna fósil\b(?!es)", re.I | re.S), "Spanish sobre-duna-fósil location claim"),
     (re.compile(r'"artworkSurface"\s*:\s*"Fossil[ -]dune"', re.I), "English artworkSurface location claim"),
     (re.compile(r'"artworkSurface"\s*:\s*"Duna fósil"', re.I), "Spanish artworkSurface location claim"),
-    (re.compile(r'<span class="k">Ground</span><span class="v">\s*Fossil[ -]dune\b', re.I), "English Ground fact location claim"),
-    (re.compile(r'<span class="k">Terreno</span><span class="v">\s*Duna fósil\b', re.I), "Spanish Terreno fact location claim"),
 )
 
 for path in sorted(ROOT.rglob("*.html")):
@@ -228,7 +236,6 @@ for path in sorted(ROOT.rglob("*.html")):
     allowed_spans: list[tuple[int, int]] = []
     for pattern in allowed_battery_patterns:
         allowed_spans.extend((m.start(), m.end()) for m in pattern.finditer(text))
-
     for pattern, label in BAD_LOCATION_PATTERNS:
         for match in pattern.finditer(text):
             if any(start <= match.start() < end for start, end in allowed_spans):
@@ -243,21 +250,37 @@ if location_stragglers:
     print("\n".join(location_stragglers))
     raise SystemExit(1)
 
-# The global straggler gate above is the authoritative location check. Do not
-# require every English page that merely mentions fossil dunes (for example a
-# Sunday article about geology) to repeat the labyrinth's approved location
-# phrase. Replacements still normalize every explicit wrong placement claim,
-# while legitimate geological prose remains intact.
+# Exact reader-facing invariants for the two labyrinth pages.
+required_page_copy = {
+    "en/labyrinth/index.html": (
+        "on land beside the fossil dunes",
+        "Batería de San Felipe",
+        "stands on a fossil dune",
+        "loose stones",
+    ),
+    "laberinto/index.html": (
+        "en terreno junto a las dunas fósiles",
+        "Batería de San Felipe",
+        "se levanta sobre una duna fósil",
+        "piedras sueltas",
+    ),
+}
+for rel, required in required_page_copy.items():
+    path = ROOT / rel
+    if not path.is_file():
+        raise SystemExit(f"Missing required labyrinth page: {rel}")
+    lower = path.read_text(encoding="utf-8").lower()
+    for phrase in required:
+        if phrase.lower() not in lower:
+            raise SystemExit(f"Required final copy missing from {rel}: {phrase}")
 
-# Mark corrected public routes fresh for search engines and the existing
-# IndexNow submission step.
+# Mark corrected public routes fresh for search engines and IndexNow.
 def route_for_html(rel: str) -> str:
     if rel == "index.html":
         return "/"
     if rel.endswith("/index.html"):
         return "/" + rel[: -len("index.html")]
     return "/" + rel
-
 
 sitemap = ROOT / "sitemap.xml"
 if not sitemap.is_file():
@@ -286,9 +309,8 @@ for url_el in root.findall("sm:url", ns):
 if changed_routes:
     tree.write(sitemap, encoding="utf-8", xml_declaration=True)
 
-# Static internal-href gate: reject links to routes/assets that are not present
-# in the final Pages bundle. API endpoints and same-page fragments are dynamic
-# or fragment-only and are intentionally excluded.
+# Static internal-href gate: reject links to routes/assets absent from the final
+# Pages bundle. API endpoints and same-page fragments are dynamic/fragment-only.
 HREF_RE = re.compile(r"\bhref\s*=\s*([\"'])(.*?)\1", flags=re.I | re.S)
 INTERNAL_HOSTS = {"oolita.es", "www.oolita.es"}
 missing_hrefs: list[str] = []
@@ -350,5 +372,5 @@ if missing_hrefs:
 print(
     f"OOLITA labyrinth wording normalized on {len(changed)} page(s); "
     f"{len(seen_routes)} sitemap route(s) refreshed; "
-    "calcarenite/location straggler gates and internal href gate passed."
+    "material/grammar/location straggler gates and internal href gate passed."
 )
