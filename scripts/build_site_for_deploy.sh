@@ -34,3 +34,8 @@ if [ -f site/404.html ] && [ ! -f site/404/index.html ]; then
   cp site/404.html site/404/index.html
   echo '404 compatibility mirror created: site/404/index.html'
 fi
+
+# Rebuild every browser/search favicon surface from the published cat icon.
+# The mirrored origin can contain a stale legacy favicon.ico, so this runs only
+# after reconstruction and 404 normalization and validates every HTML page.
+python3 scripts/apply_favicon_seo_v1.py site
