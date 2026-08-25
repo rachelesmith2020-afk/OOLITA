@@ -19,6 +19,7 @@ on:
       - 'scripts/apply_list_completion_v1.py'
       - 'scripts/apply_follow_transition_v1.py'
       - 'scripts/apply_release_calendar_v1.py'
+      - 'scripts/apply_release_calendar_v2.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
       - 'scripts/apply_follow_mobile_finish.py'
       - 'scripts/normalize_audit_credit_sources_v1.py'
@@ -67,6 +68,7 @@ on:
       - 'scripts/apply_list_completion_v1.py'
       - 'scripts/apply_follow_transition_v1.py'
       - 'scripts/apply_release_calendar_v1.py'
+      - 'scripts/apply_release_calendar_v2.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
       - 'scripts/apply_follow_mobile_finish.py'
       - 'scripts/normalize_audit_credit_sources_v1.py'
@@ -153,7 +155,7 @@ jobs:
 
       - name: Apply and validate release calendar
         shell: bash
-        run: python3 scripts/apply_release_calendar_v1.py site
+        run: python3 scripts/apply_release_calendar_v2.py site
 
       - name: Normalize live attribution for legacy audit
         shell: bash
@@ -245,7 +247,7 @@ jobs:
 
       - name: Apply and validate release calendar
         shell: bash
-        run: python3 scripts/apply_release_calendar_v1.py site
+        run: python3 scripts/apply_release_calendar_v2.py site
 
       - name: Normalize live attribution for legacy audit
         shell: bash
