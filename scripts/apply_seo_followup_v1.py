@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+import runpy
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -125,8 +126,6 @@ def normalise_breadcrumb_schema(rel: str, items: list[tuple[str, str]]) -> None:
         except json.JSONDecodeError as exc:
             raise SystemExit(f"Invalid JSON-LD while normalising breadcrumbs in {rel}: {exc}") from exc
 
-        # Remove standalone or @graph breadcrumb copies. One canonical entity is
-        # inserted below; nested Article/WebPage properties reference its @id.
         if isinstance(payload, dict) and payload.get("@type") == "BreadcrumbList":
             return ""
 
@@ -303,3 +302,17 @@ print(
     f"changed_routes={len(changed_routes)}; long_descriptions={len(long_descriptions)}; "
     f"domain_mentions={len(domain_mentions)}; og_updated_time={len(updated_times)}"
 )
+
+# 7. Absolute favicon/search-identity pass. The earlier 23 Aug SEO repair still
+# creates the retired O-card ICO/Apple assets; replace them after that pass on
+# every build, publish cache-busted cat URLs in every <head>, and fail closed if
+# any icon surface is missing or non-crawlable.
+favicon_script = Path(__file__).resolve().parent / "apply_favicon_seo_v1.py"
+if not favicon_script.is_file():
+    raise SystemExit(f"Missing favicon SEO layer: {favicon_script}")
+old_argv = sys.argv[:]
+sys.argv = [str(favicon_script), str(ROOT)]
+try:
+    runpy.run_path(str(favicon_script), run_name="__main__")
+finally:
+    sys.argv = old_argv
