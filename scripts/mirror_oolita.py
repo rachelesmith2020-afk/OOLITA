@@ -22,6 +22,9 @@ OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 MAX_FILES = 500
 MAX_BYTES = 150 * 1024 * 1024
 ALLOWED_HOSTS = {"oolita.pages.dev", "oolita.es", "www.oolita.es"}
+# This stale production asset is deliberately replaced by the deployment
+# wrapper after mirroring. Do not let its current 404 abort reconstruction.
+REPLACED_PATHS = {"/hallazgo/hallazgo-catalogue-cover.png"}
 ASSET_EXTS = (
     "html", "htm", "css", "js", "mjs", "json", "xml", "txt",
     "png", "jpg", "jpeg", "avif", "webp", "gif", "svg", "ico",
@@ -40,6 +43,8 @@ def normalize(raw: str, base: str = ORIGIN + "/") -> str | None:
     if host not in ALLOWED_HOSTS:
         return None
     path = parts.path or "/"
+    if path in REPLACED_PATHS:
+        return None
     return urlunsplit(("https", "oolita.pages.dev", path, "", ""))
 
 
