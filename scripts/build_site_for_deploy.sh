@@ -13,7 +13,7 @@ start_marker = '# Preserve the currently published Hallazgo catalogue cover whil
 end_marker = '\nrequired=('
 start = source.index(start_marker)
 end = source.index(end_marker, start)
-replacement = '''# Hallazgo cover is reconstructed after the reviewed builder completes.\n'''
+replacement = '''# Hallazgo cover is supplied by overrides/images/hallazgo-cover.jpg.\n'''
 patched = source[:start] + replacement + source[end:]
 patched = patched.replace('  site/hallazgo/hallazgo-catalogue-cover.jpg\n', '')
 patched = patched.replace(
@@ -25,35 +25,15 @@ PYWRAP
 
 bash /tmp/oolita-build-site-for-deploy.sh
 
-# Reconstruct the known-good Hallazgo JPEG from versioned repository data.
-# The historical chunks contain inconsistent padding, so normalise the base64
-# alphabet and apply padding once after concatenation.
-mkdir -p site/images
-python3 - <<'PY'
-from pathlib import Path
-import base64
-import re
-
-parts = []
-for path in sorted(Path('assets/hallazgo-cover-b64').glob('part*.txt')):
-    chunk = path.read_text(encoding='utf-8')
-    chunk = re.sub(r'[^A-Za-z0-9+/=]', '', chunk)
-    chunk = chunk.replace('=', '')
-    parts.append(chunk)
-if not parts:
-    raise SystemExit('No Hallazgo cover data chunks found')
-encoded = ''.join(parts)
-encoded += '=' * ((4 - len(encoded) % 4) % 4)
-data = base64.b64decode(encoded, validate=True)
-Path('site/images/hallazgo-cover.jpg').write_bytes(data)
-PY
-
+# Validate the committed first-party Hallazgo JPEG and both catalogue references.
 python3 - <<'PY'
 from pathlib import Path
 
 asset = Path('site/images/hallazgo-cover.jpg')
+if not asset.is_file():
+    raise SystemExit('Missing first-party Hallazgo cover: site/images/hallazgo-cover.jpg')
 data = asset.read_bytes()
-if len(data) < 15000:
+if len(data) < 50000:
     raise SystemExit(f'Hallazgo cover unexpectedly small: {len(data)} bytes')
 if not (data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9')):
     raise SystemExit('Hallazgo cover is not a complete JPEG')
