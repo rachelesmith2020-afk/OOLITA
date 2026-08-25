@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import urllib.error
 import urllib.request
@@ -28,26 +29,47 @@ if not mobile_repair.is_file():
     raise SystemExit(f"Missing final mobile Sunday repair: {mobile_repair}")
 subprocess.run(["python3", str(mobile_repair), "site"], check=True)
 
-# Sunday 01 is the only published source that is not an exact 4:5 frame
-# (417x518; 02 and 03 are exact 4:5). The mobile tile is exactly 4:5, so
-# object-fit:cover can shave the outermost edge and hide the thin green line
-# that is visible in the Instagram artwork. Preserve the complete artwork in
-# the final deployed Sunday field instead of cropping any edge pixels.
+# Sunday 01's archived source does not contain the coloured left band that is
+# present in the Instagram composition and in Sundays 02 and 03. Add that band
+# at the final rendering stage so the compact archive reproduces the published
+# visual language without altering the source image file itself.
+SUNDAY01_STYLE_ID = "oolita-sunday-01-green-band"
+SUNDAY01_STYLE = f'''<style id="{SUNDAY01_STYLE_ID}">
+@media(max-width:640px){{
+  .sunday-field-grid .sunday-image-tile[data-sunday="1"] .sunday-archive-thumb{{
+    box-sizing:border-box!important;
+    padding-left:9%!important;
+    background:#2d4e23!important;
+  }}
+}}
+</style>'''
 for rel in ("domingos/index.html", "en/sundays/index.html"):
     page = Path("site") / rel
     if not page.is_file():
-        raise SystemExit(f"Missing final Sunday page while preserving artwork edge: {rel}")
+        raise SystemExit(f"Missing final Sunday page while restoring green band: {rel}")
     text = page.read_text(encoding="utf-8")
-    old = "object-fit:cover!important;"
-    new = "object-fit:contain!important;"
-    if old not in text:
-        raise SystemExit(f"Expected mobile Sunday cover rule missing in {rel}")
-    text = text.replace(old, new, 1)
+    text = re.sub(
+        rf'<style\s+id=["\']{re.escape(SUNDAY01_STYLE_ID)}["\'][^>]*>[\s\S]*?</style>\s*',
+        "",
+        text,
+        flags=re.I,
+    )
+    if "</head>" not in text:
+        raise SystemExit(f"Missing </head> while restoring Sunday 01 green band: {rel}")
+    text = text.replace("</head>", SUNDAY01_STYLE + "\n</head>", 1)
     page.write_text(text, encoding="utf-8")
     final_text = page.read_text(encoding="utf-8")
-    if new not in final_text:
-        raise SystemExit(f"Sunday artwork edge-preservation rule failed in {rel}")
-    print(f"Sunday artwork edge preserved without cropping: {rel}")
+    required = (
+        f'id="{SUNDAY01_STYLE_ID}"',
+        'data-sunday="1"',
+        'padding-left:9%!important',
+        'background:#2d4e23!important',
+        'object-fit:cover!important',
+    )
+    for needle in required:
+        if needle not in final_text:
+            raise SystemExit(f"Sunday 01 green-band invariant missing in {rel}: {needle}")
+    print(f"Sunday 01 green band restored in compact archive: {rel}")
 
 if not ACCOUNT_ID or not TOKEN:
     raise SystemExit("Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN")
