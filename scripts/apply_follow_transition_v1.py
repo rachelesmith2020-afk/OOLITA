@@ -34,15 +34,16 @@ for path in ROOT.rglob("*.html"):
 
     # Double opt-in: a new address is pending until the confirmation link is
     # opened. An address that was already confirmed stays active and only has
-    # its preferences refreshed. The result must also be visibly brought into
-    # view because the status line sits above the submit button.
+    # its preferences refreshed. The result is presented as a high-contrast
+    # OOLITA green confirmation box and brought into view after submission.
     old_success = (
         "if(s)s.textContent=lang==='es'?'Ya estás dentro · gracias por seguir OOLITA.':'You’re in · thank you for following OOLITA.';"
     )
     new_success = (
         "if(s){s.textContent=j.state==='active'?(lang==='es'?'Gracias · tu correo ya estaba confirmado. Hemos actualizado tus preferencias.':'Thanks · your email was already confirmed. We updated your preferences.'):(lang==='es'?'Gracias · revisa tu correo y confirma el enlace. Nos vemos pronto.':'Thanks · check your email and confirm the link. See you soon.');"
         "s.setAttribute('tabindex','-1');s.style.opacity='1';s.style.textTransform='none';s.style.fontSize='1rem';"
-        "s.style.borderTop='1.5px solid currentColor';s.style.borderBottom='1.5px solid currentColor';s.style.padding='1rem 0';"
+        "s.style.background='#1f4f21';s.style.color='#f1e6cf';s.style.border='1.5px solid #1f4f21';s.style.padding='1.1rem 1.25rem';"
+        "s.style.fontWeight='600';s.style.lineHeight='1.45';s.style.letterSpacing='.01em';s.style.display='block';s.style.width='100%';"
         "s.focus({preventScroll:true});s.scrollIntoView({behavior:'smooth',block:'center'});}"
     )
     if old_success in text:
@@ -102,4 +103,4 @@ for path in ROOT.rglob("*.html"):
 if success_ui_patches == 0:
     raise SystemExit("Double-opt-in success confirmation UI was not found in the rendered site")
 
-print("OOLITA Follow Cloudflare activation, double opt-in copy, plural Books/Libros interest, mobile CTA and visible success confirmation validated successfully.")
+print("OOLITA Follow Cloudflare activation, double opt-in copy, plural Books/Libros interest, green success box, mobile CTA and visible success confirmation validated successfully.")

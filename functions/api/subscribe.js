@@ -89,15 +89,15 @@ function confirmationEmailHtml(spanish, confirmUrl) {
   <meta name="x-apple-disable-message-reformatting">
   <title>${heading} · OOLITA</title>
 </head>
-<body style="margin:0;padding:0;background:#f1e6cf;color:#132572;">
+<body style="margin:0;padding:0;background:#f1e6cf;color:#1f4f21;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">${preheader}</div>
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f1e6cf;border-collapse:collapse;">
     <tr>
       <td align="center" style="padding:48px 20px;">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;border-collapse:collapse;">
           <tr>
-            <td style="padding:0 0 44px;font-family:'Instrument Sans',Arial,sans-serif;color:#132572;">
-              <a href="https://oolita.es/" style="color:#132572;text-decoration:none;" aria-label="OOLITA">
+            <td style="padding:0 0 44px;font-family:'Instrument Sans',Arial,sans-serif;color:#1f4f21;">
+              <a href="https://oolita.es/" style="color:#1f4f21;text-decoration:none;" aria-label="OOLITA">
                 <img src="https://oolita.es/favicon.svg" width="92" height="92" alt="${markAlt}" style="display:block;width:92px;height:92px;margin:0 0 22px;border:0;outline:none;text-decoration:none;">
                 <span style="display:block;font-size:30px;line-height:1;letter-spacing:0.08em;font-weight:600;">OOLITA</span>
                 <span style="display:block;margin-top:9px;font-size:12px;line-height:1.2;letter-spacing:0.12em;text-transform:uppercase;">Los Escullos</span>
@@ -105,25 +105,25 @@ function confirmationEmailHtml(spanish, confirmUrl) {
             </td>
           </tr>
           <tr>
-            <td style="border-top:1px solid #132572;padding:42px 0 0;">
-              <h1 style="margin:0 0 28px;font-family:'Instrument Serif',Georgia,serif;font-size:48px;line-height:0.98;font-weight:400;letter-spacing:-0.02em;color:#132572;">${heading}</h1>
-              <p style="margin:0 0 10px;font-family:'Instrument Sans',Arial,sans-serif;font-size:18px;line-height:1.5;color:#132572;">${intro}</p>
-              <p style="margin:0 0 34px;font-family:'Instrument Sans',Arial,sans-serif;font-size:18px;line-height:1.5;color:#132572;">${detail}</p>
+            <td style="border-top:1px solid #1f4f21;padding:42px 0 0;">
+              <h1 style="margin:0 0 28px;font-family:'Instrument Serif',Georgia,serif;font-size:48px;line-height:0.98;font-weight:400;letter-spacing:-0.02em;color:#1f4f21;">${heading}</h1>
+              <p style="margin:0 0 10px;font-family:'Instrument Sans',Arial,sans-serif;font-size:18px;line-height:1.5;color:#1f4f21;">${intro}</p>
+              <p style="margin:0 0 34px;font-family:'Instrument Sans',Arial,sans-serif;font-size:18px;line-height:1.5;color:#1f4f21;">${detail}</p>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
                 <tr>
-                  <td bgcolor="#132572" style="background:#132572;">
-                    <a href="${confirmUrl}" style="display:inline-block;padding:15px 22px;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;line-height:1.1;font-weight:600;color:#f1e6cf;text-decoration:none;border:1px solid #132572;">${button}</a>
+                  <td bgcolor="#1f4f21" style="background:#1f4f21;">
+                    <a href="${confirmUrl}" style="display:inline-block;padding:15px 22px;font-family:'Instrument Sans',Arial,sans-serif;font-size:16px;line-height:1.1;font-weight:600;color:#f1e6cf;text-decoration:none;border:1px solid #1f4f21;">${button}</a>
                   </td>
                 </tr>
               </table>
-              <p style="margin:36px 0 0;font-family:'Instrument Sans',Arial,sans-serif;font-size:14px;line-height:1.5;color:#132572;">${promise}</p>
-              <p style="margin:9px 0 0;font-family:'Instrument Sans',Arial,sans-serif;font-size:14px;line-height:1.5;color:#132572;">${ignore}</p>
+              <p style="margin:36px 0 0;font-family:'Instrument Sans',Arial,sans-serif;font-size:14px;line-height:1.5;color:#1f4f21;">${promise}</p>
+              <p style="margin:9px 0 0;font-family:'Instrument Sans',Arial,sans-serif;font-size:14px;line-height:1.5;color:#1f4f21;">${ignore}</p>
             </td>
           </tr>
           <tr>
-            <td style="padding:48px 0 0;font-family:'Instrument Sans',Arial,sans-serif;font-size:12px;line-height:1.5;color:#132572;">
-              <div style="border-top:1px solid #132572;padding-top:16px;">OOLITA · Los Escullos</div>
-              <div><a href="https://oolita.es/" style="color:#132572;text-decoration:underline;text-underline-offset:3px;">oolita.es</a></div>
+            <td style="padding:48px 0 0;font-family:'Instrument Sans',Arial,sans-serif;font-size:12px;line-height:1.5;color:#1f4f21;">
+              <div style="border-top:1px solid #1f4f21;padding-top:16px;">OOLITA · Los Escullos</div>
+              <div><a href="https://oolita.es/" style="color:#1f4f21;text-decoration:underline;text-underline-offset:3px;">oolita.es</a></div>
             </td>
           </tr>
         </table>
