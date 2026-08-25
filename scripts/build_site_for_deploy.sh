@@ -68,4 +68,14 @@ patched = patched.replace(
 Path('/tmp/oolita-build-site-for-deploy.sh').write_text(patched, encoding='utf-8')
 PYWRAP
 
-exec bash /tmp/oolita-build-site-for-deploy.sh
+bash /tmp/oolita-build-site-for-deploy.sh
+
+# The live mirror may expose the custom error document as /404.html while the
+# downstream release-calendar compatibility layer expects /404/index.html.
+# Keep both forms in the deployment bundle so the custom 404 and the release
+# validators agree without changing any public URL or internal href.
+if [ -f site/404.html ] && [ ! -f site/404/index.html ]; then
+  mkdir -p site/404
+  cp site/404.html site/404/index.html
+  echo '404 compatibility mirror created: site/404/index.html'
+fi
