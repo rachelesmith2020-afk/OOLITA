@@ -12,43 +12,28 @@ if [ -d overrides ]; then
   cp -a overrides/. site/
 fi
 
-# Reconstruct the sharp Hallazgo catalogue cover from the staged source chunks.
-# This deliberately overwrites the old low-resolution mirrored JPEG on every deploy.
-if compgen -G 'assets/hallazgo-q75-v2/part*.txt' >/dev/null; then
-  mkdir -p site/hallazgo
-  cat assets/hallazgo-q75-v2/part*.txt | tr -d '\r\n' | base64 --decode > site/hallazgo/hallazgo-catalogue-cover.jpg
-  python3 - <<'PY'
+# Publish the exact Hallazgo catalogue cover supplied in Drive. The previous
+# staged base64 chunks were incomplete and could not be decoded reliably. Keep
+# the original PNG format and validate both its signature and exact dimensions.
+mkdir -p site/hallazgo
+curl --fail --location --retry 3 --retry-delay 1 --silent --show-error \
+  'https://drive.usercontent.google.com/download?id=1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ&export=view&authuser=0' \
+  --output site/hallazgo/hallazgo-catalogue-cover.png
+python3 - <<'PY'
 from pathlib import Path
-p = Path('site/hallazgo/hallazgo-catalogue-cover.jpg')
+import struct
+
+p = Path('site/hallazgo/hallazgo-catalogue-cover.png')
 data = p.read_bytes()
-if not (data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9')):
-    raise SystemExit('Hallazgo cover reconstruction did not produce a valid JPEG')
-sof = {0xC0,0xC1,0xC2,0xC3,0xC5,0xC6,0xC7,0xC9,0xCA,0xCB,0xCD,0xCE,0xCF}
-i = 2
-width = height = None
-while i + 8 < len(data):
-    if data[i] != 0xFF:
-        i += 1
-        continue
-    marker = data[i + 1]
-    i += 2
-    if marker in {0xD8, 0xD9} or 0xD0 <= marker <= 0xD7:
-        continue
-    if i + 2 > len(data):
-        break
-    length = int.from_bytes(data[i:i+2], 'big')
-    if marker in sof and i + 7 <= len(data):
-        height = int.from_bytes(data[i+3:i+5], 'big')
-        width = int.from_bytes(data[i+5:i+7], 'big')
-        break
-    if length < 2:
-        break
-    i += length
+if not data.startswith(b'\x89PNG\r\n\x1a\n'):
+    raise SystemExit('Hallazgo cover download did not produce a valid PNG')
+if len(data) < 24 or data[12:16] != b'IHDR':
+    raise SystemExit('Hallazgo cover PNG is missing IHDR')
+width, height = struct.unpack('>II', data[16:24])
 if (width, height) != (737, 822):
     raise SystemExit(f'Unexpected Hallazgo cover dimensions: {width}x{height}')
-print(f'Hallazgo cover reconstructed and validated: {width}x{height}, {len(data)} bytes')
+print(f'Hallazgo cover downloaded and validated: {width}x{height}, {len(data)} bytes')
 PY
-fi
 
 required=(
   site/index.html
@@ -71,7 +56,7 @@ required=(
   site/en/editions/t-shirt/index.html
   site/catalogo-hallazgo/index.html
   site/en/hallazgo-catalogue/index.html
-  site/hallazgo/hallazgo-catalogue-cover.jpg
+  site/hallazgo/hallazgo-catalogue-cover.png
   site/sitemap.xml
   site/robots.txt
   site/favicon.svg
@@ -295,4 +280,4 @@ echo 'OOLITA deployment bundle validated.'
 # Production propagation trigger: Veriditas credential compatibility bridge.
 # Production propagation trigger: retire the Wednesday/Reels page cleanly.
 # Production propagation trigger: validate the English 3D launch notice and follow href.
-# Production propagation trigger: rebuild sharp Hallazgo catalogue cover and SEO.
+# Production propagation trigger: publish exact Hallazgo catalogue cover PNG and SEO.
