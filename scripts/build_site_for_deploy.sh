@@ -66,6 +66,7 @@ PY
 # click route Instagram's in-app browser to a versioned Hallazgo document URL.
 python3 - <<'PY'
 from pathlib import Path
+import re
 
 updates = {
     'index.html': (
@@ -80,9 +81,7 @@ updates = {
 for rel, (old, new) in updates.items():
     page = Path('site') / rel
     text = page.read_text(encoding='utf-8')
-    # Replace any previous Hallazgo versioned onclick while preserving the clean href.
-    import re
-    pattern = re.escape(old) + r'(?: onclick="window\.location\.href=\'[^\']+\'; return false;")?'
+    pattern = re.escape(old) + r"(?: onclick=\"window\.location\.href='[^']+'; return false;\")?"
     text2, n = re.subn(pattern, new, text, count=1)
     if n != 1:
         raise SystemExit(f'Hallazgo homepage href not found in {rel}')
