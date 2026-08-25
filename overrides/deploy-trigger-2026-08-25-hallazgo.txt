@@ -1,0 +1,1 @@
+Temporary production deployment trigger for the bilingual Hallazgo Editions sequence and SEO/href validation.
