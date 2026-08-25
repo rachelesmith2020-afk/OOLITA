@@ -88,3 +88,44 @@ elif [ -f site/404/index.html ] && [ ! -f site/404.html ]; then
 fi
 
 python3 scripts/apply_favicon_seo_v1.py site
+
+# Force browsers to fetch the current favicon even if an older same-name icon
+# was cached as immutable. The query version tracks the actual SVG content.
+python3 - <<'PYFAVICON'
+from pathlib import Path
+import hashlib
+
+root = Path('site')
+source = root / 'favicon.svg'
+version = hashlib.sha256(source.read_bytes()).hexdigest()[:12]
+icons = (
+    'favicon-cat.svg',
+    'favicon-48-cat.png',
+    'favicon-cat.ico',
+    'apple-touch-icon-cat.png',
+)
+
+count = 0
+for path in root.rglob('*.html'):
+    text = path.read_text(encoding='utf-8')
+    for name in icons:
+        text = text.replace(f'href="/{name}"', f'href="/{name}?v={version}"')
+    for name in icons:
+        expected = f'href="/{name}?v={version}"'
+        if text.count(expected) != 1:
+            raise SystemExit(f'Cache-busted favicon href missing or duplicated in {path.relative_to(root)}: {expected}')
+    path.write_text(text, encoding='utf-8')
+    count += 1
+
+headers_path = root / '_headers'
+headers = headers_path.read_text(encoding='utf-8')
+headers = headers.replace(
+    'Cache-Control: public, max-age=31536000, immutable',
+    'Cache-Control: public, max-age=0, must-revalidate',
+)
+headers_path.write_text(headers, encoding='utf-8')
+
+if count == 0:
+    raise SystemExit('No HTML files found while cache-busting favicon URLs')
+print(f'OOLITA favicon cache busted on {count} HTML pages: v={version}')
+PYFAVICON
