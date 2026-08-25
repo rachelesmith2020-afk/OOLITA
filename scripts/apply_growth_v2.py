@@ -21,12 +21,15 @@ CORE = HERE / "apply_growth_v1.py"
 SENTINELS = {
     "ediciones/index.html": {
         "legacy_marker": "Las ediciones son la parte que puedes conservar.",
-        "current_marker": "Hallazgo — el catálogo",
+        "current_markers": (
+            "Hallazgo — el catálogo",
+            "Edición en tapa dura · obra completa en Castillo 3D · acceso con código · lanzamiento 16.09.27 · presentación 19.09.27",
+        ),
         "sentinel": "<!-- growth-v2 compatibility: Las ediciones son la parte que puedes conservar. -->",
     },
     "en/editions/index.html": {
         "legacy_marker": "The editions are the part you can keep.",
-        "current_marker": "Hallazgo — the catalogue",
+        "current_markers": ("Hallazgo — the catalogue",),
         "sentinel": "<!-- growth-v2 compatibility: The editions are the part you can keep. -->",
     },
 }
@@ -44,7 +47,7 @@ for rel, cfg in SENTINELS.items():
     text = page.read_text(encoding="utf-8")
     if cfg["legacy_marker"] in text:
         continue
-    if cfg["current_marker"] not in text:
+    if not any(marker in text for marker in cfg["current_markers"]):
         # A genuinely old source should still be handled by v1's original regex.
         continue
     if "</main>" not in text:
@@ -70,7 +73,7 @@ for rel, cfg in SENTINELS.items():
     text = (ROOT / rel).read_text(encoding="utf-8")
     if "growth-v2 compatibility:" in text:
         raise SystemExit(f"Growth compatibility sentinel leaked into {rel}")
-    if cfg["current_marker"] in text:
+    if any(marker in text for marker in cfg["current_markers"]):
         print(f"growth v2 current Editions state preserved: {rel}")
 
 print("OOLITA growth v2 completed with no compatibility stragglers.")
