@@ -38,19 +38,23 @@ PAGES = {
     },
     "ediciones/index.html": {
         "old": "El catálogo completo permanece dentro del castillo, con clave.",
-        "new": "En el sitio 3D, el catálogo completo de obras se encuentra dentro del castillo — una réplica digital de la Batería de San Felipe de 1771, situada sobre la duna fósil no lejos del laberinto de Los Escullos. El catálogo está protegido por un teclado numérico, y los suscriptores recibirán el código en el boletín de lanzamiento.",
+        "new": "Edición en tapa dura · obra completa en Castillo 3D · acceso con código · lanzamiento 16.09.27 · presentación 19.09.27",
         "route": "/ediciones/",
         "canonical": "https://oolita.es/ediciones/",
         "alternates": {"en": "https://oolita.es/en/editions/", "es": "https://oolita.es/ediciones/"},
-        "anchor": "Hallazgo — el catálogo",
+        "anchor": "Edición en tapa dura · obra completa en Castillo 3D · acceso con código · lanzamiento 16.09.27 · presentación 19.09.27",
+        "legacy_anchor": "Hallazgo — el catálogo",
         "href": "/catalogo-hallazgo/",
+        "stragglers": (
+            "llega después del libro y la camiseta de OOLITA: una edición en tapa dura que reúne el cuerpo completo de la obra.",
+            "Se publica el 16 de septiembre de 2027; presentación pública, 19 de septiembre.",
+            "En el sitio 3D, el catálogo completo de obras se encuentra dentro del castillo",
+            "El catálogo está protegido por un teclado numérico, y los suscriptores recibirán el código en el boletín de lanzamiento.",
+        ),
         "final_paragraph": (
-            '<p class="parr"><a href="/catalogo-hallazgo/">Hallazgo — el catálogo ↗</a> '
-            'llega después del libro y la camiseta de OOLITA: una edición en tapa dura que reúne el cuerpo completo de la obra. '
-            'Se publica el 16 de septiembre de 2027; presentación pública, 19 de septiembre. '
-            'En el sitio 3D, el catálogo completo de obras se encuentra dentro del castillo — una réplica digital de la Batería de San Felipe de 1771, '
-            'situada sobre la duna fósil no lejos del laberinto de Los Escullos. El catálogo está protegido por un teclado numérico, y los suscriptores '
-            'recibirán el código en el boletín de lanzamiento.</p>'
+            '<p class="parr"><a href="/catalogo-hallazgo/">'
+            'Edición en tapa dura · obra completa en Castillo 3D · acceso con código · lanzamiento 16.09.27 · presentación 19.09.27 ↗'
+            '</a></p>'
         ),
     },
 }
@@ -104,10 +108,16 @@ for rel, cfg in PAGES.items():
     # This gate runs after the geological and Editions-sequence normalizers. Those
     # passes can legitimately alter words inside the already-current Hallazgo
     # paragraph, so exact old/new sentence matching is not a reliable source test.
-    # Isolate the single Hallazgo paragraph by its unique catalogue label and
-    # atomically restore the approved final paragraph instead.
+    # Isolate the single Hallazgo paragraph by either its final linked label or
+    # the legacy catalogue label still present on the current production mirror.
+    # This keeps the pass idempotent across the first concise-copy deployment and
+    # every rebuild that starts from that already-updated live origin.
+    paragraph_labels = tuple(
+        dict.fromkeys((cfg["anchor"], cfg.get("legacy_anchor", cfg["anchor"])))
+    )
+    paragraph_label_pattern = "|".join(re.escape(label) for label in paragraph_labels)
     paragraph_re = re.compile(
-        rf'<p\b[^>]*class=["\'][^"\']*\bparr\b[^"\']*["\'][^>]*>.*?{re.escape(cfg["anchor"])}.*?</p>',
+        rf'<p\b[^>]*class=["\'][^"\']*\bparr\b[^"\']*["\'][^>]*>.*?(?:{paragraph_label_pattern}).*?</p>',
         flags=re.I | re.S,
     )
     matches = list(paragraph_re.finditer(text))
@@ -167,6 +177,9 @@ for html in sorted(ROOT.rglob("*.html")):
     for cfg in PAGES.values():
         if cfg["old"] in body:
             stragglers.append(f"{rel}: {cfg['old']}")
+        for stale in cfg.get("stragglers", ()):
+            if stale in body:
+                stragglers.append(f"{rel}: {stale}")
     if LEGACY_HOST.lower() in body.lower():
         stragglers.append(f"{rel}: obsolete Canva Hallazgo URL")
 if stragglers:
