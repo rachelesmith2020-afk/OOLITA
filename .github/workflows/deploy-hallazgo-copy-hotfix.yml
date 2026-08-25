@@ -90,15 +90,14 @@ jobs:
         shell: bash
         run: python3 scripts/apply_first_party_analytics_v1.py site
 
-      - name: Install image tooling
+      - name: Validate concise Hallazgo copy and existing catalogue image URL
         shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-
-      - name: Apply and validate search visibility
-        shell: bash
-        run: python3 scripts/apply_search_visibility_v1.py site
+          set -euo pipefail
+          grep -Fq 'Hardback catalogue of the complete Hallazgo body of work · in the 3D castle from 16 Sep 27 · public launch 19 Sep 27 ↗' site/en/index.html
+          grep -Fq 'Catálogo en tapa dura de la obra completa de Hallazgo · en el castillo 3D desde el 16.09.27 · presentación pública 19.09.27 ↗' site/index.html
+          grep -Fq 'lh3.googleusercontent.com' site/en/hallazgo-catalogue/index.html
+          grep -Fq 'lh3.googleusercontent.com' site/catalogo-hallazgo/index.html
 
       - name: Validate Pages Functions syntax
         shell: bash
