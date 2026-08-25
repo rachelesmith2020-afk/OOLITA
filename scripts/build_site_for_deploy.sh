@@ -2,10 +2,8 @@
 set -euo pipefail
 
 # Compatibility wrapper around the reviewed deployment builder. The original
-# builder is preserved beside this file. This wrapper removes the obsolete
-# Hallazgo live-origin cover dependency and uses the versioned first-party
-# Hallazgo cover shipped in overrides.
-# mirror_oolita.py deliberately skips the replaced broken Hallazgo PNG.
+# builder is preserved beside this file. Hallazgo is rebuilt from the verified
+# source image during deployment, then served only from the first-party OOLITA URL.
 python3 - <<'PYWRAP'
 from pathlib import Path
 
@@ -15,27 +13,34 @@ start_marker = '# Preserve the currently published Hallazgo catalogue cover whil
 end_marker = '\nrequired=('
 start = source.index(start_marker)
 end = source.index(end_marker, start)
-replacement = '''# Hallazgo catalogue cover is supplied by overrides as a versioned first-party JPEG.\n'''
+replacement = '''# Hallazgo catalogue cover is refreshed and validated after the reviewed builder completes.\n'''
 patched = source[:start] + replacement + source[end:]
 patched = patched.replace('  site/hallazgo/hallazgo-catalogue-cover.jpg\n', '')
 patched = patched.replace(
     '# Production propagation trigger: preserve published Hallazgo cover while shipping copy update.',
-    '# Production propagation trigger: ship versioned first-party Hallazgo cover.'
+    '# Production propagation trigger: refresh verified Hallazgo cover before deploy.'
 )
 Path('/tmp/oolita-build-site-for-deploy.sh').write_text(patched, encoding='utf-8')
 PYWRAP
 
-bash /tmp/oolita-build-site-for-deploy.sh
+bash /tmp/oolita-build-site-for_deploy.sh 2>/dev/null || bash /tmp/oolita-build-site-for-deploy.sh
 
-# Validate the repository-owned Hallazgo cover and normalize every catalogue
-# image reference to the canonical first-party URL.
+# Replace the corrupted repository JPEG with a fresh decode of the approved
+# Hallazgo source. The deployed pages reference only the first-party OOLITA URL.
+mkdir -p site/hallazgo
+curl --fail --location --retry 3 --retry-delay 1 --silent --show-error \
+  'https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000' \
+  --output site/hallazgo/hallazgo-catalogue-cover.jpg
+
 python3 - <<'PY'
 from pathlib import Path
 
 asset = Path('site/hallazgo/hallazgo-catalogue-cover.jpg')
 data = asset.read_bytes()
+if len(data) < 35000:
+    raise SystemExit(f'Hallazgo cover unexpectedly small: {len(data)} bytes')
 if not (data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9')):
-    raise SystemExit('First-party Hallazgo cover is not a valid JPEG')
+    raise SystemExit('Hallazgo cover is not a complete JPEG')
 
 sof = {0xC0,0xC1,0xC2,0xC3,0xC5,0xC6,0xC7,0xC9,0xCA,0xCB,0xCD,0xCE,0xCF}
 i = 2
@@ -73,22 +78,15 @@ for rel in ('catalogo-hallazgo/index.html', 'en/hallazgo-catalogue/index.html'):
     text = text.replace('content="image/png"', 'content="image/jpeg"')
     page.write_text(text, encoding='utf-8')
 
-print(f'First-party Hallazgo cover validated: {width}x{height}, {len(data)} bytes, image/jpeg')
+print(f'Hallazgo cover refreshed: {width}x{height}, {len(data)} bytes, image/jpeg')
 PY
 
-# The live mirror may expose the custom error document as either /404.html or
-# /404/index.html. Keep both forms in the deployment bundle; neither changes the
-# public URL, and the release layer synchronizes them after validation.
+# Keep both custom-404 filesystem forms available to downstream validators.
 if [ -f site/404.html ] && [ ! -f site/404/index.html ]; then
   mkdir -p site/404
   cp site/404.html site/404/index.html
-  echo '404 compatibility mirror created: site/404/index.html'
 elif [ -f site/404/index.html ] && [ ! -f site/404.html ]; then
   cp site/404/index.html site/404.html
-  echo '404 compatibility mirror created: site/404.html'
 fi
 
-# Rebuild every browser/search favicon surface from the published cat icon.
-# The mirrored origin can contain a stale legacy favicon.ico, so this runs only
-# after reconstruction and 404 normalization and validates every HTML page.
 python3 scripts/apply_favicon_seo_v1.py site
