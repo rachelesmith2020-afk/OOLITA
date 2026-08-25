@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Compatibility wrapper around the reviewed deployment builder. The original
 # builder is preserved beside this file. Hallazgo ships its cover as a
-# first-party asset at /images/hallazgo-cover-v2.jpg.
+# first-party asset at /images/hallazgo-cover-v2.png.
 python3 - <<'PYWRAP'
 from pathlib import Path
 source_path = Path('scripts/build_site_for_deploy_original.sh')
@@ -21,58 +21,65 @@ PYWRAP
 
 bash /tmp/oolita-build-site-for-deploy.sh
 
-# Fetch the exact original that was supplied in ChatGPT and written back to the
-# existing Drive file, then verify it byte-for-byte before it enters the site.
+# Fetch the exact current Drive file, then verify it byte-for-byte before it
+# enters the site. The source file is currently a PNG.
 mkdir -p site/images
 curl --fail --location --retry 3 --retry-delay 1 --silent --show-error \
   -A 'Mozilla/5.0' \
-  'https://drive.usercontent.google.com/download?id=1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ&export=view&authuser=0' \
-  --output site/images/hallazgo-cover-v2.jpg
+  'https://drive.google.com/uc?export=download&id=1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ' \
+  --output site/images/hallazgo-cover-v2.png
 
 python3 - <<'PY'
 from pathlib import Path
 import hashlib
+import struct
 
-asset = Path('site/images/hallazgo-cover-v2.jpg')
+asset = Path('site/images/hallazgo-cover-v2.png')
 data = asset.read_bytes()
-expected = 'd640577f126ef809b04cfd83d9eb158ce71d4d7fbe114a30ad6c8793a26ce180'
+expected = '70bfe7790ac27c0f1438a0924565510a8404398b08c5532ea8e0c67553aff72f'
 actual = hashlib.sha256(data).hexdigest()
-if actual != expected or len(data) != 89203:
+if actual != expected or len(data) != 128383:
     raise SystemExit(f'Exact Hallazgo cover validation failed: sha256={actual}, bytes={len(data)}')
-if not (data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9')):
-    raise SystemExit('Exact Hallazgo cover is not a JPEG')
+if not data.startswith(b'\x89PNG\r\n\x1a\n'):
+    raise SystemExit('Exact Hallazgo cover is not a PNG')
+width, height = struct.unpack('>II', data[16:24])
+if (width, height) != (737, 822):
+    raise SystemExit(f'Exact Hallazgo cover dimensions invalid: {width}x{height}')
 
 for rel in ('catalogo-hallazgo/index.html','en/hallazgo-catalogue/index.html'):
     page = Path('site') / rel
     text = page.read_text(encoding='utf-8')
-    text = text.replace('https://oolita.es/images/hallazgo-cover.jpg','https://oolita.es/images/hallazgo-cover-v2.jpg')
-    text = text.replace('/images/hallazgo-cover.jpg','/images/hallazgo-cover-v2.jpg')
-    text = text.replace('width="737" height="822"','width="1377" height="1536"')
-    text = text.replace('content="737"','content="1377"')
-    text = text.replace('content="822"','content="1536"')
-    text = text.replace('"width":737,"height":822','"width":1377,"height":1536')
+    text = text.replace('https://oolita.es/images/hallazgo-cover-v2.jpg','https://oolita.es/images/hallazgo-cover-v2.png')
+    text = text.replace('/images/hallazgo-cover-v2.jpg','/images/hallazgo-cover-v2.png')
+    text = text.replace('https://oolita.es/images/hallazgo-cover.jpg','https://oolita.es/images/hallazgo-cover-v2.png')
+    text = text.replace('/images/hallazgo-cover.jpg','/images/hallazgo-cover-v2.png')
+    text = text.replace('width="1377" height="1536"','width="737" height="822"')
+    text = text.replace('content="1377"','content="737"')
+    text = text.replace('content="1536"','content="822"')
+    text = text.replace('"width":1377,"height":1536','"width":737,"height":822')
     page.write_text(text, encoding='utf-8')
 
-print(f'Exact Hallazgo cover verified: {len(data)} bytes, sha256={actual}')
+print(f'Exact Hallazgo cover verified: {len(data)} bytes, sha256={actual}, dimensions={width}x{height}')
 PY
 
 python3 - <<'PY'
 from pathlib import Path
 for rel in ('catalogo-hallazgo/index.html','en/hallazgo-catalogue/index.html'):
     text = (Path('site') / rel).read_text(encoding='utf-8')
-    if 'src="/images/hallazgo-cover-v2.jpg"' not in text:
+    if 'src="/images/hallazgo-cover-v2.png"' not in text:
         raise SystemExit(f'Exact Hallazgo image src missing in {rel}')
-    if 'https://oolita.es/images/hallazgo-cover-v2.jpg' not in text:
+    if 'https://oolita.es/images/hallazgo-cover-v2.png' not in text:
         raise SystemExit(f'Exact Hallazgo metadata image missing in {rel}')
-    if 'width="1377" height="1536"' not in text:
+    if 'width="737" height="822"' not in text:
         raise SystemExit(f'Correct Hallazgo dimensions missing in {rel}')
     if 'lh3.googleusercontent.com' in text or 'drive.google.com' in text:
         raise SystemExit(f'Google-hosted Hallazgo reference remains in {rel}')
 PY
 
 cat >> site/_redirects <<'EOF'
-/hallazgo/hallazgo-catalogue-cover.jpg /images/hallazgo-cover-v2.jpg 301
-/images/hallazgo-cover.jpg /images/hallazgo-cover-v2.jpg 302
+/hallazgo/hallazgo-catalogue-cover.jpg /images/hallazgo-cover-v2.png 301
+/images/hallazgo-cover.jpg /images/hallazgo-cover-v2.png 302
+/images/hallazgo-cover-v2.jpg /images/hallazgo-cover-v2.png 301
 EOF
 
 python3 - <<'PY'
@@ -99,7 +106,7 @@ cat >> site/_headers <<'EOF'
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 /en/hallazgo-catalogue/
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
-/images/hallazgo-cover-v2.jpg
+/images/hallazgo-cover-v2.png
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 EOF
 
