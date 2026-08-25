@@ -112,6 +112,7 @@ jobs:
           node --check functions/_middleware.js
 
       - name: Remove unsupported Analytics Engine binding
+        continue-on-error: true
         run: python3 scripts/configure_cloudflare_analytics.py
 
       - name: Deploy complete site to Cloudflare Pages
