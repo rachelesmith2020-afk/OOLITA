@@ -11,7 +11,7 @@
   <link rel="alternate" hreflang="es" href="https://oolita.es/catalogo-hallazgo/">
   <link rel="alternate" hreflang="en" href="https://oolita.es/en/hallazgo-catalogue/">
   <link rel="alternate" hreflang="x-default" href="https://oolita.es/catalogo-hallazgo/">
-  <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000" fetchpriority="high">
+  <link rel="preload" as="image" href="https://oolita.es/hallazgo/hallazgo-catalogue-cover.jpg" fetchpriority="high">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="OOLITA">
   <meta property="og:title" content="Hallazgo catalogue — Raquel Costantini | OOLITA">
@@ -19,17 +19,18 @@
   <meta property="og:url" content="https://oolita.es/en/hallazgo-catalogue/">
   <meta property="og:locale" content="en_GB">
   <meta property="og:locale:alternate" content="es_ES">
-  <meta property="og:image" content="https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000">
+  <meta property="og:image" content="https://oolita.es/hallazgo/hallazgo-catalogue-cover.jpg">
+  <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="737">
   <meta property="og:image:height" content="822">
   <meta property="og:image:alt" content="Cover of the Hallazgo catalogue by Raquel Costantini">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Hallazgo catalogue — Raquel Costantini | OOLITA">
   <meta name="twitter:description" content="44 works in five movements, 2018–2026. The illustrated Hallazgo catalogue.">
-  <meta name="twitter:image" content="https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000">
+  <meta name="twitter:image" content="https://oolita.es/hallazgo/hallazgo-catalogue-cover.jpg">
   <meta name="twitter:image:alt" content="Cover of the Hallazgo catalogue by Raquel Costantini">
   <link rel="stylesheet" href="/fonts/fonts.v3.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Hallazgo catalogue — Raquel Costantini","description":"Hallazgo catalogue: 44 works in five movements, 2018–2026.","url":"https://oolita.es/en/hallazgo-catalogue/","inLanguage":"en","dateModified":"2026-08-25","isPartOf":{"@type":"WebSite","name":"OOLITA","url":"https://oolita.es/"},"creator":{"@type":"Person","name":"Raquel Costantini"},"primaryImageOfPage":{"@type":"ImageObject","contentUrl":"https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000","width":737,"height":822}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Hallazgo catalogue — Raquel Costantini","description":"Hallazgo catalogue: 44 works in five movements, 2018–2026.","url":"https://oolita.es/en/hallazgo-catalogue/","inLanguage":"en","dateModified":"2026-08-25","isPartOf":{"@type":"WebSite","name":"OOLITA","url":"https://oolita.es/"},"creator":{"@type":"Person","name":"Raquel Costantini"},"primaryImageOfPage":{"@type":"ImageObject","contentUrl":"https://oolita.es/hallazgo/hallazgo-catalogue-cover.jpg","width":737,"height":822}}</script>
   <style>
     :root{--paper:#F1E7D4;--blue:#184EC8;--ink:#132572}
     *{box-sizing:border-box}
@@ -38,11 +39,17 @@
     .catalogue-header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,4vw,52px);position:relative;z-index:2}
     .catalogue-header a{color:var(--ink);text-decoration:none;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:600}
     .catalogue-header .brand{font-size:15px;letter-spacing:.16em}
-    .catalogue-main{min-height:calc(100svh - 72px);display:grid;place-items:center;padding:clamp(22px,5vw,58px) 18px clamp(42px,7vw,76px)}
+    .catalogue-main{min-height:calc(100svh - 72px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(26px,4vw,42px);padding:clamp(22px,5vw,58px) 18px clamp(52px,8vw,92px)}
     .catalogue-frame{width:min(88vw,30rem);background:var(--blue);padding:clamp(14px,3.6vw,30px);line-height:0}
     .catalogue-frame img{display:block;width:100%;height:auto;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+    .catalogue-copy{width:min(88vw,42rem);font-family:"Instrument Serif",Georgia,serif;font-size:clamp(16px,1.45vw,19px);line-height:1.58;letter-spacing:.004em}
+    .catalogue-copy p{margin:0 0 1em}
+    .catalogue-copy p:last-of-type{margin-bottom:0}
+    .catalogue-links{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:24px;padding-top:16px;border-top:1px solid rgba(19,37,114,.28)}
+    .catalogue-links a{color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;font-size:11px;font-weight:650;letter-spacing:.11em;text-decoration:none;text-transform:uppercase}
+    .catalogue-links a:hover,.catalogue-links a:focus-visible{text-decoration:underline;text-underline-offset:4px}
     .hallazgo-catalogue .sr-only,.hallazgo-catalogue footer.sr-only,.hallazgo-catalogue footer.sr-only *{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;font-size:1px!important;line-height:1!important}
-    @media(max-width:560px){.catalogue-header{height:62px;padding-inline:18px}.catalogue-main{min-height:calc(100svh - 62px);padding:18px 14px 34px}.catalogue-frame{width:min(89vw,28rem);padding:14px}}
+    @media(max-width:560px){.catalogue-header{height:62px;padding-inline:18px}.catalogue-main{min-height:calc(100svh - 62px);gap:24px;padding:18px 14px 48px}.catalogue-frame{width:min(89vw,28rem);padding:14px}.catalogue-copy{width:min(89vw,38rem);font-size:16px}.catalogue-links{gap:12px 18px}}
   </style>
 </head>
 <body class="hallazgo-catalogue">
@@ -52,10 +59,18 @@
   </header>
   <main class="catalogue-main">
     <h1 class="sr-only">Hallazgo catalogue — Raquel Costantini</h1>
-    <p class="sr-only">An illustrated catalogue of 44 works in five movements, 2018–2026.</p>
     <div class="catalogue-frame">
-      <img src="https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000" width="737" height="822" alt="Cover of the Hallazgo catalogue by Raquel Costantini" loading="eager" decoding="async" fetchpriority="high">
+      <img src="/hallazgo/hallazgo-catalogue-cover.jpg" width="737" height="822" alt="Cover of the Hallazgo catalogue by Raquel Costantini" loading="eager" decoding="async" fetchpriority="high">
     </div>
+    <section class="catalogue-copy" aria-label="About the Hallazgo catalogue">
+      <p>Hallazgo brings together 44 works by Raquel Costantini made between 2018 and 2026. The catalogue follows five movements shaped by walking, observing and gathering signals from the landscape of Cabo de Gata: found forms, eroded matter, remains, stones, plants and small gestures that move from experience into objects without losing their origin. The edition works both as an archive and as a route through the work: it does not explain the landscape, but lets it act on each piece and on the relationship between finding, memory and attention.</p>
+      <p>The project continues in the Hallazgo 3D castle inside the OOLITA world. You can explore the wider context of the project and follow other editions connected to this body of work.</p>
+      <nav class="catalogue-links" aria-label="More about Hallazgo and OOLITA">
+        <a href="/en/3d-world/">Hallazgo · 3D world</a>
+        <a href="/en/about/">About OOLITA</a>
+        <a href="/en/editions/">Editions</a>
+      </nav>
+    </section>
   </main>
   <footer class="sr-only">OOLITA · Raquel Costantini</footer>
 </body>
