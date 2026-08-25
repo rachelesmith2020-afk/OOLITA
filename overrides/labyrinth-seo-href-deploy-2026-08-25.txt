@@ -1,0 +1,1 @@
+Trigger production rebuild for final labyrinth/San Felipe factual wording, sitemap freshness, internal href validation, 404 protection, and no-straggler gates.
