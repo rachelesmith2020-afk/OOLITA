@@ -56,19 +56,47 @@ OLD_FRAGMENTS = (
     "El catálogo completo permanece dentro del castillo, con clave.",
 )
 
+# Match one complete anchor without allowing the body matcher to cross another
+# closing </a>. The former matcher used .*? and could begin at an earlier link,
+# then consume across adjacent anchors until it found the Hallazgo label.
+ANCHOR_RE = re.compile(
+    r'<a\b(?P<attrs>[^>]*)>(?P<body>(?:(?!</a>).)*)</a>',
+    flags=re.I | re.S,
+)
+HREF_RE = re.compile(r'(?P<prefix>\bhref\s*=\s*["\'])(?P<href>[^"\']+)(?P<suffix>["\'])', re.I)
+
+
+def labelled_anchor_matches(text: str, label: str) -> list[re.Match[str]]:
+    return [match for match in ANCHOR_RE.finditer(text) if label in match.group("body")]
+
+
+def anchor_href(text: str, label: str, rel: str) -> str:
+    matches = labelled_anchor_matches(text, label)
+    if len(matches) != 1:
+        raise SystemExit(f"Expected exactly one {label!r} anchor in {rel}; found {len(matches)}")
+    href_match = HREF_RE.search(matches[0].group("attrs"))
+    if not href_match:
+        raise SystemExit(f"Hallazgo anchor {label!r} has no href in {rel}")
+    return href_match.group("href")
+
 
 def rewrite_anchor_href(text: str, label: str, href: str, rel: str) -> str:
-    pattern = re.compile(
-        rf'(<a\b[^>]*\bhref=["\'])([^"\']+)(["\'][^>]*>.*?{re.escape(label)}.*?</a>)',
-        flags=re.I | re.S,
-    )
-    matches = list(pattern.finditer(text))
+    matches = labelled_anchor_matches(text, label)
     if len(matches) != 1:
         raise SystemExit(f"Expected exactly one {label!r} anchor in {rel}; found {len(matches)}")
     match = matches[0]
-    if match.group(2) == href:
+    anchor = match.group(0)
+    href_match = HREF_RE.search(anchor)
+    if not href_match:
+        raise SystemExit(f"Hallazgo anchor {label!r} has no href in {rel}")
+    if href_match.group("href") == href:
         return text
-    return text[:match.start(2)] + href + text[match.end(2):]
+    fixed_anchor = (
+        anchor[:href_match.start("href")]
+        + href
+        + anchor[href_match.end("href"):]
+    )
+    return text[:match.start()] + fixed_anchor + text[match.end():]
 
 
 if not ROOT.is_dir():
@@ -98,9 +126,12 @@ for rel, cfg in HOME_COPY.items():
         print(f"Hallazgo homepage copy/hrefs finalized: {rel}")
 
     final = page.read_text(encoding="utf-8")
-    for needle in (cfg["new"], f'href="{cfg["art_href"]}"', f'href="{cfg["catalogue_href"]}"'):
-        if needle not in final:
-            raise SystemExit(f"Hallazgo homepage invariant missing in {rel}: {needle}")
+    if cfg["new"] not in final:
+        raise SystemExit(f"Hallazgo homepage copy invariant missing in {rel}")
+    if anchor_href(final, cfg["art_label"], rel) != cfg["art_href"]:
+        raise SystemExit(f"Hallazgo Art href incorrect in {rel}")
+    if anchor_href(final, cfg["catalogue_label"], rel) != cfg["catalogue_href"]:
+        raise SystemExit(f"Hallazgo catalogue href incorrect in {rel}")
 
 for rel, (old, new) in MIRROR_COPY.items():
     page = ROOT / rel
@@ -178,6 +209,6 @@ if missing:
 
 tree.write(SITEMAP, encoding="utf-8", xml_declaration=True)
 print(
-    "Hallazgo final homepage gate passed: 3D Art hrefs correct; catalogue hrefs correct; "
+    "Hallazgo final homepage gate passed: exact Art anchors point to 3D; exact catalogue anchors point to catalogue; "
     "keypad/newsletter wording current; no Canva or keyed-castle stragglers; no internal 404s; sitemap valid."
 )
