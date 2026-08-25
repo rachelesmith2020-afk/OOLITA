@@ -12,69 +12,30 @@ if [ -d overrides ]; then
   cp -a overrides/. site/
 fi
 
-# Publish the Hallazgo catalogue cover from Google's image CDN. Google may serve
-# the same 737×822 source as PNG or JPEG, so detect the bytes, validate the exact
-# dimensions, publish with the matching extension, and keep catalogue metadata
-# aligned with the delivered format.
+# Preserve the currently published Hallazgo catalogue cover while deploying
+# copy changes. The Drive image endpoint can return an HTML interstitial to a
+# headless CI runner, so use the stable first-party image already served by
+# oolita.es and keep the catalogue metadata aligned with its JPEG format.
 mkdir -p site/hallazgo
 curl --fail --location --retry 3 --retry-delay 1 --silent --show-error \
-  'https://lh3.googleusercontent.com/d/1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ=w1000' \
-  --output /tmp/hallazgo-catalogue-cover
+  'https://oolita.es/hallazgo/hallazgo-catalogue-cover.jpg' \
+  --output site/hallazgo/hallazgo-catalogue-cover.jpg
 python3 - <<'PY'
 from pathlib import Path
-import struct
 
-src = Path('/tmp/hallazgo-catalogue-cover')
-data = src.read_bytes()
-width = height = None
-ext = mime = None
-
-if data.startswith(b'\x89PNG\r\n\x1a\n'):
-    if len(data) < 24 or data[12:16] != b'IHDR':
-        raise SystemExit('Hallazgo cover PNG is missing IHDR')
-    width, height = struct.unpack('>II', data[16:24])
-    ext, mime = 'png', 'image/png'
-elif data.startswith(b'\xff\xd8'):
-    sof = {0xC0,0xC1,0xC2,0xC3,0xC5,0xC6,0xC7,0xC9,0xCA,0xCB,0xCD,0xCE,0xCF}
-    i = 2
-    while i + 8 < len(data):
-        if data[i] != 0xFF:
-            i += 1
-            continue
-        marker = data[i + 1]
-        i += 2
-        if marker in {0xD8, 0xD9} or 0xD0 <= marker <= 0xD7:
-            continue
-        if i + 2 > len(data):
-            break
-        length = int.from_bytes(data[i:i+2], 'big')
-        if marker in sof and i + 7 <= len(data):
-            height = int.from_bytes(data[i+3:i+5], 'big')
-            width = int.from_bytes(data[i+5:i+7], 'big')
-            break
-        if length < 2:
-            break
-        i += length
-    ext, mime = 'jpg', 'image/jpeg'
-else:
-    raise SystemExit(f'Hallazgo cover CDN response is not PNG or JPEG: {data[:16]!r}')
-
-if (width, height) != (737, 822):
-    raise SystemExit(f'Unexpected Hallazgo cover dimensions: {width}x{height}')
-
-out = Path('site/hallazgo') / f'hallazgo-catalogue-cover.{ext}'
-out.write_bytes(data)
+p = Path('site/hallazgo/hallazgo-catalogue-cover.jpg')
+data = p.read_bytes()
+if not (data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9')):
+    raise SystemExit('Published Hallazgo cover did not produce a valid JPEG')
 
 for rel in ('catalogo-hallazgo/index.html', 'en/hallazgo-catalogue/index.html'):
     page = Path('site') / rel
     text = page.read_text(encoding='utf-8')
-    text = text.replace('hallazgo-catalogue-cover.png', f'hallazgo-catalogue-cover.{ext}')
-    text = text.replace('hallazgo-catalogue-cover.jpg', f'hallazgo-catalogue-cover.{ext}')
-    text = text.replace('content="image/png"', f'content="{mime}"')
-    text = text.replace('content="image/jpeg"', f'content="{mime}"')
+    text = text.replace('hallazgo-catalogue-cover.png', 'hallazgo-catalogue-cover.jpg')
+    text = text.replace('content="image/png"', 'content="image/jpeg"')
     page.write_text(text, encoding='utf-8')
 
-print(f'Hallazgo cover validated: {width}x{height}, {len(data)} bytes, {mime}')
+print(f'Published Hallazgo cover preserved: {len(data)} bytes, image/jpeg')
 PY
 
 required=(
@@ -98,6 +59,7 @@ required=(
   site/en/editions/t-shirt/index.html
   site/catalogo-hallazgo/index.html
   site/en/hallazgo-catalogue/index.html
+  site/hallazgo/hallazgo-catalogue-cover.jpg
   site/sitemap.xml
   site/robots.txt
   site/favicon.svg
@@ -125,10 +87,6 @@ for f in "${required[@]}"; do
     exit 1
   fi
 done
-if [ ! -f site/hallazgo/hallazgo-catalogue-cover.png ] && [ ! -f site/hallazgo/hallazgo-catalogue-cover.jpg ]; then
-  echo 'Missing validated Hallazgo catalogue cover.'
-  exit 1
-fi
 
 # Retire the Wednesday/Reels page completely. The current origin may still
 # contain the old page while this deploy is being reconstructed, so remove the
@@ -325,4 +283,4 @@ echo 'OOLITA deployment bundle validated.'
 # Production propagation trigger: Veriditas credential compatibility bridge.
 # Production propagation trigger: retire the Wednesday/Reels page cleanly.
 # Production propagation trigger: validate the English 3D launch notice and follow href.
-# Production propagation trigger: publish validated Hallazgo catalogue cover and SEO.
+# Production propagation trigger: preserve published Hallazgo cover while shipping copy update.
