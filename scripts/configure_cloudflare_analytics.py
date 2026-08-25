@@ -71,6 +71,14 @@ for rel in ("domingos/index.html", "en/sundays/index.html"):
             raise SystemExit(f"Sunday 01 green-band invariant missing in {rel}: {needle}")
     print(f"Sunday 01 green band restored in compact archive: {rel}")
 
+# GSC Wizard's remaining findings are all low-severity editorial/accessibility
+# items. Run this only after the final Sunday rendering repair so title, schema,
+# alt-text and content-depth fixes are the last content changes before upload.
+low_severity = Path(__file__).with_name("final_low_severity_seo_v1.py")
+if not low_severity.is_file():
+    raise SystemExit(f"Missing final low-severity SEO gate: {low_severity}")
+subprocess.run(["python3", str(low_severity), "site"], check=True)
+
 if not ACCOUNT_ID or not TOKEN:
     raise SystemExit("Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN")
 
