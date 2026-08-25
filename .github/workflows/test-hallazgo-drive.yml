@@ -1,0 +1,34 @@
+name: Test Hallazgo Drive asset
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/test-hallazgo-drive.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Fetch source without authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 2 --connect-timeout 10 \
+            'https://drive.google.com/uc?export=download&id=1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ' \
+            -o /tmp/hallazgo-source
+          echo "bytes=$(wc -c </tmp/hallazgo-source)"
+          file /tmp/hallazgo-source
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('/tmp/hallazgo-source')
+          b = p.read_bytes()
+          print('signature=', b[:8].hex())
+          if len(b) < 100000 or not b.startswith(b'\x89PNG\r\n\x1a\n'):
+              raise SystemExit('Drive URL did not return the expected PNG source')
+          PY
