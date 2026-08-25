@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Bridge current reader-facing contact headings into the final low-severity SEO pass.
+"""Bridge current reader-facing copy into the final low-severity SEO pass.
 
-The live site is the deployment source, and voice edits can legitimately change
-contact headings (for example, "Tell me" -> "Tell us") without changing the
-section's meaning. This helper inserts the already-approved depth blocks using
-stable structural/contact markers, so the strict final SEO gate stays rebuild-safe.
+The live site is the deployment source, and later voice/factual edits can
+legitimately change literal headings or geology sentences without changing a
+section's purpose. This helper inserts the already-approved depth blocks using
+stable structural markers, so the strict final SEO gate stays rebuild-safe.
 """
 from __future__ import annotations
 
@@ -72,4 +72,35 @@ for rel, (marker, block, anchor_re) in TARGETS.items():
         raise SystemExit(f"Low-severity bridge marker missing after insertion: {rel}")
     print(f"low-severity bridge inserted before current contact heading: {rel}")
 
-print("OOLITA low-severity contact-anchor bridge passed.")
+# The strict low-severity pass historically inserted these paragraphs after one
+# exact geology sentence. Later factual edits correctly changed that sentence,
+# so use the stable </main> boundary instead. The marker makes this idempotent
+# and causes the legacy exact-sentence branch to skip cleanly.
+SUNDAY_DEPTH = {
+    "en/sundays/03-the-memory-of-the-sea/index.html": (
+        "Sunday 03 belongs to the 22-Sunday publication sequence",
+        '<p class="parr">Sunday 03 belongs to the 22-Sunday publication sequence leading toward the 2027 opening. The weekly archive keeps the image, text and onward routes together as the project develops.</p>',
+    ),
+    "domingos/03-la-memoria-del-mar/index.html": (
+        "El Domingo 03 forma parte de la secuencia de 22 domingos",
+        '<p class="parr">El Domingo 03 forma parte de la secuencia de 22 domingos que conduce a la apertura de 2027. El archivo semanal conserva juntos la imagen, el texto y los recorridos que continúan mientras el proyecto se desarrolla.</p>',
+    ),
+}
+
+for rel, (marker, block) in SUNDAY_DEPTH.items():
+    page = ROOT / rel
+    if not page.is_file():
+        raise SystemExit(f"Missing Sunday depth bridge page: {rel}")
+    text = page.read_text(encoding="utf-8")
+    if marker in text:
+        print(f"Sunday depth bridge already present: {rel}")
+        continue
+    if "</main>" not in text:
+        raise SystemExit(f"Stable </main> boundary missing for Sunday depth bridge: {rel}")
+    text = text.replace("</main>", block + "\n</main>", 1)
+    page.write_text(text, encoding="utf-8")
+    if marker not in page.read_text(encoding="utf-8"):
+        raise SystemExit(f"Sunday depth bridge marker missing after insertion: {rel}")
+    print(f"Sunday depth bridge inserted at stable main boundary: {rel}")
+
+print("OOLITA low-severity structural bridge passed.")
