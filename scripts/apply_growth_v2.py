@@ -24,12 +24,16 @@ SENTINELS = {
         "current_markers": (
             "Hallazgo — el catálogo",
             "Edición en tapa dura · obra completa en Castillo 3D · acceso con código · lanzamiento 16.09.27 · presentación 19.09.27",
+            "El catálogo completo permanece dentro del castillo, con clave.",
         ),
         "sentinel": "<!-- growth-v2 compatibility: Las ediciones son la parte que puedes conservar. -->",
     },
     "en/editions/index.html": {
         "legacy_marker": "The editions are the part you can keep.",
-        "current_markers": ("Hallazgo — the catalogue",),
+        "current_markers": (
+            "Hallazgo — the catalogue",
+            "The full catalogue remains inside the castle, with a key.",
+        ),
         "sentinel": "<!-- growth-v2 compatibility: The editions are the part you can keep. -->",
     },
 }
