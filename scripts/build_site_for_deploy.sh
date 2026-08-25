@@ -21,13 +21,87 @@ PYWRAP
 
 bash /tmp/oolita-build-site-for-deploy.sh
 
-# Fetch the exact current Drive file, then verify it byte-for-byte before it
-# enters the site. The source file is currently a PNG.
+# Fetch the exact current Drive file. Google Drive can return an HTML download
+# interstitial to non-browser clients, so follow the confirmation form with the
+# same cookie jar instead of treating that HTML as the asset.
 mkdir -p site/images
-curl --fail --location --retry 3 --retry-delay 1 --silent --show-error \
-  -A 'Mozilla/5.0' \
-  'https://drive.google.com/uc?export=download&id=1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ' \
-  --output site/images/hallazgo-cover-v2.png
+python3 - <<'PYFETCH'
+from html.parser import HTMLParser
+from http.cookiejar import CookieJar
+from pathlib import Path
+from urllib.parse import urlencode
+from urllib.request import Request, build_opener, HTTPCookieProcessor
+
+FILE_ID = '1zZdwTiVmeEH03uP1f9KkxFU00up4dPRZ'
+OUT = Path('site/images/hallazgo-cover-v2.png')
+PNG = b'\x89PNG\r\n\x1a\n'
+
+class DownloadFormParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.in_download_form = False
+        self.action = None
+        self.fields = {}
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'form':
+            action = attrs.get('action', '')
+            if 'drive.usercontent.google.com/download' in action or '/uc' in action:
+                self.in_download_form = True
+                self.action = action
+                self.fields = {}
+        elif tag == 'input' and self.in_download_form:
+            name = attrs.get('name')
+            value = attrs.get('value', '')
+            if name:
+                self.fields[name] = value
+
+    def handle_endtag(self, tag):
+        if tag == 'form' and self.in_download_form:
+            self.in_download_form = False
+
+jar = CookieJar()
+opener = build_opener(HTTPCookieProcessor(jar))
+headers = {
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/151 Safari/537.36',
+    'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+}
+
+def fetch(url):
+    req = Request(url, headers=headers)
+    with opener.open(req, timeout=45) as response:
+        return response.headers.get('Content-Type', ''), response.geturl(), response.read()
+
+start = f'https://drive.google.com/uc?export=download&id={FILE_ID}'
+content_type, final_url, data = fetch(start)
+
+if not data.startswith(PNG):
+    parser = DownloadFormParser()
+    parser.feed(data.decode('utf-8', errors='replace'))
+    if parser.action:
+        fields = dict(parser.fields)
+        fields.setdefault('id', FILE_ID)
+        fields.setdefault('export', 'download')
+        action = parser.action
+        sep = '&' if '?' in action else '?'
+        content_type, final_url, data = fetch(action + sep + urlencode(fields))
+
+if not data.startswith(PNG):
+    # Some Drive responses omit a visible form but accept the confirmation flag.
+    direct = f'https://drive.usercontent.google.com/download?id={FILE_ID}&export=download&confirm=t'
+    content_type, final_url, data = fetch(direct)
+
+if not data.startswith(PNG):
+    prefix = data[:32].hex()
+    raise SystemExit(
+        'Hallazgo Drive download did not return PNG bytes: '
+        f'content_type={content_type!r}, bytes={len(data)}, prefix={prefix}'
+    )
+
+OUT.write_bytes(data)
+print(f'Hallazgo Drive download resolved to PNG: {len(data)} bytes')
+PYFETCH
 
 python3 - <<'PY'
 from pathlib import Path
