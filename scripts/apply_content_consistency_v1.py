@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Apply and validate OOLITA reader-facing factual consistency fixes.
 
-This narrow final pass runs after the other content transforms. It keeps the
-published Sunday archive, Hallazgo work count, book page count, and Sunday 03
-geology wording aligned across Spanish and English.
+This narrow final pass keeps the published Sunday archive, Hallazgo work count,
+book page count, and Sunday 03 geology wording aligned across Spanish and English.
 """
 from __future__ import annotations
 
@@ -14,9 +13,9 @@ import sys
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 
-# Reuse the already-reviewed archive-row renderer. When this script is invoked as
-# `python3 scripts/apply_content_consistency_v1.py site`, the imported module sees
-# the same argv and therefore uses the same built-site root.
+# Reuse only the already-reviewed detailed archive row renderer. Do not call its
+# broad archive patcher: Sunday 03 is already linked in the compact archive, so a
+# generic href match can select that correct top tile instead of the stale lower row.
 import apply_engagement_depth_v1 as engagement  # noqa: E402
 
 
@@ -41,6 +40,53 @@ def replace_if_present(rel: str, old: str, new: str) -> None:
     path, text = read(rel)
     if old in text:
         path.write_text(text.replace(old, new), encoding="utf-8")
+
+
+def matching_div_end(text: str, start: int) -> int:
+    """Return the end offset of the div starting at *start*, respecting nesting."""
+    token_re = re.compile(r'</?div\b[^>]*>', flags=re.I)
+    depth = 0
+    for match in token_re.finditer(text, start):
+        token = match.group(0)
+        if token.lower().startswith("</div"):
+            depth -= 1
+            if depth == 0:
+                return match.end()
+        else:
+            depth += 1
+    raise SystemExit("Unclosed <div> while locating Sunday archive row")
+
+
+def pending_sunday03_blocks(text: str) -> list[tuple[int, int]]:
+    """Locate pending detailed-archive divs whose own block contains 23 Aug 2026."""
+    starts: list[tuple[int, int]] = []
+    start_re = re.compile(r'<div\b[^>]*class=["\'][^"\']*\bfila\b[^"\']*\bespera\b[^"\']*["\'][^>]*>', flags=re.I)
+    for match in start_re.finditer(text):
+        end = matching_div_end(text, match.start())
+        block = text[match.start():end]
+        if re.search(r'<time\b[^>]*datetime=["\']2026-08-23["\']', block, flags=re.I):
+            starts.append((match.start(), end))
+    return starts
+
+
+def publish_detailed_sunday03(rel: str, language: str) -> None:
+    path, text = read(rel)
+    blocks = pending_sunday03_blocks(text)
+    if blocks:
+        if len(blocks) != 1:
+            raise SystemExit(f"Expected one pending Sunday 03 detailed row in {rel}, found {len(blocks)}")
+        start, end = blocks[0]
+        row = engagement.archive_row(3, language)
+        text = text[:start] + row + text[end:]
+        path.write_text(text, encoding="utf-8")
+        return
+
+    # Idempotent rebuild: once production already contains the corrected detailed
+    # row, a subsequent mirror should simply validate it rather than insert again.
+    expected_route = "/en/sundays/03-the-memory-of-the-sea/" if language == "en" else "/domingos/03-la-memoria-del-mar/"
+    if 'data-sunday-archive-row="3"' in text and f'href="{expected_route}"' in text:
+        return
+    raise SystemExit(f"Could not locate pending or published detailed Sunday 03 row in {rel}")
 
 
 # 1. The canonical Hallazgo catalogue states 44 works. Some poster pages carry
@@ -77,11 +123,10 @@ for rel in (
     )
 
 
-# 3. Sunday 03 is already published in the compact 22-Sundays field. Rebuild the
-# detailed archive rows with the same reviewed renderer so 03 cannot remain in
-# the pending state below it.
-engagement.patch_archive("domingos/index.html", "es")
-engagement.patch_archive("en/sundays/index.html", "en")
+# 3. Publish only the stale Sunday 03 row in the lower detailed archive. The
+# compact 22-Sundays field above it is already correct and must remain untouched.
+publish_detailed_sunday03("domingos/index.html", "es")
+publish_detailed_sunday03("en/sundays/index.html", "en")
 
 
 # Final consistency guard. These exact stale statements should not survive
@@ -138,17 +183,9 @@ for rel, needles in checks.items():
         if needle not in text:
             raise SystemExit(f"Consistency invariant missing in {rel}: {needle}")
 
-# A pending detailed row for the already-published 23 August entry is forbidden.
-# Inspect each pending row independently; do not let a regex span into a later row.
 for rel in ("domingos/index.html", "en/sundays/index.html"):
     _, text = read(rel)
-    pending_rows = re.findall(
-        r'<div\b[^>]*class=["\'][^"\']*\bfila\b[^"\']*\bespera\b[^"\']*["\'][^>]*>[\s\S]*?</div>',
-        text,
-        flags=re.I,
-    )
-    for row in pending_rows:
-        if re.search(r'<time\b[^>]*datetime=["\']2026-08-23["\']', row, flags=re.I):
-            raise SystemExit(f"Sunday 03 still pending in detailed archive: {rel}")
+    if pending_sunday03_blocks(text):
+        raise SystemExit(f"Sunday 03 still pending in detailed archive: {rel}")
 
 print("OOLITA factual/content consistency validated successfully.")
