@@ -163,3 +163,5 @@ for rel, phrases in stale.items():
             raise SystemExit(f"Voice-contrast regression remains in {rel}: {phrase}")
 
 print("OOLITA repeated contrast phrasing revised and validated successfully.")
+
+# Production propagation trigger: corrected Problem 4 content-quality pass.
