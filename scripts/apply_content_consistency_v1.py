@@ -185,4 +185,4 @@ if (ROOT / "og.png").is_file():
 else:
     print("OOLITA final reader precision deferred until final reader build.")
 
-# Production propagation trigger: all six audit passes wired into final reader state.
+# Production propagation trigger: complete six-pass build after final connective-copy idempotency check.
