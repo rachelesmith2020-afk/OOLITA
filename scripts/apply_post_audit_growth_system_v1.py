@@ -40,6 +40,18 @@ source = source.replace(
     '("en/editions/t-shirt/index.html","follow-textile","textile-follow",dict(text_contains="Tell me when I can buy it"),"textile","2027-04-11T00:00:00+02:00"),',
 )
 
+# Sunday 02 deliberately has no speculative "next" link. It returns to the
+# 22-Sundays archive, where the current published Sunday is selected. Measure
+# that actual reader route instead of adding a new link only for analytics.
+source = source.replace(
+    '("domingos/02-el-gato-de-verdad/index.html","read-next-sunday","sunday-next",dict(href_exact="/domingos/03-la-memoria-del-mar/"),None,None),',
+    '("domingos/02-el-gato-de-verdad/index.html","return-to-sundays","sunday-archive",dict(href_exact="/domingos/"),None,None),',
+)
+source = source.replace(
+    '("en/sundays/02-the-cat-for-real/index.html","read-next-sunday","sunday-next",dict(href_exact="/en/sundays/03-the-memory-of-the-sea/"),None,None),',
+    '("en/sundays/02-the-cat-for-real/index.html","return-to-sundays","sunday-archive",dict(href_exact="/en/sundays/"),None,None),',
+)
+
 # Measure the same published geology path: ooid explainer -> OOLITA -> labyrinth
 # -> remote 3D follow. The homepage-to-labyrinth click is added as a measured edge.
 source = source.replace(
@@ -58,6 +70,26 @@ source = source.replace(
     '("en/index.html","home-about",dict(href_exact="/en/about/")),',
     '("en/index.html","home-about",dict(href_exact="/en/about/")),\n    ("en/index.html","home-labyrinth",dict(href_exact="/en/labyrinth/")),',
 )
+
+# Match the published Sunday-02 -> archive edge and validate the real
+# Instagram/Sundays route: Sunday 01 -> Sunday 02 -> archive -> current Sunday 03.
+source = source.replace(
+    '("domingos/02-el-gato-de-verdad/index.html","sunday-next",dict(href_exact="/domingos/03-la-memoria-del-mar/")),',
+    '("domingos/02-el-gato-de-verdad/index.html","sunday-archive",dict(href_exact="/domingos/")),',
+)
+source = source.replace(
+    '("en/sundays/02-the-cat-for-real/index.html","sunday-next",dict(href_exact="/en/sundays/03-the-memory-of-the-sea/")),',
+    '("en/sundays/02-the-cat-for-real/index.html","sunday-archive",dict(href_exact="/en/sundays/")),',
+)
+source = source.replace(
+    '"instagram-es": [("domingos/01-el-doble/index.html","/domingos/02-el-gato-de-verdad/"),("domingos/02-el-gato-de-verdad/index.html","/domingos/03-la-memoria-del-mar/"),("domingos/03-la-memoria-del-mar/index.html","/domingos/")],',
+    '"instagram-es": [("domingos/01-el-doble/index.html","/domingos/02-el-gato-de-verdad/"),("domingos/02-el-gato-de-verdad/index.html","/domingos/"),("domingos/index.html","/domingos/03-la-memoria-del-mar/")],',
+)
+source = source.replace(
+    '"instagram-en": [("en/sundays/01-the-double/index.html","/en/sundays/02-the-cat-for-real/"),("en/sundays/02-the-cat-for-real/index.html","/en/sundays/03-the-memory-of-the-sea/"),("en/sundays/03-the-memory-of-the-sea/index.html","/en/sundays/")],',
+    '"instagram-en": [("en/sundays/01-the-double/index.html","/en/sundays/02-the-cat-for-real/"),("en/sundays/02-the-cat-for-real/index.html","/en/sundays/"),("en/sundays/index.html","/en/sundays/03-the-memory-of-the-sea/")],',
+)
+
 source = source.replace(
     '"geology-es": [("que-es-un-oolito/index.html","/cabo-de-gata/"),("cabo-de-gata/index.html","/laberinto/"),("laberinto/index.html","follow=3d")],',
     '"geology-es": [("que-es-un-oolito/index.html","/"),("index.html","/laberinto/"),("laberinto/index.html","follow=3d")],',
