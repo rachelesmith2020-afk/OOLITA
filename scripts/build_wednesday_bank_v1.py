@@ -39,6 +39,21 @@ def make_poster_reel(src: Path, out: Path) -> None:
     ])
 
 
+def expose_machine_bank_paths() -> None:
+    """Retire the public /reels/ page without intercepting JSON/MP4 bank files."""
+    redirects = SITE / "_redirects"
+    lines = redirects.read_text(encoding="utf-8").splitlines() if redirects.exists() else []
+    retired_wildcards = {
+        "/reels/* /carteles/ 301",
+        "/reels* /carteles/ 301",
+    }
+    lines = [line for line in lines if line.strip() and line.strip() not in retired_wildcards]
+    for rule in ("/reels /carteles/ 301", "/reels/ /carteles/ 301"):
+        if rule not in lines:
+            lines.append(rule)
+    redirects.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     if shutil.which("ffmpeg") is None:
         print("Wednesday publishing bank deferred until ffmpeg is available.")
@@ -90,7 +105,8 @@ def main() -> None:
     index_html = outdir / "index.html"
     if index_html.exists():
         index_html.unlink()
-    print("Built approved Wednesday bank: R01-R09, JSON + nine MP4s")
+    expose_machine_bank_paths()
+    print("Built approved Wednesday bank: R01-R09, JSON + nine MP4s; machine paths exposed")
 
 
 if __name__ == "__main__":
