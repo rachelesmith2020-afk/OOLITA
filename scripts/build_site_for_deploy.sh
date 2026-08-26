@@ -134,6 +134,12 @@ PYFAVICON
 # catalogue copy inherited from the mirrored origin and fails closed if it drifts.
 python3 scripts/apply_content_consistency_v1.py site
 
+# Environmental integrity should be structural, not another slogan. This pass
+# makes the homepage remote-first, softens the Cabo paragraph without losing its
+# meaning, and removes the TouristAttraction classification from the labyrinth.
+python3 scripts/apply_environmental_alignment_v1.py site
+
 # Production propagation trigger: corrected bilingual consistency guard.
 # Production propagation trigger: row-scoped Sunday consistency validation.
 # Production propagation trigger: targeted detailed Sunday 03 repair.
+# Production propagation trigger: environmental alignment without tourism framing.
