@@ -107,15 +107,11 @@ replace_paragraph(
     "The book grew from walking it and drawing it again. The 3D world came later, when the same place needed another form of access. OOLITA has grown in that order.",
 )
 
-# English About lost the place/provenance section and gained an explanatory SEO-style
-# 'public rhythm' section. Remove the filler, restore the place, and keep Hallazgo
-# as the following practice section.
+# English About lost the place section and gained explanatory website copy.
+# Remove the filler and restore the place immediately before Hallazgo.
 remove_section("en/about/index.html", "A public working rhythm.")
-# Relabel the existing Hallazgo section before adding the restored provenance block,
-# so there is exactly one PROVENANCE label in the final page.
-replace_tag_text("en/about/index.html", ("span",), "PROVENANCE", "LOS ESCULLOS")
 PLACE_EN = '''<section class="tramo" data-place-not-backdrop>
-<span class="rot">PROVENANCE</span><h2 class="grande">The place is not a backdrop.</h2>
+<span class="rot">LOS ESCULLOS</span><h2 class="grande">The place is not a backdrop.</h2>
 <p class="parr">The labyrinth at Los Escullos is inside Cabo de Gata-Níjar Natural Park, on land beside the fossil dunes facing the Mediterranean. The ground, its geology and the light are not scenery. They are part of how the work began and why it remains there.</p>
 <p class="parr">Since 2021 I have returned to the same point to see what changes and what stays: stone, wind, tracks, people passing, the drawing itself. OOLITA grows from that return. It does not turn Cabo de Gata into a brand. The work stays tied to the place where it began.</p>
 </section>'''
