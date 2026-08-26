@@ -8,6 +8,9 @@ Hallazgo has two deliberately separate public destinations:
 The Hallazgo catalogue remains first-party on oolita.es. This gate runs after
 the legacy Hallazgo sanitizers, so it restores only the approved Hallazgo Art
 Canva destination and rejects any other surviving Canva Hallazgo references.
+It also normalizes the Hallazgo Art card copy in the static HTML so crawlers,
+caches and browsers all receive the same art-specific wording without relying
+on edge rewriting.
 """
 from __future__ import annotations
 
@@ -33,6 +36,11 @@ HOME_COPY = {
         "new": "Hardback catalogue of the complete Hallazgo body of work · in the 3D castle from 16 Sep 27 · public launch 19 Sep 27 ↗",
         "art_label": "Hallazgo · Art",
         "art_href": HALLAZGO_ART_URL,
+        "art_sources": (
+            "Virtual castle · free to enter · opens 16 May 27 · 19:00 CEST ↗",
+            "Virtual castle · free to enter · opens 16.05.27 · 19:00 CEST ↗",
+        ),
+        "art_new": "Work by Raquel Costantini ↗",
         "catalogue_label": "Hallazgo — the catalogue",
         "catalogue_href": "/en/hallazgo-catalogue/",
         "three_d_href": "/en/3d-world/",
@@ -46,6 +54,10 @@ HOME_COPY = {
         "new": "Catálogo en tapa dura de la obra completa de Hallazgo · en el castillo 3D desde el 16.09.27 · presentación pública 19.09.27 ↗",
         "art_label": "Hallazgo · Arte",
         "art_href": HALLAZGO_ART_URL,
+        "art_sources": (
+            "Castillo virtual · entrada libre · abre 16.05.27 · 19:00 CEST ↗",
+        ),
+        "art_new": "Obra de Raquel Costantini ↗",
         "catalogue_label": "Hallazgo — el catálogo",
         "catalogue_href": "/catalogo-hallazgo/",
         "three_d_href": "/mundo-3d/",
@@ -113,6 +125,38 @@ def rewrite_anchor_href(text: str, label: str, href: str, rel: str) -> str:
     return text[:match.start()] + fixed_anchor + text[match.end():]
 
 
+def rewrite_anchor_copy(
+    text: str,
+    label: str,
+    sources: tuple[str, ...],
+    final: str,
+    rel: str,
+) -> str:
+    matches = labelled_anchor_matches(text, label)
+    if len(matches) != 1:
+        raise SystemExit(f"Expected exactly one {label!r} anchor in {rel}; found {len(matches)}")
+    match = matches[0]
+    anchor = match.group(0)
+    rendered = visible_text(anchor)
+    final_visible = visible_text(final)
+    if rendered.count(final_visible) == 1:
+        return text
+    if rendered.count(final_visible) > 1:
+        raise SystemExit(f"Hallazgo Art copy duplicated in {rel}")
+
+    source_hits = [(source, anchor.count(source)) for source in sources if anchor.count(source)]
+    total = sum(count for _, count in source_hits)
+    if total != 1:
+        raise SystemExit(
+            f"Hallazgo Art copy source drifted in {rel}: {visible_text(anchor)[:500]}"
+        )
+    source, count = source_hits[0]
+    if count != 1:
+        raise SystemExit(f"Hallazgo Art source duplicated in {rel}: {source!r}")
+    fixed_anchor = anchor.replace(source, final, 1)
+    return text[:match.start()] + fixed_anchor + text[match.end():]
+
+
 def rendered_summary_count(text: str, label: str, summary: str, rel: str) -> int:
     return anchor_body_text(text, label, rel).count(visible_text(summary))
 
@@ -165,6 +209,13 @@ for rel, cfg in HOME_COPY.items():
         cfg["catalogue_label"],
         rel,
     )
+    text = rewrite_anchor_copy(
+        text,
+        cfg["art_label"],
+        cfg["art_sources"],
+        cfg["art_new"],
+        rel,
+    )
     text = rewrite_anchor_href(text, cfg["art_label"], cfg["art_href"], rel)
     text = rewrite_anchor_href(text, cfg["catalogue_label"], cfg["catalogue_href"], rel)
 
@@ -176,6 +227,12 @@ for rel, cfg in HOME_COPY.items():
     final_html = page.read_text(encoding="utf-8")
     if rendered_summary_count(final_html, cfg["catalogue_label"], cfg["new"], rel) != 1:
         raise SystemExit(f"Hallazgo homepage concise copy invariant missing in {rel}")
+    art_body = anchor_body_text(final_html, cfg["art_label"], rel)
+    if art_body.count(visible_text(cfg["art_new"])) != 1:
+        raise SystemExit(f"Hallazgo Art static copy invariant missing in {rel}")
+    for stale_art_copy in cfg["art_sources"]:
+        if visible_text(stale_art_copy) in art_body:
+            raise SystemExit(f"Stale Hallazgo Art 3D copy survived in {rel}: {stale_art_copy!r}")
     if anchor_href(final_html, cfg["art_label"], rel) != HALLAZGO_ART_URL:
         raise SystemExit(f"Hallazgo Art must point to Canva in {rel}")
     if anchor_href(final_html, cfg["catalogue_label"], rel) != cfg["catalogue_href"]:
@@ -255,7 +312,8 @@ if missing:
 
 tree.write(SITEMAP, encoding="utf-8", xml_declaration=True)
 print(
-    "Hallazgo final homepage gate passed: Hallazgo Art -> Canva; OOLITA 3D world "
-    "remains separate; catalogue stays first-party; no unapproved Canva refs or "
-    "keyed-castle stragglers; internal routes and sitemap valid."
+    "Hallazgo final homepage gate passed: Hallazgo Art -> Canva with static art copy; "
+    "OOLITA 3D world remains separate; catalogue stays first-party; no unapproved "
+    "Canva refs, stale 3D Art copy or keyed-castle stragglers; internal routes and "
+    "sitemap valid."
 )
