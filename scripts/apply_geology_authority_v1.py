@@ -30,7 +30,8 @@ if not ROOT.is_dir():
 
 
 def visible(fragment: str) -> str:
-    return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", fragment))).strip()
+    # Inline editorial anchors must not change punctuation in the rendered prose.
+    return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", "", fragment))).strip()
 
 
 def read(rel: str) -> tuple[Path, str]:
