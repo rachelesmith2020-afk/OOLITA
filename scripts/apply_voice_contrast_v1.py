@@ -65,9 +65,19 @@ replace_state("en/3d-world/index.html", "Not everyone can get there. The digital
 replace_state("mundo-3d/index.html", "Reconstruir, no copiar.", "Reconstruir el lugar.")
 replace_state("en/3d-world/index.html", "Reconstruct, not copy.", "Reconstruct the place.")
 replace_state("mundo-3d/index.html", "El paisaje parte de mediciones del terreno real, pero no busca una réplica fotográfica.", "El paisaje parte de mediciones del terreno real.")
-replace_state("mundo-3d/index.html", "No necesita parecer una fotografía. Necesita conservar suficiente lugar para que el camino funcione.", "La reconstrucción conserva los rasgos del lugar que sostienen la orientación, la escala y la atención durante el camino.")
+replace_state(
+    "mundo-3d/index.html",
+    "No necesita parecer una fotografía. Necesita conservar suficiente lugar para que el camino funcione.",
+    "La reconstrucción conserva los rasgos del lugar que sostienen la orientación, la escala y la atención durante el camino.",
+    accepted_final=("Solo queda lo necesario: orientación y escala.",),
+)
 replace_state("en/3d-world/index.html", "The landscape begins with measurements of the real terrain, but it is not trying to be a photographic replica.", "The landscape begins with measurements of the real terrain.")
-replace_state("en/3d-world/index.html", "It does not need to look photographic. It needs enough of the place for the walk to work.", "The reconstruction keeps the features of the place that support orientation, scale and attention along the path.")
+replace_state(
+    "en/3d-world/index.html",
+    "It does not need to look photographic. It needs enough of the place for the walk to work.",
+    "The reconstruction keeps the features of the place that support orientation, scale and attention along the path.",
+    accepted_final=("Only what is needed remains: orientation and scale.",),
+)
 replace_state("mundo-3d/index.html", "Ninguno sustituye a los otros. Cada uno deja recorrer el mismo camino en otro material.", "Cada material ofrece una forma distinta de recorrer la misma senda.")
 replace_state("en/3d-world/index.html", "None replaces the others. Each lets you follow the same path in another material.", "Each material offers a different way to follow the same path.")
 
@@ -87,4 +97,4 @@ for rel, phrases in stale.items():
 
 print("OOLITA repeated contrast phrasing revised and validated successfully.")
 
-# Production propagation trigger: Hallazgo final trim accepted as a completed state.
+# Production propagation trigger: final Hallazgo and 3D states accepted as completed.
