@@ -12,6 +12,23 @@ import sys
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 
+# Later editorial/credibility passes deliberately supersede some transitional
+# textile prose while preserving the same confirmed release facts. When a live-
+# origin rebuild already contains that complete final state, the historical
+# release migration must accept it rather than require retired source sentences.
+FINAL_PAGE_STATES = {
+    "ediciones/camiseta/index.html": (
+        "La prenda aparece primero en blanco. Cada domingo aparece un poco más del diseño.",
+        "Sale el 11 de abril de 2027",
+        "Detalles e historia · domingo a domingo",
+    ),
+    "en/editions/t-shirt/index.html": (
+        "The garment appears first blank. Each Sunday, a little more of the design appears.",
+        "It comes out on 11 April 2027",
+        "Details and story · Sunday by Sunday",
+    ),
+}
+
 
 def page(path: str) -> tuple[Path, str]:
     target = ROOT / path
@@ -27,10 +44,15 @@ def replace_text(path: str, old: str, new: str) -> None:
         target.write_text(text.replace(old, new), encoding="utf-8")
         print(f"release calendar patched {path}: {count} occurrence(s)")
         return
-    if new not in text:
-        raise SystemExit(
-            f"Expected release-calendar source text missing in {path}: {old[:120]!r}"
-        )
+    if new in text:
+        return
+    final_markers = FINAL_PAGE_STATES.get(path)
+    if final_markers and all(marker in text for marker in final_markers):
+        print(f"release calendar accepted final reader state in {path}")
+        return
+    raise SystemExit(
+        f"Expected release-calendar source text missing in {path}: {old[:120]!r}"
+    )
 
 
 def replace_across_html(old: str, new: str) -> int:
