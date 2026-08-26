@@ -178,4 +178,4 @@ print("OOLITA factual/content consistency validated successfully.")
 # after every other consistency transform.
 import apply_credibility_precision_v1  # noqa: E402,F401
 
-# Production propagation trigger: resilient credibility precision v1.
+# Production propagation trigger: timing-schema credibility precision.
