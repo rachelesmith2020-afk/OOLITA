@@ -44,9 +44,9 @@ for rel, stale, final in (
     if final not in text:
         raise SystemExit(f"Final follow proposition missing in {rel}")
 
-# Item 5 belongs at the same final reader-facing stage. Importing it here keeps
-# legacy reconstruction/migration validators untouched while ensuring About and
-# Cabo de Gata are differentiated before the final factual guard and publish.
+# Final reader-facing passes live here so legacy reconstruction/migration
+# validators remain untouched. They run before the final factual guard.
 import apply_page_differentiation_v1  # noqa: E402,F401
+import apply_commercial_clarity_v1  # noqa: E402,F401
 
-print("OOLITA homepage follow proposition and page differentiation validated in Spanish and English.")
+print("OOLITA final reader-facing clarity passes validated in Spanish and English.")
