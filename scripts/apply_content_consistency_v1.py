@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Apply and validate OOLITA reader-facing factual consistency fixes.
+"""Apply and validate OOLITA reader-facing final consistency fixes.
 
-This narrow final pass keeps the published Sunday archive, Hallazgo work count,
-book page count, and Sunday 03 geology wording aligned across Spanish and English.
+This final pre-publish pass applies the reviewed voice-contrast cleanup, then keeps
+the published Sunday archive, Hallazgo work count, book page count, and Sunday 03
+geology wording aligned across Spanish and English.
 """
 from __future__ import annotations
 
@@ -12,6 +13,10 @@ import sys
 
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
+
+# Run the editorial voice cleanup at the same final deployment stage so later
+# transforms cannot reintroduce the audited repetition before publication.
+import apply_voice_contrast_v1  # noqa: E402,F401
 
 # Reuse only the already-reviewed detailed archive row renderer. Do not call its
 # broad archive patcher: Sunday 03 is already linked in the compact archive, so a
