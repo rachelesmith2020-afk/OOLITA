@@ -196,3 +196,4 @@ else:
 
 # Direct-entry navigation is applied and validated earlier by apply_cta_clarity_v1.py.
 # Production propagation trigger: Hallazgo exact-block fix + six-pass final check.
+# Production propagation trigger: repaired Wednesday publishing bank.
