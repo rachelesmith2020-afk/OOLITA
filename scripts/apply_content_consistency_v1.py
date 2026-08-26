@@ -30,23 +30,29 @@ def read(rel: str) -> tuple[Path, str]:
 def replace_state(rel: str, old: str, new: str) -> None:
     path, text = read(rel)
     if old in text:
-        text = text.replace(old, new)
-        path.write_text(text, encoding="utf-8")
+        path.write_text(text.replace(old, new), encoding="utf-8")
         return
     if new in text:
         return
     raise SystemExit(f"Neither stale nor corrected copy found in {rel}: {old!r}")
 
 
-# 1. The canonical Hallazgo catalogue states 44 works; keep both bilingual
-# poster archives aligned with that final catalogue count.
+def replace_if_present(rel: str, old: str, new: str) -> None:
+    path, text = read(rel)
+    if old in text:
+        path.write_text(text.replace(old, new), encoding="utf-8")
+
+
+# 1. The canonical Hallazgo catalogue states 44 works. Some poster pages carry
+# only their primary-language paragraph while others carry both translations,
+# so patch every stale occurrence but validate the primary copy separately.
 for rel in ("carteles/index.html", "en/posters/index.html"):
-    replace_state(
+    replace_if_present(
         rel,
         "Hallazgo reúne 42 obras, registradas de H001 a H044.",
         "Hallazgo reúne 44 obras, registradas de H001 a H044.",
     )
-    replace_state(
+    replace_if_present(
         rel,
         "Hallazgo brings together 42 works, registered H001 to H044.",
         "Hallazgo brings together 44 works, registered H001 to H044.",
