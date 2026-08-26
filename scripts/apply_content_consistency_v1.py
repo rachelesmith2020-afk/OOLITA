@@ -15,7 +15,8 @@ import sys
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 
 # Run the editorial cleanup at the same final deployment stage so later transforms
-# cannot reintroduce the audited language problems before publication.
+# cannot reintroduce the audited language problems before publication. The English
+# pass is deliberately tolerant of inline markup while its regression guards remain strict.
 import apply_voice_contrast_v1  # noqa: E402,F401
 import apply_english_native_edit_v1  # noqa: E402,F401
 
@@ -49,7 +50,6 @@ def replace_if_present(rel: str, old: str, new: str) -> None:
 
 
 def matching_div_end(text: str, start: int) -> int:
-    """Return the end offset of the div starting at *start*, respecting nesting."""
     token_re = re.compile(r'</?div\b[^>]*>', flags=re.I)
     depth = 0
     for match in token_re.finditer(text, start):
@@ -64,7 +64,6 @@ def matching_div_end(text: str, start: int) -> int:
 
 
 def pending_sunday03_blocks(text: str) -> list[tuple[int, int]]:
-    """Locate pending detailed-archive divs whose own block contains 23 Aug 2026."""
     starts: list[tuple[int, int]] = []
     start_re = re.compile(r'<div\b[^>]*class=["\'][^"\']*\bfila\b[^"\']*\bespera\b[^"\']*["\'][^>]*>', flags=re.I)
     for match in start_re.finditer(text):
@@ -157,20 +156,10 @@ checks = {
     ),
     "catalogo-hallazgo/index.html": ("Hallazgo reúne 44 obras",),
     "en/hallazgo-catalogue/index.html": ("Hallazgo brings together 44 works",),
-    "domingos/03-la-memoria-del-mar/index.html": (
-        "Alrededor de cada grano crecía una capa tras otra",
-    ),
-    "en/sundays/03-the-memory-of-the-sea/index.html": (
-        "Layer upon layer grew around each grain",
-    ),
-    "domingos/index.html": (
-        'data-sunday-archive-row="3"',
-        'href="/domingos/03-la-memoria-del-mar/"',
-    ),
-    "en/sundays/index.html": (
-        'data-sunday-archive-row="3"',
-        'href="/en/sundays/03-the-memory-of-the-sea/"',
-    ),
+    "domingos/03-la-memoria-del-mar/index.html": ("Alrededor de cada grano crecía una capa tras otra",),
+    "en/sundays/03-the-memory-of-the-sea/index.html": ("Layer upon layer grew around each grain",),
+    "domingos/index.html": ('data-sunday-archive-row="3"', 'href="/domingos/03-la-memoria-del-mar/"'),
+    "en/sundays/index.html": ('data-sunday-archive-row="3"', 'href="/en/sundays/03-the-memory-of-the-sea/"'),
 }
 for rel, needles in checks.items():
     _, text = read(rel)
