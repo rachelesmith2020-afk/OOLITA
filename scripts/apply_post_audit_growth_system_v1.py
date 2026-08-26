@@ -2,6 +2,7 @@
 """Compatibility entry point for the post-audit OOLITA growth system."""
 from pathlib import Path
 import re
+import subprocess
 import sys
 
 # The final consistency workflow imports this v1 name. Execute the resilient
@@ -181,3 +182,11 @@ for html in root.rglob("*.html"):
 
 if fixed_skip_links:
     print(f"OOLITA local skip-link targets repaired: {fixed_skip_links}")
+
+# Run the restrained editorial-link pass only after every reader-facing content
+# transform above has finished. It is idempotent and fails closed if any target
+# prose has drifted or if an anchor would change visible copy.
+subprocess.run(
+    [sys.executable, str(Path(__file__).with_name("apply_editorial_internal_links_v1.py")), str(root)],
+    check=True,
+)
