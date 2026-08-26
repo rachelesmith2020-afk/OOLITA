@@ -183,3 +183,4 @@ else:
     print("OOLITA credibility precision deferred until final reader build.")
 
 # Production propagation trigger: defer credibility gate until final reader state.
+# Production propagation trigger: state-aware credibility paragraph matching.
