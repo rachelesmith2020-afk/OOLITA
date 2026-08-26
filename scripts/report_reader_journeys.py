@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 """Report OOLITA reader interactions from the first-party D1 store.
 
-The report intentionally discovers event names from the database instead of
-keeping a hard-coded list, so approved journey changes do not silently disappear
-from reporting. It reports aggregate counts only; OOLITA does not assign visitor
-IDs or reconstruct individual browsing histories.
+The report discovers event names from the database instead of keeping a hard-
+coded list, so approved journey changes do not disappear from reporting. It
+reports aggregate counts only; OOLITA does not assign visitor IDs or reconstruct
+individual browsing histories.
 """
 from __future__ import annotations
 
 import json
 import os
-import urllib.parse
+import tomllib
+import urllib.error
 import urllib.request
 from pathlib import Path
 
 ACCOUNT_ID = os.environ.get("CLOUDFLARE_ACCOUNT_ID", "").strip()
 TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
 API = "https://api.cloudflare.com/client/v4"
-DB_NAME = "oolita-subscribers"
+BINDING = "OOLITA_SUBSCRIBERS"
 
 if not ACCOUNT_ID or not TOKEN:
     raise SystemExit("Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN")
@@ -31,8 +32,12 @@ def cf(method: str, path: str, body=None):
         method=method,
         headers={"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"},
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        payload = json.load(resp)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            payload = json.load(resp)
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", "replace")
+        raise SystemExit(f"Cloudflare API {method} {path} failed: HTTP {exc.code}: {detail}")
     if not payload.get("success"):
         raise SystemExit(f"Cloudflare API failed: {payload.get('errors')}")
     return payload.get("result")
@@ -49,12 +54,16 @@ def query_rows(db_id: str, sql: str, params=None) -> list[dict]:
     return rows
 
 
-lookup = urllib.parse.urlencode({"name": DB_NAME, "per_page": 100})
-items = cf("GET", f"/accounts/{ACCOUNT_ID}/d1/database?{lookup}") or []
-match = next((x for x in items if x.get("name") == DB_NAME), None)
-if not match or not match.get("uuid"):
-    raise SystemExit("OOLITA D1 database not found")
-db_id = match["uuid"]
+# Use the exact D1 binding already committed as deployment source of truth.
+# This avoids an unnecessary account-wide database-list API call.
+config = tomllib.loads(Path("wrangler.toml").read_text(encoding="utf-8"))
+db_id = ""
+for item in config.get("d1_databases", []):
+    if item.get("binding") == BINDING:
+        db_id = str(item.get("database_id") or "").strip()
+        break
+if not db_id:
+    raise SystemExit(f"D1 binding {BINDING} missing from wrangler.toml")
 
 # Discover all reader-facing interaction names. System health checks and raw
 # pageviews are reported separately, never mixed into conversion-event counts.
