@@ -34,8 +34,6 @@ def paragraph_matches(text: str, marker: str) -> list[re.Match[str]]:
 
 def replace_paragraph(rel: str, marker: str, new_inner: str) -> None:
     path, text = read(rel)
-    if new_inner in text:
-        return
     matches = paragraph_matches(text, marker)
     if len(matches) != 1:
         raise SystemExit(f"Expected one paragraph containing {marker!r} in {rel}; found {len(matches)}")
@@ -81,12 +79,12 @@ remove_paragraph(
 )
 replace_paragraph(
     "en/editions/t-shirt/index.html",
-    "The garment appears first as a blank piece on this page",
+    "The garment appears first",
     "The garment appears first blank. Each Sunday, a little more of the design appears.",
 )
 replace_paragraph(
     "ediciones/camiseta/index.html",
-    "La prenda aparece primero en blanco en esta página",
+    "La prenda aparece primero en blanco",
     "La prenda aparece primero en blanco. Cada domingo aparece un poco más del diseño.",
 )
 
@@ -107,12 +105,12 @@ replace_paragraph(
 # archive ought to be read; stop after the concrete relation between one and 22.
 replace_paragraph(
     "en/sundays/index.html",
-    "The images do not illustrate the book",
+    "The images do not illustrate",
     'The images do not illustrate <a href="/en/editions/book/">the book</a>, and they do not document the labyrinth. They are something else: stone, water, light, shadow, an animal, a page. Each one stands on its own. The twenty-two together make the walk.',
 )
 replace_paragraph(
     "domingos/index.html",
-    "Las imágenes no ilustran el libro",
+    "Las imágenes no ilustran",
     'Las imágenes no ilustran <a href="/ediciones/libro/">el libro</a> ni documentan el laberinto. Son otra cosa: piedra, agua, luz, sombra, un animal, una página. Cada una se sostiene sola. Las veintidós juntas hacen el recorrido.',
 )
 
