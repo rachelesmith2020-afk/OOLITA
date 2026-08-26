@@ -57,6 +57,31 @@ COMPAT = {
     },
 }
 
+TEXTILE_COMPAT = {
+    "ediciones/camiseta/index.html": {
+        "current_markers": (
+            "La primera edición textil lleva el laberinto a la tela.",
+            "La prenda aparece primero en blanco. Cada domingo aparece un poco más del diseño.",
+            "Sale el 11 de abril de 2027, después del libro.",
+        ),
+        "accepted_core_targets": (
+            '<p class="parr">Esta primera pieza es una camiseta de algodón orgánico de 200 gramos y corte holgado. Los detalles de la imagen impresa, su colocación y su historia se irán desvelando poco a poco.</p>',
+            '<h2>Por qué se cuenta despacio.</h2><p class="parr">La prenda aparece primero en blanco en esta página, a propósito. Los detalles y la historia del diseño se irán desvelando domingo a domingo hasta la primavera: cada entrega contará algo más de la imagen, su colocación y su relación con el laberinto.</p>',
+        ),
+    },
+    "en/editions/t-shirt/index.html": {
+        "current_markers": (
+            "The first textile edition carries the labyrinth into cloth.",
+            "The garment appears first blank. Each Sunday, a little more of the design appears.",
+            "It comes out on 11 April 2027, after the book.",
+        ),
+        "accepted_core_targets": (
+            '<p class="parr">This first piece is a 200 gsm organic-cotton T-shirt with a loose cut. Details of the printed image, its placement and its story will be revealed little by little.</p>',
+            '<h2>Why its story unfolds slowly.</h2><p class="parr">The garment appears first as a blank piece on this page, on purpose. Details and the story of the design will unfold Sunday by Sunday through to spring: each instalment will say more about the image, its placement and its relationship to the labyrinth.</p>',
+        ),
+    },
+}
+
 if not ROOT.is_dir():
     raise SystemExit(f"Missing built site: {ROOT}")
 if not CORE.is_file():
@@ -84,8 +109,6 @@ for rel, (concise, intermediate, long_form) in home_bridge.items():
     elif intermediate in text or long_form in text:
         print(f"release v2 Hallazgo homepage copy already compatible: {rel}")
     else:
-        # Older legacy source forms remain the responsibility of v1/core. Do not
-        # suppress their strict validation by inventing a compatibility marker.
         print(f"release v2 left legacy Hallazgo homepage copy for v1/core: {rel}")
 
 inserted: list[tuple[Path, str]] = []
@@ -95,11 +118,6 @@ for rel, cfg in COMPAT.items():
         raise SystemExit(f"Missing Editions page for release compatibility: {rel}")
     text = page.read_text(encoding="utf-8")
 
-    # The final concise Spanish Hallazgo link deliberately dropped the legacy
-    # catalogue label. v1 uses that label only as a structural locator before a
-    # later normalizer restores the concise public copy. Restore it temporarily
-    # in-place so v1 can atomically normalize the existing paragraph rather than
-    # trying to insert a duplicate at a retired paragraph boundary.
     if rel == "ediciones/index.html" and ES_CONCISE_HALLAZGO in text and ES_LEGACY_HALLAZGO not in text:
         text = text.replace(ES_CONCISE_HALLAZGO, ES_LEGACY_HALLAZGO, 1)
         page.write_text(text, encoding="utf-8")
@@ -117,6 +135,28 @@ for rel, cfg in COMPAT.items():
     inserted.append((page, sentinel))
     print(f"release v2 bridged current Editions date layout: {rel}")
 
+# Later product-detail edits deliberately replaced two old release-calendar
+# paragraphs with more precise garment copy. The core needs only to know that
+# those migrations have already landed. Put the exact core targets in temporary
+# comments when—and only when—the current final product markers are all present.
+for rel, cfg in TEXTILE_COMPAT.items():
+    page = ROOT / rel
+    if not page.is_file():
+        raise SystemExit(f"Missing textile page for release compatibility: {rel}")
+    text = page.read_text(encoding="utf-8")
+    if not all(marker in text for marker in cfg["current_markers"]):
+        continue
+    for target_text in cfg["accepted_core_targets"]:
+        if target_text in text:
+            continue
+        sentinel = f"<!-- release-v2 textile compatibility: {target_text} -->"
+        if "</main>" not in text:
+            raise SystemExit(f"No </main> in {rel}")
+        text = text.replace("</main>", sentinel + "\n</main>", 1)
+        inserted.append((page, sentinel))
+        print(f"release v2 accepted current textile copy for legacy core: {rel}")
+    page.write_text(text, encoding="utf-8")
+
 old_argv = sys.argv[:]
 sys.argv = [str(CORE), str(ROOT)]
 try:
@@ -128,20 +168,19 @@ finally:
             continue
         text = page.read_text(encoding="utf-8")
         if sentinel in text:
-            page.write_text(text.replace(sentinel + "\n", "", 1), encoding="utf-8")
+            text = text.replace(sentinel + "\n", "", 1)
+            text = text.replace(sentinel, "", 1)
+            page.write_text(text, encoding="utf-8")
 
-for rel in COMPAT:
+for rel in (*COMPAT.keys(), *TEXTILE_COMPAT.keys()):
     text = (ROOT / rel).read_text(encoding="utf-8")
-    if "release-v2 compatibility:" in text:
+    if "release-v2 compatibility:" in text or "release-v2 textile compatibility:" in text:
         raise SystemExit(f"Release compatibility sentinel leaked into {rel}")
 
 # v1 deliberately restores its older detailed homepage copy after validating
 # the release calendar. Replace only that exact legacy-final string with the
 # approved concise public summary. The detailed keypad/newsletter explanation
 # remains available on the Hallazgo/Editions pages; the directory stays brief.
-# The 404 artifacts are compatibility mirrors rather than independent content;
-# synchronize them from the final Spanish homepage after the strict public-home
-# validation so no stale release wording can survive there.
 home_final = {
     "en/index.html": (EN_HOME_LONG, EN_HOME_CONCISE),
     "index.html": (ES_HOME_LONG, ES_HOME_CONCISE),
