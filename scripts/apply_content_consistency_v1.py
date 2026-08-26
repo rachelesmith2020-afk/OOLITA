@@ -7,6 +7,7 @@ Sunday 03 geology wording aligned across Spanish and English.
 """
 from __future__ import annotations
 
+import html as html_lib
 from pathlib import Path
 import re
 import shutil
@@ -203,6 +204,74 @@ if shutil.which("ffmpeg"):
     subprocess.run([sys.executable, str(Path(__file__).with_name("build_wednesday_bank_v1.py")), str(ROOT)], check=True)
 else:
     print("Wednesday bank deferred until ffmpeg is available in the final build stage.")
+
+# Absolute final accessibility gate. A skip link is local page navigation; it must
+# target the page's own <main>, never Hallazgo or another route. Match rendered
+# anchor text rather than raw inner HTML so nested spans/icons cannot evade repair.
+SKIP_LABELS = {"Saltar al contenido", "Skip to content"}
+ANCHOR_RE = re.compile(r'<a\b(?P<attrs>[^>]*)>(?P<body>[\s\S]*?)</a>', re.I)
+HREF_RE = re.compile(r'\bhref\s*=\s*(["\'])(?P<href>[^"\']*)\1', re.I)
+MAIN_RE = re.compile(r'<main\b[^>]*>', re.I)
+ID_RE = re.compile(r'\bid\s*=\s*(["\'])(?P<id>[^"\']+)\1', re.I)
+
+
+def rendered_anchor_text(body: str) -> str:
+    return re.sub(r"\s+", " ", html_lib.unescape(re.sub(r"<[^>]+>", " ", body))).strip()
+
+
+def set_anchor_href(anchor: str, target: str) -> str:
+    if HREF_RE.search(anchor):
+        return HREF_RE.sub(lambda m: f'href={m.group(1)}{target}{m.group(1)}', anchor, count=1)
+    return anchor[:-1] + f' href="{target}">'
+
+
+skip_pages = 0
+skip_links = 0
+for page in sorted(ROOT.rglob("*.html")):
+    text = page.read_text(encoding="utf-8", errors="ignore")
+    matches = [m for m in ANCHOR_RE.finditer(text) if rendered_anchor_text(m.group("body")) in SKIP_LABELS]
+    if not matches:
+        continue
+
+    main_match = MAIN_RE.search(text)
+    if not main_match:
+        raise SystemExit(f"Skip link without <main>: {page.relative_to(ROOT)}")
+    main_tag = main_match.group(0)
+    main_id_match = ID_RE.search(main_tag)
+    if main_id_match:
+        target_id = main_id_match.group("id")
+    else:
+        target_id = "contenido"
+        fixed_main = main_tag[:-1] + f' id="{target_id}">'
+        text = text[:main_match.start()] + fixed_main + text[main_match.end():]
+
+    # Re-scan after a possible <main> insertion so anchor offsets remain valid.
+    def repair_anchor(match: re.Match[str]) -> str:
+        nonlocal_marker = rendered_anchor_text(match.group("body"))
+        if nonlocal_marker not in SKIP_LABELS:
+            return match.group(0)
+        return set_anchor_href(match.group(0), f"#{target_id}")
+
+    text, repaired = ANCHOR_RE.subn(repair_anchor, text)
+    page.write_text(text, encoding="utf-8")
+
+    final_text = page.read_text(encoding="utf-8")
+    final_matches = [m for m in ANCHOR_RE.finditer(final_text) if rendered_anchor_text(m.group("body")) in SKIP_LABELS]
+    if not final_matches:
+        raise SystemExit(f"Skip link disappeared during repair: {page.relative_to(ROOT)}")
+    for match in final_matches:
+        href_match = HREF_RE.search(match.group(0))
+        if not href_match or href_match.group("href") != f"#{target_id}":
+            raise SystemExit(f"Non-local skip link survived in {page.relative_to(ROOT)}")
+    if not re.search(rf'<main\b[^>]*\bid=(["\']){re.escape(target_id)}\1', final_text, flags=re.I):
+        raise SystemExit(f"Skip target missing from <main>: {page.relative_to(ROOT)}#{target_id}")
+
+    skip_pages += 1
+    skip_links += len(final_matches)
+
+if skip_pages == 0:
+    raise SystemExit("Final accessibility gate found no skip links to validate")
+print(f"OOLITA final skip-link gate passed: {skip_links} local link(s) across {skip_pages} page(s).")
 
 # Direct-entry navigation is applied and validated earlier by apply_cta_clarity_v1.py.
 # Production propagation trigger: post-audit conversion, journey, pacing and launch system.
