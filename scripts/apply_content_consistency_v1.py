@@ -94,37 +94,15 @@ def publish_detailed_sunday03(rel: str, language: str) -> None:
 
 
 for rel in ("carteles/index.html", "en/posters/index.html"):
-    replace_if_present(
-        rel,
-        "Hallazgo reúne 42 obras, registradas de H001 a H044.",
-        "Hallazgo reúne 44 obras, registradas de H001 a H044.",
-    )
-    replace_if_present(
-        rel,
-        "Hallazgo brings together 42 works, registered H001 to H044.",
-        "Hallazgo brings together 44 works, registered H001 to H044.",
-    )
+    replace_if_present(rel,"Hallazgo reúne 42 obras, registradas de H001 a H044.","Hallazgo reúne 44 obras, registradas de H001 a H044.")
+    replace_if_present(rel,"Hallazgo brings together 42 works, registered H001 to H044.","Hallazgo brings together 44 works, registered H001 to H044.")
 
-
-for rel in (
-    "domingos/03-la-memoria-del-mar/index.html",
-    "en/sundays/03-the-memory-of-the-sea/index.html",
-):
-    replace_state(
-        rel,
-        "Cada grano se redondeaba hacia dentro, capa sobre capa, hasta volverse una esfera diminuta.",
-        "Alrededor de cada grano crecía una capa tras otra, hasta volverlo una esfera diminuta.",
-    )
-    replace_state(
-        rel,
-        "Each grain rounded inward, layer upon layer, until it became a tiny sphere.",
-        "Layer upon layer grew around each grain until it became a tiny sphere.",
-    )
-
+for rel in ("domingos/03-la-memoria-del-mar/index.html","en/sundays/03-the-memory-of-the-sea/index.html"):
+    replace_state(rel,"Cada grano se redondeaba hacia dentro, capa sobre capa, hasta volverse una esfera diminuta.","Alrededor de cada grano crecía una capa tras otra, hasta volverlo una esfera diminuta.")
+    replace_state(rel,"Each grain rounded inward, layer upon layer, until it became a tiny sphere.","Layer upon layer grew around each grain until it became a tiny sphere.")
 
 publish_detailed_sunday03("domingos/index.html", "es")
 publish_detailed_sunday03("en/sundays/index.html", "en")
-
 
 stale_strings = (
     "Hallazgo reúne 42 obras, registradas de H001 a H044.",
@@ -145,22 +123,15 @@ for html in ROOT.rglob("*.html"):
 if violations:
     raise SystemExit("Stale factual copy remains:\n" + "\n".join(violations))
 
-
 checks = {
-    "carteles/index.html": (
-        "Hallazgo reúne 44 obras, registradas de H001 a H044.",
-        "una fábula bilingüe de 48 páginas",
-    ),
-    "en/posters/index.html": (
-        "Hallazgo brings together 44 works, registered H001 to H044.",
-        "a 48-page bilingual fable",
-    ),
+    "carteles/index.html": ("Hallazgo reúne 44 obras, registradas de H001 a H044.","una fábula bilingüe de 48 páginas"),
+    "en/posters/index.html": ("Hallazgo brings together 44 works, registered H001 to H044.","a 48-page bilingual fable"),
     "catalogo-hallazgo/index.html": ("Hallazgo reúne 44 obras",),
     "en/hallazgo-catalogue/index.html": ("Hallazgo brings together 44 works",),
     "domingos/03-la-memoria-del-mar/index.html": ("Alrededor de cada grano crecía una capa tras otra",),
     "en/sundays/03-the-memory-of-the-sea/index.html": ("Layer upon layer grew around each grain",),
-    "domingos/index.html": ('data-sunday-archive-row="3"', 'href="/domingos/03-la-memoria-del-mar/"'),
-    "en/sundays/index.html": ('data-sunday-archive-row="3"', 'href="/en/sundays/03-the-memory-of-the-sea/"'),
+    "domingos/index.html": ('data-sunday-archive-row="3"','href="/domingos/03-la-memoria-del-mar/"'),
+    "en/sundays/index.html": ('data-sunday-archive-row="3"','href="/en/sundays/03-the-memory-of-the-sea/"'),
 }
 for rel, needles in checks.items():
     _, text = read(rel)
@@ -184,6 +155,7 @@ if (ROOT / "og.png").is_file():
     import apply_content_quality_v1  # noqa: E402,F401
     import apply_connective_copy_v1  # noqa: E402,F401
     import apply_original_audit_completion_v1  # noqa: E402,F401
+    import apply_post_audit_growth_system_v1  # noqa: E402,F401
 else:
     print("OOLITA final reader precision deferred until final reader build.")
 
@@ -196,5 +168,4 @@ else:
     print("Wednesday bank deferred until ffmpeg is available in the final build stage.")
 
 # Direct-entry navigation is applied and validated earlier by apply_cta_clarity_v1.py.
-# Production propagation trigger: Hallazgo exact-block fix + six-pass final check.
-# Production propagation trigger: repaired Wednesday publishing bank.
+# Production propagation trigger: post-audit conversion, journey, pacing and launch system.
