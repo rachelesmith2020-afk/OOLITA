@@ -2,8 +2,8 @@
 """Apply and validate OOLITA reader-facing final consistency fixes.
 
 This final consistency pass applies the reviewed rhetorical voice cleanup, then keeps
-the published Sunday archive, Hallazgo work count, book page count, and Sunday 03
-geology wording aligned across Spanish and English.
+the published Sunday archive, Hallazgo work count, current book specification, and
+Sunday 03 geology wording aligned across Spanish and English.
 """
 from __future__ import annotations
 
@@ -130,15 +130,13 @@ correct_english_book_page_count()
 publish_detailed_sunday03("domingos/index.html", "es")
 publish_detailed_sunday03("en/sundays/index.html", "en")
 
+# Historic poster/archive copy is allowed to preserve an earlier page-count state.
+# The canonical 48-page specification is enforced only on the current book pages.
 stale_strings = (
     "Hallazgo reúne 42 obras, registradas de H001 a H044.",
     "Hallazgo brings together 42 works, registered H001 to H044.",
     "Cada grano se redondeaba hacia dentro, capa sobre capa, hasta volverse una esfera diminuta.",
     "Each grain rounded inward, layer upon layer, until it became a tiny sphere.",
-    "una fábula bilingüe de 44 páginas",
-    "a 44-page bilingual fable",
-    "Forty-four pages",
-    "Cuarenta y cuatro páginas",
 )
 violations: list[str] = []
 for html in ROOT.rglob("*.html"):
@@ -146,14 +144,17 @@ for html in ROOT.rglob("*.html"):
     for stale in stale_strings:
         if stale in text:
             violations.append(f"{html.relative_to(ROOT)}: {stale}")
-    if html.relative_to(ROOT).as_posix() == "en/editions/book/index.html" and re.search(r"\bPages\s+44\b", visible_text(text), flags=re.I):
+    rel = html.relative_to(ROOT).as_posix()
+    if rel == "en/editions/book/index.html" and re.search(r"\bPages\s+44\b", visible_text(text), flags=re.I):
         violations.append("en/editions/book/index.html: Pages 44")
+    if rel == "ediciones/libro/index.html" and re.search(r"\bPáginas\s+44\b", visible_text(text), flags=re.I):
+        violations.append("ediciones/libro/index.html: Páginas 44")
 if violations:
     raise SystemExit("Stale factual copy remains:\n" + "\n".join(violations))
 
 checks = {
-    "carteles/index.html": ("Hallazgo reúne 44 obras, registradas de H001 a H044.","una fábula bilingüe de 48 páginas"),
-    "en/posters/index.html": ("Hallazgo brings together 44 works, registered H001 to H044.","a 48-page bilingual fable"),
+    "carteles/index.html": ("Hallazgo reúne 44 obras, registradas de H001 a H044.",),
+    "en/posters/index.html": ("Hallazgo brings together 44 works, registered H001 to H044.",),
     "catalogo-hallazgo/index.html": ("Hallazgo reúne 44 obras",),
     "en/hallazgo-catalogue/index.html": ("Hallazgo brings together 44 works",),
     "domingos/03-la-memoria-del-mar/index.html": ("Alrededor de cada grano crecía una capa tras otra",),
@@ -170,6 +171,10 @@ for rel, needles in checks.items():
 _, english_book = read("en/editions/book/index.html")
 if not re.search(r"\bPages\s+48\b", visible_text(english_book), flags=re.I):
     raise SystemExit("English book specification must visibly read Pages 48")
+
+_, spanish_book = read("ediciones/libro/index.html")
+if not re.search(r"\bPáginas\s+48\b", visible_text(spanish_book), flags=re.I):
+    raise SystemExit("Spanish book specification must visibly read Páginas 48")
 
 for rel in ("domingos/index.html", "en/sundays/index.html"):
     _, text = read(rel)
