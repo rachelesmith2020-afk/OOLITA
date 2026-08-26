@@ -139,14 +139,16 @@ for rel, needles in checks.items():
             raise SystemExit(f"Consistency invariant missing in {rel}: {needle}")
 
 # A pending detailed row for the already-published 23 August entry is forbidden.
+# Inspect each pending row independently; do not let a regex span into a later row.
 for rel in ("domingos/index.html", "en/sundays/index.html"):
     _, text = read(rel)
-    if re.search(
-        r'<div\b[^>]*class=["\'][^"\']*\bfila\b[^"\']*\bespera\b[^"\']*["\'][^>]*>'
-        r'[\s\S]*?<time\b[^>]*datetime=["\']2026-08-23["\']',
+    pending_rows = re.findall(
+        r'<div\b[^>]*class=["\'][^"\']*\bfila\b[^"\']*\bespera\b[^"\']*["\'][^>]*>[\s\S]*?</div>',
         text,
         flags=re.I,
-    ):
-        raise SystemExit(f"Sunday 03 still pending in detailed archive: {rel}")
+    )
+    for row in pending_rows:
+        if re.search(r'<time\b[^>]*datetime=["\']2026-08-23["\']', row, flags=re.I):
+            raise SystemExit(f"Sunday 03 still pending in detailed archive: {rel}")
 
 print("OOLITA factual/content consistency validated successfully.")
