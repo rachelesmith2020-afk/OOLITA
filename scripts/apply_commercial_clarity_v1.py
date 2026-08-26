@@ -157,8 +157,8 @@ replace_paragraph(
 )
 
 # TEXTILE DETAIL — use the European Blaster 2.0 specification and distinguish
-# product certifications from manufacturer memberships. This avoids treating
-# Fair Wear membership as a garment certification.
+# product certifications from company memberships/listings. No membership year is
+# stated because Stanley/Stella and Fair Wear currently publish different start years.
 replace_paragraph(
     "en/editions/t-shirt/index.html",
     "It is a Stanley/Stella Blaster 2.0",
@@ -167,7 +167,7 @@ replace_paragraph(
 replace_paragraph(
     "en/editions/t-shirt/index.html",
     "It carries GOTS organic cotton certification",
-    "Stanley/Stella lists the Blaster 2.0 with GOTS and OEKO-TEX certification. The company is PETA-Approved Vegan and has been a Fair Wear member since 2012.",
+    "Stanley/Stella lists the Blaster 2.0 with GOTS and OEKO-TEX certification. Stanley/Stella is a Fair Wear member, and PETA lists the company as 100% vegan.",
 )
 replace_paragraph(
     "ediciones/camiseta/index.html",
@@ -177,7 +177,7 @@ replace_paragraph(
 replace_paragraph(
     "ediciones/camiseta/index.html",
     "Lleva certificación GOTS de algodón orgánico",
-    "La Blaster 2.0 figura con certificaciones GOTS y OEKO-TEX en la ficha de Stanley/Stella. La empresa es PETA-Approved Vegan y miembro de Fair Wear desde 2012.",
+    "La ficha de Stanley/Stella muestra la Blaster 2.0 con certificaciones GOTS y OEKO-TEX. Stanley/Stella es miembro de Fair Wear y PETA incluye a la empresa entre sus compañías 100 % veganas.",
 )
 replace_any_once(
     "en/editions/t-shirt/index.html",
@@ -187,7 +187,7 @@ replace_any_once(
 replace_any_once(
     "en/editions/t-shirt/index.html",
     ("GOTS · OEKO-TEX · PETA Vegan · Fair Wear", "GOTS · OEKO-TEX · PETA-Approved Vegan · Fair Wear member"),
-    "GOTS · OEKO-TEX · PETA-Approved Vegan · Fair Wear member",
+    "GOTS · OEKO-TEX · Fair Wear member · PETA-listed vegan company",
 )
 replace_any_once(
     "ediciones/camiseta/index.html",
@@ -197,7 +197,7 @@ replace_any_once(
 replace_any_once(
     "ediciones/camiseta/index.html",
     ("GOTS · OEKO-TEX · Vegano PETA · Fair Wear", "GOTS · OEKO-TEX · PETA-Approved Vegan · miembro de Fair Wear"),
-    "GOTS · OEKO-TEX · PETA-Approved Vegan · miembro de Fair Wear",
+    "GOTS · OEKO-TEX · miembro de Fair Wear · empresa vegana en PETA",
 )
 
 # Regression/positive guards.
@@ -216,12 +216,12 @@ required = {
     ),
     "en/editions/t-shirt/index.html": (
         "200 gsm single jersey in 100% organic ring-spun combed cotton",
-        "PETA-Approved Vegan and has been a Fair Wear member since 2012",
+        "Stanley/Stella is a Fair Wear member, and PETA lists the company as 100% vegan",
         "Certifications and memberships",
     ),
     "ediciones/camiseta/index.html": (
         "algodón orgánico peinado e hilado en anillo",
-        "PETA-Approved Vegan y miembro de Fair Wear desde 2012",
+        "Stanley/Stella es miembro de Fair Wear y PETA incluye a la empresa entre sus compañías 100 % veganas",
         "Certificaciones y membresías",
     ),
 }
@@ -230,8 +230,8 @@ stale = {
     "index.html": ("el libro sale a la venta", "sale a la venta la primera edición textil"),
     "en/editions/index.html": ("On sale · 31.01.27", "On sale · 11.04.27"),
     "ediciones/index.html": ("A la venta · 31.01.27", "A la venta · 11.04.27"),
-    "en/editions/t-shirt/index.html": ("Fair Wear accreditation in the making",),
-    "ediciones/camiseta/index.html": ("algodón orgánico peinado de hilo abierto", "Fair Wear en la confección"),
+    "en/editions/t-shirt/index.html": ("Fair Wear accreditation in the making", "Fair Wear member since 2012"),
+    "ediciones/camiseta/index.html": ("algodón orgánico peinado de hilo abierto", "Fair Wear en la confección", "miembro de Fair Wear desde 2012"),
 }
 for rel, phrases in required.items():
     _, text = read(rel)
