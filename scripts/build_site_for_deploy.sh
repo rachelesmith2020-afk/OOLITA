@@ -136,3 +136,4 @@ python3 scripts/apply_content_consistency_v1.py site
 
 # Production propagation trigger: corrected bilingual consistency guard.
 # Production propagation trigger: row-scoped Sunday consistency validation.
+# Production propagation trigger: targeted detailed Sunday 03 repair.
