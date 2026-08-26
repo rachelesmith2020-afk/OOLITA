@@ -176,11 +176,13 @@ print("OOLITA factual/content consistency validated successfully.")
 # The reconstructed origin runs this consistency module before the search/SEO
 # layers; the final workflow runs it again afterwards. og.png is created by the
 # later search-visibility pass, so it is a stable final-stage marker and prevents
-# the credibility edits from disturbing legacy reconstruction validators.
+# the credibility/content-quality edits from disturbing legacy reconstruction validators.
 if (ROOT / "og.png").is_file():
     import apply_credibility_precision_v1  # noqa: E402,F401
+    import apply_content_quality_v1  # noqa: E402,F401
 else:
-    print("OOLITA credibility precision deferred until final reader build.")
+    print("OOLITA credibility/content-quality precision deferred until final reader build.")
 
 # Production propagation trigger: defer credibility gate until final reader state.
 # Production propagation trigger: state-aware credibility paragraph matching.
+# Production propagation trigger: reviewed content-quality pass.
