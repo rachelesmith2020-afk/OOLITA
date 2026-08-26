@@ -178,6 +178,8 @@ _cabo_intermediate = (
 _cabo_published_variants = (
     "The aim is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
     "The point is not to bring more people to one labyrinth. Cabo de Gata does not need more tourism pressure. Look more slowly. Learn from the people who live and work here. Leave the place as you found it.",
+    "The labyrinth is there. Not everything needs to end in a visit. The path can be followed from a distance too. Look more slowly. Learn from the people who live and work here. Leave the place as you found it.",
+    "The labyrinth is there. The path can also be followed from a distance. Look more slowly. Learn from the people who live and work here. Leave the place as you found it.",
 )
 _cabo_page = root / "en/index.html"
 _cabo_text = _cabo_page.read_text(encoding="utf-8")
@@ -244,3 +246,4 @@ else:
 # Production deployment trigger: 22 Sundays homepage heading, 2026-08-24.
 # Production deployment trigger: Work with OOLITA collective voice, 2026-08-24.
 # Production deployment trigger: concise Hallazgo catalogue homepage summary, 2026-08-25.
+# Reconstruction compatibility trigger: implicit environmental voice, 2026-08-26.
