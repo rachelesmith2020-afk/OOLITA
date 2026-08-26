@@ -123,7 +123,9 @@ replace_state(
 )
 
 # The environmental position is not decorative brand language. It explains why
-# OOLITA keeps one physical labyrinth and opens the same path digitally.
+# OOLITA keeps one physical labyrinth and opens the same path digitally. The
+# growth pipeline may still hold a temporary development paragraph here; that
+# intermediate copy is replaced, not added to, at publication.
 ETHOS_EN = (
     "The point is not to bring more people to one labyrinth. "
     "Cabo de Gata does not need more tourism pressure. "
@@ -135,14 +137,16 @@ if not replace_paragraph_by_markers(
     (
         "The point is not to bring more people to one labyrinth.",
         "The aim is to look at Cabo de Gata more slowly",
+        "Directions in development include field books for family visits",
+        "They will grow slowly and will only be presented",
     ),
     ETHOS_EN,
 ):
     raise SystemExit("Could not locate the final English Cabo de Gata ethos paragraph")
 
-# Keep the same project position visible in Spanish. Prefer replacing the existing
-# voice-audit paragraph; if an older pipeline state lacks it, append after the exact
-# future-work paragraph. This prevents duplicate environmental statements.
+# Keep the same project position visible in Spanish. Replace either the public
+# voice paragraph or the temporary growth paragraph so the homepage carries one
+# clear environmental statement rather than duplicate messaging.
 ETHOS_ES = (
     "No se trata de llevar más gente al laberinto. "
     "Cabo de Gata no necesita más presión turística. "
@@ -154,23 +158,12 @@ if not replace_paragraph_by_markers(
     (
         "No se trata de llevar más gente al laberinto.",
         "Se trata de mirar Cabo de Gata más despacio",
+        "Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia",
+        "Crecerán despacio y sólo se presentarán",
     ),
     ETHOS_ES,
 ):
-    _es_path, _es_text = read("index.html")
-    anchor = (
-        "Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia, "
-        "ensayos con color natural y posibles colaboraciones con artesanos locales en torno a "
-        "saberes materiales como la fibra de pita."
-    )
-    if anchor not in _es_text:
-        raise SystemExit("Could not locate Spanish Cabo de Gata ethos or development paragraph")
-    _es_text = _es_text.replace(
-        anchor,
-        anchor + '</p><p class="parr">' + ETHOS_ES,
-        1,
-    )
-    _es_path.write_text(_es_text, encoding="utf-8")
+    raise SystemExit("Could not locate the final Spanish Cabo de Gata ethos paragraph")
 
 
 # ABOUT — remove ambiguity and literal phrasing while keeping attribution and the
@@ -263,6 +256,10 @@ stale = {
         "stays open from elsewhere",
         "A labyrinth gives you one path to follow. You keep going.",
         "The aim is to look at Cabo de Gata more slowly",
+        "Directions in development include field books for family visits",
+    ),
+    "index.html": (
+        "Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia",
     ),
     "en/about/index.html": (
         "laid by hand by Raquel Costantini",
