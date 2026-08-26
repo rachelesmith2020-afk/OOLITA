@@ -37,7 +37,6 @@ def replace_text(rel: str, pairs: tuple[tuple[str, str], ...]) -> None:
 
 
 def replace_paragraph(rel: str, markers: tuple[str, ...], new_inner: str, *, required: bool = True) -> None:
-    """Replace one rendered paragraph regardless of incidental inline markup."""
     p, text = read(rel)
     paragraph_re = re.compile(r'(<p\b[^>]*>)([\s\S]*?)(</p>)', flags=re.I)
     matches = []
@@ -124,7 +123,6 @@ replace_paragraph(
     ("Es la misma figura a dos escalas", "El parentesco está en la forma"),
     "El proyecto se llama OOLITA por esa piedra. Un oolito crece por capas alrededor de un centro; un laberinto se recorre en círculos concéntricos hacia un centro. El parentesco está en la forma: capas, centro, tiempo.",
 )
-
 replace_paragraph(
     "en/what-is-an-ooid/index.html",
     ("It needs very particular conditions", "Many marine ooids form"),
@@ -189,7 +187,6 @@ replace_paragraph(
     ("puede llevar media hora si se va despacio",),
     "Depende del tamaño y del ritmo. Un laberinto de tres metros se puede recorrer en pocos minutos; uno de catedral, de once o doce metros, lleva más tiempo.",
 )
-
 replace_paragraph(
     "en/what-is-a-labyrinth/index.html",
     ("the return takes exactly as long as the way in",),
@@ -209,6 +206,22 @@ replace_paragraph(
     "en/what-is-a-labyrinth/index.html",
     ("can take half an hour if you walk slowly",),
     "It depends on the size and the pace. A three-metre labyrinth can be walked in a few minutes; a cathedral labyrinth of eleven or twelve metres takes longer.",
+)
+
+# Keep FAQ structured data aligned with the corrected visible answers.
+replace_text(
+    "que-es-un-laberinto/index.html",
+    (
+        ("No hay una manera correcta. Se recorre el camino entero: hacia el centro, una pausa, y el regreso, que ocupa exactamente lo mismo que la ida. Conviene ir despacio.", "No hay una manera correcta. Se recorre el camino entero: hacia el centro, una pausa y el regreso por la misma senda. Conviene ir despacio."),
+        ("Depende del tamaño. Un laberinto de tres metros se camina en unos pocos minutos; uno de catedral, de once o doce metros, puede llevar media hora si se va despacio.", "Depende del tamaño y del ritmo. Un laberinto de tres metros se puede recorrer en pocos minutos; uno de catedral, de once o doce metros, lleva más tiempo."),
+    ),
+)
+replace_text(
+    "en/what-is-a-labyrinth/index.html",
+    (
+        ("There is no correct way. You walk the whole path: inward, a pause at the centre, and the return, which takes exactly as long as the way in. Slowly is better.", "There is no correct way. You walk the whole path: inward, a pause at the centre, and back along the same route. Slowly is better."),
+        ("It depends on the size. A three-metre labyrinth takes a few minutes; a cathedral labyrinth of eleven or twelve metres can take half an hour if you walk slowly.", "It depends on the size and the pace. A three-metre labyrinth can be walked in a few minutes; a cathedral labyrinth of eleven or twelve metres takes longer."),
+    ),
 )
 
 
