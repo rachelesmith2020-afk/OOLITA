@@ -4,7 +4,7 @@
 This pass is deliberately narrow. It does not add environmental branding or hide
 the physical labyrinth. It makes the existing principle structural:
 - remote engagement comes before physical access in the homepage actions;
-- the Cabo de Gata paragraph keeps the limit, without tourism-sector rhetoric;
+- the Cabo de Gata paragraph keeps the limit without tourism-sector rhetoric;
 - the labyrinth is not classified to search engines as a TouristAttraction.
 """
 from __future__ import annotations
@@ -38,14 +38,14 @@ def visible(fragment: str) -> str:
 
 FINAL_ENV = {
     "index.html": (
-        "El laberinto está allí. No hace falta que todo termine en una visita. "
-        "El camino también se puede seguir desde lejos. Mira más despacio. "
-        "Aprende de la gente que vive y trabaja aquí. Deja el lugar como lo encontraste."
+        "El laberinto está allí. El camino también puede seguirse desde lejos. "
+        "Mira más despacio. Aprende de la gente que vive y trabaja aquí. "
+        "Deja el lugar como lo encontraste."
     ),
     "en/index.html": (
-        "The labyrinth is there. Not everything needs to end in a visit. "
-        "The path can be followed from a distance too. Look more slowly. "
-        "Learn from the people who live and work here. Leave the place as you found it."
+        "The labyrinth is there. The path can also be followed from a distance. "
+        "Look more slowly. Learn from the people who live and work here. "
+        "Leave the place as you found it."
     ),
 }
 
@@ -54,11 +54,13 @@ ENV_NEEDLES = {
         "llevar más gente al laberinto",
         "llevar más gente a un solo laberinto",
         "llevar más gente a un solo punto",
+        "no hace falta que todo termine en una visita",
     ),
     "en/index.html": (
         "bring more people to one labyrinth",
         "bring more people to a single labyrinth",
         "bring more people to one point",
+        "not everything needs to end in a visit",
     ),
 }
 
@@ -128,7 +130,6 @@ def hero_actions(rel: str, *, language: str) -> None:
     follow_match = find_anchor((follow,))
     book_match = find_anchor((book,))
 
-    # If already in the final order and final label, leave the markup untouched.
     if (
         follow_match.start() < book_match.start() < lab_match.start()
         and final_lab.upper() in visible(lab_match.group(0)).upper()
@@ -143,9 +144,6 @@ def hero_actions(rel: str, *, language: str) -> None:
 
     selected = sorted((lab_match, follow_match, book_match), key=lambda m: m.start())
     first, last = selected[0], selected[-1]
-
-    # Only whitespace may separate the three hero controls. If the layout has
-    # changed, fail closed rather than moving unrelated markup.
     cursor = first.end()
     for match in selected[1:]:
         if text[cursor:match.start()].strip():
@@ -285,4 +283,4 @@ for rel in ("index.html", "en/index.html", "laberinto/index.html", "en/labyrinth
     if "TouristAttraction" in text:
         raise SystemExit(f"Tourism schema regression in {rel}")
 
-print("OOLITA environmental alignment validated: remote-first actions, restrained copy, no TouristAttraction schema.")
+print("OOLITA environmental alignment validated: remote-first actions, implicit limit, no TouristAttraction schema.")
