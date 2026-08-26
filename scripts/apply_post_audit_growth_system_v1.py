@@ -30,14 +30,14 @@ source = source.replace(
 
 # The textile pages currently use their explicit email-interest actions. Measure
 # the existing purchase-notification link instead of requiring a non-existent
-# ?follow=textile URL. No visible wording or destination is changed here.
+# ?follow=textile URL. Preserve the 11 April launch-state metadata.
 source = source.replace(
-    '("ediciones/camiseta/index.html","follow-textile","textile-follow",dict(href_contains="follow=textile"),None,None),',
-    '("ediciones/camiseta/index.html","follow-textile","textile-follow",dict(text_contains="Avísame cuando pueda comprarla"),None,None),',
+    '("ediciones/camiseta/index.html","follow-textile","textile-follow",dict(href_contains="follow=textile"),"textile","2027-04-11T00:00:00+02:00"),',
+    '("ediciones/camiseta/index.html","follow-textile","textile-follow",dict(text_contains="Avísame cuando pueda comprarla"),"textile","2027-04-11T00:00:00+02:00"),',
 )
 source = source.replace(
-    '("en/editions/t-shirt/index.html","follow-textile","textile-follow",dict(href_contains="follow=textile"),None,None),',
-    '("en/editions/t-shirt/index.html","follow-textile","textile-follow",dict(text_contains="Tell me when I can buy it"),None,None),',
+    '("en/editions/t-shirt/index.html","follow-textile","textile-follow",dict(href_contains="follow=textile"),"textile","2027-04-11T00:00:00+02:00"),',
+    '("en/editions/t-shirt/index.html","follow-textile","textile-follow",dict(text_contains="Tell me when I can buy it"),"textile","2027-04-11T00:00:00+02:00"),',
 )
 
 # Measure the same published geology path: ooid explainer -> OOLITA -> labyrinth
