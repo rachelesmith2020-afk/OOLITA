@@ -122,7 +122,7 @@ replace_state(
 replace_state(
     "en/editions/book/index.html",
     "Because it is printed one at a time, there is no stock to run out and no reprint to wait for. Each copy is produced after the order; printing and delivery details will be published before release.",
-    "Each copy is printed to order, so there is no fixed stock or reprint cycle. Printing and delivery details will be published before release.",
+    "Each copy is printed to order, so there is no fixed stock or reprint cycle; printing and delivery details will be published before release.",
 )
 
 
