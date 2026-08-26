@@ -145,11 +145,19 @@ PYFAVICON
 # catalogue copy inherited from the mirrored origin and fails closed if it drifts.
 python3 scripts/apply_content_consistency_v1.py site
 
+# Deepen the existing geology pair and correct About terminology without adding
+# a page, navigation item, keyword block or visitor-promotion layer.
+python3 scripts/apply_geology_authority_v1.py site
+
 # Add only contextual editorial links between the existing place, geology and
-# labyrinth pages. This pass changes no visible copy. It is also rerun after the
-# later reader/growth transforms so deployment order cannot strip these anchors.
+# labyrinth pages. This changes no visible copy.
 python3 scripts/apply_editorial_internal_links_v1.py site
+
+# Final factual and structural gates run after all reader-facing mutations.
+python3 scripts/normalize_labyrinth_fossil_dunes_v2.py site
+python3 scripts/audit_static_integrity_v1.py site
 
 # Production propagation trigger: corrected bilingual consistency guard.
 # Production propagation trigger: row-scoped Sunday consistency validation.
 # Production propagation trigger: targeted detailed Sunday 03 repair.
+# Production propagation trigger: geology authority, editorial hrefs and final integrity gates.
