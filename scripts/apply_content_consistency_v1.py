@@ -50,6 +50,31 @@ def replace_if_present(rel: str, old: str, new: str) -> None:
         path.write_text(text.replace(old, new), encoding="utf-8")
 
 
+def visible_text(text: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", text)).strip()
+
+
+def correct_english_book_page_count() -> None:
+    """Keep the visible English specification row aligned with the 48-page book."""
+    path, text = read("en/editions/book/index.html")
+    visible = visible_text(text)
+    if re.search(r"\bPages\s+48\b", visible, flags=re.I):
+        return
+    if not re.search(r"\bPages\s+44\b", visible, flags=re.I):
+        raise SystemExit("English book page count is neither visible as 44 nor 48")
+
+    match = re.search(r"(Pages[\s\S]{0,300}?)(?<!\d)44(?!\d)", text, flags=re.I)
+    if not match:
+        raise SystemExit("Could not locate the stale English book specification value 44")
+    start = match.start(0) + len(match.group(1))
+    text = text[:start] + "48" + text[start + 2:]
+    path.write_text(text, encoding="utf-8")
+
+    corrected = visible_text(text)
+    if not re.search(r"\bPages\s+48\b", corrected, flags=re.I):
+        raise SystemExit("English book specification did not resolve to Pages 48")
+
+
 def matching_div_end(text: str, start: int) -> int:
     token_re = re.compile(r'</?div\b[^>]*>', flags=re.I)
     depth = 0
@@ -101,6 +126,7 @@ for rel in ("domingos/03-la-memoria-del-mar/index.html","en/sundays/03-the-memor
     replace_state(rel,"Cada grano se redondeaba hacia dentro, capa sobre capa, hasta volverse una esfera diminuta.","Alrededor de cada grano crecía una capa tras otra, hasta volverlo una esfera diminuta.")
     replace_state(rel,"Each grain rounded inward, layer upon layer, until it became a tiny sphere.","Layer upon layer grew around each grain until it became a tiny sphere.")
 
+correct_english_book_page_count()
 publish_detailed_sunday03("domingos/index.html", "es")
 publish_detailed_sunday03("en/sundays/index.html", "en")
 
@@ -120,6 +146,8 @@ for html in ROOT.rglob("*.html"):
     for stale in stale_strings:
         if stale in text:
             violations.append(f"{html.relative_to(ROOT)}: {stale}")
+    if html.relative_to(ROOT).as_posix() == "en/editions/book/index.html" and re.search(r"\bPages\s+44\b", visible_text(text), flags=re.I):
+        violations.append("en/editions/book/index.html: Pages 44")
 if violations:
     raise SystemExit("Stale factual copy remains:\n" + "\n".join(violations))
 
@@ -138,6 +166,10 @@ for rel, needles in checks.items():
     for needle in needles:
         if needle not in text:
             raise SystemExit(f"Consistency invariant missing in {rel}: {needle}")
+
+_, english_book = read("en/editions/book/index.html")
+if not re.search(r"\bPages\s+48\b", visible_text(english_book), flags=re.I):
+    raise SystemExit("English book specification must visibly read Pages 48")
 
 for rel in ("domingos/index.html", "en/sundays/index.html"):
     _, text = read(rel)
