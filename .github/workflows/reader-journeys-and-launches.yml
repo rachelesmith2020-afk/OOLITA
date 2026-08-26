@@ -50,5 +50,5 @@ jobs:
             echo 'Launch clock is scoped to 2027; no deployment dispatched.'
             exit 0
           fi
-          gh workflow run deploy-cloudflare-pages.yml -f confirm=DEPLOY
+          gh workflow run deploy-cloudflare-pages.yml -R rachelesmith2020-afk/OOLITA -f confirm=DEPLOY
           echo 'Production rebuild dispatched.'
