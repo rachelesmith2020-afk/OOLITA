@@ -185,4 +185,4 @@ else:
     print("OOLITA final reader precision deferred until final reader build.")
 
 # Direct-entry navigation is applied and validated earlier by apply_cta_clarity_v1.py.
-# Production propagation trigger: complete six-pass build with all final guards wired.
+# Production propagation trigger: Hallazgo exact-block fix + six-pass final check.
