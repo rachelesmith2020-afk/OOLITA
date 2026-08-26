@@ -177,3 +177,5 @@ print("OOLITA factual/content consistency validated successfully.")
 # existing workflow step remains the single final gate while the corrections run
 # after every other consistency transform.
 import apply_credibility_precision_v1  # noqa: E402,F401
+
+# Production propagation trigger: resilient credibility precision v1.
