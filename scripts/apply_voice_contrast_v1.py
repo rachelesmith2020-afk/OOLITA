@@ -166,3 +166,4 @@ print("OOLITA repeated contrast phrasing revised and validated successfully.")
 
 # Production propagation trigger: corrected Problem 4 content-quality pass.
 # Production propagation trigger: final provenance-safe pass.
+# Production propagation trigger: flexible content-block matching.
