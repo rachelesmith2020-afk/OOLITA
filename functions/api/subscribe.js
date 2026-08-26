@@ -1,4 +1,4 @@
-const ALLOWED_INTERESTS = new Set(["3d", "book", "field", "textile"]);
+const ALLOWED_INTERESTS = new Set(["3d", "book", "hallazgo", "field", "textile"]);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TOKEN_RE = /^[a-f0-9]{48}$/;
 
