@@ -146,8 +146,8 @@ PYFAVICON
 python3 scripts/apply_content_consistency_v1.py site
 
 # Add only contextual editorial links between the existing place, geology and
-# labyrinth pages. This pass changes no visible copy and runs last so earlier
-# reconstruction steps cannot overwrite the reviewed relationships.
+# labyrinth pages. This pass changes no visible copy. It is also rerun after the
+# later reader/growth transforms so deployment order cannot strip these anchors.
 python3 scripts/apply_editorial_internal_links_v1.py site
 
 # Production propagation trigger: corrected bilingual consistency guard.
