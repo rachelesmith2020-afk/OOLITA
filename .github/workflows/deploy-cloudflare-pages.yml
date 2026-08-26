@@ -8,6 +8,7 @@ on:
       - 'wrangler.toml'
       - 'scripts/build_site_for_deploy.sh'
       - 'scripts/apply_content_consistency_v1.py'
+      - 'scripts/apply_final_content_consistency_v2.py'
       - 'scripts/apply_geology_authority_v1.py'
       - 'scripts/apply_editorial_internal_links_v1.py'
       - 'scripts/audit_static_integrity_v1.py'
@@ -67,6 +68,7 @@ on:
       - 'wrangler.toml'
       - 'scripts/build_site_for_deploy.sh'
       - 'scripts/apply_content_consistency_v1.py'
+      - 'scripts/apply_final_content_consistency_v2.py'
       - 'scripts/apply_geology_authority_v1.py'
       - 'scripts/apply_editorial_internal_links_v1.py'
       - 'scripts/audit_static_integrity_v1.py'
@@ -206,7 +208,7 @@ jobs:
 
       - name: Apply final factual consistency guard
         shell: bash
-        run: python3 scripts/apply_content_consistency_v1.py site
+        run: python3 scripts/apply_final_content_consistency_v2.py site
 
       - name: Apply final geology authority wording
         shell: bash
@@ -327,7 +329,7 @@ jobs:
 
       - name: Apply final factual consistency guard
         shell: bash
-        run: python3 scripts/apply_content_consistency_v1.py site
+        run: python3 scripts/apply_final_content_consistency_v2.py site
 
       - name: Apply final geology authority wording
         shell: bash
