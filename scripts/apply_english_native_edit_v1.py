@@ -215,7 +215,8 @@ replace_state(
 
 
 # OOID PAGE — correct the rendered language rather than depending on where inline
-# emphasis happens to split the raw HTML.
+# emphasis happens to split the raw HTML. Older source wording used a still-grain
+# construction; the current factual geology no longer needs or asserts it.
 replace_fragment_if_present(
     "en/what-is-an-ooid/index.html",
     "sits still",
@@ -292,12 +293,13 @@ for rel, phrases in stale.items():
         if phrase in text:
             raise SystemExit(f"Final-language regression remains in {rel}: {phrase}")
 
-# Positive voice/ethos invariants.
+# Positive voice/ethos invariants. The ooid invariant follows the corrected
+# factual paragraph rather than requiring the retired "stays still" sentence.
 for rel, needle in (
     ("en/index.html", "A labyrinth asks you to decide nothing. You follow."),
     ("en/index.html", ETHOS_EN),
     ("index.html", ETHOS_ES),
-    ("en/what-is-an-ooid/index.html", "stays still"),
+    ("en/what-is-an-ooid/index.html", "Movement keeps the grains turning"),
     ("en/what-is-an-ooid/index.html", "technical term is"),
 ):
     _, text = read(rel)
