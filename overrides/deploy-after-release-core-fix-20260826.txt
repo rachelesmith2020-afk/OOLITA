@@ -1,0 +1,1 @@
+Trigger production validation/deployment after release-calendar core accepts the current final textile copy.
