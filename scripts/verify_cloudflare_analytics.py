@@ -42,3 +42,5 @@ for env_name in ("production", "preview"):
     binding = bindings.get(BINDING)
     print(f"{env_name}_analytics_binding={binding!r}")
 print("Analytics binding state reported; deployment cleanup remains authoritative.")
+
+# Production propagation trigger: commercial-status and textile-spec precision.
