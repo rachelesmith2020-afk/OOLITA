@@ -37,24 +37,34 @@ def replace_text(rel: str, pairs: tuple[tuple[str, str], ...]) -> None:
 
 
 def replace_paragraph(rel: str, markers: tuple[str, ...], new_inner: str, *, required: bool = True) -> None:
+    """Replace one reader paragraph while tolerating mixed old/new source states.
+
+    A mirrored live page can contain a corrected FAQ paragraph at the same time as
+    an older body paragraph. Treat markers as ordered alternatives rather than one
+    combined search: prefer the historical marker first, and consider the target
+    complete when the exact reviewed paragraph is already present.
+    """
     p, text = read(rel)
     paragraph_re = re.compile(r'(<p\b[^>]*>)([\s\S]*?)(</p>)', flags=re.I)
-    matches = []
-    for m in paragraph_re.finditer(text):
-        rendered = visible(m.group(2))
-        if any(marker in rendered for marker in markers):
-            matches.append(m)
-    if not matches:
-        if new_inner in text:
-            return
-        if required:
-            raise SystemExit(f"Could not locate credibility paragraph in {rel}: {markers[0]}")
+    paragraphs = [(m, visible(m.group(2))) for m in paragraph_re.finditer(text)]
+    expected = visible(new_inner)
+
+    if any(rendered == expected for _, rendered in paragraphs):
         return
-    if len(matches) != 1:
-        raise SystemExit(f"Expected one credibility paragraph in {rel}, found {len(matches)}: {markers[0]}")
-    m = matches[0]
-    text = text[:m.start()] + m.group(1) + new_inner + m.group(3) + text[m.end():]
-    p.write_text(text, encoding="utf-8")
+
+    for marker in markers:
+        matches = [m for m, rendered in paragraphs if marker in rendered]
+        if not matches:
+            continue
+        if len(matches) != 1:
+            raise SystemExit(f"Expected one credibility paragraph in {rel}, found {len(matches)}: {marker}")
+        m = matches[0]
+        text = text[:m.start()] + m.group(1) + new_inner + m.group(3) + text[m.end():]
+        p.write_text(text, encoding="utf-8")
+        return
+
+    if required:
+        raise SystemExit(f"Could not locate credibility paragraph in {rel}: {markers[0]}")
 
 
 # 1. Batería de San Felipe — 1765.
