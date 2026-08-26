@@ -43,4 +43,4 @@ for env_name in ("production", "preview"):
     print(f"{env_name}_analytics_binding={binding!r}")
 print("Analytics binding state reported; deployment cleanup remains authoritative.")
 
-# Production propagation trigger: idempotent fact-checked commercial copy, SEO and no-straggler verification.
+# Production propagation trigger: all six reviewed passes, exact-block Hallazgo fix, SEO/href/no-straggler verification.
