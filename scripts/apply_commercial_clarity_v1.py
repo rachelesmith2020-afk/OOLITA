@@ -43,14 +43,26 @@ def replace_any_once(rel: str, old_forms: tuple[str, ...], new: str) -> None:
     raise SystemExit(f"No known commercial source state found in {rel}: {old_forms[0]!r}")
 
 
-def replace_paragraph(rel: str, marker: str, new_inner: str) -> None:
+def replace_paragraph(
+    rel: str,
+    marker: str | tuple[str, ...],
+    new_inner: str,
+) -> None:
+    """Replace one paragraph from any known source state; safe on rebuilt live HTML."""
     path, text = read(rel)
     if new_inner in text:
         return
+    markers = (marker,) if isinstance(marker, str) else marker
     pattern = re.compile(r"(<p\b[^>]*>)(.*?)(</p>)", flags=re.I | re.S)
-    matches = [m for m in pattern.finditer(text) if marker in rendered(m.group(2))]
+    matches = [
+        m
+        for m in pattern.finditer(text)
+        if any(source in rendered(m.group(2)) for source in markers)
+    ]
     if len(matches) != 1:
-        raise SystemExit(f"Expected one paragraph in {rel} for {marker!r}; found {len(matches)}")
+        raise SystemExit(
+            f"Expected one paragraph in {rel} for one of {markers!r}; found {len(matches)}"
+        )
     match = matches[0]
     replacement = match.group(1) + new_inner + match.group(3)
     path.write_text(text[: match.start()] + replacement + text[match.end() :], encoding="utf-8")
@@ -166,7 +178,11 @@ replace_paragraph(
 )
 replace_paragraph(
     "en/editions/t-shirt/index.html",
-    "It carries GOTS organic cotton certification",
+    (
+        "It carries GOTS organic cotton certification",
+        "PETA lists the company as 100% vegan",
+        "PETA-Approved; its products are made from 100% vegan materials",
+    ),
     "Stanley/Stella lists the Blaster 2.0 with GOTS and OEKO-TEX certification. Stanley/Stella is a Fair Wear member and PETA-Approved; its products are made from 100% vegan materials.",
 )
 replace_paragraph(
@@ -176,7 +192,11 @@ replace_paragraph(
 )
 replace_paragraph(
     "ediciones/camiseta/index.html",
-    "Lleva certificación GOTS de algodón orgánico",
+    (
+        "Lleva certificación GOTS de algodón orgánico",
+        "PETA incluye a la empresa entre sus compañías 100 % veganas",
+        "está aprobada por PETA; sus productos están hechos con materiales 100 % veganos",
+    ),
     "La ficha de Stanley/Stella muestra la Blaster 2.0 con certificaciones GOTS y OEKO-TEX. Stanley/Stella es miembro de Fair Wear y está aprobada por PETA; sus productos están hechos con materiales 100 % veganos.",
 )
 replace_any_once(
