@@ -41,12 +41,20 @@ def replace_tag_text(rel: str, tags: tuple[str, ...], old: str, new: str) -> Non
 
 
 def replace_block(rel: str, marker: str, new_inner: str) -> None:
+    """Replace one block by marker, but only treat the exact final block as done.
+
+    A final sentence can be a prefix of an older longer paragraph. Substring checks
+    are therefore unsafe here: they can leave a curatorial tail behind while making
+    the pass appear idempotent.
+    """
     path, text = read(rel)
-    if new_inner in text:
-        return
+    expected = visible(new_inner)
     for tag in ("p", "li", "div", "blockquote"):
         pattern = re.compile(rf"(<{tag}\b[^>]*>)(.*?)(</{tag}>)", re.I | re.S)
-        matches = [m for m in pattern.finditer(text) if marker in visible(m.group(2))]
+        all_matches = list(pattern.finditer(text))
+        if any(visible(m.group(2)) == expected for m in all_matches):
+            return
+        matches = [m for m in all_matches if marker in visible(m.group(2))]
         if len(matches) == 1:
             m = matches[0]
             replacement = m.group(1) + new_inner + m.group(3)
