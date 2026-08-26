@@ -51,10 +51,10 @@ for path,(final_copy,intermediate_copy,final_href) in hallazgo_access_bridges.it
   p.write_text(s,encoding='utf-8')
   print('growth prep bridged final Hallazgo access copy for',path)
 
-# The final book-voice pass deliberately supersedes older growth copy. The
-# growth and soft-marketing layers still validate their historical intermediate
-# wording, so normalize only these approved final blocks before those validators.
-# apply_voice_audit_v1.py restores the book voice at the end of the pipeline.
+# The final book/author-voice passes deliberately supersede older growth copy.
+# The growth and soft-marketing layers still validate their historical
+# intermediate wording, so normalize approved public forms before validators.
+# Later reader-facing passes restore the final voice.
 voice_bridges = {
  'index.html': [
   (
@@ -67,10 +67,23 @@ voice_bridges = {
   ),
  ],
  'en/index.html': [
+  # Current public future-work wording introduced by the native-English pass.
+  (
+   'OOLITA will continue to have one labyrinth: the one at Los Escullos. Around it, the project will grow through field publications, small textile editions and collaborations made in Cabo de Gata.',
+   'OOLITA will remain one labyrinth at Los Escullos. Around that path it is developing field publications, textile editions and collaborations rooted in Cabo de Gata.'
+  ),
+  # Earlier approved public future-work wording.
   (
    'There will still be one OOLITA labyrinth: the one at Los Escullos. Around it will come field publications, small textile editions and collaborations made in Cabo de Gata.',
    'OOLITA will remain one labyrinth at Los Escullos. Around that path it is developing field publications, textile editions and collaborations rooted in Cabo de Gata.'
   ),
+  # apply_wording_resilient normalises the current/future public environmental
+  # paragraph to this intermediate authorial form before growth runs.
+  (
+   'The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.',
+   'Directions in development include field books for family visits, experiments with natural colour, and possible collaborations with local makers around material traditions such as pita fibre.'
+  ),
+  # Historical form retained for older live-origin states.
   (
    'The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from people who work here and leave the place as it was.',
    'Directions in development include field books for family visits, experiments with natural colour, and possible collaborations with local makers around material traditions such as pita fibre.'
