@@ -41,12 +41,6 @@ def replace_tag_text(rel: str, tags: tuple[str, ...], old: str, new: str) -> Non
 
 
 def replace_block(rel: str, marker: str, new_inner: str) -> None:
-    """Replace one reader-facing text block, accepting the source's p/li/div shape.
-
-    The mirrored site is not structurally uniform. Prefer semantic paragraphs first;
-    only fall back to other block elements when there is no paragraph match. Fail
-    closed on ambiguity rather than guessing.
-    """
     path, text = read(rel)
     if new_inner in text:
         return
@@ -61,6 +55,26 @@ def replace_block(rel: str, marker: str, new_inner: str) -> None:
         if len(matches) > 1:
             raise SystemExit(f"Ambiguous {tag} blocks containing {marker!r} in {rel}; found {len(matches)}")
     raise SystemExit(f"Expected one content block containing {marker!r} in {rel}; found 0")
+
+
+def replace_source_text(rel: str, old: str, new: str) -> None:
+    """Replace one plain source text node, allowing source line wrapping.
+
+    Collaboration copy is emitted as a text node rather than a paragraph element in
+    the mirrored origin. This keeps the surrounding markup untouched.
+    """
+    path, text = read(rel)
+    if new in visible(text):
+        return
+    if old in text:
+        path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        return
+    pattern = re.compile(r"\s+".join(re.escape(piece) for piece in old.split()), re.S)
+    matches = list(pattern.finditer(text))
+    if len(matches) != 1:
+        raise SystemExit(f"Expected one source text node matching {old[:60]!r} in {rel}; found {len(matches)}")
+    m = matches[0]
+    path.write_text(text[:m.start()] + new + text[m.end():], encoding="utf-8")
 
 
 def section_matches(text: str, marker: str) -> list[re.Match[str]]:
@@ -100,7 +114,7 @@ replace_tag_text("en/about/index.html", ("h2", "h3"), "What came first.", "Then.
 replace_block("sobre-oolita/index.html", "Primero fue el laberinto, en 2021.", "El libro creció de caminarlo y volver a dibujarlo. El mundo 3D llegó después, cuando el mismo lugar necesitó otra forma de acceso. OOLITA ha crecido en ese orden.")
 replace_block("en/about/index.html", "The labyrinth came first, in 2021.", "The book grew from walking it and drawing it again. The 3D world came later, when the same place needed another form of access. OOLITA has grown in that order.")
 
-# English About lost the place section and gained explanatory website copy.
+# English About: remove explanatory filler and restore the place section.
 remove_section("en/about/index.html", "A public working rhythm.")
 PLACE_EN = '''<section class="tramo" data-place-not-backdrop>
 <span class="rot">LOS ESCULLOS</span><h2 class="grande">The place is not a backdrop.</h2>
@@ -119,11 +133,27 @@ replace_block("en/hallazgo-catalogue/index.html", "Hallazgo brings together 44 w
 replace_block("cabo-de-gata/index.html", "El laberinto se queda en Los Escullos.", "El laberinto se queda en Los Escullos. El mundo 3D permite seguir el camino desde otro lugar, sin construir otro laberinto. Cabo de Gata no es un decorado para el proyecto. Es un lugar protegido. Ese límite también forma parte de OOLITA.")
 replace_block("en/cabo-de-gata/index.html", "The labyrinth stays at Los Escullos.", "The labyrinth stays at Los Escullos. The 3D world lets the path be followed from elsewhere, without building another labyrinth. Cabo de Gata is not scenery for the project. It is a protected place. That limit is part of OOLITA too.")
 
-# COLLABORATION — state actual categories and rules.
-replace_block("colaborar/index.html", "OOLITA busca colaboraciones pequeñas y claramente atribuidas", "OOLITA busca colaboraciones pequeñas y claramente atribuidas: libros, actividades de campo, materiales y ediciones. No añade nombres de colaboradores de forma especulativa: autoría, producción, materiales, cantidades y responsabilidades se indican sólo cuando existe un acuerdo.")
-replace_block("en/work-with-oolita/index.html", "OOLITA is interested in small, clearly attributed collaborations", "OOLITA is interested in small, clearly attributed collaborations: books, field activities, materials and editions. It does not add partner names speculatively: authorship, production, materials, quantities and responsibilities are stated only after an agreement exists.")
-replace_block("colaborar/index.html", "Cuando una propuesta afecta a Cabo de Gata", "Cuando una propuesta afecta a Cabo de Gata, el punto de partida es sencillo: no recoger materiales del lugar y no crear un segundo laberinto OOLITA. El trabajo tiene que caber dentro de esos límites.")
-replace_block("en/work-with-oolita/index.html", "Where a proposal involves Cabo de Gata", "When a proposal involves Cabo de Gata, the starting point is simple: take no material from the site and make no second OOLITA labyrinth. The work has to fit those limits.")
+# COLLABORATION — these are plain source text nodes in the mirrored pages.
+replace_source_text(
+    "colaborar/index.html",
+    "OOLITA busca colaboraciones pequeñas y claramente atribuidas, relacionadas con libros, observación, trabajo de campo y práctica material. No añade nombres de colaboradores de forma especulativa: autoría, producción, materiales, cantidades y responsabilidades se indican sólo cuando existe un acuerdo.",
+    "OOLITA busca colaboraciones pequeñas y claramente atribuidas: libros, actividades de campo, materiales y ediciones. No añade nombres de colaboradores de forma especulativa: autoría, producción, materiales, cantidades y responsabilidades se indican sólo cuando existe un acuerdo.",
+)
+replace_source_text(
+    "en/work-with-oolita/index.html",
+    "OOLITA is interested in small, clearly attributed collaborations connected to books, observation, fieldwork and material practice. It does not add partner names speculatively: authorship, production, materials, quantities and responsibilities are stated only after an agreement exists.",
+    "OOLITA is interested in small, clearly attributed collaborations: books, field activities, materials and editions. It does not add partner names speculatively: authorship, production, materials, quantities and responsibilities are stated only after an agreement exists.",
+)
+replace_source_text(
+    "colaborar/index.html",
+    "Cuando una propuesta afecta a Cabo de Gata, el punto de partida es un uso de bajo impacto: no recoger materiales del lugar y no crear un segundo laberinto OOLITA. La intención es ampliar la atención al territorio, no aumentar la presión sobre él.",
+    "Cuando una propuesta afecta a Cabo de Gata, el punto de partida es sencillo: no recoger materiales del lugar y no crear un segundo laberinto OOLITA. El trabajo tiene que caber dentro de esos límites.",
+)
+replace_source_text(
+    "en/work-with-oolita/index.html",
+    "Where a proposal involves Cabo de Gata, the starting point is low-impact use: no collecting from the site and no second OOLITA labyrinth. The aim is to extend attention to the place, not increase pressure on it.",
+    "When a proposal involves Cabo de Gata, the starting point is simple: take no material from the site and make no second OOLITA labyrinth. The work has to fit those limits.",
+)
 
 stale = {
     "sobre-oolita/index.html": ("Un camino, un lugar, una práctica.", "Qué vino primero.", "esa atención se vuelve camino"),
