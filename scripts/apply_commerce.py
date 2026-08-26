@@ -58,7 +58,7 @@ PRODUCTS = {
                 "currency": "eur",
                 "old_label": "Avísame cuando pueda comprarla",
                 "buy_label": "Comprar la edición",
-                "prelaunch_hrefs": (),
+                "prelaunch_hrefs": ("/?follow=textile#seguir-oolita",),
             },
             {
                 "path": "en/editions/t-shirt/index.html",
@@ -67,7 +67,7 @@ PRODUCTS = {
                 "currency": "gbp",
                 "old_label": "Tell me when I can buy it",
                 "buy_label": "Buy the edition",
-                "prelaunch_hrefs": (),
+                "prelaunch_hrefs": ("/en/?follow=textile#follow-oolita",),
             },
         ],
     },
@@ -86,7 +86,7 @@ def valid_prelaunch_href(href: str, allowed_first_party: tuple[str, ...]) -> boo
     """Allow the legacy mailto or an explicitly approved first-party interest path.
 
     A deployment rebuild mirrors the current live site, whose final reader layer
-    already routes the book CTA into the OOLITA follow form. That is still a
+    already routes product CTAs into the OOLITA follow form. That is still a
     pre-launch, non-purchase state; only the exact declared paths are accepted so
     an arbitrary URL cannot pass commerce validation.
     """
