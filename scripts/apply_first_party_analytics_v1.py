@@ -47,11 +47,27 @@ required = {
     "en/editions/index.html": ['data-oolita-event="field-book-interest"'],
     "ediciones/libro/index.html": ['data-oolita-event="book-interest"'],
     "en/editions/book/index.html": ['data-oolita-event="book-interest"'],
-    "ediciones/camiseta/index.html": ['data-oolita-event="textile-interest"'],
-    "en/editions/t-shirt/index.html": ['data-oolita-event="textile-interest"'],
+    "ediciones/camiseta/index.html": [],
+    "en/editions/t-shirt/index.html": [],
     "colaborar/index.html": ['data-oolita-event="partner-contact"'],
     "en/work-with-oolita/index.html": ['data-oolita-event="partner-contact"'],
 }
+
+# A rebuild starts from the current live output. The final growth layer renames
+# the textile event from the earlier generic interest hook to the final follow
+# journey hook. Both are semantically valid at this pre-growth analytics stage;
+# require one of them rather than forcing the live site back to an obsolete name.
+required_any = {
+    "ediciones/camiseta/index.html": (
+        'data-oolita-event="textile-interest"',
+        'data-oolita-event="textile-follow"',
+    ),
+    "en/editions/t-shirt/index.html": (
+        'data-oolita-event="textile-interest"',
+        'data-oolita-event="textile-follow"',
+    ),
+}
+
 for path, needles in required.items():
     p = ROOT / path
     if not p.is_file():
@@ -60,6 +76,9 @@ for path, needles in required.items():
     for needle in needles:
         if needle not in s:
             raise SystemExit(f"Missing analytics hook in {path}: {needle}")
+    alternatives = required_any.get(path)
+    if alternatives and not any(needle in s for needle in alternatives):
+        raise SystemExit(f"Missing analytics hook in {path}: one of {alternatives}")
     if "navigator.sendBeacon('/api/event'" not in s:
         raise SystemExit(f"First-party analytics endpoint missing in {path}")
 
