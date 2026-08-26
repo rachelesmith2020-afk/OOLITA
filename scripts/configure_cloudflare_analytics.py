@@ -72,18 +72,29 @@ for rel in ("domingos/index.html", "en/sundays/index.html"):
     print(f"Sunday 01 green band restored in compact archive: {rel}")
 
 # Run the strict GSC-Wizard cleanup only after every reader-facing and mobile
-# transform. The gate uses structural insertion points, not literal headings,
-# so a harmless voice edit cannot block a future mirror-based rebuild.
+# transform. Keep its technical checks, then strip the historic word-count
+# padding before upload so SEO tooling cannot add unauthored reader copy.
 low_severity = Path(__file__).with_name("final_low_severity_seo_v1.py")
 if not low_severity.is_file():
     raise SystemExit(f"Missing final low-severity SEO gate: {low_severity}")
 subprocess.run(["python3", str(low_severity), "site"], check=True)
 
-# The low-severity SEO pass historically padded Sunday 03 above an arbitrary
-# word-count threshold with a generic archive explainer. It is not authored copy
-# and does not belong on the page. Remove that exact block after the SEO checks,
-# before the production upload, and fail closed if its language survives.
-SUNDAY03_SYNTHETIC = (
+SYNTHETIC_DEPTH_BLOCKS = (
+    (
+        "en/about/index.html",
+        "working-rhythm",
+        "The archive keeps those stages visible rather than presenting the project as a finished object.",
+    ),
+    (
+        "en/work-with-oolita/index.html",
+        "before-writing",
+        "connected to books, observation, fieldwork and material practice",
+    ),
+    (
+        "colaborar/index.html",
+        "antes-de-escribir",
+        "relacionadas con libros, observación, trabajo de campo y práctica material",
+    ),
     (
         "en/sundays/03-the-memory-of-the-sea/index.html",
         "sunday-03-sequence-context",
@@ -95,10 +106,10 @@ SUNDAY03_SYNTHETIC = (
         "registro público en curso",
     ),
 )
-for rel, block_id, marker in SUNDAY03_SYNTHETIC:
+for rel, block_id, marker in SYNTHETIC_DEPTH_BLOCKS:
     page = Path("site") / rel
     if not page.is_file():
-        raise SystemExit(f"Missing Sunday 03 page during final voice cleanup: {rel}")
+        raise SystemExit(f"Missing page during final synthetic-copy cleanup: {rel}")
     text = page.read_text(encoding="utf-8")
     text = re.sub(
         rf'<section\b[^>]*id=["\']{re.escape(block_id)}["\'][^>]*>[\s\S]*?</section>\s*',
@@ -106,10 +117,10 @@ for rel, block_id, marker in SUNDAY03_SYNTHETIC:
         text,
         flags=re.I,
     )
-    if marker in text:
-        raise SystemExit(f"Synthetic Sunday 03 archive language remains in {rel}: {marker}")
+    if f'id="{block_id}"' in text or f"id='{block_id}'" in text or marker in text:
+        raise SystemExit(f"Synthetic low-severity content remains in {rel}: {block_id}")
     page.write_text(text, encoding="utf-8")
-    print(f"Synthetic Sunday 03 archive explainer removed: {rel}")
+    print(f"Synthetic low-severity content removed: {rel}")
 
 if not ACCOUNT_ID or not TOKEN:
     raise SystemExit("Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN")
