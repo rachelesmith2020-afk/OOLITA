@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Apply and validate OOLITA reader-facing final consistency fixes.
 
-This final pre-publish pass applies the reviewed voice-contrast cleanup, then keeps
-the published Sunday archive, Hallazgo work count, book page count, and Sunday 03
-geology wording aligned across Spanish and English.
+This final pre-publish pass applies the reviewed voice and English editorial cleanup,
+then keeps the published Sunday archive, Hallazgo work count, book page count, and
+Sunday 03 geology wording aligned across Spanish and English.
 """
 from __future__ import annotations
 
@@ -14,9 +14,10 @@ import sys
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 
-# Run the editorial voice cleanup at the same final deployment stage so later
-# transforms cannot reintroduce the audited repetition before publication.
+# Run the editorial cleanup at the same final deployment stage so later transforms
+# cannot reintroduce the audited language problems before publication.
 import apply_voice_contrast_v1  # noqa: E402,F401
+import apply_english_native_edit_v1  # noqa: E402,F401
 
 # Reuse only the already-reviewed detailed archive row renderer. Do not call its
 # broad archive patcher: Sunday 03 is already linked in the compact archive, so a
@@ -86,17 +87,12 @@ def publish_detailed_sunday03(rel: str, language: str) -> None:
         path.write_text(text, encoding="utf-8")
         return
 
-    # Idempotent rebuild: once production already contains the corrected detailed
-    # row, a subsequent mirror should simply validate it rather than insert again.
     expected_route = "/en/sundays/03-the-memory-of-the-sea/" if language == "en" else "/domingos/03-la-memoria-del-mar/"
     if 'data-sunday-archive-row="3"' in text and f'href="{expected_route}"' in text:
         return
     raise SystemExit(f"Could not locate pending or published detailed Sunday 03 row in {rel}")
 
 
-# 1. The canonical Hallazgo catalogue states 44 works. Some poster pages carry
-# only their primary-language paragraph while others carry both translations,
-# so patch every stale occurrence but validate the primary copy separately.
 for rel in ("carteles/index.html", "en/posters/index.html"):
     replace_if_present(
         rel,
@@ -110,8 +106,6 @@ for rel in ("carteles/index.html", "en/posters/index.html"):
     )
 
 
-# 2. Ooids accrete layers around a nucleus; they do not grow "inward". Preserve
-# the short OOLITA cadence while making the process scientifically accurate.
 for rel in (
     "domingos/03-la-memoria-del-mar/index.html",
     "en/sundays/03-the-memory-of-the-sea/index.html",
@@ -128,14 +122,10 @@ for rel in (
     )
 
 
-# 3. Publish only the stale Sunday 03 row in the lower detailed archive. The
-# compact 22-Sundays field above it is already correct and must remain untouched.
 publish_detailed_sunday03("domingos/index.html", "es")
 publish_detailed_sunday03("en/sundays/index.html", "en")
 
 
-# Final consistency guard. These exact stale statements should not survive
-# anywhere in reader-facing HTML after this pass.
 stale_strings = (
     "Hallazgo reúne 42 obras, registradas de H001 a H044.",
     "Hallazgo brings together 42 works, registered H001 to H044.",
