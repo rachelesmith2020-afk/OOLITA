@@ -145,6 +145,11 @@ PYFAVICON
 # catalogue copy inherited from the mirrored origin and fails closed if it drifts.
 python3 scripts/apply_content_consistency_v1.py site
 
+# Add only contextual editorial links between the existing place, geology and
+# labyrinth pages. This pass changes no visible copy and runs last so earlier
+# reconstruction steps cannot overwrite the reviewed relationships.
+python3 scripts/apply_editorial_internal_links_v1.py site
+
 # Production propagation trigger: corrected bilingual consistency guard.
 # Production propagation trigger: row-scoped Sunday consistency validation.
 # Production propagation trigger: targeted detailed Sunday 03 repair.
