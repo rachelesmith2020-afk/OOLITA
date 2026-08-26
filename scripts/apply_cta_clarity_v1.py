@@ -28,17 +28,25 @@ def replace_state(rel: str, old: str, new: str) -> None:
     path.write_text(text.replace(old, new, 1), encoding="utf-8")
 
 
+def remove_exact_phrase(rel: str, phrase: str) -> None:
+    path = ROOT / rel
+    if not path.is_file():
+        raise SystemExit(f"Missing final-copy page: {rel}")
+    text = path.read_text(encoding="utf-8")
+    if phrase not in text:
+        return
+    text = text.replace(phrase, "", 1)
+    if phrase in text:
+        raise SystemExit(f"Duplicate stale phrase remains in {rel}: {phrase}")
+    path.write_text(text, encoding="utf-8")
+
+
 def visible(fragment: str) -> str:
     return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", fragment))).strip()
 
 
 def ensure_collaboration_detail_section(rel: str, *, language: str) -> None:
-    """Restore the useful proposal-detail section after page regeneration.
-
-    The live page has this section, but the growth reconstruction layer rebuilds
-    the collaboration page from an older compact template. Install the reviewed
-    final section here, after all generators and before the strict content guard.
-    """
+    """Restore the useful proposal-detail section after page regeneration."""
     path = ROOT / rel
     if not path.is_file():
         raise SystemExit(f"Missing collaboration page: {rel}")
@@ -63,9 +71,6 @@ def ensure_collaboration_detail_section(rel: str, *, language: str) -> None:
         )
         stale = ("material practice", "The aim is to extend attention to the place")
 
-    # Remove any older version of the proposal-detail section before installing
-    # the reviewed one. The heading is stable on the live page and the marker is
-    # stable on repeated builds.
     section_re = re.compile(r'<section\b[^>]*>[\s\S]*?</section>', flags=re.I)
     matches = [
         match for match in section_re.finditer(text)
@@ -140,25 +145,25 @@ for rel, stale, final in (
     if final not in text:
         raise SystemExit(f"Final follow proposition missing in {rel}")
 
-# Final reader-facing passes live here so legacy reconstruction/migration
-# validators remain untouched. They run before the final factual guard.
 import apply_page_differentiation_v1  # noqa: E402,F401
 import apply_commercial_clarity_v1  # noqa: E402,F401
-
-# Environmental integrity is applied at the final editorial stage, after the
-# older migration/search layers have finished. The language states access from
-# a distance and leaves the limit implicit rather than announcing a position.
 import apply_environmental_alignment_v1  # noqa: E402,F401
 
-# Growth reconstruction currently drops the useful proposal-detail section that
-# exists on production. Restore it with the reviewed Problem 4 copy immediately
-# before the final content-quality guard.
 ensure_collaboration_detail_section("colaborar/index.html", language="es")
 ensure_collaboration_detail_section("en/work-with-oolita/index.html", language="en")
 
-# Remove the later-added generic archive explainer from Sunday 03. It describes
-# the page as a continuing public record rather than speaking in the project's
-# authored voice. The article, image, place context and navigation remain intact.
+# The Hallazgo catalogue opener on the current production origin already begins
+# with the approved concrete paragraph, followed by one generic curatorial tail.
+# Remove only that tail so the final content-quality gate can prove it is gone.
+remove_exact_phrase(
+    "catalogo-hallazgo/index.html",
+    " La edición funciona como archivo y como recorrido: deja que el paisaje actúe sobre cada obra y sobre la relación entre hallazgo, memoria y atención.",
+)
+remove_exact_phrase(
+    "en/hallazgo-catalogue/index.html",
+    " The edition works both as an archive and as a route through the work, allowing the landscape to act on each piece and on the relationship between finding, memory and attention.",
+)
+
 remove_generic_sunday03_note(
     "en/sundays/03-the-memory-of-the-sea/index.html",
     "continuing public record",
