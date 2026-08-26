@@ -135,3 +135,49 @@ source = source.replace(
 )
 
 exec(compile(source, str(path), "exec"), globals(), globals())
+
+# Final accessibility repair after every reader/growth transform: a skip link is
+# page-local navigation and must never inherit a catalogue/product destination.
+# Give the first <main> a stable target and point Spanish/English skip links to it.
+fixed_skip_links = 0
+for html in root.rglob("*.html"):
+    text = html.read_text(encoding="utf-8", errors="ignore")
+    if not re.search(r'>\s*(?:Saltar al contenido|Skip to content)\s*</a>', text, flags=re.I):
+        continue
+    main = re.search(r'<main\b[^>]*>', text, flags=re.I)
+    if not main:
+        raise SystemExit(f"Skip link without <main>: {html.relative_to(root)}")
+    main_tag = main.group(0)
+    if not re.search(r'\bid=(["\'])main-content\1', main_tag, flags=re.I):
+        if re.search(r'\bid=(["\'])[^"\']+\1', main_tag, flags=re.I):
+            existing = re.search(r'\bid=(["\'])([^"\']+)\1', main_tag, flags=re.I)
+            target = existing.group(2) if existing else "main-content"
+        else:
+            target = "main-content"
+            main_tag = main_tag[:-1] + ' id="main-content">'
+            text = text[:main.start()] + main_tag + text[main.end():]
+    else:
+        target = "main-content"
+
+    def repair_skip(match: re.Match[str]) -> str:
+        tag = match.group(1)
+        label = match.group(2)
+        if re.search(r'\bhref=(["\'])[^"\']*\1', tag, flags=re.I):
+            tag = re.sub(r'\bhref=(["\'])[^"\']*\1', lambda m: f'href={m.group(1)}#{target}{m.group(1)}', tag, count=1, flags=re.I)
+        else:
+            tag = tag[:-1] + f' href="#{target}">'
+        return tag + label + "</a>"
+
+    text, n = re.subn(
+        r'(<a\b[^>]*>)(\s*(?:Saltar al contenido|Skip to content)\s*)</a>',
+        repair_skip,
+        text,
+        flags=re.I,
+    )
+    if n < 1 or f'href="#{target}"' not in text:
+        raise SystemExit(f"Could not repair skip link: {html.relative_to(root)}")
+    html.write_text(text, encoding="utf-8")
+    fixed_skip_links += n
+
+if fixed_skip_links:
+    print(f"OOLITA local skip-link targets repaired: {fixed_skip_links}")
