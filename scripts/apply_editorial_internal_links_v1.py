@@ -177,10 +177,21 @@ link_phrase(
     "/en/cabo-de-gata/",
 )
 
-# About: the terminology is now precise — oolite is the rock, ooids are the
-# grains. Link the existing concept words only; do not append an SEO link block.
-ABOUT_ES = ("El nombre viene de la oolita", "geología de Los Escullos", "dibujo del laberinto")
-link_phrase("sobre-oolita/index.html", ABOUT_ES, "oolita", "/que-es-un-oolito/")
+# About can be reached twice in the deployment sequence: once while the mirrored
+# source still carries the older "oolito" shorthand, and again after the geology
+# pass has corrected it to "oolita". Accept exactly those two known states, link
+# whichever term is actually present, and still fail closed on any other drift.
+ABOUT_ES = ("geología de Los Escullos", "dibujo del laberinto")
+_, about_es_text = read("sobre-oolita/index.html")
+about_es_match = find_target(about_es_text, "sobre-oolita/index.html", ABOUT_ES)
+about_es_visible = rendered(about_es_match.group("body"))
+if "El nombre viene de la oolita" in about_es_visible:
+    about_es_term = "oolita"
+elif "El nombre viene del oolito" in about_es_visible:
+    about_es_term = "oolito"
+else:
+    raise SystemExit("Unexpected Spanish About geology source state")
+link_phrase("sobre-oolita/index.html", ABOUT_ES, about_es_term, "/que-es-un-oolito/")
 link_phrase("sobre-oolita/index.html", ABOUT_ES, "Los Escullos", "/cabo-de-gata/")
 link_phrase("sobre-oolita/index.html", ABOUT_ES, "laberinto", "/que-es-un-laberinto/")
 
