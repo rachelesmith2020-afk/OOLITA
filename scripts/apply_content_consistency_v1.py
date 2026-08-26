@@ -173,9 +173,13 @@ for rel in ("domingos/index.html", "en/sundays/index.html"):
 
 print("OOLITA factual/content consistency validated successfully.")
 
-# Absolute final factual/credibility pass. Keeping this import here means the
-# existing workflow step remains the single final gate while the corrections run
-# after every other consistency transform.
-import apply_credibility_precision_v1  # noqa: E402,F401
+# The reconstructed origin runs this consistency module before the search/SEO
+# layers; the final workflow runs it again afterwards. og.png is created by the
+# later search-visibility pass, so it is a stable final-stage marker and prevents
+# the credibility edits from disturbing legacy reconstruction validators.
+if (ROOT / "og.png").is_file():
+    import apply_credibility_precision_v1  # noqa: E402,F401
+else:
+    print("OOLITA credibility precision deferred until final reader build.")
 
-# Production propagation trigger: timing-schema credibility precision.
+# Production propagation trigger: defer credibility gate until final reader state.
