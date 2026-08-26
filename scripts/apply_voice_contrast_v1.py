@@ -21,13 +21,15 @@ def read(rel: str) -> tuple[Path, str]:
     return path, path.read_text(encoding="utf-8")
 
 
-def replace_state(rel: str, old: str, new: str) -> None:
+def replace_state(rel: str, old: str, new: str, *, accepted_final: tuple[str, ...] = ()) -> None:
     path, text = read(rel)
     if old in text:
         text = text.replace(old, new)
         path.write_text(text, encoding="utf-8")
         return
     if new in text:
+        return
+    if accepted_final and all(needle in text for needle in accepted_final):
         return
     raise SystemExit(f"Neither stale nor revised copy found in {rel}: {old!r}")
 
@@ -37,8 +39,24 @@ replace_state("index.html", "Es una fábula ilustrada, y no explica el laberinto
 replace_state("en/index.html", "not as translation but as two voices of one text", "as two voices of one text")
 replace_state("en/index.html", "It is an illustrated fable, and it does not explain the labyrinth: it walks it.", "It is an illustrated fable that follows the labyrinth page by page.")
 
-replace_state("catalogo-hallazgo/index.html", "La edición funciona como archivo y como recorrido: no explica el paisaje, lo deja actuar sobre cada obra y sobre la relación entre hallazgo, memoria y atención.", "La edición funciona como archivo y como recorrido: deja que el paisaje actúe sobre cada obra y sobre la relación entre hallazgo, memoria y atención.")
-replace_state("en/hallazgo-catalogue/index.html", "The edition works both as an archive and as a route through the work: it does not explain the landscape, but lets it act on each piece and on the relationship between finding, memory and attention.", "The edition works both as an archive and as a route through the work, allowing the landscape to act on each piece and on the relationship between finding, memory and attention.")
+replace_state(
+    "catalogo-hallazgo/index.html",
+    "La edición funciona como archivo y como recorrido: no explica el paisaje, lo deja actuar sobre cada obra y sobre la relación entre hallazgo, memoria y atención.",
+    "La edición funciona como archivo y como recorrido: deja que el paisaje actúe sobre cada obra y sobre la relación entre hallazgo, memoria y atención.",
+    accepted_final=(
+        "Hallazgo reúne 44 obras de Raquel Costantini realizadas entre 2018 y 2026.",
+        "sin perder su origen.",
+    ),
+)
+replace_state(
+    "en/hallazgo-catalogue/index.html",
+    "The edition works both as an archive and as a route through the work: it does not explain the landscape, but lets it act on each piece and on the relationship between finding, memory and attention.",
+    "The edition works both as an archive and as a route through the work, allowing the landscape to act on each piece and on the relationship between finding, memory and attention.",
+    accepted_final=(
+        "Hallazgo brings together 44 works by Raquel Costantini made between 2018 and 2026.",
+        "without losing their origin.",
+    ),
+)
 
 replace_state("mundo-3d/index.html", "La tercera forma de OOLITA está hecha en código. No es una imagen del laberinto para mirar desde fuera: está construida para recorrerla — un camino hacia dentro, un centro y el mismo camino de regreso.", "La tercera forma de OOLITA está hecha en código. Es un espacio caminable en el navegador: un camino hacia dentro, un centro y el mismo camino de regreso.")
 replace_state("en/3d-world/index.html", "The third form of OOLITA is made in code. It is not an image of the labyrinth to look at from outside: it is being built to be walked — one path inward, one centre and the same path back out.", "The third form of OOLITA is made in code. It is a walkable space in the browser: one path inward, one centre and the same path back out.")
@@ -69,7 +87,4 @@ for rel, phrases in stale.items():
 
 print("OOLITA repeated contrast phrasing revised and validated successfully.")
 
-# Production propagation trigger: corrected Problem 4 content-quality pass.
-# Production propagation trigger: final provenance-safe pass.
-# Production propagation trigger: flexible content-block matching.
-# Production propagation trigger: source-text collaboration pass.
+# Production propagation trigger: Hallazgo final trim accepted as a completed state.
