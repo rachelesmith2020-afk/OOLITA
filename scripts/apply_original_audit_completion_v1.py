@@ -66,20 +66,27 @@ def replace_visible_text(rel: str, old: str, new: str) -> None:
 def patch_follow_page(rel: str, language: str) -> None:
     path, text = read(rel)
     if language == "es":
-        old_intro = "Una sola lista. Elige lo que quieres seguir: mundo 3D, libros, publicaciones de campo o ediciones textiles."
         new_intro = "Una sola lista. Elige lo que quieres seguir: mundo 3D, libros, Hallazgo, publicaciones de campo o ediciones textiles."
         book_chip = '<label class="follow-chip"><input type="checkbox" name="interest" value="book"><span>Libros</span></label>'
         hallazgo_chip = '<label class="follow-chip"><input type="checkbox" name="interest" value="hallazgo"><span>Hallazgo</span></label>'
     else:
-        old_intro = "One list. Choose what you want to follow: the 3D world, books, field publications or textile editions."
         new_intro = "One list. Choose what you want to follow: the 3D world, books, Hallazgo, field publications or textile editions."
         book_chip = '<label class="follow-chip"><input type="checkbox" name="interest" value="book"><span>Books</span></label>'
         hallazgo_chip = '<label class="follow-chip"><input type="checkbox" name="interest" value="hallazgo"><span>Hallazgo</span></label>'
 
-    if new_intro not in text:
-        if old_intro not in text:
-            raise SystemExit(f"Follow intro state not recognized in {rel}")
-        text = text.replace(old_intro, new_intro, 1)
+    # Later voice/CTA layers are allowed to refine the Follow introduction. Do not
+    # bind this final audit to any old sentence: replace the one glosa inside the
+    # existing Follow intro structurally and leave the rest of the section intact.
+    intro_pattern = re.compile(
+        r'(<div\b[^>]*class=["\'][^"\']*\boolita-follow-intro\b[^"\']*["\'][^>]*>[\s\S]*?'
+        r'<p\b[^>]*class=["\'][^"\']*\bglosa\b[^"\']*["\'][^>]*>)([\s\S]*?)(</p>)',
+        re.I,
+    )
+    intro_matches = list(intro_pattern.finditer(text))
+    if len(intro_matches) != 1:
+        raise SystemExit(f"Expected one structural Follow intro in {rel}; found {len(intro_matches)}")
+    m = intro_matches[0]
+    text = text[:m.start()] + m.group(1) + new_intro + m.group(3) + text[m.end():]
 
     if hallazgo_chip not in text:
         if book_chip not in text:
