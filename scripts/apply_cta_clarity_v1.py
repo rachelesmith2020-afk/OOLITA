@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Clarify the OOLITA homepage follow proposition without adding marketing pressure.
+"""Apply OOLITA's final reader-facing clarity without adding marketing pressure.
 
-The hero language, product routes and collaboration page already do their jobs.
-This final reader-facing pass only answers the practical question left by the
-subscription section: what the list covers and how often OOLITA writes.
+This pass keeps the homepage follow proposition factual, restores the reviewed
+collaboration detail, removes the remaining generic archive/curatorial tails,
+and gives direct-entry pages one quiet route back to the existing OOLITA index.
+It deliberately does not add a conventional global menu.
 """
 from __future__ import annotations
 
@@ -14,6 +15,28 @@ import sys
 
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
+INDEX_ID = "oolita-index"
+
+BILINGUAL_PAIRS = (
+    ("/", "/en/"),
+    ("/laberinto/", "/en/labyrinth/"),
+    ("/carteles/", "/en/posters/"),
+    ("/que-es-un-laberinto/", "/en/what-is-a-labyrinth/"),
+    ("/que-es-un-oolito/", "/en/what-is-an-ooid/"),
+    ("/ediciones/", "/en/editions/"),
+    ("/ediciones/libro/", "/en/editions/book/"),
+    ("/ediciones/camiseta/", "/en/editions/t-shirt/"),
+    ("/domingos/", "/en/sundays/"),
+    ("/domingos/01-el-doble/", "/en/sundays/01-the-double/"),
+    ("/domingos/02-el-gato-de-verdad/", "/en/sundays/02-the-cat-for-real/"),
+    ("/domingos/03-la-memoria-del-mar/", "/en/sundays/03-the-memory-of-the-sea/"),
+    ("/cabo-de-gata/", "/en/cabo-de-gata/"),
+    ("/sobre-oolita/", "/en/about/"),
+    ("/colaborar/", "/en/work-with-oolita/"),
+    ("/privacidad/", "/en/privacy/"),
+    ("/mundo-3d/", "/en/3d-world/"),
+    ("/catalogo-hallazgo/", "/en/hallazgo-catalogue/"),
+)
 
 
 def replace_state(rel: str, old: str, new: str) -> None:
@@ -43,6 +66,94 @@ def remove_exact_phrase(rel: str, phrase: str) -> None:
 
 def visible(fragment: str) -> str:
     return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", fragment))).strip()
+
+
+def route_to_rel(route: str) -> str:
+    if route == "/":
+        return "index.html"
+    return route.lstrip("/") + "index.html"
+
+
+def has_href(text: str, route: str) -> bool:
+    """Accept the site's normal root-relative form or its absolute equivalent."""
+    return bool(re.search(
+        rf'href=["\'](?:https://oolita\.es)?{re.escape(route)}["\']',
+        text,
+        flags=re.I,
+    ))
+
+
+def ensure_footer_index_link(rel: str) -> None:
+    """Add one quiet footer route to the existing homepage index."""
+    path = ROOT / rel
+    if not path.is_file():
+        raise SystemExit(f"Missing direct-entry page: {rel}")
+    text = path.read_text(encoding="utf-8")
+    en = rel.startswith("en/")
+    href = f'/en/#{INDEX_ID}' if en else f'/#{INDEX_ID}'
+    label = "OOLITA · INDEX" if en else "OOLITA · ÍNDICE"
+    marker = 'data-oolita-index-link="true"'
+
+    footer_match = re.search(r'<footer\b[^>]*>[\s\S]*?</footer>', text, flags=re.I)
+    if not footer_match:
+        raise SystemExit(f"Footer missing from direct-entry page: {rel}")
+    footer = footer_match.group(0)
+
+    if marker in footer:
+        if footer.count(marker) != 1 or href not in footer or label not in visible(footer):
+            raise SystemExit(f"Existing OOLITA index footer link is malformed in {rel}")
+        return
+
+    privacy_route = "/en/privacy/" if en else "/privacidad/"
+    privacy_re = re.compile(
+        rf'<a\b[^>]*href=["\'](?:https://oolita\.es)?{re.escape(privacy_route)}["\'][^>]*>',
+        flags=re.I,
+    )
+    privacy_links = list(privacy_re.finditer(footer))
+    if len(privacy_links) != 1:
+        raise SystemExit(f"Expected one footer privacy anchor in {rel}; found {len(privacy_links)}")
+
+    anchor = privacy_links[0]
+    index_link = f'<a href="{href}" data-oolita-index-link="true">{label}</a>'
+    footer = footer[:anchor.start()] + index_link + "\n" + footer[anchor.start():]
+    text = text[:footer_match.start()] + footer + text[footer_match.end():]
+    path.write_text(text, encoding="utf-8")
+
+
+def validate_direct_entry_navigation() -> None:
+    """Prove all published bilingual routes have orientation without a top menu."""
+    es_home = (ROOT / "index.html").read_text(encoding="utf-8")
+    en_home = (ROOT / "en/index.html").read_text(encoding="utf-8")
+    for rel, text in (("index.html", es_home), ("en/index.html", en_home)):
+        if text.count(f'id="{INDEX_ID}"') != 1:
+            raise SystemExit(f"Stable OOLITA index anchor missing or duplicated in {rel}")
+
+    for es_route, en_route in BILINGUAL_PAIRS:
+        es_rel = route_to_rel(es_route)
+        en_rel = route_to_rel(en_route)
+        es_path = ROOT / es_rel
+        en_path = ROOT / en_rel
+        if not es_path.is_file() or not en_path.is_file():
+            raise SystemExit(f"Bilingual route pair missing: {es_route} ↔ {en_route}")
+        es_text = es_path.read_text(encoding="utf-8")
+        en_text = en_path.read_text(encoding="utf-8")
+        if not has_href(es_text, en_route):
+            raise SystemExit(f"Spanish page lacks direct English counterpart href: {es_route} → {en_route}")
+        if not has_href(en_text, es_route):
+            raise SystemExit(f"English page lacks direct Spanish counterpart href: {en_route} → {es_route}")
+
+        if es_route != "/":
+            footer = re.search(r'<footer\b[^>]*>[\s\S]*?</footer>', es_text, flags=re.I)
+            if not footer or footer.group(0).count('data-oolita-index-link="true"') != 1:
+                raise SystemExit(f"Spanish direct-entry index route missing or duplicated: {es_route}")
+            if f'href="/#{INDEX_ID}"' not in footer.group(0) or "OOLITA · ÍNDICE" not in visible(footer.group(0)):
+                raise SystemExit(f"Spanish direct-entry index route malformed: {es_route}")
+        if en_route != "/en/":
+            footer = re.search(r'<footer\b[^>]*>[\s\S]*?</footer>', en_text, flags=re.I)
+            if not footer or footer.group(0).count('data-oolita-index-link="true"') != 1:
+                raise SystemExit(f"English direct-entry index route missing or duplicated: {en_route}")
+            if f'href="/en/#{INDEX_ID}"' not in footer.group(0) or "OOLITA · INDEX" not in visible(footer.group(0)):
+                raise SystemExit(f"English direct-entry index route malformed: {en_route}")
 
 
 def ensure_collaboration_detail_section(rel: str, *, language: str) -> None:
@@ -173,4 +284,13 @@ remove_generic_sunday03_note(
     "registro público en curso",
 )
 
-print("OOLITA final reader-facing clarity passes validated in Spanish and English.")
+# Direct-entry orientation: every published internal page gets one small footer
+# route back to the existing homepage index. Page-specific links stay untouched.
+for es_route, en_route in BILINGUAL_PAIRS:
+    if es_route != "/":
+        ensure_footer_index_link(route_to_rel(es_route))
+    if en_route != "/en/":
+        ensure_footer_index_link(route_to_rel(en_route))
+validate_direct_entry_navigation()
+
+print("OOLITA final reader-facing clarity and direct-entry navigation validated in Spanish and English.")
