@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -39,6 +40,10 @@ def make_poster_reel(src: Path, out: Path) -> None:
 
 
 def main() -> None:
+    if shutil.which("ffmpeg") is None:
+        print("Wednesday publishing bank deferred until ffmpeg is available.")
+        return
+
     data = json.loads(META.read_text(encoding="utf-8"))
     reels = data.get("reels", [])
     if len(reels) != 9:
