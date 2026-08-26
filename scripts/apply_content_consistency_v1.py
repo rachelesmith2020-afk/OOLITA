@@ -183,6 +183,7 @@ if (ROOT / "og.png").is_file():
     import apply_credibility_precision_v1  # noqa: E402,F401
     import apply_content_quality_v1  # noqa: E402,F401
     import apply_connective_copy_v1  # noqa: E402,F401
+    import apply_original_audit_completion_v1  # noqa: E402,F401
 else:
     print("OOLITA final reader precision deferred until final reader build.")
 
