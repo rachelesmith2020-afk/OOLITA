@@ -79,6 +79,38 @@ if not low_severity.is_file():
     raise SystemExit(f"Missing final low-severity SEO gate: {low_severity}")
 subprocess.run(["python3", str(low_severity), "site"], check=True)
 
+# The low-severity SEO pass historically padded Sunday 03 above an arbitrary
+# word-count threshold with a generic archive explainer. It is not authored copy
+# and does not belong on the page. Remove that exact block after the SEO checks,
+# before the production upload, and fail closed if its language survives.
+SUNDAY03_SYNTHETIC = (
+    (
+        "en/sundays/03-the-memory-of-the-sea/index.html",
+        "sunday-03-sequence-context",
+        "continuing public record",
+    ),
+    (
+        "domingos/03-la-memoria-del-mar/index.html",
+        "domingo-03-secuencia-contexto",
+        "registro público en curso",
+    ),
+)
+for rel, block_id, marker in SUNDAY03_SYNTHETIC:
+    page = Path("site") / rel
+    if not page.is_file():
+        raise SystemExit(f"Missing Sunday 03 page during final voice cleanup: {rel}")
+    text = page.read_text(encoding="utf-8")
+    text = re.sub(
+        rf'<section\b[^>]*id=["\']{re.escape(block_id)}["\'][^>]*>[\s\S]*?</section>\s*',
+        "",
+        text,
+        flags=re.I,
+    )
+    if marker in text:
+        raise SystemExit(f"Synthetic Sunday 03 archive language remains in {rel}: {marker}")
+    page.write_text(text, encoding="utf-8")
+    print(f"Synthetic Sunday 03 archive explainer removed: {rel}")
+
 if not ACCOUNT_ID or not TOKEN:
     raise SystemExit("Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN")
 
