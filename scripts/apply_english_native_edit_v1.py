@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Apply a narrow native-English editorial pass to OOLITA.
+"""Apply the final language/voice edit to OOLITA.
 
-This script corrects reader-facing English that is grammatically understandable but
-carries Spanish syntax too literally. It deliberately leaves authored literary text,
-functional microcopy and factual terminology alone unless the English itself is the
-problem. The pass is idempotent and runs at the final pre-publish stage.
+This pass corrects English that carries Spanish syntax too literally, but it does
+not normalise deliberate authorial oddness. The final homepage ethos is also
+kept bilingual: OOLITA is not a device for adding tourism pressure to Cabo de
+Gata. Authored literary text, functional microcopy and factual terminology stay
+untouched unless the language itself is the problem.
 """
 from __future__ import annotations
 
@@ -18,18 +19,30 @@ ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 def read(rel: str) -> tuple[Path, str]:
     path = ROOT / rel
     if not path.is_file():
-        raise SystemExit(f"Missing English editorial page: {rel}")
+        raise SystemExit(f"Missing final editorial page: {rel}")
     return path, path.read_text(encoding="utf-8")
 
 
 def replace_state(rel: str, old: str, new: str) -> None:
     path, text = read(rel)
+    if new in text:
+        return
     if old in text:
         path.write_text(text.replace(old, new), encoding="utf-8")
         return
+    raise SystemExit(f"Neither source nor revised copy found in {rel}: {old!r}")
+
+
+def replace_any_state(rel: str, old_forms: tuple[str, ...], new: str) -> None:
+    """Accept known pipeline/origin variants but publish one reviewed final form."""
+    path, text = read(rel)
     if new in text:
         return
-    raise SystemExit(f"Neither source nor revised English found in {rel}: {old!r}")
+    for old in old_forms:
+        if old in text:
+            path.write_text(text.replace(old, new, 1), encoding="utf-8")
+            return
+    raise SystemExit(f"No known source state found in {rel}: {old_forms[0]!r}")
 
 
 def replace_fragment_if_present(rel: str, old: str, new: str) -> None:
@@ -39,8 +52,8 @@ def replace_fragment_if_present(rel: str, old: str, new: str) -> None:
         path.write_text(text.replace(old, new), encoding="utf-8")
 
 
-# HOMEPAGE — preserve OOLITA's short cadence while removing English constructions
-# that read as direct transfers from Spanish.
+# HOMEPAGE — correct literal English, but preserve the author's abruptness and
+# deliberate negative constructions where they are doing real argumentative work.
 replace_state(
     "en/index.html",
     "Nothing marks it on the ground: whoever walks past either finds it or does not.",
@@ -61,25 +74,69 @@ replace_state(
     "The same path stays open from elsewhere.",
     "The same path remains open from wherever you are.",
 )
-replace_state(
+
+# This is intentionally less conventional English. It matches the Spanish idea
+# and the author's established syntax: proposition, hard stop, short consequence.
+replace_any_state(
     "en/index.html",
+    (
+        "A labyrinth gives you one path to follow. You keep going.",
+        "A labyrinth asks you to decide nothing. You follow.",
+    ),
     "A labyrinth asks you to decide nothing. You follow.",
-    "A labyrinth gives you one path to follow. You keep going.",
 )
 replace_state(
     "en/index.html",
     "There will still be one OOLITA labyrinth: the one at Los Escullos. Around it will come field publications, small textile editions and collaborations made in Cabo de Gata.",
     "OOLITA will continue to have one labyrinth: the one at Los Escullos. Around it, the project will grow through field publications, small textile editions and collaborations made in Cabo de Gata.",
 )
-replace_state(
+
+# The environmental position is not decorative brand language. It explains why
+# OOLITA keeps one physical labyrinth and opens the same path digitally.
+ETHOS_EN = (
+    "The point is not to bring more people to one labyrinth. "
+    "Cabo de Gata does not need more tourism pressure. "
+    "Look more slowly. Learn from the people who live and work here. "
+    "Leave the place as you found it."
+)
+replace_any_state(
     "en/index.html",
-    "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
-    "The aim is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
+    (
+        "The aim is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
+        "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
+        "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from people who work here and leave the place as it was.",
+    ),
+    ETHOS_EN,
 )
 
+# Keep the same project position visible in Spanish. The current Spanish homepage
+# already carries the future-work paragraph; append the ethos after it rather than
+# deleting useful detail about field books, natural colour and local making.
+ETHOS_ES = (
+    "No se trata de llevar más gente al laberinto. "
+    "Cabo de Gata no necesita más presión turística. "
+    "Mira más despacio. Aprende de la gente que vive y trabaja aquí. "
+    "Deja el lugar como lo encontraste."
+)
+_es_path, _es_text = read("index.html")
+if ETHOS_ES not in _es_text:
+    anchor = (
+        "Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia, "
+        "ensayos con color natural y posibles colaboraciones con artesanos locales en torno a "
+        "saberes materiales como la fibra de pita."
+    )
+    if anchor not in _es_text:
+        raise SystemExit("Could not locate Spanish Cabo de Gata development paragraph for ethos insertion")
+    _es_text = _es_text.replace(
+        anchor,
+        anchor + '</p><p class="parr">' + ETHOS_ES,
+        1,
+    )
+    _es_path.write_text(_es_text, encoding="utf-8")
 
-# ABOUT — remove ambiguous reference and literal phrasing while keeping attribution
-# and the stone / paper / code structure exactly intact.
+
+# ABOUT — remove ambiguity and literal phrasing while keeping attribution and the
+# stone / paper / code structure intact.
 replace_state(
     "en/about/index.html",
     "OOLITA begins with a stone labyrinth laid by hand by Raquel Costantini at Los Escullos in September 2021.",
@@ -126,12 +183,12 @@ replace_state(
 )
 
 
-# OOID PAGE — the browser exposes this as one sentence, but inline markup may split
-# the raw HTML. Edit stable fragments rather than assuming one uninterrupted node.
+# OOID PAGE — inline markup can split rendered sentences. Work on the smallest
+# stable fragments so the final visible English is corrected without touching links.
 replace_fragment_if_present(
     "en/what-is-an-ooid/index.html",
-    "A grain that sits still",
-    "A grain that stays still",
+    "sits still",
+    "stays still",
 )
 replace_fragment_if_present(
     "en/what-is-an-ooid/index.html",
@@ -140,8 +197,13 @@ replace_fragment_if_present(
 )
 replace_fragment_if_present(
     "en/what-is-an-ooid/index.html",
-    "When the dune that hardened was a wind-blown dune rather than an underwater deposit, the technical name is ",
-    "When a wind-blown carbonate dune hardens into rock, the technical term is ",
+    "When the dune that hardened was a ",
+    "When a ",
+)
+replace_fragment_if_present(
+    "en/what-is-an-ooid/index.html",
+    " rather than an underwater deposit, the technical name is ",
+    " hardens into rock, the technical term is ",
 )
 
 
@@ -153,17 +215,16 @@ replace_state(
 )
 
 
-# Regression guard for the exact translated constructions addressed here. Do not
-# prohibit all negative language: functional negatives remain legitimate elsewhere.
+# Regression guard for only the constructions that are genuinely translation or
+# clarity problems. Deliberate authorial negatives are explicitly allowed.
 stale = {
     "en/index.html": (
         "whoever walks past either finds it or does not",
         "as two voices of one text — published by Vestini Tribe",
         "as long to read as the path takes to walk slowly",
         "stays open from elsewhere",
-        "asks you to decide nothing",
-        "Around it will come field publications",
-        "The point is not to bring more people to one labyrinth",
+        "A labyrinth gives you one path to follow. You keep going.",
+        "The aim is to look at Cabo de Gata more slowly",
     ),
     "en/about/index.html": (
         "laid by hand by Raquel Costantini",
@@ -178,9 +239,10 @@ stale = {
         "no stock to run out and no reprint to wait for",
     ),
     "en/what-is-an-ooid/index.html": (
-        "A grain that sits still",
+        "sits still",
         "does not come out round",
-        "When the dune that hardened was a wind-blown dune",
+        "When the dune that hardened was a",
+        "rather than an underwater deposit, the technical name is",
     ),
     "en/labyrinth/index.html": ("free to encounter",),
 }
@@ -188,6 +250,18 @@ for rel, phrases in stale.items():
     _, text = read(rel)
     for phrase in phrases:
         if phrase in text:
-            raise SystemExit(f"Literal-English regression remains in {rel}: {phrase}")
+            raise SystemExit(f"Final-language regression remains in {rel}: {phrase}")
 
-print("OOLITA native-English editorial pass applied and validated successfully.")
+# Positive voice/ethos invariants.
+for rel, needle in (
+    ("en/index.html", "A labyrinth asks you to decide nothing. You follow."),
+    ("en/index.html", ETHOS_EN),
+    ("index.html", ETHOS_ES),
+    ("en/what-is-an-ooid/index.html", "stays still"),
+    ("en/what-is-an-ooid/index.html", "technical term is"),
+):
+    _, text = read(rel)
+    if needle not in text:
+        raise SystemExit(f"Final voice invariant missing in {rel}: {needle}")
+
+print("OOLITA final language and author-voice pass applied and validated successfully.")
