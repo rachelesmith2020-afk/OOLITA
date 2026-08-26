@@ -4,6 +4,8 @@
 The three primary OOLITA entrances (01–03) already have their own visual class
 and remain untouched. This pass groups the long secondary run without changing
 current first-party link targets, numbering, credits or the wider visual system.
+It also gives that existing index one stable anchor so internal pages can point
+back to it without adding a conventional global menu.
 """
 from __future__ import annotations
 
@@ -14,8 +16,9 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 BASE = "https://oolita.es"
-LASTMOD = "2026-08-24"
+LASTMOD = "2026-08-26"
 CHANGED_PATHS = {"/", "/en/"}
+INDEX_ID = "oolita-index"
 
 STYLE = '''<style id="oolita-menu-hierarchy-style">
 .menu-group-label{display:block;margin:clamp(1.5rem,3vw,2.25rem) 0 .45rem;opacity:.58;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
@@ -42,6 +45,24 @@ def insert_before_href(text: str, href: str, label: str) -> str:
     return text[:match.start()] + marker + "\n" + text[match.start():]
 
 
+def ensure_index_anchor(text: str, label: str) -> str:
+    """Put one stable id on the existing Explore/Explorar OOLITA label."""
+    id_token = f'id="{INDEX_ID}"'
+    if id_token in text:
+        if text.count(id_token) != 1:
+            raise SystemExit(f"Duplicate homepage index id: {INDEX_ID}")
+        return text
+
+    pattern = re.compile(
+        rf'(<span\b(?=[^>]*class=["\'][^"\']*\brot\b[^"\']*["\'])[^>]*)(>\s*{re.escape(label)}\s*</span>)',
+        flags=re.I,
+    )
+    match = pattern.search(text)
+    if not match:
+        raise SystemExit(f"Could not anchor homepage index label: {label}")
+    return text[:match.start()] + match.group(1) + f' id="{INDEX_ID}"' + match.group(2) + text[match.end():]
+
+
 def patch(path: str, *, language: str) -> None:
     target, text = page(path)
     en = language == "en"
@@ -55,6 +76,7 @@ def patch(path: str, *, language: str) -> None:
         count=1,
         flags=re.I,
     )
+    text = ensure_index_anchor(text, new_heading)
 
     if en:
         groups = (
@@ -89,6 +111,7 @@ patch("en/index.html", language="en")
 required = {
     "index.html": [
         "Explorar OOLITA",
+        f'id="{INDEX_ID}"',
         '<span class="rot menu-group-label">Leer y entender</span>',
         '<span class="rot menu-group-label">Fuera de este sitio</span>',
         '<span class="rot menu-group-label">Proyecto</span>',
@@ -98,6 +121,7 @@ required = {
     ],
     "en/index.html": [
         "Explore OOLITA",
+        f'id="{INDEX_ID}"',
         '<span class="rot menu-group-label">Read and understand</span>',
         '<span class="rot menu-group-label">Elsewhere</span>',
         '<span class="rot menu-group-label">Project</span>',
@@ -111,6 +135,8 @@ for rel, needles in required.items():
     for needle in needles:
         if needle not in text:
             raise SystemExit(f"Menu hierarchy invariant missing in {rel}: {needle}")
+    if text.count(f'id="{INDEX_ID}"') != 1:
+        raise SystemExit(f"Homepage index anchor count wrong in {rel}")
 
 # Hallazgo is now first-party. The live-origin mirror passes through the edge
 # rewriter, so legacy Canva destinations must not be required by this validator.
@@ -163,4 +189,4 @@ if seen != CHANGED_PATHS:
     raise SystemExit(f"Menu hierarchy URLs missing from sitemap: {sorted(CHANGED_PATHS-seen)}")
 tree.write(sitemap, encoding="utf-8", xml_declaration=True)
 
-print("OOLITA homepage menu hierarchy validated successfully.")
+print("OOLITA homepage menu hierarchy and stable index anchor validated successfully.")
