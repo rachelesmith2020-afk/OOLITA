@@ -143,14 +143,12 @@ replace_exact_paragraph(
 )
 
 # 15 — Hallazgo gets its own subscriber preference, including deep-link preselection.
+# Only the two homepages own Follow forms; 404 artifacts deliberately do not.
 for rel, language in (
     ("index.html", "es"),
     ("en/index.html", "en"),
-    ("404.html", "es"),
-    ("404/index.html", "es"),
 ):
-    if (ROOT / rel).is_file():
-        patch_follow_page(rel, language)
+    patch_follow_page(rel, language)
 
 # 16 — do not frame collaboration as an accommodation/tourism programme.
 replace_visible_text(
