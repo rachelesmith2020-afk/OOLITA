@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Report OOLITA reader-journey events from the first-party D1 store."""
+"""Report OOLITA reader interactions from the first-party D1 store.
+
+The report intentionally discovers event names from the database instead of
+keeping a hard-coded list, so approved journey changes do not silently disappear
+from reporting. It reports aggregate counts only; OOLITA does not assign visitor
+IDs or reconstruct individual browsing histories.
+"""
 from __future__ import annotations
 
 import json
@@ -31,54 +37,78 @@ def cf(method: str, path: str, body=None):
         raise SystemExit(f"Cloudflare API failed: {payload.get('errors')}")
     return payload.get("result")
 
-query = urllib.parse.urlencode({"name": DB_NAME, "per_page": 100})
-items = cf("GET", f"/accounts/{ACCOUNT_ID}/d1/database?{query}") or []
+
+def query_rows(db_id: str, sql: str, params=None) -> list[dict]:
+    body = {"sql": sql.strip()}
+    if params:
+        body["params"] = params
+    result = cf("POST", f"/accounts/{ACCOUNT_ID}/d1/database/{db_id}/query", body) or []
+    rows: list[dict] = []
+    for group in result:
+        rows.extend(group.get("results") or [])
+    return rows
+
+
+lookup = urllib.parse.urlencode({"name": DB_NAME, "per_page": 100})
+items = cf("GET", f"/accounts/{ACCOUNT_ID}/d1/database?{lookup}") or []
 match = next((x for x in items if x.get("name") == DB_NAME), None)
 if not match or not match.get("uuid"):
     raise SystemExit("OOLITA D1 database not found")
 db_id = match["uuid"]
 
-events = [
-    "home-follow", "home-book", "home-3d", "home-about",
-    "hallazgo-follow", "editions-book", "book-follow", "textile-follow",
-    "about-hallazgo", "sunday-next", "sunday-archive", "sundays-current",
-    "ooid-cabo", "cabo-labyrinth", "labyrinth-follow-3d", "3d-follow",
-    "partner-contact",
+# Discover all reader-facing interaction names. System health checks and raw
+# pageviews are reported separately, never mixed into conversion-event counts.
+event_rows = query_rows(
+    db_id,
+    """
+    SELECT event, COUNT(*) AS n
+    FROM site_events
+    WHERE created_at >= datetime('now','-30 days')
+      AND event NOT IN ('pageview','deployment-health')
+    GROUP BY event
+    ORDER BY n DESC, event ASC;
+    """,
+)
+
+page_rows = query_rows(
+    db_id,
+    """
+    SELECT path, COUNT(*) AS n
+    FROM site_events
+    WHERE created_at >= datetime('now','-30 days') AND event='pageview'
+    GROUP BY path
+    ORDER BY n DESC, path ASC
+    LIMIT 20;
+    """,
+)
+
+total_events = sum(int(row.get("n") or 0) for row in event_rows)
+total_pageviews = sum(int(row.get("n") or 0) for row in page_rows)
+
+lines = [
+    "### OOLITA reader interactions · last 30 days",
+    "",
+    "Aggregate first-party counts only; no visitor IDs or individual browsing histories.",
+    "",
+    f"- Measured interaction events: **{total_events}**",
+    f"- Pageviews represented in top-path table: **{total_pageviews}**",
+    "",
+    "| Event | Count |",
+    "|---|---:|",
 ]
-quoted = ",".join("?" for _ in events)
-sql = f"""
-SELECT event, COUNT(*) AS n
-FROM site_events
-WHERE created_at >= datetime('now','-30 days')
-  AND event IN ({quoted})
-GROUP BY event
-ORDER BY n DESC, event ASC;
-""".strip()
-result = cf("POST", f"/accounts/{ACCOUNT_ID}/d1/database/{db_id}/query", {"sql": sql, "params": events}) or []
-rows = []
-for group in result:
-    rows.extend(group.get("results") or [])
-counts = {row.get("event"): int(row.get("n") or 0) for row in rows}
+if event_rows:
+    for row in event_rows:
+        lines.append(f"| `{row.get('event','')}` | {int(row.get('n') or 0)} |")
+else:
+    lines.append("| _No measured interaction events yet_ | 0 |")
 
-page_sql = """
-SELECT path, COUNT(*) AS n
-FROM site_events
-WHERE created_at >= datetime('now','-30 days') AND event='pageview'
-GROUP BY path
-ORDER BY n DESC, path ASC
-LIMIT 20;
-""".strip()
-page_result = cf("POST", f"/accounts/{ACCOUNT_ID}/d1/database/{db_id}/query", {"sql": page_sql}) or []
-page_rows = []
-for group in page_result:
-    page_rows.extend(group.get("results") or [])
-
-lines = ["### OOLITA reader journeys · last 30 days", "", "| Event | Count |", "|---|---:|"]
-for event in events:
-    lines.append(f"| `{event}` | {counts.get(event, 0)} |")
 lines += ["", "Top pageviews:", "", "| Path | Views |", "|---|---:|"]
-for row in page_rows:
-    lines.append(f"| `{row.get('path','')}` | {int(row.get('n') or 0)} |")
+if page_rows:
+    for row in page_rows:
+        lines.append(f"| `{row.get('path','')}` | {int(row.get('n') or 0)} |")
+else:
+    lines.append("| _No pageviews yet_ | 0 |")
+
 report = "\n".join(lines)
 print(report)
 summary = os.environ.get("GITHUB_STEP_SUMMARY", "").strip()
