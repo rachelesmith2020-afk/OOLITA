@@ -181,8 +181,8 @@ if (ROOT / "og.png").is_file():
     import apply_credibility_precision_v1  # noqa: E402,F401
     import apply_content_quality_v1  # noqa: E402,F401
     import apply_connective_copy_v1  # noqa: E402,F401
-    import apply_direct_entry_nav_v1  # noqa: E402,F401
 else:
     print("OOLITA final reader precision deferred until final reader build.")
 
-# Production propagation trigger: complete six-pass build after final connective-copy idempotency check.
+# Direct-entry navigation is applied and validated earlier by apply_cta_clarity_v1.py.
+# Production propagation trigger: complete six-pass build with all final guards wired.
