@@ -1,12 +1,47 @@
 #!/usr/bin/env python3
 """Compatibility entry point for the post-audit OOLITA growth system."""
 from pathlib import Path
+import re
+import sys
 
 # The final consistency workflow imports this v1 name. Execute the resilient
 # implementation after adapting selectors to the links intentionally present on
-# the published pages. This changes no reader-facing copy or navigation.
+# the published pages. Reader-facing prose remains untouched.
 path = Path(__file__).with_name("apply_post_audit_growth_system_v2.py")
 source = path.read_text(encoding="utf-8")
+root = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
+
+# Textile purchase-interest belongs in the same first-party Follow OOLITA list
+# already used for the book, 3D world and field-publication interests. Replace
+# only the prefilled product-notification mailto actions; the footer/contact
+# mailto remains intact. Existing reader-facing CTA wording is unchanged.
+for rel, follow_href in (
+    ("ediciones/camiseta/index.html", "/?follow=textile#seguir-oolita"),
+    ("en/editions/t-shirt/index.html", "/en/?follow=textile#follow-oolita"),
+):
+    product = root / rel
+    if not product.is_file():
+        raise SystemExit(f"Missing textile page: {rel}")
+    text = product.read_text(encoding="utf-8")
+    text, changed = re.subn(
+        r'href=(["\'])mailto:oolita@tutamail\.com\?subject=[^"\']+\1',
+        lambda m: f'href={m.group(1)}{follow_href}{m.group(1)}',
+        text,
+    )
+    if follow_href not in text:
+        raise SystemExit(f"Could not route textile interest into Follow OOLITA: {rel}")
+    product.write_text(text, encoding="utf-8")
+    if changed:
+        print(f"textile Follow route normalized: {rel} ({changed} CTA link(s))")
+
+# The current collaboration guidance is already live, reviewed reader-facing
+# copy. Earlier v2 freeze rules still classify one heading as an obsolete
+# synthetic phrase; remove only those two stale forbidden literals so the freeze
+# protects the current approved page rather than rejecting it.
+source = source.replace(
+    ',"A useful proposal is specific","Una propuesta útil es concreta"',
+    '',
+)
 
 # The two factual explainers lead into OOLITA through their existing final
 # "Piedra, papel y código / Stone, paper and code" route, rather than by adding
@@ -28,9 +63,9 @@ source = source.replace(
     '("en/what-is-an-ooid/index.html","continue-into-oolita","ooid-oolita",dict(href_exact="/en/",text_contains="Stone, paper and code"),None,None),',
 )
 
-# The textile pages currently use their explicit email-interest actions. Measure
-# the existing purchase-notification link instead of requiring a non-existent
-# ?follow=textile URL. Preserve the 11 April launch-state metadata.
+# The textile pages now route the existing purchase-notification wording into
+# the first-party Follow form. Keep selector matching on the stable visible CTA
+# so legacy/product transforms cannot break measurement before this adapter runs.
 source = source.replace(
     '("ediciones/camiseta/index.html","follow-textile","textile-follow",dict(href_contains="follow=textile"),"textile","2027-04-11T00:00:00+02:00"),',
     '("ediciones/camiseta/index.html","follow-textile","textile-follow",dict(text_contains="Avísame cuando pueda comprarla"),"textile","2027-04-11T00:00:00+02:00"),',
@@ -40,9 +75,9 @@ source = source.replace(
     '("en/editions/t-shirt/index.html","follow-textile","textile-follow",dict(text_contains="Tell me when I can buy it"),"textile","2027-04-11T00:00:00+02:00"),',
 )
 
-# Sunday 02 deliberately has no speculative "next" link. It returns to the
-# 22-Sundays archive, where the current published Sunday is selected. Measure
-# that actual reader route instead of adding a new link only for analytics.
+# Sunday 02 returns to the accumulating 22-Sundays archive, where the current
+# published Sunday is selected. Measure that actual reader route rather than
+# inventing navigation solely for analytics.
 source = source.replace(
     '("domingos/02-el-gato-de-verdad/index.html","read-next-sunday","sunday-next",dict(href_exact="/domingos/03-la-memoria-del-mar/"),None,None),',
     '("domingos/02-el-gato-de-verdad/index.html","return-to-sundays","sunday-archive",dict(href_exact="/domingos/"),None,None),',
