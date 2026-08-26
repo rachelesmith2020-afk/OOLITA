@@ -1,47 +1,39 @@
 #!/usr/bin/env python3
-"""Final factual/SEO gate with a narrow English location-phrase assertion.
+"""Final factual/SEO gate for OOLITA's labyrinth and fossil-dune wording.
 
-The v1 gate already rejects actual wrong labyrinth-on-fossil-dune claims across
-all HTML and scopes the San Felipe exception to battery context. This wrapper
-retains those checks but limits the additional exact-wording assertion to the
-principal English location pages, so geology/story pages are not rejected merely
-for mentioning both the labyrinth and fossil dunes.
+The current v1 gate owns the comprehensive corrections and straggler checks:
+- the labyrinth is on land beside the fossil dunes;
+- the named Batería de San Felipe may stand on a fossil dune;
+- calcarenite shorthand is removed in favour of loose stones;
+- malformed singular/plural variants and wrong location claims fail closed;
+- dedicated geology explainers remain free to discuss fossil dunes geologically.
+
+This v2 entry point runs that current gate unchanged, then adds four explicit
+principal-page assertions. It deliberately does not rewrite v1's source code or
+depend on historical comment markers inside it.
 """
 from pathlib import Path
+import runpy
 import sys
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 HERE = Path(__file__).resolve().parent
 v1 = HERE / "normalize_labyrinth_fossil_dunes_v1.py"
-source = v1.read_text(encoding="utf-8")
 
-start_marker = "# Every corrected English page that discusses the labyrinth's fossil-dune"
-end_marker = "# Mark corrected public routes fresh for search engines and the existing"
-start = source.find(start_marker)
-end = source.find(end_marker, start)
-if start < 0 or end < 0:
-    raise SystemExit("Could not locate v1 English exact-wording assertion block")
+if not ROOT.is_dir():
+    raise SystemExit(f"Missing built site: {ROOT}")
+if not v1.is_file():
+    raise SystemExit(f"Missing v1 fossil-dune gate: {v1}")
 
-narrow_check = '''# Require the approved exact phrase only on principal English location pages.
-# The BAD_LOCATION_PATTERNS gate above already rejects actual wrong location
-# claims everywhere, including Sunday/geology pages.
-ENGLISH_LOCATION_PAGES = {
-    "en/index.html",
-    "en/labyrinth/index.html",
-    "en/cabo-de-gata/index.html",
-    "en/3d-world/index.html",
-}
-for rel in sorted(changed & ENGLISH_LOCATION_PAGES):
-    text = (ROOT / rel).read_text(encoding="utf-8").lower()
-    if "beside the fossil dunes" not in text:
-        raise SystemExit(
-            f"English location wording lacks approved 'beside the fossil dunes' phrase: {rel}"
-        )
-
-'''
-source = source[:start] + narrow_check + source[end:]
-namespace = {"__name__": "__main__", "__file__": str(v1)}
-exec(compile(source, str(v1), "exec"), namespace)
+# Preserve the caller's site argument while executing the maintained v1 gate as
+# its own __main__ program. No source rewriting: the actual current validator is
+# what is tested and deployed.
+original_argv = sys.argv[:]
+try:
+    sys.argv = [str(v1), str(ROOT)]
+    runpy.run_path(str(v1), run_name="__main__")
+finally:
+    sys.argv = original_argv
 
 # Principal-page assertions remain explicit after the complete v1 gate.
 for rel, phrase in (
@@ -50,8 +42,11 @@ for rel, phrase in (
     ("index.html", "junto a las dunas fósiles"),
     ("laberinto/index.html", "junto a las dunas fósiles"),
 ):
-    text = (ROOT / rel).read_text(encoding="utf-8").lower()
+    path = ROOT / rel
+    if not path.is_file():
+        raise SystemExit(f"Missing principal location page: {rel}")
+    text = path.read_text(encoding="utf-8").lower()
     if phrase not in text:
-        raise SystemExit(f"Approved labyrinth location wording missing from {rel}")
+        raise SystemExit(f"Approved labyrinth location wording missing from {rel}: {phrase}")
 
 print("OOLITA fossil-dunes v2 final gate passed.")
