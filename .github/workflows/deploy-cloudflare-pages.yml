@@ -185,6 +185,10 @@ jobs:
         shell: bash
         run: python3 scripts/apply_search_visibility_v1.py site
 
+      - name: Apply native English editorial pass
+        shell: bash
+        run: python3 scripts/apply_english_native_edit_v1.py site
+
       - name: Apply final factual consistency guard
         shell: bash
         run: python3 scripts/apply_content_consistency_v1.py site
@@ -280,6 +284,10 @@ jobs:
       - name: Apply and validate search visibility
         shell: bash
         run: python3 scripts/apply_search_visibility_v1.py site
+
+      - name: Apply native English editorial pass
+        shell: bash
+        run: python3 scripts/apply_english_native_edit_v1.py site
 
       - name: Apply final factual consistency guard
         shell: bash
