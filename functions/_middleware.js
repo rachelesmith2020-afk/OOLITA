@@ -3,8 +3,12 @@
  *
  * Cloudflare Pages routes are case-sensitive. Redirect only literal ASCII
  * uppercase characters in the path; leave percent-encoded bytes untouched.
- * The former Canva catalogue is now served as a first-party OOLITA page; any
- * surviving public link to hallazgo.my.canva.site is rewritten at the edge.
+ *
+ * Hallazgo has two distinct destinations:
+ * - https://hallazgo.my.canva.site/hallazgo is the external Hallazgo Art site
+ *   and must remain untouched.
+ * - the retired Canva catalogue path is redirected to OOLITA's first-party
+ *   catalogue page.
  */
 export async function onRequest(context) {
   const url = new URL(context.request.url);
@@ -38,7 +42,13 @@ export async function onRequest(context) {
         if (!href) return;
         try {
           const target = new URL(href, url);
-          if (target.hostname.toLowerCase() === "hallazgo.my.canva.site") {
+          const host = target.hostname.toLowerCase();
+          const path = target.pathname.replace(/\/+$/, "").toLowerCase();
+          const isRetiredCanvaCatalogue =
+            host === "hallazgo.my.canva.site" &&
+            (path === "/hallazgo/catlogo" || path === "/hallazgo/catalogo");
+
+          if (isRetiredCanvaCatalogue) {
             element.setAttribute("href", cataloguePath);
             element.removeAttribute("target");
             element.removeAttribute("rel");
