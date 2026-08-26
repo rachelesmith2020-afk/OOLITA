@@ -28,16 +28,6 @@ def rendered(fragment: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def replace_once(rel: str, old: str, new: str) -> None:
-    path, text = read(rel)
-    if new in text:
-        return
-    count = text.count(old)
-    if count != 1:
-        raise SystemExit(f"Expected one commercial-status source in {rel}: {old!r}; found {count}")
-    path.write_text(text.replace(old, new, 1), encoding="utf-8")
-
-
 def replace_any_once(rel: str, old_forms: tuple[str, ...], new: str) -> None:
     """Accept the known live/source variants but publish one reviewed final form."""
     path, text = read(rel)
@@ -66,16 +56,33 @@ def replace_paragraph(rel: str, marker: str, new_inner: str) -> None:
     path.write_text(text[: match.start()] + replacement + text[match.end() :], encoding="utf-8")
 
 
-def insert_status_after_paragraph(rel: str, marker: str, status: str) -> None:
+def ensure_status_after_paragraph(
+    rel: str,
+    anchor_marker: str,
+    old_statuses: tuple[str, ...],
+    status: str,
+) -> None:
+    """Replace an older status paragraph, or insert it once when absent."""
     path, text = read(rel)
-    if status in rendered(text):
-        return
     pattern = re.compile(r"(<p\b[^>]*>)(.*?)(</p>)", flags=re.I | re.S)
-    matches = [m for m in pattern.finditer(text) if marker in rendered(m.group(2))]
-    if len(matches) != 1:
-        raise SystemExit(f"Expected one status anchor in {rel} for {marker!r}; found {len(matches)}")
-    match = matches[0]
-    # A plain paragraph is intentional: this is factual status, not another CTA.
+    paragraphs = list(pattern.finditer(text))
+    if any(rendered(m.group(2)) == status for m in paragraphs):
+        return
+
+    for old in old_statuses:
+        matches = [m for m in paragraphs if rendered(m.group(2)) == old]
+        if len(matches) > 1:
+            raise SystemExit(f"Duplicate old commercial status in {rel}: {old}")
+        if len(matches) == 1:
+            match = matches[0]
+            replacement = match.group(1) + status + match.group(3)
+            path.write_text(text[: match.start()] + replacement + text[match.end() :], encoding="utf-8")
+            return
+
+    anchors = [m for m in paragraphs if anchor_marker in rendered(m.group(2))]
+    if len(anchors) != 1:
+        raise SystemExit(f"Expected one status anchor in {rel} for {anchor_marker!r}; found {len(anchors)}")
+    match = anchors[0]
     insertion = match.group(0) + "\n<p>" + status + "</p>"
     path.write_text(text[: match.start()] + insertion + text[match.end() :], encoding="utf-8")
 
@@ -92,37 +99,25 @@ STATUS_ES = (
     "31 ENE 27 · publicación del libro. "
     "11 ABR 27 · primera edición textil."
 )
+OLD_STATUS_EN = (
+    "NOW · labyrinth at Los Escullos · 22 Sundays. 03 JAN 27 · 3D world opens · free. 31 JAN 27 · book goes on sale. 11 APR 27 · first textile edition goes on sale.",
+)
+OLD_STATUS_ES = (
+    "AHORA · laberinto en Los Escullos · 22 domingos. 03 ENE 27 · abre el mundo 3D · gratis. 31 ENE 27 · el libro sale a la venta. 11 ABR 27 · sale a la venta la primera edición textil.",
+)
 
 # HOMEPAGE — the dates already existed, but were scattered through long sections.
-# Put the current/future state in one factual line beside the existing 'already
-# there' statement. No new sales CTA is added.
-insert_status_after_paragraph(
+# Use release language here rather than implying that checkout is open now.
+ensure_status_after_paragraph(
     "en/index.html",
     "The stone labyrinth is already at Los Escullos; there is no ticket or booking.",
+    OLD_STATUS_EN,
     STATUS_EN,
 )
-insert_status_after_paragraph(
+ensure_status_after_paragraph(
     "index.html",
     "El laberinto de piedra ya está en Los Escullos",
-    STATUS_ES,
-)
-
-# Replace earlier timeline wording if it is already present from the mirrored live
-# origin. The status is about release timing, not a claim that checkout is open.
-replace_any_once(
-    "en/index.html",
-    (
-        "NOW · labyrinth at Los Escullos · 22 Sundays. 03 JAN 27 · 3D world opens · free. 31 JAN 27 · book goes on sale. 11 APR 27 · first textile edition goes on sale.",
-        STATUS_EN,
-    ),
-    STATUS_EN,
-)
-replace_any_once(
-    "index.html",
-    (
-        "AHORA · laberinto en Los Escullos · 22 domingos. 03 ENE 27 · abre el mundo 3D · gratis. 31 ENE 27 · el libro sale a la venta. 11 ABR 27 · sale a la venta la primera edición textil.",
-        STATUS_ES,
-    ),
+    OLD_STATUS_ES,
     STATUS_ES,
 )
 
