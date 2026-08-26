@@ -43,4 +43,4 @@ for env_name in ("production", "preview"):
     print(f"{env_name}_analytics_binding={binding!r}")
 print("Analytics binding state reported; deployment cleanup remains authoritative.")
 
-# Production propagation trigger: source-verified commercial status and textile precision.
+# Production propagation trigger: source-verified commercial status, textile specs and credential labels.
