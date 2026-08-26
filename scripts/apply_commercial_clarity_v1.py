@@ -156,9 +156,9 @@ replace_paragraph(
     "En desarrollo. Aún no hay fecha de publicación. Una publicación bilingüe para niños y familias: observar, dibujar, escuchar y registrar sin recoger ni alterar nada.",
 )
 
-# TEXTILE DETAIL — use the European Blaster 2.0 specification and distinguish
-# product certifications from company memberships/listings. No membership year is
-# stated because Stanley/Stella and Fair Wear currently publish different start years.
+# TEXTILE DETAIL — use the current European Blaster 2.0 specification and distinguish
+# product certifications from company memberships. No Fair Wear start year is stated
+# because the brand and Fair Wear currently publish different membership years.
 replace_paragraph(
     "en/editions/t-shirt/index.html",
     "It is a Stanley/Stella Blaster 2.0",
@@ -167,7 +167,7 @@ replace_paragraph(
 replace_paragraph(
     "en/editions/t-shirt/index.html",
     "It carries GOTS organic cotton certification",
-    "Stanley/Stella lists the Blaster 2.0 with GOTS and OEKO-TEX certification. Stanley/Stella is a Fair Wear member, and PETA lists the company as 100% vegan.",
+    "Stanley/Stella lists the Blaster 2.0 with GOTS and OEKO-TEX certification. Stanley/Stella is a Fair Wear member and PETA-Approved; its products are made from 100% vegan materials.",
 )
 replace_paragraph(
     "ediciones/camiseta/index.html",
@@ -177,7 +177,7 @@ replace_paragraph(
 replace_paragraph(
     "ediciones/camiseta/index.html",
     "Lleva certificación GOTS de algodón orgánico",
-    "La ficha de Stanley/Stella muestra la Blaster 2.0 con certificaciones GOTS y OEKO-TEX. Stanley/Stella es miembro de Fair Wear y PETA incluye a la empresa entre sus compañías 100 % veganas.",
+    "La ficha de Stanley/Stella muestra la Blaster 2.0 con certificaciones GOTS y OEKO-TEX. Stanley/Stella es miembro de Fair Wear y está aprobada por PETA; sus productos están hechos con materiales 100 % veganos.",
 )
 replace_any_once(
     "en/editions/t-shirt/index.html",
@@ -186,8 +186,11 @@ replace_any_once(
 )
 replace_any_once(
     "en/editions/t-shirt/index.html",
-    ("GOTS · OEKO-TEX · PETA Vegan · Fair Wear", "GOTS · OEKO-TEX · Fair Wear member · PETA-listed vegan company"),
-    "GOTS · OEKO-TEX · Fair Wear member · PETA-listed vegan company",
+    (
+        "GOTS · OEKO-TEX · PETA Vegan · Fair Wear",
+        "GOTS · OEKO-TEX · Fair Wear member · PETA-listed vegan company",
+    ),
+    "GOTS · OEKO-TEX · Fair Wear member · PETA-Approved",
 )
 replace_any_once(
     "ediciones/camiseta/index.html",
@@ -196,8 +199,11 @@ replace_any_once(
 )
 replace_any_once(
     "ediciones/camiseta/index.html",
-    ("GOTS · OEKO-TEX · Vegano PETA · Fair Wear", "GOTS · OEKO-TEX · miembro de Fair Wear · empresa vegana en PETA"),
-    "GOTS · OEKO-TEX · miembro de Fair Wear · empresa vegana en PETA",
+    (
+        "GOTS · OEKO-TEX · Vegano PETA · Fair Wear",
+        "GOTS · OEKO-TEX · miembro de Fair Wear · empresa vegana en PETA",
+    ),
+    "GOTS · OEKO-TEX · miembro de Fair Wear · PETA-Approved",
 )
 
 # Regression/positive guards.
@@ -216,15 +222,15 @@ required = {
     ),
     "en/editions/t-shirt/index.html": (
         "200 gsm single jersey in 100% organic ring-spun combed cotton",
-        "Stanley/Stella is a Fair Wear member, and PETA lists the company as 100% vegan",
+        "Stanley/Stella is a Fair Wear member and PETA-Approved; its products are made from 100% vegan materials",
         "Credentials",
-        "GOTS · OEKO-TEX · Fair Wear member · PETA-listed vegan company",
+        "GOTS · OEKO-TEX · Fair Wear member · PETA-Approved",
     ),
     "ediciones/camiseta/index.html": (
         "algodón orgánico peinado e hilado en anillo",
-        "Stanley/Stella es miembro de Fair Wear y PETA incluye a la empresa entre sus compañías 100 % veganas",
+        "Stanley/Stella es miembro de Fair Wear y está aprobada por PETA; sus productos están hechos con materiales 100 % veganos",
         "Credenciales",
-        "GOTS · OEKO-TEX · miembro de Fair Wear · empresa vegana en PETA",
+        "GOTS · OEKO-TEX · miembro de Fair Wear · PETA-Approved",
     ),
 }
 stale = {
@@ -232,8 +238,21 @@ stale = {
     "index.html": ("el libro sale a la venta", "sale a la venta la primera edición textil"),
     "en/editions/index.html": ("On sale · 31.01.27", "On sale · 11.04.27"),
     "ediciones/index.html": ("A la venta · 31.01.27", "A la venta · 11.04.27"),
-    "en/editions/t-shirt/index.html": ("Fair Wear accreditation in the making", "Fair Wear member since 2012", "PETA Vegan · Fair Wear"),
-    "ediciones/camiseta/index.html": ("algodón orgánico peinado de hilo abierto", "Fair Wear en la confección", "miembro de Fair Wear desde 2012", "Vegano PETA · Fair Wear"),
+    "en/editions/t-shirt/index.html": (
+        "Fair Wear accreditation in the making",
+        "Fair Wear member since 2012",
+        "PETA Vegan · Fair Wear",
+        "PETA-listed vegan company",
+        "PETA lists the company as 100% vegan",
+    ),
+    "ediciones/camiseta/index.html": (
+        "algodón orgánico peinado de hilo abierto",
+        "Fair Wear en la confección",
+        "miembro de Fair Wear desde 2012",
+        "Vegano PETA · Fair Wear",
+        "empresa vegana en PETA",
+        "PETA incluye a la empresa entre sus compañías 100 % veganas",
+    ),
 }
 for rel, phrases in required.items():
     _, text = read(rel)
@@ -248,4 +267,33 @@ for rel, phrases in stale.items():
         if phrase in visible:
             raise SystemExit(f"Stale commercial status remains in {rel}: {phrase}")
 
-print("OOLITA commercial availability/status clarity and textile precision applied successfully.")
+# Site-wide no-straggler gate. The target-page assertions above prove the new copy
+# exists; this scan proves retired commercial/credential wording does not survive
+# elsewhere in the final deploy bundle.
+sitewide_stale = (
+    "book goes on sale",
+    "first textile edition goes on sale",
+    "el libro sale a la venta",
+    "sale a la venta la primera edición textil",
+    "On sale · 31.01.27",
+    "On sale · 11.04.27",
+    "A la venta · 31.01.27",
+    "A la venta · 11.04.27",
+    "algodón orgánico peinado de hilo abierto",
+    "Fair Wear accreditation in the making",
+    "Fair Wear en la confección",
+    "Fair Wear member since 2012",
+    "miembro de Fair Wear desde 2012",
+    "PETA-listed vegan company",
+    "empresa vegana en PETA",
+)
+stragglers: list[str] = []
+for page in sorted(ROOT.rglob("*.html")):
+    visible = rendered(page.read_text(encoding="utf-8"))
+    for phrase in sitewide_stale:
+        if phrase in visible:
+            stragglers.append(f"{page.relative_to(ROOT)}: {phrase}")
+if stragglers:
+    raise SystemExit("Commercial/credential stragglers remain:\n  - " + "\n  - ".join(stragglers))
+
+print("OOLITA commercial availability/status clarity, textile precision and site-wide no-straggler gate passed.")
