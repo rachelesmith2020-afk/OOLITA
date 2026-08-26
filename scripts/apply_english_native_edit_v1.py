@@ -9,7 +9,9 @@ untouched unless the language itself is the problem.
 """
 from __future__ import annotations
 
+from html import unescape
 from pathlib import Path
+import re
 import sys
 
 
@@ -43,6 +45,35 @@ def replace_any_state(rel: str, old_forms: tuple[str, ...], new: str) -> None:
             path.write_text(text.replace(old, new, 1), encoding="utf-8")
             return
     raise SystemExit(f"No known source state found in {rel}: {old_forms[0]!r}")
+
+
+def replace_paragraph_by_markers(rel: str, markers: tuple[str, ...], new: str) -> bool:
+    """Replace one reader paragraph by its rendered-text marker, preserving its opening tag.
+
+    Some late reader layers insert inline markup into otherwise unchanged prose. Matching
+    rendered text lets the final author-voice pass remain exact without depending on those
+    incidental tags. Returns False when no marker is present so a controlled fallback can run.
+    """
+    path, text = read(rel)
+    if new in text:
+        return True
+
+    paragraph_re = re.compile(r'(<p\b[^>]*>)(.*?)(</p>)', flags=re.I | re.S)
+    matches: list[tuple[int, int, str, str]] = []
+    for match in paragraph_re.finditer(text):
+        rendered = unescape(re.sub(r'<[^>]+>', '', match.group(2)))
+        rendered = re.sub(r'\s+', ' ', rendered).strip()
+        if any(marker in rendered for marker in markers):
+            matches.append((match.start(), match.end(), match.group(1), match.group(3)))
+
+    if not matches:
+        return False
+    if len(matches) != 1:
+        raise SystemExit(f"Expected one marked paragraph in {rel}, found {len(matches)}")
+
+    start, end, opening, closing = matches[0]
+    path.write_text(text[:start] + opening + new + closing + text[end:], encoding="utf-8")
+    return True
 
 
 def replace_fragment_if_present(rel: str, old: str, new: str) -> None:
@@ -99,34 +130,41 @@ ETHOS_EN = (
     "Look more slowly. Learn from the people who live and work here. "
     "Leave the place as you found it."
 )
-replace_any_state(
+if not replace_paragraph_by_markers(
     "en/index.html",
     (
-        "The aim is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
-        "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
-        "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from people who work here and leave the place as it was.",
+        "The point is not to bring more people to one labyrinth.",
+        "The aim is to look at Cabo de Gata more slowly",
     ),
     ETHOS_EN,
-)
+):
+    raise SystemExit("Could not locate the final English Cabo de Gata ethos paragraph")
 
-# Keep the same project position visible in Spanish. The current Spanish homepage
-# already carries the future-work paragraph; append the ethos after it rather than
-# deleting useful detail about field books, natural colour and local making.
+# Keep the same project position visible in Spanish. Prefer replacing the existing
+# voice-audit paragraph; if an older pipeline state lacks it, append after the exact
+# future-work paragraph. This prevents duplicate environmental statements.
 ETHOS_ES = (
     "No se trata de llevar más gente al laberinto. "
     "Cabo de Gata no necesita más presión turística. "
     "Mira más despacio. Aprende de la gente que vive y trabaja aquí. "
     "Deja el lugar como lo encontraste."
 )
-_es_path, _es_text = read("index.html")
-if ETHOS_ES not in _es_text:
+if not replace_paragraph_by_markers(
+    "index.html",
+    (
+        "No se trata de llevar más gente al laberinto.",
+        "Se trata de mirar Cabo de Gata más despacio",
+    ),
+    ETHOS_ES,
+):
+    _es_path, _es_text = read("index.html")
     anchor = (
         "Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia, "
         "ensayos con color natural y posibles colaboraciones con artesanos locales en torno a "
         "saberes materiales como la fibra de pita."
     )
     if anchor not in _es_text:
-        raise SystemExit("Could not locate Spanish Cabo de Gata development paragraph for ethos insertion")
+        raise SystemExit("Could not locate Spanish Cabo de Gata ethos or development paragraph")
     _es_text = _es_text.replace(
         anchor,
         anchor + '</p><p class="parr">' + ETHOS_ES,
