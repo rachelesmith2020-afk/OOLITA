@@ -7,6 +7,7 @@ subscription section: what the list covers and how often OOLITA writes.
 """
 from __future__ import annotations
 
+from html import unescape
 from pathlib import Path
 import re
 import sys
@@ -25,6 +26,34 @@ def replace_state(rel: str, old: str, new: str) -> None:
     if old not in text:
         raise SystemExit(f"Homepage follow proposition not found in {rel}: {old!r}")
     path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+
+def visible(fragment: str) -> str:
+    return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", fragment))).strip()
+
+
+def replace_paragraph_by_marker(rel: str, markers: tuple[str, ...], new_inner: str) -> None:
+    """Publish one reviewed paragraph from any known reconstructed source state."""
+    path = ROOT / rel
+    if not path.is_file():
+        raise SystemExit(f"Missing collaboration page: {rel}")
+    text = path.read_text(encoding="utf-8")
+    if new_inner in visible(text):
+        return
+
+    paragraph_re = re.compile(r'(<p\b[^>]*>)([\s\S]*?)(</p>)', flags=re.I)
+    matches = [
+        match
+        for match in paragraph_re.finditer(text)
+        if any(marker in visible(match.group(2)) for marker in markers)
+    ]
+    if len(matches) != 1:
+        raise SystemExit(
+            f"Expected one collaboration paragraph in {rel} for {markers!r}; found {len(matches)}"
+        )
+    match = matches[0]
+    replacement = match.group(1) + new_inner + match.group(3)
+    path.write_text(text[:match.start()] + replacement + text[match.end():], encoding="utf-8")
 
 
 def remove_generic_sunday03_note(rel: str, marker: str) -> None:
@@ -82,6 +111,31 @@ import apply_commercial_clarity_v1  # noqa: E402,F401
 # older migration/search layers have finished. The language states access from
 # a distance and leaves the limit implicit rather than announcing a position.
 import apply_environmental_alignment_v1  # noqa: E402,F401
+
+# The collaboration detail section is introduced by a later source layer than
+# the growth page itself. Normalise these two paragraphs here, immediately before
+# the final content-quality guard, so reconstruction differences cannot leave a
+# stale wording variant or make the guard depend on raw source-node formatting.
+replace_paragraph_by_marker(
+    "colaborar/index.html",
+    ("OOLITA busca colaboraciones pequeñas", "práctica material"),
+    "OOLITA busca colaboraciones pequeñas y claramente atribuidas: libros, actividades de campo, materiales y ediciones. No añade nombres de colaboradores de forma especulativa: autoría, producción, materiales, cantidades y responsabilidades se indican sólo cuando existe un acuerdo.",
+)
+replace_paragraph_by_marker(
+    "en/work-with-oolita/index.html",
+    ("OOLITA is interested in small, clearly attributed collaborations", "material practice"),
+    "OOLITA is interested in small, clearly attributed collaborations: books, field activities, materials and editions. It does not add partner names speculatively: authorship, production, materials, quantities and responsibilities are stated only after an agreement exists.",
+)
+replace_paragraph_by_marker(
+    "colaborar/index.html",
+    ("no crear un segundo laberinto OOLITA", "La intención es ampliar la atención al territorio"),
+    "Cuando una propuesta afecta a Cabo de Gata, el punto de partida es sencillo: no recoger materiales del lugar y no crear un segundo laberinto OOLITA. El trabajo tiene que caber dentro de esos límites.",
+)
+replace_paragraph_by_marker(
+    "en/work-with-oolita/index.html",
+    ("no second OOLITA labyrinth", "The aim is to extend attention to the place"),
+    "When a proposal involves Cabo de Gata, the starting point is simple: take no material from the site and make no second OOLITA labyrinth. The work has to fit those limits.",
+)
 
 # Remove the later-added generic archive explainer from Sunday 03. It describes
 # the page as a continuing public record rather than speaking in the project's
