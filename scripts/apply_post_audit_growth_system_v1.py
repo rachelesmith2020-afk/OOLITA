@@ -4,7 +4,7 @@ from pathlib import Path
 
 # The final consistency workflow imports this v1 name. Execute the resilient
 # implementation after adapting selectors to the links intentionally present on
-# the published explainer pages. This changes no reader-facing copy or navigation.
+# the published pages. This changes no reader-facing copy or navigation.
 path = Path(__file__).with_name("apply_post_audit_growth_system_v2.py")
 source = path.read_text(encoding="utf-8")
 
@@ -26,6 +26,18 @@ source = source.replace(
 source = source.replace(
     '("en/what-is-an-ooid/index.html","see-place","ooid-cabo",dict(href_exact="/en/cabo-de-gata/"),None,None),',
     '("en/what-is-an-ooid/index.html","continue-into-oolita","ooid-oolita",dict(href_exact="/en/",text_contains="Stone, paper and code"),None,None),',
+)
+
+# The textile pages currently use their explicit email-interest actions. Measure
+# the existing purchase-notification link instead of requiring a non-existent
+# ?follow=textile URL. No visible wording or destination is changed here.
+source = source.replace(
+    '("ediciones/camiseta/index.html","follow-textile","textile-follow",dict(href_contains="follow=textile"),None,None),',
+    '("ediciones/camiseta/index.html","follow-textile","textile-follow",dict(text_contains="Avísame cuando pueda comprarla"),None,None),',
+)
+source = source.replace(
+    '("en/editions/t-shirt/index.html","follow-textile","textile-follow",dict(href_contains="follow=textile"),None,None),',
+    '("en/editions/t-shirt/index.html","follow-textile","textile-follow",dict(text_contains="Tell me when I can buy it"),None,None),',
 )
 
 # Measure the same published geology path: ooid explainer -> OOLITA -> labyrinth
