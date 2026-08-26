@@ -5,10 +5,12 @@
  * uppercase characters in the path; leave percent-encoded bytes untouched.
  *
  * Hallazgo has two distinct destinations:
- * - https://hallazgo.my.canva.site/hallazgo is the external Hallazgo Art site
- *   and must remain untouched.
+ * - https://hallazgo.my.canva.site/hallazgo is the external Hallazgo Art site.
  * - the retired Canva catalogue path is redirected to OOLITA's first-party
  *   catalogue page.
+ *
+ * The homepage label for Hallazgo Art is also normalized here so it cannot
+ * inherit the 3D-world "virtual castle" description from legacy build layers.
  */
 export async function onRequest(context) {
   const url = new URL(context.request.url);
@@ -31,9 +33,11 @@ export async function onRequest(context) {
     return response;
   }
 
-  const cataloguePath = url.pathname === "/en/" || url.pathname.startsWith("/en/")
+  const isEnglish = url.pathname === "/en/" || url.pathname.startsWith("/en/");
+  const cataloguePath = isEnglish
     ? "/en/hallazgo-catalogue/"
     : "/catalogo-hallazgo/";
+  const hallazgoArtUrl = "https://hallazgo.my.canva.site/hallazgo";
 
   return new HTMLRewriter()
     .on("a[href]", {
@@ -56,6 +60,13 @@ export async function onRequest(context) {
         } catch {
           // Leave malformed or non-URL href values unchanged.
         }
+      },
+    })
+    .on(`a[href="${hallazgoArtUrl}"] .glo`, {
+      element(element) {
+        element.setInnerContent(
+          isEnglish ? "Work by Raquel Costantini ↗" : "Obra de Raquel Costantini ↗",
+        );
       },
     })
     .transform(response);
