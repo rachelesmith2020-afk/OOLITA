@@ -81,21 +81,6 @@ def insert_before_section(rel: str, marker: str, block: str, unique_marker: str)
     path.write_text(text[:m.start()] + block + "\n" + text[m.start():], encoding="utf-8")
 
 
-def replace_text_inside_section(rel: str, section_marker: str, old: str, new: str) -> None:
-    path, text = read(rel)
-    matches = section_matches(text, section_marker)
-    if len(matches) != 1:
-        raise SystemExit(f"Expected one section containing {section_marker!r} in {rel}; found {len(matches)}")
-    m = matches[0]
-    block = m.group(0)
-    if new in block:
-        return
-    if old not in block:
-        raise SystemExit(f"Missing {old!r} inside {section_marker!r} section in {rel}")
-    block = block.replace(old, new, 1)
-    path.write_text(text[:m.start()] + block + text[m.end():], encoding="utf-8")
-
-
 # ABOUT — begin with the physical origin, not a three-noun project formula.
 replace_tag_text("sobre-oolita/index.html", ("h1", "h2"), "Un camino, un lugar, una práctica.", "Primero fue un laberinto.")
 replace_tag_text("en/about/index.html", ("h1", "h2"), "One path, one place, one practice.", "First there was a labyrinth.")
@@ -126,13 +111,15 @@ replace_paragraph(
 # 'public rhythm' section. Remove the filler, restore the place, and keep Hallazgo
 # as the following practice section.
 remove_section("en/about/index.html", "A public working rhythm.")
+# Relabel the existing Hallazgo section before adding the restored provenance block,
+# so there is exactly one PROVENANCE label in the final page.
+replace_tag_text("en/about/index.html", ("span",), "PROVENANCE", "LOS ESCULLOS")
 PLACE_EN = '''<section class="tramo" data-place-not-backdrop>
 <span class="rot">PROVENANCE</span><h2 class="grande">The place is not a backdrop.</h2>
 <p class="parr">The labyrinth at Los Escullos is inside Cabo de Gata-Níjar Natural Park, on land beside the fossil dunes facing the Mediterranean. The ground, its geology and the light are not scenery. They are part of how the work began and why it remains there.</p>
 <p class="parr">Since 2021 I have returned to the same point to see what changes and what stays: stone, wind, tracks, people passing, the drawing itself. OOLITA grows from that return. It does not turn Cabo de Gata into a brand. The work stays tied to the place where it began.</p>
 </section>'''
 insert_before_section("en/about/index.html", "Hallazgo and OOLITA.", PLACE_EN, "The place is not a backdrop.")
-replace_text_inside_section("en/about/index.html", "Hallazgo and OOLITA.", ">PROVENANCE<", ">LOS ESCULLOS<")
 
 replace_paragraph(
     "sobre-oolita/index.html",
