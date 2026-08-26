@@ -190,3 +190,5 @@ if seen != CHANGED_PATHS:
 tree.write(sitemap, encoding="utf-8", xml_declaration=True)
 
 print("OOLITA homepage menu hierarchy and stable index anchor validated successfully.")
+
+# Production propagation trigger: direct-entry footer/index navigation.
