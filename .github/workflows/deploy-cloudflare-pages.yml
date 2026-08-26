@@ -10,6 +10,7 @@ on:
       - 'scripts/apply_content_consistency_v1.py'
       - 'scripts/apply_voice_contrast_v1.py'
       - 'scripts/apply_english_native_edit_v1.py'
+      - 'scripts/apply_cta_clarity_v1.py'
       - 'scripts/build_wednesday_reels_v1.py'
       - 'social/wednesday_reels.json'
       - 'scripts/apply_wording_resilient.py'
@@ -62,6 +63,7 @@ on:
       - 'scripts/apply_content_consistency_v1.py'
       - 'scripts/apply_voice_contrast_v1.py'
       - 'scripts/apply_english_native_edit_v1.py'
+      - 'scripts/apply_cta_clarity_v1.py'
       - 'scripts/build_wednesday_reels_v1.py'
       - 'social/wednesday_reels.json'
       - 'scripts/apply_wording_resilient.py'
@@ -189,6 +191,10 @@ jobs:
         shell: bash
         run: python3 scripts/apply_english_native_edit_v1.py site
 
+      - name: Apply homepage CTA clarity
+        shell: bash
+        run: python3 scripts/apply_cta_clarity_v1.py site
+
       - name: Apply final factual consistency guard
         shell: bash
         run: python3 scripts/apply_content_consistency_v1.py site
@@ -288,6 +294,10 @@ jobs:
       - name: Apply native English editorial pass
         shell: bash
         run: python3 scripts/apply_english_native_edit_v1.py site
+
+      - name: Apply homepage CTA clarity
+        shell: bash
+        run: python3 scripts/apply_cta_clarity_v1.py site
 
       - name: Apply final factual consistency guard
         shell: bash
