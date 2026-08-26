@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Apply and validate OOLITA reader-facing final consistency fixes.
 
-This final pre-publish pass applies the reviewed voice and English editorial cleanup,
-then keeps the published Sunday archive, Hallazgo work count, book page count, and
-Sunday 03 geology wording aligned across Spanish and English.
+This final consistency pass applies the reviewed rhetorical voice cleanup, then keeps
+the published Sunday archive, Hallazgo work count, book page count, and Sunday 03
+geology wording aligned across Spanish and English.
 """
 from __future__ import annotations
 
@@ -14,11 +14,10 @@ import sys
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 
-# Run the editorial cleanup at the same final deployment stage so later transforms
-# cannot reintroduce the audited language problems before publication. The English
-# pass is deliberately tolerant of inline markup while its regression guards remain strict.
+# Keep the rhetorical contrast cleanup in the reconstruction-safe consistency layer.
+# Native-English editing runs later in the workflow, after all legacy migrations and
+# validators have completed, so it cannot disturb their expected intermediate copy.
 import apply_voice_contrast_v1  # noqa: E402,F401
-import apply_english_native_edit_v1  # noqa: E402,F401
 
 # Reuse only the already-reviewed detailed archive row renderer. Do not call its
 # broad archive patcher: Sunday 03 is already linked in the compact archive, so a
