@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Final Hallazgo homepage/SEO/href gate.
 
-Runs after the release-calendar and existing Hallazgo passes so later transforms
-cannot reintroduce the retired Canva links or the former "castle with a key"
-shorthand. Keeps Hallazgo Art pointed at the first-party 3D world and the
-catalogue entry pointed at the first-party catalogue. The homepage directory
-uses the approved concise Hallazgo publication summary; detailed access mechanics
-remain on the Hallazgo/Editions material rather than in the directory line.
+Hallazgo has two deliberately separate public destinations:
+- Hallazgo · Arte / Art -> the external Canva artwork site.
+- El mundo 3D / The 3D world -> OOLITA's first-party Three.js world.
+
+The Hallazgo catalogue remains first-party on oolita.es. This gate runs after
+the legacy Hallazgo sanitizers, so it restores only the approved Hallazgo Art
+Canva destination and rejects any other surviving Canva Hallazgo references.
 """
 from __future__ import annotations
 
@@ -19,8 +20,9 @@ import xml.etree.ElementTree as ET
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 SITEMAP = ROOT / "sitemap.xml"
 BASE = "https://oolita.es"
-LASTMOD = "2026-08-25"
+LASTMOD = "2026-08-26"
 LEGACY_HOST = "hallazgo.my.canva.site"
+HALLAZGO_ART_URL = "https://hallazgo.my.canva.site/hallazgo"
 
 HOME_COPY = {
     "en/index.html": {
@@ -30,9 +32,10 @@ HOME_COPY = {
         ),
         "new": "Hardback catalogue of the complete Hallazgo body of work · in the 3D castle from 16 Sep 27 · public launch 19 Sep 27 ↗",
         "art_label": "Hallazgo · Art",
-        "art_href": "/en/3d-world/",
+        "art_href": HALLAZGO_ART_URL,
         "catalogue_label": "Hallazgo — the catalogue",
         "catalogue_href": "/en/hallazgo-catalogue/",
+        "three_d_href": "/en/3d-world/",
         "route": "/en/",
     },
     "index.html": {
@@ -42,20 +45,11 @@ HOME_COPY = {
         ),
         "new": "Catálogo en tapa dura de la obra completa de Hallazgo · en el castillo 3D desde el 16.09.27 · presentación pública 19.09.27 ↗",
         "art_label": "Hallazgo · Arte",
-        "art_href": "/mundo-3d/",
+        "art_href": HALLAZGO_ART_URL,
         "catalogue_label": "Hallazgo — el catálogo",
         "catalogue_href": "/catalogo-hallazgo/",
+        "three_d_href": "/mundo-3d/",
         "route": "/",
-    },
-}
-
-MIRROR_COPY = {
-    "404/index.html": {
-        "sources": (
-            "Una edición en tapa dura que reúne el cuerpo completo de la obra · catálogo completo en el castillo con clave · 16.09.27 · presentación pública 19.09.27 ↗",
-            "Una edición en tapa dura que reúne el cuerpo completo de la obra · catálogo completo en el castillo 3D · acceso por teclado numérico · código en el boletín de lanzamiento · 16.09.27 · presentación pública 19.09.27 ↗",
-        ),
-        "new": "Catálogo en tapa dura de la obra completa de Hallazgo · en el castillo 3D desde el 16.09.27 · presentación pública 19.09.27 ↗",
     },
 }
 
@@ -75,7 +69,6 @@ TAG_RE = re.compile(r"<[^>]+>", re.S)
 
 
 def visible_text(value: str) -> str:
-    """Return rendered-text-equivalent HTML for stable content validation."""
     return " ".join(html_lib.unescape(TAG_RE.sub(" ", value)).split())
 
 
@@ -131,18 +124,14 @@ def normalize_summary(
     label: str,
     rel: str,
 ) -> str:
-    """Accept approved copy even when later layout layers insert harmless markup."""
+    if rendered_summary_count(text, label, final, rel) == 1:
+        return text
+
     exact_final = text.count(final)
     if exact_final == 1:
         return text
     if exact_final > 1:
         raise SystemExit(f"Hallazgo homepage summary duplicated in {rel}")
-
-    rendered_final = rendered_summary_count(text, label, final, rel)
-    if rendered_final == 1:
-        return text
-    if rendered_final > 1:
-        raise SystemExit(f"Hallazgo homepage rendered summary duplicated in {rel}")
 
     matches = [(source, text.count(source)) for source in sources if text.count(source)]
     total = sum(count for _, count in matches)
@@ -152,15 +141,7 @@ def normalize_summary(
             raise SystemExit(f"Hallazgo homepage source duplicated in {rel}")
         return text.replace(source, final, 1)
 
-    rendered_sources = [
-        source for source in sources
-        if rendered_summary_count(text, label, source, rel) > 0
-    ]
     state = anchor_body_text(text, label, rel)
-    if rendered_sources:
-        raise SystemExit(
-            f"Hallazgo homepage still renders superseded source copy in {rel}: {state[:500]}"
-        )
     raise SystemExit(f"Hallazgo homepage source drifted in {rel}: {state[:500]}")
 
 
@@ -193,52 +174,36 @@ for rel, cfg in HOME_COPY.items():
         print(f"Hallazgo homepage copy/hrefs finalized: {rel}")
 
     final_html = page.read_text(encoding="utf-8")
-    if rendered_summary_count(
-        final_html, cfg["catalogue_label"], cfg["new"], rel
-    ) != 1:
+    if rendered_summary_count(final_html, cfg["catalogue_label"], cfg["new"], rel) != 1:
         raise SystemExit(f"Hallazgo homepage concise copy invariant missing in {rel}")
-    for source in cfg["sources"]:
-        if rendered_summary_count(
-            final_html, cfg["catalogue_label"], source, rel
-        ):
-            raise SystemExit(f"Superseded Hallazgo homepage summary remains in {rel}")
-    if anchor_href(final_html, cfg["art_label"], rel) != cfg["art_href"]:
-        raise SystemExit(f"Hallazgo Art href incorrect in {rel}")
+    if anchor_href(final_html, cfg["art_label"], rel) != HALLAZGO_ART_URL:
+        raise SystemExit(f"Hallazgo Art must point to Canva in {rel}")
     if anchor_href(final_html, cfg["catalogue_label"], rel) != cfg["catalogue_href"]:
         raise SystemExit(f"Hallazgo catalogue href incorrect in {rel}")
+    if f'href="{cfg["three_d_href"]}"' not in final_html and f"href='{cfg['three_d_href']}'" not in final_html:
+        raise SystemExit(f"Standalone OOLITA 3D-world href missing in {rel}")
+    if final_html.count(HALLAZGO_ART_URL) != 1:
+        raise SystemExit(f"Approved Hallazgo Canva URL missing or duplicated in {rel}")
 
-for rel, cfg in MIRROR_COPY.items():
-    page = ROOT / rel
-    if not page.is_file():
-        continue
-    text = page.read_text(encoding="utf-8")
-    before = text
-    final = cfg["new"]
-    if final not in text:
-        for source in cfg["sources"]:
-            if source in text:
-                text = text.replace(source, final, 1)
-                break
-    if text != before:
-        page.write_text(text, encoding="utf-8")
-        print(f"Hallazgo 404 mirror wording finalized: {rel}")
-
+# No retired keyed-castle wording may survive. The Canva host is allowed only
+# once on each language homepage, as the Hallazgo Art destination restored above.
 stragglers: list[str] = []
 for html_page in sorted(ROOT.rglob("*.html")):
     rel = html_page.relative_to(ROOT).as_posix()
     text = html_page.read_text(encoding="utf-8")
-    lower = text.lower()
     rendered_lower = visible_text(text).lower()
-    if LEGACY_HOST in lower:
-        stragglers.append(f"{rel}: retired Canva Hallazgo host")
     for fragment in OLD_FRAGMENTS:
         if visible_text(fragment).lower() in rendered_lower:
             stragglers.append(f"{rel}: superseded Hallazgo wording: {fragment}")
+    if LEGACY_HOST in text.lower() and rel not in HOME_COPY:
+        stragglers.append(f"{rel}: unapproved Canva Hallazgo reference")
 if stragglers:
     print("Hallazgo stragglers remain:")
     print("\n".join(stragglers))
     raise SystemExit(1)
 
+# The OOLITA 3D world remains a separate first-party destination; the catalogue
+# remains first-party too. All four routes must continue to exist physically.
 for route in (
     "/mundo-3d/",
     "/en/3d-world/",
@@ -247,7 +212,7 @@ for route in (
 ):
     target = ROOT / route.lstrip("/") / "index.html"
     if not target.is_file():
-        raise SystemExit(f"Hallazgo internal href would 404: {route}")
+        raise SystemExit(f"Hallazgo/OOLITA internal href would 404: {route}")
 
 ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
 tree = ET.parse(SITEMAP)
@@ -290,7 +255,7 @@ if missing:
 
 tree.write(SITEMAP, encoding="utf-8", xml_declaration=True)
 print(
-    "Hallazgo final homepage gate passed: concise publication summary current; "
-    "Art anchors point to 3D; catalogue anchors point to catalogue; no Canva or "
-    "keyed-castle stragglers; no internal 404s; sitemap valid."
+    "Hallazgo final homepage gate passed: Hallazgo Art -> Canva; OOLITA 3D world "
+    "remains separate; catalogue stays first-party; no unapproved Canva refs or "
+    "keyed-castle stragglers; internal routes and sitemap valid."
 )
