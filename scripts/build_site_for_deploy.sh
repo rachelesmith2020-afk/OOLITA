@@ -133,3 +133,5 @@ PYFAVICON
 # Final reader-facing factual consistency guard. This corrects stale archive and
 # catalogue copy inherited from the mirrored origin and fails closed if it drifts.
 python3 scripts/apply_content_consistency_v1.py site
+
+# Production propagation trigger: corrected bilingual consistency guard.
