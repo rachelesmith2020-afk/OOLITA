@@ -172,3 +172,8 @@ for rel in ("domingos/index.html", "en/sundays/index.html"):
         raise SystemExit(f"Sunday 03 still pending in detailed archive: {rel}")
 
 print("OOLITA factual/content consistency validated successfully.")
+
+# Absolute final factual/credibility pass. Keeping this import here means the
+# existing workflow step remains the single final gate while the corrections run
+# after every other consistency transform.
+import apply_credibility_precision_v1  # noqa: E402,F401
