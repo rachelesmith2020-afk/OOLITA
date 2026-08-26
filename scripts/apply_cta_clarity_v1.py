@@ -50,8 +50,8 @@ import apply_page_differentiation_v1  # noqa: E402,F401
 import apply_commercial_clarity_v1  # noqa: E402,F401
 
 # Environmental integrity is applied at the final editorial stage, after the
-# older migration/search layers have finished. This keeps the principle in the
-# structure rather than adding another environmental slogan.
+# older migration/search layers have finished. The language states access from
+# a distance and leaves the limit implicit rather than announcing a position.
 import apply_environmental_alignment_v1  # noqa: E402,F401
 
 print("OOLITA final reader-facing clarity passes validated in Spanish and English.")
