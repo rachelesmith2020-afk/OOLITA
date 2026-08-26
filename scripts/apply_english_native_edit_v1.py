@@ -2,10 +2,10 @@
 """Apply the final language/voice edit to OOLITA.
 
 This pass corrects English that carries Spanish syntax too literally, but it does
-not normalise deliberate authorial oddness. The final homepage ethos is also
-kept bilingual: OOLITA is not a device for adding tourism pressure to Cabo de
-Gata. Authored literary text, functional microcopy and factual terminology stay
-untouched unless the language itself is the problem.
+not normalise deliberate authorial oddness. The homepage keeps the Cabo de Gata
+limit implicit: one physical labyrinth remains where it is, while the path can
+also be followed from a distance. Authored literary text, functional microcopy
+and factual terminology stay untouched unless the language itself is the problem.
 """
 from __future__ import annotations
 
@@ -122,13 +122,11 @@ replace_state(
     "OOLITA will continue to have one labyrinth: the one at Los Escullos. Around it, the project will grow through field publications, small textile editions and collaborations made in Cabo de Gata.",
 )
 
-# The environmental position is not decorative brand language. It explains why
-# OOLITA keeps one physical labyrinth and opens the same path digitally. The
-# growth pipeline may still hold a temporary development paragraph here; that
-# intermediate copy is replaced, not added to, at publication.
+# The limit is carried by the structure and by one plain fact: the physical
+# labyrinth remains there, while the path can also be followed from a distance.
+# No tourism-sector language and no added claim of virtue.
 ETHOS_EN = (
-    "The point is not to bring more people to one labyrinth. "
-    "Cabo de Gata does not need more tourism pressure. "
+    "The labyrinth is there. The path can also be followed from a distance. "
     "Look more slowly. Learn from the people who live and work here. "
     "Leave the place as you found it."
 )
@@ -139,17 +137,17 @@ if not replace_paragraph_by_markers(
         "The aim is to look at Cabo de Gata more slowly",
         "Directions in development include field books for family visits",
         "They will grow slowly and will only be presented",
+        "The labyrinth is there. Not everything needs to end in a visit.",
+        "The labyrinth is there. The path can also be followed from a distance.",
     ),
     ETHOS_EN,
 ):
     raise SystemExit("Could not locate the final English Cabo de Gata ethos paragraph")
 
-# Keep the same project position visible in Spanish. Replace either the public
-# voice paragraph or the temporary growth paragraph so the homepage carries one
-# clear environmental statement rather than duplicate messaging.
+# Spanish belongs to the same project, not to an English template. The phrasing
+# is parallel in meaning but stands naturally on its own.
 ETHOS_ES = (
-    "No se trata de llevar más gente al laberinto. "
-    "Cabo de Gata no necesita más presión turística. "
+    "El laberinto está allí. El camino también puede seguirse desde lejos. "
     "Mira más despacio. Aprende de la gente que vive y trabaja aquí. "
     "Deja el lugar como lo encontraste."
 )
@@ -160,6 +158,8 @@ if not replace_paragraph_by_markers(
         "Se trata de mirar Cabo de Gata más despacio",
         "Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia",
         "Crecerán despacio y sólo se presentarán",
+        "El laberinto está allí. No hace falta que todo termine en una visita.",
+        "El laberinto está allí. El camino también puede seguirse desde lejos.",
     ),
     ETHOS_ES,
 ):
@@ -258,9 +258,13 @@ stale = {
         "A labyrinth gives you one path to follow. You keep going.",
         "The aim is to look at Cabo de Gata more slowly",
         "Directions in development include field books for family visits",
+        "Cabo de Gata does not need more tourism pressure",
+        "Not everything needs to end in a visit",
     ),
     "index.html": (
         "Entre las líneas en desarrollo hay cuadernos para recorrer el territorio en familia",
+        "Cabo de Gata no necesita más presión turística",
+        "No hace falta que todo termine en una visita",
     ),
     "en/about/index.html": (
         "laid by hand by Raquel Costantini",
