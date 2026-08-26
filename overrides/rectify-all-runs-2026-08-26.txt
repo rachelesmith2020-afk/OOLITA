@@ -1,0 +1,2 @@
+Trigger full production workflow after Hallazgo idempotency and ffmpeg deferral fixes.
+Run all validation, deploy, IndexNow and live SEO stages on current main.
