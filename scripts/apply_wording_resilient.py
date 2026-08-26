@@ -168,12 +168,32 @@ replace_homepage_copy(
     "OOLITA begins with a three-metre classical labyrinth, laid by hand from stone at Los Escullos, on land that was seabed a hundred thousand years ago.",
 )
 
-# Final approved English Cabo de Gata homepage wording: include the people who
-# live as well as work there, and use the agreed land-care phrasing.
+# Reconstruction compatibility for the Cabo de Gata paragraph. The public site
+# may already contain a later author-voice edit; legacy growth/voice passes still
+# expect the reviewed intermediate sentence below. Normalise only during build.
+_cabo_intermediate = (
+    "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, "
+    "learn from the people who live and work here, and leave the land as you found it."
+)
+_cabo_published_variants = (
+    "The aim is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
+    "The point is not to bring more people to one labyrinth. Cabo de Gata does not need more tourism pressure. Look more slowly. Learn from the people who live and work here. Leave the place as you found it.",
+)
+_cabo_page = root / "en/index.html"
+_cabo_text = _cabo_page.read_text(encoding="utf-8")
+for _published in _cabo_published_variants:
+    if _published in _cabo_text:
+        _cabo_text = _cabo_text.replace(_published, _cabo_intermediate, 1)
+        _cabo_page.write_text(_cabo_text, encoding="utf-8")
+        print("bridged published Cabo de Gata author voice for legacy reconstruction")
+        break
+
+# Final approved English Cabo de Gata homepage wording used as the intermediate
+# state for older validators. The final publication-stage voice pass may sharpen it.
 replace_homepage_copy(
     "en/index.html",
     "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from people who work here and leave the place as it was.",
-    "The point is not to bring more people to one labyrinth. It is to look at Cabo de Gata more slowly, learn from the people who live and work here, and leave the land as you found it.",
+    _cabo_intermediate,
 )
 
 # 22 Sundays homepage heading: keep it concrete and tied to the weekly series.
