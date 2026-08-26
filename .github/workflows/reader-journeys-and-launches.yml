@@ -1,6 +1,13 @@
 name: OOLITA reader journeys and launch clock
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/reader-journeys-and-launches.yml'
+      - 'scripts/apply_post_audit_growth_system_v1.py'
+      - 'scripts/report_reader_journeys.py'
+      - 'COPY_FREEZE.md'
   workflow_run:
     workflows: ["Deploy OOLITA to Cloudflare Pages"]
     types: [completed]
@@ -30,18 +37,18 @@ jobs:
         run: python3 scripts/report_reader_journeys.py
 
   launch:
-    if: ${{ github.event_name == 'schedule' }}
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch production launch-state rebuild
+      - name: Dispatch production rebuild
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          if [ "$(date -u +%Y)" != "2027" ]; then
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$(date -u +%Y)" != "2027" ]; then
             echo 'Launch clock is scoped to 2027; no deployment dispatched.'
             exit 0
           fi
           gh workflow run deploy-cloudflare-pages.yml -f confirm=DEPLOY
-          echo 'Production launch-state rebuild dispatched.'
+          echo 'Production rebuild dispatched.'
