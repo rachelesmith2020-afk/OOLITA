@@ -214,8 +214,8 @@ replace_state(
 )
 
 
-# OOID PAGE — inline markup can split rendered sentences. Work on the smallest
-# stable fragments so the final visible English is corrected without touching links.
+# OOID PAGE — correct the rendered language rather than depending on where inline
+# emphasis happens to split the raw HTML.
 replace_fragment_if_present(
     "en/what-is-an-ooid/index.html",
     "sits still",
@@ -226,16 +226,17 @@ replace_fragment_if_present(
     "does not come out round.",
     "will not become round.",
 )
-replace_fragment_if_present(
-    "en/what-is-an-ooid/index.html",
-    "When the dune that hardened was a ",
-    "When a ",
+OOID_ROCK_EN = (
+    "The resulting rock is called <em>oolite</em>, or oolitic limestone. "
+    "When a wind-blown carbonate dune hardens into rock, the technical term is "
+    "<em>aeolianite</em>: a carbonate sandstone of aeolian origin, common on Pleistocene coastlines."
 )
-replace_fragment_if_present(
+if not replace_paragraph_by_markers(
     "en/what-is-an-ooid/index.html",
-    " rather than an underwater deposit, the technical name is ",
-    " hardens into rock, the technical term is ",
-)
+    ("The resulting rock is called",),
+    OOID_ROCK_EN,
+):
+    raise SystemExit("Could not locate the English oolite/aeolianite paragraph")
 
 
 # LABYRINTH PAGE — 'free to encounter' is a literal-sounding formulation in English.
