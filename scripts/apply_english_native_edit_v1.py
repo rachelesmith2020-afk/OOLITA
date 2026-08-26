@@ -32,6 +32,13 @@ def replace_state(rel: str, old: str, new: str) -> None:
     raise SystemExit(f"Neither source nor revised English found in {rel}: {old!r}")
 
 
+def replace_fragment_if_present(rel: str, old: str, new: str) -> None:
+    """Replace a stable text fragment without assuming surrounding inline markup."""
+    path, text = read(rel)
+    if old in text:
+        path.write_text(text.replace(old, new), encoding="utf-8")
+
+
 # HOMEPAGE — preserve OOLITA's short cadence while removing English constructions
 # that read as direct transfers from Spanish.
 replace_state(
@@ -119,13 +126,19 @@ replace_state(
 )
 
 
-# OOID PAGE — make the prose idiomatic without changing the geological claim.
-replace_state(
+# OOID PAGE — the browser exposes this as one sentence, but inline markup may split
+# the raw HTML. Edit stable fragments rather than assuming one uninterrupted node.
+replace_fragment_if_present(
     "en/what-is-an-ooid/index.html",
-    "A grain that sits still does not come out round.",
-    "A grain that stays still will not become round.",
+    "A grain that sits still",
+    "A grain that stays still",
 )
-replace_state(
+replace_fragment_if_present(
+    "en/what-is-an-ooid/index.html",
+    "does not come out round.",
+    "will not become round.",
+)
+replace_fragment_if_present(
     "en/what-is-an-ooid/index.html",
     "When the dune that hardened was a wind-blown dune rather than an underwater deposit, the technical name is ",
     "When a wind-blown carbonate dune hardens into rock, the technical term is ",
@@ -165,7 +178,8 @@ stale = {
         "no stock to run out and no reprint to wait for",
     ),
     "en/what-is-an-ooid/index.html": (
-        "sits still does not come out round",
+        "A grain that sits still",
+        "does not come out round",
         "When the dune that hardened was a wind-blown dune",
     ),
     "en/labyrinth/index.html": ("free to encounter",),
