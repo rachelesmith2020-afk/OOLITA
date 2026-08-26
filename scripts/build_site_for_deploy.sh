@@ -19,7 +19,7 @@ patched = patched.replace('# Production propagation trigger: preserve published 
 Path('/tmp/oolita-build-site-for-deploy.sh').write_text(patched, encoding='utf-8')
 PYWRAP
 
-bash /tmp/oolita-build-site-for_deploy.sh
+bash /tmp/oolita-build-site-for-deploy.sh
 
 # Install the exact PNG uploaded to GitHub. Do not fetch or transform it.
 mkdir -p site/images site/catalogo-hallazgo site/en/hallazgo-catalogue
