@@ -4,14 +4,15 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/reader-journeys-and-launches.yml'
       - 'scripts/apply_post_audit_growth_system_v1.py'
-      - 'scripts/report_reader_journeys.py'
+      - 'scripts/apply_post_audit_growth_system_v2.py'
       - 'COPY_FREEZE.md'
   workflow_run:
     workflows: ["Deploy OOLITA to Cloudflare Pages"]
     types: [completed]
   schedule:
+    # Weekly first-party reader-journey report.
+    - cron: '30 7 * * 1'
     # 00:05 Europe/Madrid on the confirmed 2027 launch dates.
     - cron: '5 23 2 1 *'   # 03 Jan 2027 · CET · 3D world
     - cron: '5 23 30 1 *'  # 31 Jan 2027 · CET · book
@@ -26,7 +27,10 @@ permissions:
 
 jobs:
   report:
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+          (github.event_name == 'schedule' && github.event.schedule == '30 7 * * 1') }}
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -37,7 +41,9 @@ jobs:
         run: python3 scripts/report_reader_journeys.py
 
   launch:
-    if: ${{ github.event_name == 'schedule' || github.event_name == 'push' }}
+    if: >-
+      ${{ github.event_name == 'push' ||
+          (github.event_name == 'schedule' && github.event.schedule != '30 7 * * 1') }}
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch production rebuild
