@@ -8,6 +8,7 @@ on:
       - 'wrangler.toml'
       - 'scripts/build_site_for_deploy.sh'
       - 'scripts/apply_content_consistency_v1.py'
+      - 'scripts/apply_original_audit_completion_v1.py'
       - 'scripts/apply_voice_contrast_v1.py'
       - 'scripts/apply_english_native_edit_v1.py'
       - 'scripts/apply_cta_clarity_v1.py'
@@ -62,6 +63,7 @@ on:
       - 'wrangler.toml'
       - 'scripts/build_site_for_deploy.sh'
       - 'scripts/apply_content_consistency_v1.py'
+      - 'scripts/apply_original_audit_completion_v1.py'
       - 'scripts/apply_voice_contrast_v1.py'
       - 'scripts/apply_english_native_edit_v1.py'
       - 'scripts/apply_cta_clarity_v1.py'
@@ -205,6 +207,7 @@ jobs:
         shell: bash
         run: |
           node --check functions/api/event.js
+          node --check functions/api/subscribe.js
           node --check functions/_middleware.js
 
       - name: Build Pages Functions bundle
@@ -309,6 +312,7 @@ jobs:
         shell: bash
         run: |
           node --check functions/api/event.js
+          node --check functions/api/subscribe.js
           node --check functions/_middleware.js
 
       - name: Remove unsupported Analytics Engine binding
