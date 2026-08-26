@@ -129,3 +129,7 @@ if count == 0:
     raise SystemExit('No HTML files found while cache-busting favicon URLs')
 print(f'OOLITA favicon cache busted on {count} HTML pages: v={version}')
 PYFAVICON
+
+# Final reader-facing factual consistency guard. This corrects stale archive and
+# catalogue copy inherited from the mirrored origin and fails closed if it drifts.
+python3 scripts/apply_content_consistency_v1.py site
