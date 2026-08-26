@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+import subprocess
 import sys
 
 
@@ -183,6 +184,10 @@ if (ROOT / "og.png").is_file():
     import apply_connective_copy_v1  # noqa: E402,F401
 else:
     print("OOLITA final reader precision deferred until final reader build.")
+
+# Restore only the machine-readable Wednesday publishing bank and its approved
+# R01-R09 MP4s. The retired public /reels/ archive page and links stay retired.
+subprocess.run([sys.executable, str(Path(__file__).with_name("build_wednesday_bank_v1.py")), str(ROOT)], check=True)
 
 # Direct-entry navigation is applied and validated earlier by apply_cta_clarity_v1.py.
 # Production propagation trigger: Hallazgo exact-block fix + six-pass final check.
