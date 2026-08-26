@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""Run the growth layer safely against the current Hallazgo Editions state.
+"""Run the growth layer safely against current reader-facing states.
 
-The original growth migration inserts a short free-encounter/paid-editions
-paragraph by matching the pre-Hallazgo Editions introduction. On a live-origin
-rebuild that introduction has already been replaced by the approved Hallazgo
-sequence, and later editorial passes intentionally omit the migration paragraph.
-Use an ephemeral sentinel so the legacy migration recognizes that one step as
-already superseded, then remove the sentinel before any later layer or deploy.
+The original growth migration still validates a few transitional paragraphs that
+later editorial passes intentionally remove. Ephemeral sentinels let the legacy
+migration recognize those steps as already superseded, then disappear before any
+later layer or deploy.
 """
 from __future__ import annotations
 
@@ -36,6 +34,22 @@ SENTINELS = {
         ),
         "sentinel": "<!-- growth-v2 compatibility: The editions are the part you can keep. -->",
     },
+    "ediciones/camiseta/index.html": {
+        "legacy_marker": "cuando existan los acuerdos adecuados",
+        "current_markers": (
+            "La primera edición textil lleva el laberinto a la tela.",
+            "La prenda aparece primero en blanco. Cada domingo aparece un poco más del diseño.",
+        ),
+        "sentinel": "<!-- growth-v2 compatibility: cuando existan los acuerdos adecuados -->",
+    },
+    "en/editions/t-shirt/index.html": {
+        "legacy_marker": "where the right agreements exist",
+        "current_markers": (
+            "The first textile edition carries the labyrinth into cloth.",
+            "The garment appears first blank. Each Sunday, a little more of the design appears.",
+        ),
+        "sentinel": "<!-- growth-v2 compatibility: where the right agreements exist -->",
+    },
 }
 
 if not ROOT.is_dir():
@@ -47,19 +61,19 @@ inserted: list[tuple[Path, str]] = []
 for rel, cfg in SENTINELS.items():
     page = ROOT / rel
     if not page.is_file():
-        raise SystemExit(f"Missing Editions page for growth compatibility: {rel}")
+        raise SystemExit(f"Missing page for growth compatibility: {rel}")
     text = page.read_text(encoding="utf-8")
     if cfg["legacy_marker"] in text:
         continue
     if not any(marker in text for marker in cfg["current_markers"]):
-        # A genuinely old source should still be handled by v1's original regex.
+        # A genuinely old source should still be handled by v1's original migration.
         continue
     if "</main>" not in text:
         raise SystemExit(f"No </main> in {rel}")
     text = text.replace("</main>", cfg["sentinel"] + "\n</main>", 1)
     page.write_text(text, encoding="utf-8")
     inserted.append((page, cfg["sentinel"]))
-    print(f"growth v2 bridged current Hallazgo Editions state: {rel}")
+    print(f"growth v2 bridged current reader state: {rel}")
 
 old_argv = sys.argv[:]
 sys.argv = [str(CORE), str(ROOT)]
@@ -78,6 +92,6 @@ for rel, cfg in SENTINELS.items():
     if "growth-v2 compatibility:" in text:
         raise SystemExit(f"Growth compatibility sentinel leaked into {rel}")
     if any(marker in text for marker in cfg["current_markers"]):
-        print(f"growth v2 current Editions state preserved: {rel}")
+        print(f"growth v2 current reader state preserved: {rel}")
 
 print("OOLITA growth v2 completed with no compatibility stragglers.")
