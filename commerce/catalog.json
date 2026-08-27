@@ -1,6 +1,6 @@
 {
   "provider": "stripe",
-  "status": "connected_prices_tbd",
+  "status": "checkout_staged_prices_tbd",
   "products": {
     "book": {
       "product_key": "oolita-book",
@@ -8,6 +8,14 @@
       "name_en": "OOLITA · bilingual book",
       "release_date": "2027-01-31",
       "stripe_product_id": null,
+      "fulfilment": {
+        "provider": "bookvault",
+        "status": "staged",
+        "isbn": "9781066939800",
+        "bookvault_title_id": "3788652",
+        "production_level": "Standard",
+        "requested_service": "CheapestTracked"
+      },
       "offers": {
         "es_eur": {
           "locale": "es",
@@ -50,4 +58,3 @@
     }
   }
 }
-
