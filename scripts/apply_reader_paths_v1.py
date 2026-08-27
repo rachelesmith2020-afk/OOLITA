@@ -3,7 +3,8 @@
 
 The existing OOLITA list remains the only signup point. These pages lead back
 to it with the relevant interest already selected, while keeping each page's
-own rhythm and language intact.
+own rhythm and language intact. Book checkout is validated separately so a
+staged or live purchase control is never rewritten into a Follow link.
 """
 from __future__ import annotations
 
@@ -18,11 +19,17 @@ ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 BOOK_PATHS = {
     "ediciones/libro/index.html": {
         "follow": "/?follow=book#seguir-oolita",
-        "phrases": ("Avísame por correo", "Avísame cuando pueda comprarlo"),
+        "notify_phrase": "Avísame por correo",
+        "legacy_purchase_phrase": "Avísame cuando pueda comprarlo",
+        "staged_purchase_phrase": "Comprar el libro · próximamente",
+        "live_purchase_phrase": "Comprar el libro",
     },
     "en/editions/book/index.html": {
         "follow": "/en/?follow=book#follow-oolita",
-        "phrases": ("Let me know by email", "Tell me when I can buy it"),
+        "notify_phrase": "Let me know by email",
+        "legacy_purchase_phrase": "Tell me when I can buy it",
+        "staged_purchase_phrase": "Buy the book · coming soon",
+        "live_purchase_phrase": "Buy the book",
     },
 }
 
@@ -114,6 +121,58 @@ def replace_link_href(rel: str, phrase: str, href: str) -> None:
     target.write_text(text, encoding="utf-8")
 
 
+def validate_book_checkout(rel: str, spec: dict[str, str]) -> None:
+    _, text = read(rel)
+    anchors = list(
+        re.finditer(
+            r'(?P<start><a\b(?=[^>]*\bdata-checkout=["\']book["\'])[^>]*>)(?P<body>[\s\S]*?)</a>',
+            text,
+            flags=re.I,
+        )
+    )
+    if len(anchors) != 1:
+        raise SystemExit(f"Expected exactly one book checkout control in {rel}; found {len(anchors)}")
+
+    start = anchors[0].group("start")
+    body_text = visible(anchors[0].group("body"))
+    state_match = re.search(r'\bdata-commerce-state=["\']([^"\']+)["\']', start, flags=re.I)
+    state = state_match.group(1).lower() if state_match else ""
+    href_match = re.search(r'\bhref=["\']([^"\']+)["\']', start, flags=re.I)
+    href = href_match.group(1) if href_match else None
+
+    if state == "staged":
+        if spec["staged_purchase_phrase"] not in body_text:
+            raise SystemExit(f"Staged book purchase label missing in {rel}")
+        if href is not None:
+            raise SystemExit(f"Staged book checkout must not have href in {rel}")
+        if not re.search(r'\baria-disabled=["\']true["\']', start, flags=re.I):
+            raise SystemExit(f"Staged book checkout must be aria-disabled in {rel}")
+        if not re.search(r'\btabindex=["\']-1["\']', start, flags=re.I):
+            raise SystemExit(f"Staged book checkout must be removed from tab order in {rel}")
+        return
+
+    if state == "live":
+        if spec["live_purchase_phrase"] not in body_text:
+            raise SystemExit(f"Live book purchase label missing in {rel}")
+        if not href or not re.fullmatch(r'https://(?:buy|checkout)\.stripe\.com/.+', href):
+            raise SystemExit(f"Live book checkout must point to Stripe in {rel}")
+        if re.search(r'\baria-disabled=["\']true["\']', start, flags=re.I):
+            raise SystemExit(f"Live book checkout is still disabled in {rel}")
+        return
+
+    # Compatibility state for running this reader-path layer in isolation on an
+    # older reconstructed origin. The deployment commerce pass normally upgrades
+    # this to staged before we get here.
+    if state in {"", "prelaunch"}:
+        if spec["legacy_purchase_phrase"] not in body_text:
+            raise SystemExit(f"Legacy prelaunch book invitation missing in {rel}")
+        if href != spec["follow"]:
+            raise SystemExit(f"Legacy prelaunch book invitation has wrong Follow href in {rel}")
+        return
+
+    raise SystemExit(f"Unknown book commerce state {state!r} in {rel}")
+
+
 def replace_marked_section(rel: str, marker: str, block: str) -> None:
     target, text = read(rel)
     text = re.sub(
@@ -139,8 +198,10 @@ def install_prefill(rel: str) -> None:
 
 
 for rel, spec in BOOK_PATHS.items():
-    for phrase in spec["phrases"]:
-        replace_link_href(rel, phrase, spec["follow"])
+    # Keep the explicit email-notification path pointed at Follow. The checkout
+    # control is a separate object and must retain its staged/live commerce state.
+    replace_link_href(rel, spec["notify_phrase"], spec["follow"])
+    validate_book_checkout(rel, spec)
 
 for rel, block in LABYRINTH_BLOCKS.items():
     replace_marked_section(rel, "labyrinth", block)
@@ -158,11 +219,11 @@ install_prefill("en/index.html")
 # Final-state checks.
 for rel, spec in BOOK_PATHS.items():
     _, text = read(rel)
-    if text.count(spec["follow"]) != 2:
-        raise SystemExit(f"Book follow path count wrong in {rel}")
-    for phrase in spec["phrases"]:
-        if phrase not in visible(text):
-            raise SystemExit(f"Book invitation missing in {rel}: {phrase}")
+    if text.count(spec["follow"]) != 1:
+        raise SystemExit(f"Book Follow path count wrong in {rel}")
+    if spec["notify_phrase"] not in visible(text):
+        raise SystemExit(f"Book notification invitation missing in {rel}: {spec['notify_phrase']}")
+    validate_book_checkout(rel, spec)
 
 for rel in LABYRINTH_BLOCKS:
     _, text = read(rel)
@@ -187,4 +248,4 @@ for rel in ("index.html", "en/index.html"):
         if f'value="{value}"' not in text:
             raise SystemExit(f"Follow interest {value!r} missing in {rel}")
 
-print("OOLITA reader paths installed and validated.")
+print("OOLITA reader paths installed and validated; book checkout state preserved.")
