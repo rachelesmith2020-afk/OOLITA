@@ -14,6 +14,7 @@ import sys
 
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
+SOFT_LABELS = {"maze definition redundancy"}
 
 
 def replace_state(rel: str, old_forms: str | tuple[str, ...], new: str, label: str) -> bool:
@@ -29,6 +30,9 @@ def replace_state(rel: str, old_forms: str | tuple[str, ...], new: str, label: s
         if old in text:
             path.write_text(text.replace(old, new, 1), encoding="utf-8")
             return True
+    if label in SOFT_LABELS:
+        print(f"Spanish editorial micro-edit deferred because inline/source state differs: {rel} ({label})")
+        return False
     raise SystemExit(f"Unexpected Spanish copy state in {rel} ({label})")
 
 
