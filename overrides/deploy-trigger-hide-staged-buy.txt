@@ -1,1 +1,2 @@
 Deployment marker: hide staged book purchase control until Stripe is ready.
+Homepage preview staging is fail-safe so this removal can publish.
