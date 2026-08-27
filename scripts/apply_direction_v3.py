@@ -125,11 +125,12 @@ for path in ("laberinto/index.html", "en/labyrinth/index.html"):
 
 # The FAQ JSON-LD has changed shape on the live origin over time. Treat these
 # exact legacy literals as optional while keeping the final required/forbidden
-# invariants below strict.
+# invariants below strict. The Spanish target here is the approved native edit,
+# not the older direction-pass wording.
 replace_all(
     "laberinto/index.html",
     '            "text": "Sí, es gratis, y no: está al aire libre, siempre abierto, sin entradas ni horarios."',
-    '            "text": "No hay entrada ni reserva. Es un lugar sin personal; si lo visitas, acércate con cuidado y respeto por el entorno."',
+    '            "text": "Es gratuito y no requiere reserva. No hay personal; si lo visitas, acércate con cuidado y respeto por el entorno."',
     optional=True,
 )
 replace_all(
@@ -153,9 +154,9 @@ replace_regex(
 for path, old, new in [
     ("laberinto/index.html", '<span class="rot">Geoparque UNESCO</span>', '<span class="rot">Cabo de Gata-Níjar</span>'),
     ("en/labyrinth/index.html", '<span class="rot">UNESCO Geopark</span>', '<span class="rot">Cabo de Gata-Níjar</span>'),
-    ("laberinto/index.html", '<div><span class="k">Acceso</span><span class="v">Libre y gratuito, todo el año</span></div>', '<div><span class="k">Acceso</span><span class="v">Sin personal · sin entrada ni reserva</span></div>'),
+    ("laberinto/index.html", '<div><span class="k">Acceso</span><span class="v">Libre y gratuito, todo el año</span></div>', '<div><span class="k">Acceso</span><span class="v">Libre · sin personal ni reserva</span></div>'),
     ("en/labyrinth/index.html", '<div><span class="k">Access</span><span class="v">Free and open, all year</span></div>', '<div><span class="k">Access</span><span class="v">Unstaffed · no ticket or booking</span></div>'),
-    ("laberinto/index.html", '<p class="parr">Sí, es gratis, y no: está al aire libre, siempre abierto, sin entradas ni horarios.</p>', '<p class="parr">No hay entrada ni reserva. Es un lugar sin personal; si lo visitas, acércate con cuidado y respeto por el entorno.</p>'),
+    ("laberinto/index.html", '<p class="parr">Sí, es gratis, y no: está al aire libre, siempre abierto, sin entradas ni horarios.</p>', '<p class="parr">Es gratuito y no requiere reserva. No hay personal; si lo visitas, acércate con cuidado y respeto por el entorno.</p>'),
     ("en/labyrinth/index.html", '<p class="parr">Yes, it is free, and no: it is in the open air, always open, no tickets and no opening hours.</p>', '<p class="parr">There is no ticket or booking. The labyrinth is unstaffed; if you visit, approach it lightly and respectfully.</p>'),
 ]:
     replace_all(path, old, new)
@@ -176,7 +177,7 @@ required = {
     "en/editions/book/index.html": ["Printing and delivery details will be stated on this page."],
     "ediciones/camiseta/index.html": ["La primera edición textil lleva el laberinto a la tela."],
     "en/editions/t-shirt/index.html": ["The first textile edition carries the labyrinth into cloth."],
-    "laberinto/index.html": ["Sin personal · sin entrada ni reserva"],
+    "laberinto/index.html": ["Libre · sin personal ni reserva"],
     "en/labyrinth/index.html": ["Unstaffed · no ticket or booking"],
 }
 for path, needles in required.items():
