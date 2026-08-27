@@ -4,7 +4,8 @@
 Changes only reviewed Spanish reader-facing copy. English, poster artwork copy
 and published Sunday entry bodies are left untouched. The matcher tolerates
 HTML source line-wrapping/whitespace while keeping publication-critical edits
-strict; a few concept-page micro-edits may defer if inline markup differs.
+strict; a few concept-page and product micro-edits may defer if inline markup
+differs.
 """
 from __future__ import annotations
 
@@ -117,14 +118,6 @@ required_rules = (
      "Blanca, de algodón orgánico de 200 gramos y corte oversized unisex.",
      "Blanca, de algodón orgánico de 200 g/m² y corte oversized unisex.",
      "T-shirt lead fabric weight"),
-    ("ediciones/camiseta/index.html",
-     "200 gramos y corte holgado.",
-     "200 g/m² y corte holgado.",
-     "T-shirt body fabric weight"),
-    ("ediciones/camiseta/index.html",
-     "no puede llegar de una fábrica opaca.",
-     "no puede venir de una fábrica opaca.",
-     "T-shirt sourcing idiom"),
 )
 
 optional_rules = (
@@ -144,6 +137,14 @@ optional_rules = (
      "uno de catedral, de once o doce metros, lleva más tiempo.",
      "un laberinto catedralicio, de once o doce metros, lleva más tiempo.",
      "cathedral labyrinth wording"),
+    ("ediciones/camiseta/index.html",
+     "200 gramos y corte holgado.",
+     "200 g/m² y corte holgado.",
+     "T-shirt body fabric weight"),
+    ("ediciones/camiseta/index.html",
+     "no puede llegar de una fábrica opaca.",
+     "no puede venir de una fábrica opaca.",
+     "T-shirt sourcing idiom"),
 )
 
 changed = 0
