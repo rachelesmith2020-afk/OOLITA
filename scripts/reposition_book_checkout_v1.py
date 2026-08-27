@@ -33,10 +33,11 @@ PAGES = {
 }
 
 STYLE = r'''<style id="oolita-book-buy-position-v1">
-.oolita-book-buy{display:inline-flex;align-items:center;gap:.45em;margin-left:1rem;padding:.48rem .72rem;border:1px solid currentColor;text-decoration:none;font:inherit;line-height:1.2;white-space:nowrap;vertical-align:middle}
-.oolita-book-buy[data-commerce-state="staged"]{opacity:.72;cursor:not-allowed}
-.oolita-book-buy .oolita-book-buy-arrow{font-family:inherit}
-@media (max-width:720px){.oolita-book-buy{margin-left:0;margin-top:.7rem}}
+.oolita-book-buy{display:inline-flex;align-items:baseline;gap:.32em;margin-left:1rem;padding:0;border:0;background:none;color:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.16em;font:inherit;line-height:inherit;white-space:nowrap;vertical-align:baseline}
+.oolita-book-buy[data-commerce-state="staged"]{opacity:.62;cursor:default;pointer-events:none;text-decoration-style:dotted}
+.oolita-book-buy .oolita-book-buy-arrow{display:none}
+.oolita-book-buy[data-commerce-state="live"]{opacity:1;cursor:pointer;text-decoration-style:solid}
+@media (max-width:720px){.oolita-book-buy{margin-left:0;margin-top:.55rem}}
 </style>'''
 
 
