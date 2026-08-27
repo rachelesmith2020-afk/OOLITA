@@ -101,7 +101,6 @@ def link_phrase(rel: str, markers: tuple[str, ...], phrase: str, href: str) -> N
     new_text = text[: match.start()] + replacement + text[match.end() :]
     path.write_text(new_text, encoding="utf-8")
 
-    # Re-read and verify the exact reviewed anchor in the same paragraph.
     _, verified_text = read(rel)
     verified_match = find_target(verified_text, rel, markers)
     if not existing_exact_link(verified_match.group("body"), phrase, href):
@@ -113,8 +112,6 @@ def link_phrase(rel: str, markers: tuple[str, ...], phrase: str, href: str) -> N
     changes.append((rel, phrase, href))
 
 
-# Homepage: only the missing geographic bridge. The existing prose already
-# links the classical design and fossil dunes elsewhere; do not duplicate them.
 link_phrase(
     "index.html",
     ("El laberinto caminable está en Los Escullos", "Parque Natural de Cabo de Gata-Níjar"),
@@ -128,7 +125,6 @@ link_phrase(
     "/en/cabo-de-gata/",
 )
 
-# Physical labyrinth: connect the location sentence to the territorial context.
 link_phrase(
     "laberinto/index.html",
     ("Desde el aparcamiento de Los Escullos", "Parque Natural de Cabo de Gata-Níjar"),
@@ -142,9 +138,6 @@ link_phrase(
     "/en/cabo-de-gata/",
 )
 
-# Cabo de Gata: one quiet bridge from the physical place into the informational
-# explanation of the labyrinth form. Existing CTAs already cover the visit page
-# and geology page, so nothing else is added here.
 link_phrase(
     "cabo-de-gata/index.html",
     ("OOLITA empieza", "Los Escullos"),
@@ -158,8 +151,6 @@ link_phrase(
     "/en/what-is-a-labyrinth/",
 )
 
-# Labyrinth explainer: bridge the abstract explanation back to the three-metre
-# work at Los Escullos, using text already present on the page.
 link_phrase(
     "que-es-un-laberinto/index.html",
     ("Un laberinto de tres metros de diámetro", "se puede recorrer"),
@@ -173,7 +164,6 @@ link_phrase(
     "/en/labyrinth/",
 )
 
-# Oolite explainer: connect Los Escullos geology to the territorial hub.
 link_phrase(
     "que-es-un-oolito/index.html",
     ("En Los Escullos", "eolianitas fósiles"),
@@ -187,10 +177,21 @@ link_phrase(
     "/en/cabo-de-gata/",
 )
 
-# About: this sentence already states the project's real conceptual relation.
-# Make its three existing terms traversable; add no explanatory SEO copy.
-ABOUT_ES = ("El nombre viene del oolito", "geología de Los Escullos", "dibujo del laberinto")
-link_phrase("sobre-oolita/index.html", ABOUT_ES, "oolito", "/que-es-un-oolito/")
+# About can be reached twice in the deployment sequence: once while the mirrored
+# source still carries the older "oolito" shorthand, and again after the geology
+# pass has corrected it to "oolita". Accept exactly those two known states, link
+# whichever term is actually present, and still fail closed on any other drift.
+ABOUT_ES = ("geología de Los Escullos", "dibujo del laberinto")
+_, about_es_text = read("sobre-oolita/index.html")
+about_es_match = find_target(about_es_text, "sobre-oolita/index.html", ABOUT_ES)
+about_es_visible = rendered(about_es_match.group("body"))
+if "El nombre viene de la oolita" in about_es_visible:
+    about_es_term = "oolita"
+elif "El nombre viene del oolito" in about_es_visible:
+    about_es_term = "oolito"
+else:
+    raise SystemExit("Unexpected Spanish About geology source state")
+link_phrase("sobre-oolita/index.html", ABOUT_ES, about_es_term, "/que-es-un-oolito/")
 link_phrase("sobre-oolita/index.html", ABOUT_ES, "Los Escullos", "/cabo-de-gata/")
 link_phrase("sobre-oolita/index.html", ABOUT_ES, "laberinto", "/que-es-un-laberinto/")
 
@@ -200,7 +201,6 @@ link_phrase("en/about/index.html", ABOUT_EN, "Los Escullos", "/en/cabo-de-gata/"
 link_phrase("en/about/index.html", ABOUT_EN, "labyrinth", "/en/what-is-a-labyrinth/")
 
 
-# Update sitemap dates only for routes actually changed by this pass.
 if changed_routes:
     sitemap = ROOT / "sitemap.xml"
     if not sitemap.is_file():

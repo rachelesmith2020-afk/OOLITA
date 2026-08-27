@@ -8,6 +8,10 @@ on:
       - 'wrangler.toml'
       - 'scripts/build_site_for_deploy.sh'
       - 'scripts/apply_content_consistency_v1.py'
+      - 'scripts/apply_final_content_consistency_v2.py'
+      - 'scripts/apply_geology_authority_v1.py'
+      - 'scripts/apply_editorial_internal_links_v1.py'
+      - 'scripts/audit_static_integrity_v1.py'
       - 'scripts/apply_original_audit_completion_v1.py'
       - 'scripts/apply_voice_contrast_v1.py'
       - 'scripts/apply_english_native_edit_v1.py'
@@ -36,6 +40,7 @@ on:
       - 'scripts/apply_search_visibility_v1.py'
       - 'scripts/apply_menu_hierarchy_v1.py'
       - 'scripts/normalize_labyrinth_fossil_dunes_v1.py'
+      - 'scripts/normalize_labyrinth_fossil_dunes_v2.py'
       - 'scripts/preclean_hallazgo_legacy_urls_v1.py'
       - 'scripts/normalize_hallazgo_3d_castle_access_v1.py'
       - 'scripts/finalize_hallazgo_home_v1.py'
@@ -63,6 +68,10 @@ on:
       - 'wrangler.toml'
       - 'scripts/build_site_for_deploy.sh'
       - 'scripts/apply_content_consistency_v1.py'
+      - 'scripts/apply_final_content_consistency_v2.py'
+      - 'scripts/apply_geology_authority_v1.py'
+      - 'scripts/apply_editorial_internal_links_v1.py'
+      - 'scripts/audit_static_integrity_v1.py'
       - 'scripts/apply_original_audit_completion_v1.py'
       - 'scripts/apply_voice_contrast_v1.py'
       - 'scripts/apply_english_native_edit_v1.py'
@@ -91,6 +100,7 @@ on:
       - 'scripts/apply_search_visibility_v1.py'
       - 'scripts/apply_menu_hierarchy_v1.py'
       - 'scripts/normalize_labyrinth_fossil_dunes_v1.py'
+      - 'scripts/normalize_labyrinth_fossil_dunes_v2.py'
       - 'scripts/preclean_hallazgo_legacy_urls_v1.py'
       - 'scripts/normalize_hallazgo_3d_castle_access_v1.py'
       - 'scripts/finalize_hallazgo_home_v1.py'
@@ -121,9 +131,6 @@ on:
 permissions:
   contents: read
 
-# Keep only the newest run for a branch/ref. Rapid source edits used to queue a
-# separate production attempt for every commit, creating a burst of obsolete
-# failure emails. The newest commit is the only production state that matters.
 concurrency:
   group: oolita-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -201,7 +208,23 @@ jobs:
 
       - name: Apply final factual consistency guard
         shell: bash
-        run: python3 scripts/apply_content_consistency_v1.py site
+        run: python3 scripts/apply_final_content_consistency_v2.py site
+
+      - name: Apply final geology authority wording
+        shell: bash
+        run: python3 scripts/apply_geology_authority_v1.py site
+
+      - name: Re-apply restrained editorial hrefs
+        shell: bash
+        run: python3 scripts/apply_editorial_internal_links_v1.py site
+
+      - name: Validate final fossil-dune wording
+        shell: bash
+        run: python3 scripts/normalize_labyrinth_fossil_dunes_v2.py site
+
+      - name: Audit final static hrefs, sitemap, canonicals and hreflang
+        shell: bash
+        run: python3 scripts/audit_static_integrity_v1.py site
 
       - name: Validate Pages Functions syntax
         shell: bash
@@ -306,7 +329,23 @@ jobs:
 
       - name: Apply final factual consistency guard
         shell: bash
-        run: python3 scripts/apply_content_consistency_v1.py site
+        run: python3 scripts/apply_final_content_consistency_v2.py site
+
+      - name: Apply final geology authority wording
+        shell: bash
+        run: python3 scripts/apply_geology_authority_v1.py site
+
+      - name: Re-apply restrained editorial hrefs
+        shell: bash
+        run: python3 scripts/apply_editorial_internal_links_v1.py site
+
+      - name: Validate final fossil-dune wording
+        shell: bash
+        run: python3 scripts/normalize_labyrinth_fossil_dunes_v2.py site
+
+      - name: Audit final static hrefs, sitemap, canonicals and hreflang
+        shell: bash
+        run: python3 scripts/audit_static_integrity_v1.py site
 
       - name: Validate Pages Functions syntax
         shell: bash
@@ -387,3 +426,4 @@ jobs:
 # Production propagation trigger for exact homepage wording: built from stone.
 # Production propagation verification trigger after live audit, 2026-08-23.
 # Deployment receipts are now run summaries, so main remains the deployable commit.
+# Production propagation trigger: geology authority and final static integrity gate.
