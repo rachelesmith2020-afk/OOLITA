@@ -7,6 +7,7 @@ on:
       - '.github/workflows/deploy-cloudflare-pages.yml'
       - 'wrangler.toml'
       - 'scripts/build_site_for_deploy.sh'
+      - 'scripts/finalize_google_favicon_v1.py'
       - 'scripts/apply_content_consistency_v1.py'
       - 'scripts/apply_final_content_consistency_v2.py'
       - 'scripts/apply_geology_authority_v1.py'
@@ -67,6 +68,7 @@ on:
       - '.github/workflows/deploy-cloudflare-pages.yml'
       - 'wrangler.toml'
       - 'scripts/build_site_for_deploy.sh'
+      - 'scripts/finalize_google_favicon_v1.py'
       - 'scripts/apply_content_consistency_v1.py'
       - 'scripts/apply_final_content_consistency_v2.py'
       - 'scripts/apply_geology_authority_v1.py'
@@ -184,10 +186,6 @@ jobs:
         shell: bash
         run: python3 scripts/apply_audit_fixes_v1.py site
 
-      - name: Apply and validate first-party analytics
-        shell: bash
-        run: python3 scripts/apply_first_party_analytics_v1.py site
-
       - name: Install image tooling
         shell: bash
         run: |
@@ -221,6 +219,14 @@ jobs:
       - name: Validate final fossil-dune wording
         shell: bash
         run: python3 scripts/normalize_labyrinth_fossil_dunes_v2.py site
+
+      - name: Apply final first-party analytics state
+        shell: bash
+        run: python3 scripts/apply_first_party_analytics_v1.py site
+
+      - name: Finalize stable Google favicon
+        shell: bash
+        run: python3 scripts/finalize_google_favicon_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
@@ -305,10 +311,6 @@ jobs:
         shell: bash
         run: python3 scripts/apply_audit_fixes_v1.py site
 
-      - name: Apply and validate first-party analytics
-        shell: bash
-        run: python3 scripts/apply_first_party_analytics_v1.py site
-
       - name: Install image tooling
         shell: bash
         run: |
@@ -342,6 +344,14 @@ jobs:
       - name: Validate final fossil-dune wording
         shell: bash
         run: python3 scripts/normalize_labyrinth_fossil_dunes_v2.py site
+
+      - name: Apply final first-party analytics state
+        shell: bash
+        run: python3 scripts/apply_first_party_analytics_v1.py site
+
+      - name: Finalize stable Google favicon
+        shell: bash
+        run: python3 scripts/finalize_google_favicon_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
