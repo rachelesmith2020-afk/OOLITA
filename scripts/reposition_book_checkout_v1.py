@@ -63,13 +63,17 @@ def build_checkout(original: str, spec: dict[str, str]) -> str:
     state = (attr(original, "data-commerce-state") or "").lower()
     offer = attr(original, "data-commerce-offer")
     currency = attr(original, "data-commerce-currency")
+    analytics_event = attr(original, "data-oolita-event")
     if not offer or not currency:
         raise SystemExit("Book checkout is missing commerce offer/currency metadata")
+    if analytics_event != "book-interest":
+        raise SystemExit(f"Book checkout analytics hook is missing or unexpected: {analytics_event!r}")
 
     common = (
         f'class="oolita-book-buy" data-checkout="book" '
         f'data-commerce-offer="{offer}" data-commerce-currency="{currency}" '
-        f'data-commerce-state="{state}" data-book-pages="{spec["page_marker"]}"'
+        f'data-commerce-state="{state}" data-book-pages="{spec["page_marker"]}" '
+        f'data-oolita-event="{analytics_event}"'
     )
 
     if state == "staged":
@@ -129,12 +133,14 @@ def reposition(rel: str, spec: dict[str, str]) -> None:
     final_notify = find_anchor_with_text(final, spec["notify"])
     checkout = checkout_re.search(final)
     assert checkout is not None
-    if checkout.start() <= final_notify.end() or checkout.start() - final_notify.end() > 600:
+    if checkout.start() <= final_notify.end() or checkout.start() - final_notify.end() > 700:
         raise SystemExit(f"Book checkout is not adjacent to availability notification in {rel}")
     if final.count('id="oolita-book-buy-position-v1"') != 1:
         raise SystemExit(f"Book checkout positioning style duplicated in {rel}")
     if spec["page_marker"] not in final:
         raise SystemExit(f"Book page-count invariant missing after checkout placement in {rel}")
+    if 'data-oolita-event="book-interest"' not in checkout.group(0):
+        raise SystemExit(f"Book analytics hook missing after checkout placement in {rel}")
     print(f"book checkout positioned beside availability: {rel}")
 
 
