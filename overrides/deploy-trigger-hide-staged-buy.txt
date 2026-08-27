@@ -1,0 +1,1 @@
+Deployment marker: hide staged book purchase control until Stripe is ready.
