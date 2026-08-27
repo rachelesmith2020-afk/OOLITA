@@ -15,6 +15,7 @@ idempotent and prevents duplicate rows inherited from a previously mirrored
 production homepage from accumulating across deployments. The final native-
 Spanish editorial pass runs here, after every broader reader-facing mutation,
 so its reviewed wording is the last visible-copy state before integrity audit.
+The native pass also owns the final old-form no-straggler check.
 """
 from pathlib import Path
 import re
