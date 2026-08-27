@@ -6,6 +6,7 @@
       "product_key": "oolita-book",
       "name_es": "OOLITA · libro bilingüe",
       "name_en": "OOLITA · bilingual book",
+      "isbn13": "9781066939800",
       "release_date": "2027-01-31",
       "stripe_product_id": null,
       "offers": {
@@ -50,4 +51,3 @@
     }
   }
 }
-
