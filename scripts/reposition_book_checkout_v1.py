@@ -134,16 +134,18 @@ def reposition(rel: str, spec: dict[str, str]) -> None:
         compact = build_checkout(original, spec)
         text = text[:checkout_matches[0].start()] + text[checkout_matches[0].end():]
     else:
-        # The current live pre-launch page may intentionally contain no checkout
-        # anchor. Rehydrate an inert staged hook so the deterministic commerce
-        # pipeline can validate it. There is deliberately no href or Stripe URL.
         compact = build_staged_checkout(spec)
         print(f"book checkout bootstrap restored inert staged hook: {rel}")
 
     notify = find_anchor_with_text(text, spec["notify"])
     text = text[:notify.end()] + "\n" + compact + text[notify.end():]
 
-    if 'id="oolita-book-buy-position-v1"' not in text:
+    style_re = re.compile(r'<style\s+id=["\']oolita-book-buy-position-v1["\']>[\s\S]*?</style>', flags=re.I)
+    if style_re.search(text):
+        text, n = style_re.subn(STYLE, text, count=1)
+        if n != 1:
+            raise SystemExit(f"Could not normalize book checkout style in {rel}")
+    else:
         if "</head>" not in text:
             raise SystemExit(f"Missing </head> in {rel}")
         text = text.replace("</head>", STYLE + "\n</head>", 1)
