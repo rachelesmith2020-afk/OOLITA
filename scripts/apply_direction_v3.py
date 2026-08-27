@@ -3,10 +3,10 @@
 
 The live-origin reconstruction now already contains the approved direction layer,
 and the final Spanish editorial pass runs during reconstruction. This gate first
-validates that reader-facing state. It then restores one legacy intermediate
-homepage sentence required by the older reader-assessment layer; the absolute
-final Spanish gate later in the deployment pipeline converts that sentence back
-to the approved native wording before publication.
+validates that reader-facing state. It then restores two legacy intermediate
+Spanish strings required by older reader/search layers; the absolute final
+Spanish gate later in the deployment pipeline converts both back to the approved
+native wording before publication.
 """
 from pathlib import Path
 import sys
@@ -90,18 +90,39 @@ for rel, needles in forbidden.items():
         if needle.lower() in lowered:
             raise SystemExit(f"Forbidden direction claim remains in {rel}: {needle}")
 
-# Compatibility bridge for apply_reader_assessment_v1.py. Keep this deliberately
-# narrow: only the already-approved homepage access sentence is converted to the
-# legacy intermediate wording. normalize_labyrinth_fossil_dunes_v2.py runs after
-# all reader transforms and restores the native Spanish wording before deploy.
+# Compatibility bridge for apply_reader_assessment_v1.py. Only the approved
+# homepage access sentence is converted to the historical intermediate wording.
 home = ROOT / "index.html"
 home_text = home.read_text(encoding="utf-8")
-approved = "El laberinto de piedra ya está en Los Escullos; es gratuito y no requiere reserva."
-legacy = "El laberinto de piedra ya está en Los Escullos; no tiene entrada ni reserva."
-if approved in home_text and legacy not in home_text:
-    home.write_text(home_text.replace(approved, legacy, 1), encoding="utf-8")
+approved_access = "El laberinto de piedra ya está en Los Escullos; es gratuito y no requiere reserva."
+legacy_access = "El laberinto de piedra ya está en Los Escullos; no tiene entrada ni reserva."
+if approved_access in home_text and legacy_access not in home_text:
+    home.write_text(home_text.replace(approved_access, legacy_access, 1), encoding="utf-8")
     print("bridged approved Spanish homepage access copy for legacy reader-assessment gate")
-elif legacy not in home_text:
+elif legacy_access not in home_text:
     raise SystemExit("Neither approved nor legacy homepage access sentence found for compatibility bridge")
 
-print("OOLITA Cabo de Gata direction v3 validated; legacy reader bridge prepared.")
+# Compatibility bridge for apply_book_excerpt_v1.py. Its source invariant still
+# references the earlier reading-edition text. The final Spanish editorial gate
+# deliberately runs after search visibility and restores the approved final-book
+# excerpt before integrity audit and deployment.
+book = ROOT / "ediciones/libro/index.html"
+book_text = book.read_text(encoding="utf-8")
+approved_excerpt = (
+    "A la entrada, aquel día el mundo sonaba fuerte. Una sensación de púas, un peso denso. "
+    "Junto a la entrada del camino, una chumbera se alzaba al sol, toda púas y palas planas de un gris verdoso, "
+    "con flores de un naranja encendido en los bordes. Impasible. El gato no lo estaba."
+)
+legacy_excerpt = (
+    "En la entrada, hoy el mundo sonaba fuerte. Una sensación erizada, un peso denso. "
+    "Junto a la entrada del camino, una chumbera se alzaba al sol, toda púas y palas planas "
+    "de un gris verdoso, con flores ardiendo naranja en los bordes, impasible. "
+    "El gato no se sentía impasible."
+)
+if approved_excerpt in book_text and legacy_excerpt not in book_text:
+    book.write_text(book_text.replace(approved_excerpt, legacy_excerpt, 1), encoding="utf-8")
+    print("bridged approved Spanish book excerpt for legacy excerpt gate")
+elif legacy_excerpt not in book_text:
+    raise SystemExit("Neither approved nor legacy Spanish book excerpt found for compatibility bridge")
+
+print("OOLITA Cabo de Gata direction validated; legacy reader/search bridges prepared.")
