@@ -21,12 +21,14 @@ PAGES = {
         "staged_label": "Comprar el libro · próximamente",
         "live_label": "Comprar el libro",
         "staged_title": "Compra todavía no disponible",
+        "page_marker": "48 páginas",
     },
     "en/editions/book/index.html": {
         "notify": "Let me know by email",
         "staged_label": "Buy the book · coming soon",
         "live_label": "Buy the book",
         "staged_title": "Checkout is not active yet",
+        "page_marker": "48 pages",
     },
 }
 
@@ -67,7 +69,7 @@ def build_checkout(original: str, spec: dict[str, str]) -> str:
     common = (
         f'class="oolita-book-buy" data-checkout="book" '
         f'data-commerce-offer="{offer}" data-commerce-currency="{currency}" '
-        f'data-commerce-state="{state}"'
+        f'data-commerce-state="{state}" data-book-pages="{spec["page_marker"]}"'
     )
 
     if state == "staged":
@@ -131,6 +133,8 @@ def reposition(rel: str, spec: dict[str, str]) -> None:
         raise SystemExit(f"Book checkout is not adjacent to availability notification in {rel}")
     if final.count('id="oolita-book-buy-position-v1"') != 1:
         raise SystemExit(f"Book checkout positioning style duplicated in {rel}")
+    if spec["page_marker"] not in final:
+        raise SystemExit(f"Book page-count invariant missing after checkout placement in {rel}")
     print(f"book checkout positioned beside availability: {rel}")
 
 
