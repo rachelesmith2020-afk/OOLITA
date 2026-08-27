@@ -12,7 +12,9 @@ This v2 entry point runs that current gate unchanged, then adds explicit
 principal-page assertions and canonicalises the single homepage CTA linking the
 three-materials section to the 3D-world explainer. The CTA normalisation is
 idempotent and prevents duplicate rows inherited from a previously mirrored
-production homepage from accumulating across deployments.
+production homepage from accumulating across deployments. The final native-
+Spanish editorial pass runs here, after every broader reader-facing mutation,
+so its reviewed wording is the last visible-copy state before integrity audit.
 """
 from pathlib import Path
 import re
@@ -108,4 +110,17 @@ for rel, phrase in (
     if phrase not in text:
         raise SystemExit(f"Approved labyrinth location wording missing from {rel}: {phrase}")
 
-print("OOLITA fossil-dunes v2 final gate passed.")
+# Run the reviewed native-Spanish edit only after all general content and geology
+# transformations have settled. The following static integrity audit then checks
+# links, canonicals, hreflang and structural invariants on this final copy state.
+native = HERE / "apply_spanish_native_edit_v1.py"
+if not native.is_file():
+    raise SystemExit(f"Missing native Spanish editorial pass: {native}")
+original_argv = sys.argv[:]
+try:
+    sys.argv = [str(native), str(ROOT)]
+    runpy.run_path(str(native), run_name="__main__")
+finally:
+    sys.argv = original_argv
+
+print("OOLITA fossil-dunes v2 final gate passed, including native Spanish editorial pass.")
