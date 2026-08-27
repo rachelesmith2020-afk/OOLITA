@@ -103,7 +103,7 @@ for rel, phrase in (
         raise SystemExit(f"Approved labyrinth location wording missing from {rel}: {phrase}")
 
 # The final Spanish pass is deliberately last among visible-copy transforms.
-native = HERE / "apply_spanish_native_edit_v2.py"
+native = HERE / "apply_spanish_native_edit_v3.py"
 if not native.is_file():
     raise SystemExit(f"Missing native Spanish editorial pass: {native}")
 original_argv = sys.argv[:]
