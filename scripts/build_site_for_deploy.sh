@@ -31,6 +31,7 @@ Path('/tmp/oolita-build-site-for-deploy.sh').write_text(patched, encoding='utf-8
 PYWRAP
 
 bash /tmp/oolita-build-site-for-deploy.sh
+bash scripts/install_home_preview_v1.sh
 
 # Keep the validated checkout state, but place the actual purchase control in the
 # primary availability row where visitors naturally look for it.
