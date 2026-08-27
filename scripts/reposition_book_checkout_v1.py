@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Move the OOLITA book checkout control into the primary availability row.
+"""Place the OOLITA book checkout hook beside the primary availability row.
 
-The commerce pass deliberately owns checkout state. This post-build placement pass
-moves that already-validated control from the lower sale-information section to
-the first availability/notification row, without changing whether it is staged
-or live. Exactly one checkout control must remain on each book page.
+The commerce pass owns whether checkout is staged or live. A production rebuild
+can begin from a pre-launch page where the staged hook was previously removed;
+in that case this pass recreates only an inert staged hook with known locale
+metadata. The later commerce pass remains authoritative and is the only layer
+allowed to turn it into a live Stripe checkout.
 """
 from __future__ import annotations
 
@@ -22,6 +23,8 @@ PAGES = {
         "live_label": "Comprar el libro",
         "staged_title": "Compra todavía no disponible",
         "page_marker": "48 páginas",
+        "offer": "es_eur",
+        "currency": "EUR",
     },
     "en/editions/book/index.html": {
         "notify": "Let me know by email",
@@ -29,6 +32,8 @@ PAGES = {
         "live_label": "Buy the book",
         "staged_title": "Checkout is not active yet",
         "page_marker": "48 pages",
+        "offer": "en_gbp",
+        "currency": "GBP",
     },
 }
 
@@ -98,6 +103,18 @@ def build_checkout(original: str, spec: dict[str, str]) -> str:
     raise SystemExit(f"Book checkout must already be staged or live before positioning; found {state!r}")
 
 
+def build_staged_checkout(spec: dict[str, str]) -> str:
+    """Recreate only the inert pre-launch hook when production HTML lacks it."""
+    return (
+        f'<a class="oolita-book-buy" data-checkout="book" '
+        f'data-commerce-offer="{spec["offer"]}" data-commerce-currency="{spec["currency"]}" '
+        f'data-commerce-state="staged" data-book-pages="{spec["page_marker"]}" '
+        f'data-oolita-event="book-interest" role="button" aria-disabled="true" tabindex="-1" '
+        f'title="{spec["staged_title"]}">'
+        f'<span class="oolita-book-buy-arrow">→</span><span>{spec["staged_label"]}</span></a>'
+    )
+
+
 def reposition(rel: str, spec: dict[str, str]) -> None:
     path = ROOT / rel
     if not path.is_file():
@@ -109,15 +126,20 @@ def reposition(rel: str, spec: dict[str, str]) -> None:
         flags=re.I,
     )
     checkout_matches = list(checkout_re.finditer(text))
-    if len(checkout_matches) != 1:
-        raise SystemExit(f"Expected exactly one book checkout in {rel}; found {len(checkout_matches)}")
+    if len(checkout_matches) > 1:
+        raise SystemExit(f"Expected at most one book checkout in {rel}; found {len(checkout_matches)}")
 
-    original = checkout_matches[0].group(0)
-    compact = build_checkout(original, spec)
+    if checkout_matches:
+        original = checkout_matches[0].group(0)
+        compact = build_checkout(original, spec)
+        text = text[:checkout_matches[0].start()] + text[checkout_matches[0].end():]
+    else:
+        # The current live pre-launch page may intentionally contain no checkout
+        # anchor. Rehydrate an inert staged hook so the deterministic commerce
+        # pipeline can validate it. There is deliberately no href or Stripe URL.
+        compact = build_staged_checkout(spec)
+        print(f"book checkout bootstrap restored inert staged hook: {rel}")
 
-    # Remove the lower-page commerce control first, then insert the same commerce
-    # state immediately after the explicit email-notification link near the top.
-    text = text[:checkout_matches[0].start()] + text[checkout_matches[0].end():]
     notify = find_anchor_with_text(text, spec["notify"])
     text = text[:notify.end()] + "\n" + compact + text[notify.end():]
 
@@ -142,6 +164,11 @@ def reposition(rel: str, spec: dict[str, str]) -> None:
         raise SystemExit(f"Book page-count invariant missing after checkout placement in {rel}")
     if 'data-oolita-event="book-interest"' not in checkout.group(0):
         raise SystemExit(f"Book analytics hook missing after checkout placement in {rel}")
+    if 'data-commerce-state="staged"' in checkout.group(0):
+        if re.search(r'href=["\']https://(?:buy|checkout)\.stripe\.com/', checkout.group(0), flags=re.I):
+            raise SystemExit(f"Staged checkout unexpectedly points to Stripe in {rel}")
+        if '.oolita-book-buy[data-commerce-state="staged"]{display:none!important}' not in final:
+            raise SystemExit(f"Staged checkout is not hidden in {rel}")
     print(f"book checkout positioned beside availability: {rel}")
 
 
