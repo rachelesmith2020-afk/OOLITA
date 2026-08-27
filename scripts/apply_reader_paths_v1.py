@@ -3,8 +3,9 @@
 
 The existing OOLITA list remains the only signup point. These pages lead back
 to it with the relevant interest already selected, while keeping each page's
-own rhythm and language intact. Book checkout is validated separately so a
-staged or live purchase control is never rewritten into a Follow link.
+own rhythm and language intact. Book checkout is validated separately: before
+launch there may be no purchase control at all; once live, a Stripe checkout is
+validated and is never rewritten into a Follow link.
 """
 from __future__ import annotations
 
@@ -130,8 +131,16 @@ def validate_book_checkout(rel: str, spec: dict[str, str]) -> None:
             flags=re.I,
         )
     )
-    if len(anchors) != 1:
-        raise SystemExit(f"Expected exactly one book checkout control in {rel}; found {len(anchors)}")
+    if len(anchors) > 1:
+        raise SystemExit(f"Expected at most one book checkout control in {rel}; found {len(anchors)}")
+
+    # Pre-launch is intentionally allowed to have no purchase element at all.
+    # The email notification remains the only reader-facing action until Stripe
+    # has a genuine live checkout URL.
+    if not anchors:
+        if spec["staged_purchase_phrase"] in visible(text):
+            raise SystemExit(f"Staged book purchase label remains without checkout control in {rel}")
+        return
 
     start = anchors[0].group("start")
     body_text = visible(anchors[0].group("body"))
@@ -199,7 +208,7 @@ def install_prefill(rel: str) -> None:
 
 for rel, spec in BOOK_PATHS.items():
     # Keep the explicit email-notification path pointed at Follow. The checkout
-    # control is a separate object and must retain its staged/live commerce state.
+    # control, when present, is a separate object and must retain its live state.
     replace_link_href(rel, spec["notify_phrase"], spec["follow"])
     validate_book_checkout(rel, spec)
 
@@ -248,4 +257,4 @@ for rel in ("index.html", "en/index.html"):
         if f'value="{value}"' not in text:
             raise SystemExit(f"Follow interest {value!r} missing in {rel}")
 
-print("OOLITA reader paths installed and validated; book checkout state preserved.")
+print("OOLITA reader paths installed and validated; pre-launch checkout may be absent, live Stripe checkout is preserved.")
