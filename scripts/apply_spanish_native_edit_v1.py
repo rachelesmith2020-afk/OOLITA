@@ -83,12 +83,6 @@ rules: tuple[tuple[str, str | tuple[str, ...], str, str], ...] = (
     ),
     (
         "domingos/index.html",
-        "Una imagen cada domingo, hasta que se abra el mundo.",
-        "Una imagen cada domingo hasta que se abra el mundo.",
-        "Sunday archive standfirst",
-    ),
-    (
-        "domingos/index.html",
         "y ese lugar se dice en la propia página del domingo.",
         "y ese lugar se indica en la propia página de cada domingo.",
         "Sunday archive route wording",
