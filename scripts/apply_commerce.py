@@ -243,3 +243,5 @@ for product_key, spec in PRODUCTS.items():
         )
 
 print("OOLITA EUR/GBP commerce configuration validated successfully.")
+
+# Deployment trigger: staged checkout / reader-path compatibility, 2026-08-27.
