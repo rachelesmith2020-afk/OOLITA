@@ -105,45 +105,72 @@ fi
 
 python3 scripts/apply_favicon_seo_v1.py site
 
-# Force browsers to fetch the current favicon even if an older same-name icon
-# was cached as immutable. The query version tracks the actual SVG content.
+# Google Search recommends one stable favicon URL. Publish the cat as a
+# high-resolution PNG at /favicon.png, remove competing icon declarations from
+# rendered HTML, and keep the conventional /favicon.ico cat as browser fallback.
 python3 - <<'PYFAVICON'
 from pathlib import Path
-import hashlib
+import re
 
 root = Path('site')
-source = root / 'favicon.svg'
-version = hashlib.sha256(source.read_bytes()).hexdigest()[:12]
-icons = (
-    'favicon-cat.svg',
-    'favicon-48-cat.png',
-    'favicon-cat.ico',
-    'apple-touch-icon-cat.png',
+source = root / 'apple-touch-icon.png'
+search_icon = root / 'favicon.png'
+if not source.is_file():
+    raise SystemExit('Missing generated 180px cat icon for Google favicon')
+search_icon.write_bytes(source.read_bytes())
+
+link_re = re.compile(r'<link\b[^>]*>', flags=re.I | re.S)
+rel_re = re.compile(r'\brel\s*=\s*(["\'])(.*?)\1', flags=re.I | re.S)
+
+
+def strip_icon_link(match: re.Match[str]) -> str:
+    tag = match.group(0)
+    rel = rel_re.search(tag)
+    if not rel:
+        return tag
+    tokens = {token.strip().lower() for token in rel.group(2).split() if token.strip()}
+    return '' if any('icon' in token for token in tokens) else tag
+
+stable_links = (
+    '<link rel="icon" type="image/png" sizes="180x180" href="/favicon.png">\n'
+    '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">'
 )
 
 count = 0
 for path in root.rglob('*.html'):
     text = path.read_text(encoding='utf-8')
-    for name in icons:
-        text = text.replace(f'href="/{name}"', f'href="/{name}?v={version}"')
-    for name in icons:
-        expected = f'href="/{name}?v={version}"'
-        if text.count(expected) != 1:
-            raise SystemExit(f'Cache-busted favicon href missing or duplicated in {path.relative_to(root)}: {expected}')
+    text = link_re.sub(strip_icon_link, text)
+    text, replaced = re.subn(r'</head>', stable_links + '\n</head>', text, count=1, flags=re.I)
+    if replaced != 1:
+        raise SystemExit(f'Could not publish stable favicon links in {path.relative_to(root)}')
+    if text.count('href="/favicon.png"') != 1:
+        raise SystemExit(f'Stable Google favicon missing or duplicated in {path.relative_to(root)}')
+    if text.count('href="/apple-touch-icon.png"') != 1:
+        raise SystemExit(f'Apple icon missing or duplicated in {path.relative_to(root)}')
+    if '?v=' in text and 'favicon' in text:
+        raise SystemExit(f'Versioned favicon URL remains in {path.relative_to(root)}')
     path.write_text(text, encoding='utf-8')
     count += 1
 
 headers_path = root / '_headers'
-headers = headers_path.read_text(encoding='utf-8')
-headers = headers.replace(
-    'Cache-Control: public, max-age=31536000, immutable',
-    'Cache-Control: public, max-age=0, must-revalidate',
+headers = headers_path.read_text(encoding='utf-8') if headers_path.is_file() else ''
+headers = re.sub(
+    r'(?ms)^/favicon\.png[ \t]*\n(?:[ \t]+[^\n]*\n)*(?:[ \t]*\n)?',
+    '',
+    headers,
 )
-headers_path.write_text(headers, encoding='utf-8')
+headers = headers.rstrip() + '''\n\n/favicon.png\n  Cache-Control: public, max-age=0, must-revalidate\n'''
+headers_path.write_text(headers.lstrip() + '\n', encoding='utf-8')
+
+robots = root / 'robots.txt'
+if robots.is_file():
+    robots_text = robots.read_text(encoding='utf-8', errors='ignore')
+    if re.search(r'(?ims)^\s*user-agent:\s*googlebot-image\s*$.*?^\s*disallow:\s*/\s*$', robots_text):
+        raise SystemExit('robots.txt blocks Googlebot-Image from the favicon')
 
 if count == 0:
-    raise SystemExit('No HTML files found while cache-busting favicon URLs')
-print(f'OOLITA favicon cache busted on {count} HTML pages: v={version}')
+    raise SystemExit('No HTML files found while publishing stable Google favicon')
+print(f'OOLITA stable Google favicon published on {count} HTML pages: /favicon.png')
 PYFAVICON
 
 # Final reader-facing factual consistency guard. This corrects stale archive and
