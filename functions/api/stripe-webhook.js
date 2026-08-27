@@ -3,6 +3,7 @@ const DEFAULT_ISBN = '9781066939800';
 const DEFAULT_PRODUCTION_LEVEL = 'Standard';
 const DEFAULT_REQUESTED_SERVICE = 'CheapestTracked';
 const STRIPE_TOLERANCE_SECONDS = 300;
+const PROCESSING_LEASE_MS = 120000;
 
 function jsonResponse(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -66,18 +67,56 @@ async function existingFulfilment(db, sessionId) {
   ).bind(sessionId).first();
 }
 
+async function claimFulfilment(db, { sessionId, eventId, docRef }) {
+  const now = new Date().toISOString();
+  const inserted = await db.prepare(`
+    INSERT INTO commerce_fulfilment
+      (stripe_session_id, stripe_event_id, state, bookvault_doc_ref, bookvault_pod_ref, last_error, updated_at)
+    VALUES (?1, ?2, 'processing', ?3, NULL, NULL, ?4)
+    ON CONFLICT(stripe_session_id) DO NOTHING
+  `).bind(sessionId, eventId, docRef, now).run();
+
+  if ((inserted.meta?.changes || 0) === 1) return { acquired: true };
+
+  const prior = await existingFulfilment(db, sessionId);
+  if (!prior) return { acquired: false, retry: true };
+  if (prior.state === 'fulfilled') {
+    return { acquired: false, fulfilled: true, podRef: prior.bookvault_pod_ref || null };
+  }
+
+  const ageMs = Date.now() - Date.parse(prior.updated_at);
+  if (prior.state === 'processing' && Number.isFinite(ageMs) && ageMs < PROCESSING_LEASE_MS) {
+    return { acquired: false, retry: true };
+  }
+
+  const resumed = await db.prepare(`
+    UPDATE commerce_fulfilment
+       SET stripe_event_id = ?2,
+           state = 'processing',
+           bookvault_doc_ref = ?3,
+           bookvault_pod_ref = NULL,
+           last_error = NULL,
+           updated_at = ?4
+     WHERE stripe_session_id = ?1
+       AND state != 'fulfilled'
+       AND updated_at = ?5
+  `).bind(sessionId, eventId, docRef, now, prior.updated_at).run();
+
+  if ((resumed.meta?.changes || 0) === 1) return { acquired: true };
+  return { acquired: false, retry: true };
+}
+
 async function markState(db, { sessionId, eventId, state, docRef, podRef = null, error = null }) {
   const now = new Date().toISOString();
   await db.prepare(`
-    INSERT INTO commerce_fulfilment
-      (stripe_session_id, stripe_event_id, state, bookvault_doc_ref, bookvault_pod_ref, last_error, updated_at)
-    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
-    ON CONFLICT(stripe_session_id) DO UPDATE SET
-      stripe_event_id = excluded.stripe_event_id,
-      state = excluded.state,
-      bookvault_pod_ref = excluded.bookvault_pod_ref,
-      last_error = excluded.last_error,
-      updated_at = excluded.updated_at
+    UPDATE commerce_fulfilment
+       SET stripe_event_id = ?2,
+           state = ?3,
+           bookvault_doc_ref = ?4,
+           bookvault_pod_ref = ?5,
+           last_error = ?6,
+           updated_at = ?7
+     WHERE stripe_session_id = ?1
   `).bind(sessionId, eventId, state, docRef, podRef, error, now).run();
 }
 
@@ -129,20 +168,55 @@ function buildBookvaultOrder(session, env) {
   };
 }
 
-async function sendToBookvault(payload, env) {
+function requireBookvaultConfig(env) {
   if (env.BOOKVAULT_ENABLED !== 'true') {
     throw new Error('BookVault fulfilment is staged but not enabled');
   }
   if (!env.BOOKVAULT_API_KEY) {
     throw new Error('BOOKVAULT_API_KEY is not configured');
   }
+}
 
+function bookvaultHeaders(env) {
+  return {
+    Authorization: `basic ${env.BOOKVAULT_API_KEY}`,
+    accept: 'application/json',
+  };
+}
+
+async function findBookvaultOrder(docRef, env) {
+  requireBookvaultConfig(env);
+  const url = new URL('https://api.bookvault.app/v3/Order');
+  url.searchParams.set('DocRef', docRef);
+  const response = await fetch(url.toString(), { headers: bookvaultHeaders(env) });
+  if (response.status === 404) return null;
+
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`BookVault lookup returned HTTP ${response.status}: ${text.slice(0, 500)}`);
+  }
+  if (!text) return null;
+
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (_) {
+    throw new Error('BookVault lookup returned invalid JSON');
+  }
+
+  if (Array.isArray(parsed)) return parsed[0] || null;
+  if (Array.isArray(parsed?.Items)) return parsed.Items[0] || null;
+  if (Array.isArray(parsed?.items)) return parsed.items[0] || null;
+  return parsed && Object.keys(parsed).length ? parsed : null;
+}
+
+async function sendToBookvault(payload, env) {
+  requireBookvaultConfig(env);
   const response = await fetch('https://api.bookvault.app/v3/Order', {
     method: 'POST',
     headers: {
-      Authorization: `basic ${env.BOOKVAULT_API_KEY}`,
+      ...bookvaultHeaders(env),
       'content-type': 'application/json',
-      accept: 'application/json',
     },
     body: JSON.stringify(payload),
   });
@@ -158,6 +232,10 @@ async function sendToBookvault(payload, env) {
     throw new Error(`BookVault returned HTTP ${response.status}: ${text.slice(0, 500)}`);
   }
   return parsed || {};
+}
+
+function podRefFrom(result) {
+  return result?.PodRef ?? result?.podRef ?? result?.PODRef ?? null;
 }
 
 export async function onRequestPost(context) {
@@ -194,19 +272,6 @@ export async function onRequestPost(context) {
     return jsonResponse({ received: true, ignored: 'non-OOLITA-book session' });
   }
 
-  const db = env.OOLITA_SUBSCRIBERS;
-  await ensureTable(db);
-  const prior = await existingFulfilment(db, session.id);
-  if (prior?.state === 'fulfilled') {
-    return jsonResponse({ received: true, duplicate: true, bookvault_pod_ref: prior.bookvault_pod_ref || null });
-  }
-  if (prior?.state === 'processing') {
-    const ageMs = Date.now() - Date.parse(prior.updated_at);
-    if (Number.isFinite(ageMs) && ageMs < 120000) {
-      return jsonResponse({ error: 'Fulfilment already processing; retry later' }, 503);
-    }
-  }
-
   let order;
   try {
     order = buildBookvaultOrder(session, env);
@@ -214,19 +279,46 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: error.message }, 422);
   }
 
-  await markState(db, {
+  const db = env.OOLITA_SUBSCRIBERS;
+  await ensureTable(db);
+  const eventId = event.id || 'unknown';
+  const claim = await claimFulfilment(db, {
     sessionId: session.id,
-    eventId: event.id || 'unknown',
-    state: 'processing',
+    eventId,
     docRef: order.docRef,
   });
 
+  if (claim.fulfilled) {
+    return jsonResponse({ received: true, duplicate: true, bookvault_pod_ref: claim.podRef });
+  }
+  if (!claim.acquired) {
+    return jsonResponse({ error: 'Fulfilment is already being handled; retry later' }, 503);
+  }
+
   try {
+    const existing = await findBookvaultOrder(order.docRef, env);
+    if (existing) {
+      const existingPodRef = podRefFrom(existing);
+      await markState(db, {
+        sessionId: session.id,
+        eventId,
+        state: 'fulfilled',
+        docRef: order.docRef,
+        podRef: existingPodRef == null ? null : String(existingPodRef),
+      });
+      return jsonResponse({
+        received: true,
+        fulfilled: true,
+        recovered_existing_bookvault_order: true,
+        bookvault_pod_ref: existingPodRef,
+      });
+    }
+
     const result = await sendToBookvault(order.payload, env);
-    const podRef = result.PodRef ?? result.podRef ?? result.PODRef ?? null;
+    const podRef = podRefFrom(result);
     await markState(db, {
       sessionId: session.id,
-      eventId: event.id || 'unknown',
+      eventId,
       state: 'fulfilled',
       docRef: order.docRef,
       podRef: podRef == null ? null : String(podRef),
@@ -235,7 +327,7 @@ export async function onRequestPost(context) {
   } catch (error) {
     await markState(db, {
       sessionId: session.id,
-      eventId: event.id || 'unknown',
+      eventId,
       state: 'error',
       docRef: order.docRef,
       error: String(error.message || error).slice(0, 1000),
