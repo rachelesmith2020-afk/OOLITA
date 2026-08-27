@@ -147,7 +147,7 @@ for path in root.rglob('*.html'):
         raise SystemExit(f'Stable Google favicon missing or duplicated in {path.relative_to(root)}')
     if text.count('href="/apple-touch-icon.png"') != 1:
         raise SystemExit(f'Apple icon missing or duplicated in {path.relative_to(root)}')
-    if '?v=' in text and 'favicon' in text:
+    if re.search(r'href=["\'][^"\']*favicon[^"\']*\?v=', text, flags=re.I):
         raise SystemExit(f'Versioned favicon URL remains in {path.relative_to(root)}')
     path.write_text(text, encoding='utf-8')
     count += 1
