@@ -32,6 +32,10 @@ PYWRAP
 
 bash /tmp/oolita-build-site-for-deploy.sh
 
+# Keep the validated checkout state, but place the actual purchase control in the
+# primary availability row where visitors naturally look for it.
+python3 scripts/reposition_book_checkout_v1.py site
+
 # Install the exact PNG uploaded to GitHub. Do not fetch or transform it.
 mkdir -p site/images site/catalogo-hallazgo site/en/hallazgo-catalogue
 cp 'overrides/images/Untitled design.png' site/images/hallazgo-cover.png
