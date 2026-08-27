@@ -6,6 +6,11 @@ and published Sunday entry bodies are left untouched. The matcher tolerates
 HTML source line-wrapping/whitespace while keeping publication-critical edits
 strict; a few concept-page and product micro-edits may defer if inline markup
 differs.
+
+Important: an approved replacement may already exist in one representation
+(for example JSON-LD) while the older wording still survives in visible HTML.
+The final pass therefore removes every remaining exact/whitespace-equivalent
+old form before treating a rule as already complete.
 """
 from __future__ import annotations
 
@@ -26,15 +31,24 @@ def replace_state(rel: str, old: str, new: str, label: str, *, required: bool = 
     if not path.is_file():
         raise SystemExit(f"Missing Spanish editorial page: {rel}")
     text = path.read_text(encoding="utf-8")
-    if new in text:
-        return False
+
+    # Remove exact old forms first, even when the approved form already exists
+    # elsewhere on the same page. This prevents structured-data/visible-copy
+    # coexistence from making a stale reader-facing sentence look complete.
     if old in text:
-        path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        updated = text.replace(old, new)
+        path.write_text(updated, encoding="utf-8")
         return True
+
+    # Then tolerate source-only line wrapping/whitespace differences.
     pattern = whitespace_pattern(old)
     if pattern.search(text):
-        path.write_text(pattern.sub(lambda _m: new, text, count=1), encoding="utf-8")
+        updated = pattern.sub(lambda _m: new, text)
+        path.write_text(updated, encoding="utf-8")
         return True
+
+    if new in text:
+        return False
     if required:
         raise SystemExit(f"Unexpected Spanish copy state in {rel} ({label})")
     print(f"Optional Spanish micro-edit deferred because source/markup differs: {rel} ({label})")
@@ -153,6 +167,16 @@ for rel, old, new, label in required_rules:
 for rel, old, new, label in optional_rules:
     changed += int(replace_state(rel, old, new, label, required=False))
 
+# Final no-straggler gate for every approved rule. Required rules must end with
+# the approved form present and the old form absent. Optional rules, when their
+# old form was found and replaceable, are also prevented from lingering.
+for rel, old, new, label in required_rules:
+    page = (ROOT / rel).read_text(encoding="utf-8")
+    if old in page or whitespace_pattern(old).search(page):
+        raise SystemExit(f"Spanish old-form straggler remains in {rel} ({label})")
+    if new not in page:
+        raise SystemExit(f"Approved Spanish wording missing in {rel} ({label})")
+
 book_page = (ROOT / "ediciones/libro/index.html").read_text(encoding="utf-8")
 final_excerpt = (
     "A la entrada, aquel día el mundo sonaba fuerte. Una sensación de púas, un peso denso. "
@@ -172,4 +196,4 @@ for rel, anchors in protected.items():
         if anchor not in text:
             raise SystemExit(f"Protected OOLITA voice anchor missing in {rel}: {anchor}")
 
-print(f"OOLITA final Spanish editorial pass complete: {changed} edit(s) applied; protected voice anchors intact.")
+print(f"OOLITA final Spanish editorial pass complete: {changed} edit(s) applied; approved old-form stragglers absent; protected voice anchors intact.")
