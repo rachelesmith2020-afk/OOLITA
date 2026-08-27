@@ -4,8 +4,10 @@
 The browser sends only event name + local paths. No cookies, email addresses,
 IP addresses, user agents or full referrers are collected by this script.
 
-Pre-launch book purchase controls are removed from the emitted HTML entirely.
-A book checkout is retained only when it is a real live Stripe checkout.
+The pre-launch book checkout hook is retained only as inert, hidden markup so a
+future production rebuild remains deterministic. It has no href and cannot be
+used to purchase. A real checkout is accepted only when it is explicitly live
+and points to Stripe.
 """
 from pathlib import Path
 import re
@@ -32,17 +34,19 @@ BOOK_CHECKOUT_RE = re.compile(
 )
 
 
-def strip_nonlive_book_checkout(rel: str, text: str) -> tuple[str, bool]:
-    """Remove the pre-launch/staged Buy control; preserve only a real Stripe checkout."""
+def validate_book_checkout(rel: str, text: str) -> tuple[str, str]:
+    """Validate one live or inert staged hook without changing its commerce state."""
     matches = list(BOOK_CHECKOUT_RE.finditer(text))
     if len(matches) > 1:
         raise SystemExit(f"Duplicate book checkout controls in {rel}")
     if not matches:
-        return text, False
+        # Older live output may lack the hidden hook; the reconstruction pass now
+        # restores it before this layer. Keep this branch tolerant for one rollout.
+        return text, "absent"
 
-    match = matches[0]
-    anchor = match.group(0)
+    anchor = matches[0].group(0)
     live = 'data-commerce-state="live"' in anchor
+    staged = 'data-commerce-state="staged"' in anchor
     stripe = bool(re.search(r'href=["\']https://(?:buy|checkout)\.stripe\.com/', anchor, flags=re.I))
 
     if live:
@@ -50,25 +54,32 @@ def strip_nonlive_book_checkout(rel: str, text: str) -> tuple[str, bool]:
             raise SystemExit(f"Live book checkout lacks a Stripe URL in {rel}")
         if 'data-oolita-event="book-interest"' not in anchor:
             raise SystemExit(f"Live book checkout lacks analytics hook in {rel}")
-        return text, False
+        return text, "live"
 
+    if not staged:
+        raise SystemExit(f"Book checkout is neither staged nor live in {rel}")
     if stripe:
-        raise SystemExit(f"Non-live book checkout unexpectedly contains a Stripe URL in {rel}")
-
-    text = text[:match.start()] + text[match.end():]
-    return text, True
+        raise SystemExit(f"Staged book checkout unexpectedly contains a Stripe URL in {rel}")
+    if 'href=' in anchor.lower():
+        raise SystemExit(f"Staged book checkout unexpectedly has an href in {rel}")
+    if 'aria-disabled="true"' not in anchor or 'tabindex="-1"' not in anchor:
+        raise SystemExit(f"Staged book checkout is not inert in {rel}")
+    if 'data-oolita-event="book-interest"' not in anchor:
+        raise SystemExit(f"Staged book checkout analytics metadata missing in {rel}")
+    if '.oolita-book-buy[data-commerce-state="staged"]{display:none!important}' not in text:
+        raise SystemExit(f"Staged book checkout is not hidden in {rel}")
+    return text, "staged"
 
 
 count = 0
-removed_book_controls = 0
+book_states = {"staged": 0, "live": 0, "absent": 0}
 for p in ROOT.rglob("index.html"):
     s = p.read_text(encoding="utf-8")
     rel = p.relative_to(ROOT).as_posix()
 
     if rel in BOOK_PAGES:
-        s, removed = strip_nonlive_book_checkout(rel, s)
-        if removed:
-            removed_book_controls += 1
+        s, state = validate_book_checkout(rel, s)
+        book_states[state] += 1
 
     if 'id="oolita-event-layer"' not in s:
         raise SystemExit(f"Missing OOLITA event layer in {p.relative_to(ROOT)}")
@@ -93,7 +104,6 @@ required = {
     ],
     "ediciones/index.html": ['data-oolita-event="field-book-interest"'],
     "en/editions/index.html": ['data-oolita-event="field-book-interest"'],
-    # Book-interest is required only when an actual live Stripe checkout exists.
     "ediciones/libro/index.html": [],
     "en/editions/book/index.html": [],
     "ediciones/camiseta/index.html": [],
@@ -102,10 +112,6 @@ required = {
     "en/work-with-oolita/index.html": ['data-oolita-event="partner-contact"'],
 }
 
-# A rebuild starts from the current live output. The final growth layer renames
-# the textile event from the earlier generic interest hook to the final follow
-# journey hook. Both are semantically valid at this pre-growth analytics stage;
-# require one of them rather than forcing the live site back to an obsolete name.
 required_any = {
     "ediciones/camiseta/index.html": (
         'data-oolita-event="textile-interest"',
@@ -134,22 +140,27 @@ for path, needles in required.items():
     if path in BOOK_PAGES:
         checkouts = list(BOOK_CHECKOUT_RE.finditer(s))
         if len(checkouts) > 1:
-            raise SystemExit(f"Duplicate book checkout controls after cleanup in {path}")
+            raise SystemExit(f"Duplicate book checkout controls after analytics pass in {path}")
         if checkouts:
             anchor = checkouts[0].group(0)
-            if 'data-commerce-state="live"' not in anchor:
-                raise SystemExit(f"Non-live book checkout survived cleanup in {path}")
+            state_live = 'data-commerce-state="live"' in anchor
+            state_staged = 'data-commerce-state="staged"' in anchor
+            stripe = bool(re.search(r'href=["\']https://(?:buy|checkout)\.stripe\.com/', anchor, flags=re.I))
+            if state_live:
+                if not stripe:
+                    raise SystemExit(f"Live book checkout Stripe URL missing in {path}")
+            elif state_staged:
+                if stripe or 'href=' in anchor.lower():
+                    raise SystemExit(f"Staged book checkout became actionable in {path}")
+                if '.oolita-book-buy[data-commerce-state="staged"]{display:none!important}' not in s:
+                    raise SystemExit(f"Staged book checkout is visible in {path}")
+            else:
+                raise SystemExit(f"Unexpected book checkout state in {path}")
             if 'data-oolita-event="book-interest"' not in anchor:
-                raise SystemExit(f"Live book checkout analytics hook missing in {path}")
-            if not re.search(r'href=["\']https://(?:buy|checkout)\.stripe\.com/', anchor, flags=re.I):
-                raise SystemExit(f"Live book checkout Stripe URL missing in {path}")
-        else:
-            for label in (
-                "Comprar el libro · próximamente",
-                "Buy the book · coming soon",
-            ):
-                if label in s:
-                    raise SystemExit(f"Staged book purchase label survived cleanup in {path}: {label}")
+                raise SystemExit(f"Book checkout analytics metadata missing in {path}")
 
 print(f"OOLITA first-party analytics layer validated across {count} pages.")
-print(f"Pre-launch book purchase controls removed from {removed_book_controls} page(s).")
+print(
+    "Book checkout hooks: "
+    f"{book_states['staged']} staged hidden, {book_states['live']} live, {book_states['absent']} absent."
+)
