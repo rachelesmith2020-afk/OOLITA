@@ -4,7 +4,7 @@
 The legacy credibility pass inside apply_content_consistency_v1.py still expects
 historical intermediate wording in two narrow places:
 - the Los Escullos age range ordered as 100,000–128,000;
-- the older Spanish cathedral-labyrinth phrase ``uno de catedral``.
+- a pre-edit Spanish cathedral-labyrinth timing sentence.
 
 The researched/final reader wording is restored by the immediately following
 geology and final Spanish editorial gates. This wrapper exists only for CI
@@ -46,17 +46,18 @@ for path in owned:
         path.write_text(text, encoding="utf-8")
         changed += 1
 
-# Spanish literary compatibility. The strengthened native-Spanish pass can run
-# during initial reconstruction and already replace ``uno de catedral`` with the
-# approved ``un laberinto catedralicio``. The old credibility module recognises
-# only its historical intermediate target. Normalise the whole FAQ answer here,
-# because upstream editorial passes may have changed surrounding wording while
-# preserving the same meaning. The final Spanish gate later restores the approved
-# ``un laberinto catedralicio`` wording before deploy.
+# Spanish literary compatibility. The legacy credibility module must see its
+# historical *source* paragraph so that it can perform and validate its own edit.
+# A simple raw string replacement is insufficient because the same answer can
+# also occur earlier in JSON-LD; normalise the visible FAQ paragraph explicitly.
 labyrinth = ROOT / "que-es-un-laberinto/index.html"
 if not labyrinth.is_file():
     raise SystemExit("Missing Spanish labyrinth compatibility page")
 lab_text = labyrinth.read_text(encoding="utf-8")
+historical_timing = (
+    "Depende del tamaño. Un laberinto de tres metros se camina en unos pocos minutos; "
+    "uno de catedral, de once o doce metros, puede llevar media hora si se va despacio."
+)
 legacy_timing = (
     "Depende del tamaño y del ritmo. Un laberinto de tres metros se puede recorrer "
     "en pocos minutos; uno de catedral, de once o doce metros, lleva más tiempo."
@@ -66,26 +67,40 @@ approved_timing = (
     "en pocos minutos; un laberinto catedralicio, de once o doce metros, lleva más tiempo."
 )
 
-if legacy_timing in lab_text:
-    pass
-elif approved_timing in lab_text:
-    labyrinth.write_text(lab_text.replace(approved_timing, legacy_timing, 1), encoding="utf-8")
-    print("bridged approved Spanish cathedral-labyrinth FAQ wording for legacy credibility gate")
-else:
-    paragraph_re = re.compile(r'(<p\b[^>]*>)([\s\S]*?)(</p>)', flags=re.I)
-    matches = []
-    for match in paragraph_re.finditer(lab_text):
-        visible = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", match.group(2))).strip()
-        if "laberinto de tres metros" in visible and "lleva más tiempo" in visible:
-            matches.append(match)
-    if len(matches) != 1:
-        raise SystemExit(
-            "Could not uniquely locate Spanish labyrinth timing FAQ for compatibility bridge"
+paragraph_re = re.compile(r'(<p\b[^>]*>)([\s\S]*?)(</p>)', flags=re.I)
+matches = []
+for match in paragraph_re.finditer(lab_text):
+    rendered = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", match.group(2))).strip()
+    if (
+        "laberinto de tres metros" in rendered
+        and (
+            "puede llevar media hora si se va despacio" in rendered
+            or "lleva más tiempo" in rendered
         )
-    match = matches[0]
-    lab_text = lab_text[:match.start()] + match.group(1) + legacy_timing + match.group(3) + lab_text[match.end():]
+    ):
+        matches.append(match)
+
+if len(matches) != 1:
+    raise SystemExit(
+        f"Could not uniquely locate Spanish labyrinth timing FAQ for compatibility bridge; found {len(matches)}"
+    )
+match = matches[0]
+rendered = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", match.group(2))).strip()
+if rendered != historical_timing:
+    lab_text = (
+        lab_text[:match.start()]
+        + match.group(1)
+        + historical_timing
+        + match.group(3)
+        + lab_text[match.end():]
+    )
     labyrinth.write_text(lab_text, encoding="utf-8")
-    print("normalised Spanish labyrinth timing FAQ for legacy credibility gate")
+    print("bridged visible Spanish labyrinth timing FAQ to legacy credibility source state")
+
+# Keep any structured FAQ copies in a state the old module already understands.
+lab_text = labyrinth.read_text(encoding="utf-8")
+if approved_timing in lab_text:
+    labyrinth.write_text(lab_text.replace(approved_timing, legacy_timing), encoding="utf-8")
 
 subprocess.run(
     [sys.executable, str(HERE / "apply_content_consistency_v1.py"), str(ROOT)],
@@ -108,5 +123,3 @@ print(
     f"{changed} geology page(s) bridged plus Spanish labyrinth compatibility; "
     "final researched/editorial wording still pending."
 )
-
-# Deployment trigger: include the resilient labyrinth-access compatibility fix.
