@@ -3,6 +3,9 @@
 
 The browser sends only event name + local paths. No cookies, email addresses,
 IP addresses, user agents or full referrers are collected by this script.
+
+Pre-launch book purchase controls are removed from the emitted HTML entirely.
+A book checkout is retained only when it is a real live Stripe checkout.
 """
 from pathlib import Path
 import re
@@ -19,9 +22,54 @@ document.addEventListener('click',function(e){var a=e.target.closest('[data-ooli
 emit('pageview',null);
 })();</script>'''
 
+BOOK_PAGES = {
+    "ediciones/libro/index.html",
+    "en/editions/book/index.html",
+}
+BOOK_CHECKOUT_RE = re.compile(
+    r'<a\b(?=[^>]*\bdata-checkout=["\']book["\'])[^>]*>[\s\S]*?</a>',
+    flags=re.I,
+)
+
+
+def strip_nonlive_book_checkout(rel: str, text: str) -> tuple[str, bool]:
+    """Remove the pre-launch/staged Buy control; preserve only a real Stripe checkout."""
+    matches = list(BOOK_CHECKOUT_RE.finditer(text))
+    if len(matches) > 1:
+        raise SystemExit(f"Duplicate book checkout controls in {rel}")
+    if not matches:
+        return text, False
+
+    match = matches[0]
+    anchor = match.group(0)
+    live = 'data-commerce-state="live"' in anchor
+    stripe = bool(re.search(r'href=["\']https://(?:buy|checkout)\.stripe\.com/', anchor, flags=re.I))
+
+    if live:
+        if not stripe:
+            raise SystemExit(f"Live book checkout lacks a Stripe URL in {rel}")
+        if 'data-oolita-event="book-interest"' not in anchor:
+            raise SystemExit(f"Live book checkout lacks analytics hook in {rel}")
+        return text, False
+
+    if stripe:
+        raise SystemExit(f"Non-live book checkout unexpectedly contains a Stripe URL in {rel}")
+
+    text = text[:match.start()] + text[match.end():]
+    return text, True
+
+
 count = 0
+removed_book_controls = 0
 for p in ROOT.rglob("index.html"):
     s = p.read_text(encoding="utf-8")
+    rel = p.relative_to(ROOT).as_posix()
+
+    if rel in BOOK_PAGES:
+        s, removed = strip_nonlive_book_checkout(rel, s)
+        if removed:
+            removed_book_controls += 1
+
     if 'id="oolita-event-layer"' not in s:
         raise SystemExit(f"Missing OOLITA event layer in {p.relative_to(ROOT)}")
     ns, n = re.subn(r'<script id="oolita-event-layer">[\s\S]*?</script>', SCRIPT, s, count=1)
@@ -45,8 +93,9 @@ required = {
     ],
     "ediciones/index.html": ['data-oolita-event="field-book-interest"'],
     "en/editions/index.html": ['data-oolita-event="field-book-interest"'],
-    "ediciones/libro/index.html": ['data-oolita-event="book-interest"'],
-    "en/editions/book/index.html": ['data-oolita-event="book-interest"'],
+    # Book-interest is required only when an actual live Stripe checkout exists.
+    "ediciones/libro/index.html": [],
+    "en/editions/book/index.html": [],
     "ediciones/camiseta/index.html": [],
     "en/editions/t-shirt/index.html": [],
     "colaborar/index.html": ['data-oolita-event="partner-contact"'],
@@ -82,4 +131,25 @@ for path, needles in required.items():
     if "navigator.sendBeacon('/api/event'" not in s:
         raise SystemExit(f"First-party analytics endpoint missing in {path}")
 
+    if path in BOOK_PAGES:
+        checkouts = list(BOOK_CHECKOUT_RE.finditer(s))
+        if len(checkouts) > 1:
+            raise SystemExit(f"Duplicate book checkout controls after cleanup in {path}")
+        if checkouts:
+            anchor = checkouts[0].group(0)
+            if 'data-commerce-state="live"' not in anchor:
+                raise SystemExit(f"Non-live book checkout survived cleanup in {path}")
+            if 'data-oolita-event="book-interest"' not in anchor:
+                raise SystemExit(f"Live book checkout analytics hook missing in {path}")
+            if not re.search(r'href=["\']https://(?:buy|checkout)\.stripe\.com/', anchor, flags=re.I):
+                raise SystemExit(f"Live book checkout Stripe URL missing in {path}")
+        else:
+            for label in (
+                "Comprar el libro · próximamente",
+                "Buy the book · coming soon",
+            ):
+                if label in s:
+                    raise SystemExit(f"Staged book purchase label survived cleanup in {path}: {label}")
+
 print(f"OOLITA first-party analytics layer validated across {count} pages.")
+print(f"Pre-launch book purchase controls removed from {removed_book_controls} page(s).")
