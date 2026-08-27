@@ -30,9 +30,6 @@ if not ROOT.is_dir():
 if not v1.is_file():
     raise SystemExit(f"Missing v1 fossil-dune gate: {v1}")
 
-# Preserve the caller's site argument while executing the maintained v1 gate as
-# its own __main__ program. No source rewriting: the actual current validator is
-# what is tested and deployed.
 original_argv = sys.argv[:]
 try:
     sys.argv = [str(v1), str(ROOT)]
@@ -40,10 +37,6 @@ try:
 finally:
     sys.argv = original_argv
 
-# Canonicalise the 3D-material CTA on both homepages. Older deployments mirrored
-# the already-published homepage and could carry several identical copies forward.
-# Match the row by its route and exact visible span labels, remove every copy,
-# then put back one canonical row at the first copy's original position.
 for rel, href, label, gloss in (
     (
         "index.html",
@@ -96,7 +89,6 @@ for rel, href, label, gloss in (
     path.write_text(cleaned, encoding="utf-8")
     print(f"Homepage 3D CTA normalised in {rel}: {len(matches)} -> 1")
 
-# Principal-page assertions remain explicit after the complete v1 gate.
 for rel, phrase in (
     ("en/index.html", "beside the fossil dunes"),
     ("en/labyrinth/index.html", "beside the fossil dunes"),
@@ -110,10 +102,8 @@ for rel, phrase in (
     if phrase not in text:
         raise SystemExit(f"Approved labyrinth location wording missing from {rel}: {phrase}")
 
-# Run the reviewed native-Spanish edit only after all general content and geology
-# transformations have settled. The following static integrity audit then checks
-# links, canonicals, hreflang and structural invariants on this final copy state.
-native = HERE / "apply_spanish_native_edit_v1.py"
+# The final Spanish pass is deliberately last among visible-copy transforms.
+native = HERE / "apply_spanish_native_edit_v2.py"
 if not native.is_file():
     raise SystemExit(f"Missing native Spanish editorial pass: {native}")
 original_argv = sys.argv[:]
@@ -123,4 +113,4 @@ try:
 finally:
     sys.argv = original_argv
 
-print("OOLITA fossil-dunes v2 final gate passed, including native Spanish editorial pass.")
+print("OOLITA fossil-dunes v2 final gate passed, including final Spanish editorial pass.")
