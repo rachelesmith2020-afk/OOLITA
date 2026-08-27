@@ -108,3 +108,5 @@ print(
     f"{changed} geology page(s) bridged plus Spanish labyrinth compatibility; "
     "final researched/editorial wording still pending."
 )
+
+# Deployment trigger: include the resilient labyrinth-access compatibility fix.
