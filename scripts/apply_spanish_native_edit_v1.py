@@ -89,8 +89,8 @@ rules: tuple[tuple[str, str | tuple[str, ...], str, str], ...] = (
     ),
     (
         "que-es-un-laberinto/index.html",
-        "Un laberinto multicursal —lo que en inglés se llama maze— es lo contrario: multicursal, hecho de encrucijadas y caminos falsos, diseñado expresamente para desorientar.",
-        "Un laberinto multicursal —lo que en inglés se llama maze— es lo contrario: un trazado de encrucijadas y caminos falsos, diseñado expresamente para desorientar.",
+        "es lo contrario: multicursal, hecho de encrucijadas y caminos falsos, diseñado expresamente para desorientar.",
+        "es lo contrario: un trazado de encrucijadas y caminos falsos, diseñado expresamente para desorientar.",
         "maze definition redundancy",
     ),
     (
@@ -113,15 +113,9 @@ rules: tuple[tuple[str, str | tuple[str, ...], str, str], ...] = (
     ),
     (
         "que-es-un-oolito/index.html",
-        "Cuando la duna que se endurece fue una duna de viento y no un depósito submarino, el nombre técnico es eolianita:",
-        "Cuando la duna endurecida se formó por acción del viento y no como depósito submarino, el término técnico es eolianita:",
+        "Cuando la duna que se endurece fue una duna de viento y no un depósito submarino, el nombre técnico es ",
+        "Cuando la duna endurecida se formó por acción del viento y no como depósito submarino, el término técnico es ",
         "aeolianite definition",
-    ),
-    (
-        "que-es-un-oolito/index.html",
-        "El nombre viene del griego ōión, huevo.",
-        "El nombre viene del griego ōión, «huevo».",
-        "Greek gloss punctuation",
     ),
     (
         "sobre-oolita/index.html",
@@ -206,8 +200,8 @@ final_excerpt = (
 if book_page.count(final_excerpt) != 1:
     raise SystemExit("Final Spanish book excerpt missing or duplicated on ediciones/libro")
 
-# Protect the authored anchors and the published Sunday entries. This editorial
-# pass does not rewrite poster copy or the text body of already-published Sundays.
+# Protect the authored anchors. Poster copy and the text body of already-
+# published Sundays remain outside this editorial pass.
 protected = {
     "sobre-oolita/index.html": ("Primero fue un laberinto.", "El lugar no es un fondo."),
     "index.html": ("Piedra. Papel. Código.",),
