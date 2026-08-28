@@ -1,1 +1,1 @@
-Trigger production deployment for cache-busted green-spine homepage preview v2.
+Trigger production deployment for cache-busted green-spine homepage preview using canonical image path plus query version.
