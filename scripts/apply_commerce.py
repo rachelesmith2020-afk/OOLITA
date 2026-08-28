@@ -343,7 +343,10 @@ for product_key, spec in PRODUCTS.items():
                 raise SystemExit(
                     f"{product_key}/{offer_key} has incomplete dynamic Stripe price metadata; refusing deployment"
                 )
-            print(f"commerce dynamic price staged: {product_key}/{offer_key} -> {currency.upper()} {amount_minor}")
+            print(
+                f"commerce dynamic price staged: {product_key}/{offer_key} -> "
+                f"{page['currency'].upper()} {amount_minor}"
+            )
 
         patch_page(
             page["path"],
