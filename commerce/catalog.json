@@ -1,6 +1,12 @@
 {
   "provider": "stripe",
   "status": "checkout_staged_prices_tbd",
+  "checkout_mode": "dynamic_checkout_sessions_by_delivery_country",
+  "launch": {
+    "preorder_opens_at": "2027-01-03T00:00:00Z",
+    "release_at": "2027-01-31T00:00:00Z",
+    "authoritative_runtime_config": "functions/_lib/commerce-config.js"
+  },
   "products": {
     "book": {
       "product_key": "oolita-book",
@@ -12,10 +18,22 @@
       "fulfilment": {
         "provider": "bookvault",
         "status": "staged",
+        "territory": "GB",
         "isbn": "9781066939800",
         "bookvault_title_id": "3788652",
         "production_level": "Standard",
-        "requested_service": "CheapestTracked"
+        "requested_service": "CheapestTracked",
+        "routing_authoritative": "functions/_lib/commerce-config.js",
+        "routes": {
+          "GB": {
+            "provider": "bookvault",
+            "status": "staged"
+          },
+          "ES": {
+            "provider": "spanish_pod",
+            "status": "provider_pending"
+          }
+        }
       },
       "offers": {
         "es_eur": {
