@@ -22,8 +22,14 @@ body.art-home p.oolita-project-credit{
   line-height:1.55!important;
   letter-spacing:.01em!important;
 }
-@media(min-width:56.001rem){
-  body.art-home .hero .der{min-width:0;overflow:hidden;display:flex;flex-direction:column}
+@media(min-width:760.01px){
+  body.art-home .hero .der{
+    min-width:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    margin-inline:auto!important;
+  }
   body.art-home #oolita-art-field-sundays{
     width:100%!important;
     max-width:100%!important;
@@ -32,7 +38,8 @@ body.art-home p.oolita-project-credit{
     max-height:18.5rem!important;
     aspect-ratio:auto!important;
     flex:0 0 auto!important;
-    margin:0!important;
+    margin-block:0!important;
+    margin-inline:auto!important;
     padding:clamp(1.4rem,2.2vw,2rem)!important;
     display:flex!important;
     flex-direction:column!important;
@@ -213,6 +220,8 @@ for rel, config in CURRENT.items():
     required = (
         STYLE_ID,
         "#oolita-art-field-sundays",
+        "@media(min-width:760.01px)",
+        "margin-inline:auto!important",
         "width:100%!important",
         "min-height:0!important",
         "height:18.5rem!important",
@@ -237,4 +246,4 @@ for rel, config in CURRENT.items():
     if not timer or credit_pos <= timer.start():
         raise SystemExit(f"Project credit did not move below the countdown in {rel}")
 
-print("OOLITA original no-image hero, compact current-Sunday panel, desktop containment and opening credit hierarchy validated in both homepages.")
+print("OOLITA original no-image hero, centered current-Sunday panel, desktop containment and opening credit hierarchy validated in both homepages.")
