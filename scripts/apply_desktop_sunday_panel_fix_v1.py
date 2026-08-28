@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Keep the homepage Sunday artwork inside its desktop hero column, route the current Sunday, and keep project credits out of the opening reading sequence."""
+"""Keep the homepage Sunday artwork inside its hero column, route the current Sunday, introduce the labyrinth visually, and keep project credits out of the opening reading sequence."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -8,7 +8,18 @@ import sys
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 STYLE_ID = "oolita-desktop-sunday-panel-fix-v1"
+HERO_IMAGE = "/laberinto/laberinto-oolita-los-escullos.jpg"
 STYLE = r'''<style id="oolita-desktop-sunday-panel-fix-v1">
+/* The physical work enters the first screen without changing the hero grid.
+   The photograph is decorative here because the same image appears later with
+   full alternative text; the current-Sunday card remains the live action. */
+body.art-home .hero .der{
+  background-color:var(--art-paper)!important;
+  background-image:linear-gradient(rgba(45,78,35,.035),rgba(45,78,35,.10)),url('/laberinto/laberinto-oolita-los-escullos.jpg')!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+}
 #oolita-art-field-sundays{position:relative}
 #oolita-art-field-sundays .oolita-current-sunday-hit{position:absolute;inset:0;z-index:4;display:block;color:inherit;text-decoration:none}
 #oolita-art-field-sundays .oolita-current-sunday-hit:focus-visible{outline:2px solid currentColor;outline-offset:-6px}
@@ -30,6 +41,7 @@ body.art-home p.oolita-project-credit{
   body.art-home #oolita-art-field-sundays .art-caption{max-width:18rem!important;margin:clamp(1.25rem,2vw,2rem) 0 0!important;font-size:clamp(.95rem,1.1vw,1.1rem)!important}
 }
 @media(max-width:760px){
+  body.art-home .hero .der{background-position:center 48%!important}
   body.art-home p.oolita-project-credit{margin:2rem 1.35rem 3rem!important;font-size:.88rem!important}
 }
 </style>'''
@@ -172,6 +184,7 @@ for rel, config in CURRENT.items():
     html = (ROOT / rel).read_text(encoding="utf-8")
     required = (
         STYLE_ID,
+        HERO_IMAGE,
         "#oolita-art-field-sundays",
         "width:100%!important",
         'data-current-sunday="03"',
@@ -192,4 +205,4 @@ for rel, config in CURRENT.items():
     if not timer or credit_pos <= timer.start():
         raise SystemExit(f"Project credit did not move below the countdown in {rel}")
 
-print("OOLITA current-Sunday route, desktop containment and opening credit hierarchy validated in both homepages.")
+print("OOLITA hero labyrinth image, current-Sunday route, desktop containment and opening credit hierarchy validated in both homepages.")
