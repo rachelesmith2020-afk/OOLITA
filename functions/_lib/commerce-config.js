@@ -9,14 +9,14 @@ export const BOOK = Object.freeze({
       implemented: true,
       currency: 'gbp',
       priceEnv: 'STRIPE_BOOK_PRICE_GBP_ID',
-      shippingRateEnv: 'STRIPE_BOOK_SHIPPING_GB_GBP_ID',
+      shippingMode: 'provider_quote',
     }),
     ES: Object.freeze({
       provider: 'spanish_pod',
       implemented: false,
       currency: 'eur',
       priceEnv: 'STRIPE_BOOK_PRICE_EUR_ID',
-      shippingRateEnv: 'STRIPE_BOOK_SHIPPING_ES_EUR_ID',
+      shippingMode: 'provider_quote',
     }),
   }),
 });
@@ -45,7 +45,7 @@ export function routeConfiguration(route, env) {
   if (!route.implemented) missing.push('provider_adapter');
   if (!env?.STRIPE_SECRET_KEY) missing.push('stripe_secret');
   if (!env?.[route.priceEnv]) missing.push('stripe_price');
-  if (!env?.[route.shippingRateEnv]) missing.push('stripe_shipping_rate');
+  if (route.shippingMode !== 'provider_quote') missing.push('shipping_mode');
 
   if (route.provider === 'bookvault') {
     if (env?.BOOKVAULT_ENABLED !== 'true') missing.push('bookvault_enabled');
