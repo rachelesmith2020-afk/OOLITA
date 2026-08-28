@@ -3,8 +3,10 @@ set -euo pipefail
 
 # Install the approved homepage Three.js preview as a first-party asset.
 # Keep the canonical asset path required by the publication/SEO validators, but
-# append a cache-busting query string in homepage markup so mobile browsers do
-# not retain the retired blue-spine still.
+# append a cache-busting query string in homepage markup so browsers do not
+# retain an older preview. The approved source is 800x450, so desktop rendering
+# must never enlarge it beyond its intrinsic width; doing so makes it visibly
+# soft and can exaggerate the wide aspect ratio.
 mkdir -p site/img
 
 tmp_preview="$(mktemp)"
@@ -98,29 +100,104 @@ PY
 
 python3 - <<'PY'
 from pathlib import Path
+import re
 
 bare = '/img/oolita-browser-world-preview.jpg'
-versioned = '/img/oolita-browser-world-preview.jpg?v=green-20260828'
+versioned = '/img/oolita-browser-world-preview.jpg?v=green-fit-20260828-1202'
+style_id = 'oolita-home-preview-desktop-fit'
+style = f'''<style id="{style_id}">
+/* The approved green-spine still is 800x450. Never upscale it on desktop. */
+figure.oolita-world-preview,
+figure[data-browser-world-preview]{{
+  box-sizing:border-box!important;
+  width:min(100%,800px)!important;
+  max-width:800px!important;
+  margin:2.5rem auto!important;
+  overflow:visible!important;
+}}
+figure.oolita-world-preview img,
+figure[data-browser-world-preview] img{{
+  box-sizing:border-box!important;
+  display:block!important;
+  width:100%!important;
+  max-width:800px!important;
+  height:auto!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  transform:none!important;
+}}
+</style>'''
+
 for rel in ('index.html', 'en/index.html'):
     page = Path('site') / rel
     if not page.is_file():
         raise SystemExit(f'Missing homepage during preview verification: {rel}')
     text = page.read_text(encoding='utf-8', errors='strict')
+
     # Normalize either a previous cache-bust or the bare path to this release URL.
-    import re
     text = re.sub(r'/img/oolita-browser-world-preview\.jpg(?:\?[^"\'\s<>]*)?', versioned, text)
+
+    # Correct the HTML intrinsic dimensions. The old publication block was
+    # authored for a 4:5 still (1080x1350); leaving those attributes on a 16:9
+    # file can create a visibly wrong layout before CSS/image decode settles.
+    def normalise_img(match: re.Match[str]) -> str:
+        tag = match.group(0)
+        if versioned not in tag:
+            return tag
+        if re.search(r'\bwidth=["\'][^"\']*["\']', tag, flags=re.I):
+            tag = re.sub(r'\bwidth=(["\'])[^"\']*\1', 'width="800"', tag, count=1, flags=re.I)
+        else:
+            tag = tag[:-1] + ' width="800">'
+        if re.search(r'\bheight=["\'][^"\']*["\']', tag, flags=re.I):
+            tag = re.sub(r'\bheight=(["\'])[^"\']*\1', 'height="450"', tag, count=1, flags=re.I)
+        else:
+            tag = tag[:-1] + ' height="450">'
+        return tag
+
+    text = re.sub(r'<img\b[^>]*>', normalise_img, text, flags=re.I)
+
+    # Replace an older copy of this targeted rule or insert it once. Mobile has
+    # its own later layout repair and remains fluid below the viewport width.
+    style_re = re.compile(
+        rf'<style\s+id=["\']{re.escape(style_id)}["\'][^>]*>[\s\S]*?</style>',
+        flags=re.I,
+    )
+    if style_re.search(text):
+        text = style_re.sub(style, text, count=1)
+    else:
+        if '</head>' not in text:
+            raise SystemExit(f'Missing </head> while constraining homepage preview: {rel}')
+        text = text.replace('</head>', style + '\n</head>', 1)
+
     page.write_text(text, encoding='utf-8')
     verify = page.read_text(encoding='utf-8')
     if versioned not in verify:
         raise SystemExit(f'Cache-busted homepage preview href missing from {rel}: {versioned}')
-    # Keep the bare path substring present for downstream publication invariants.
     if bare not in verify:
         raise SystemExit(f'Canonical preview path missing from {rel}: {bare}')
+    tags = [tag for tag in re.findall(r'<img\b[^>]*>', verify, flags=re.I) if versioned in tag]
+    if len(tags) != 1:
+        raise SystemExit(f'Expected one homepage preview image in {rel}; found {len(tags)}')
+    if 'width="800"' not in tags[0] or 'height="450"' not in tags[0]:
+        raise SystemExit(f'Homepage preview intrinsic dimensions incorrect in {rel}: {tags[0]}')
+    required_style = (
+        f'id="{style_id}"',
+        'width:min(100%,800px)!important',
+        'max-width:800px!important',
+        'height:auto!important',
+        'aspect-ratio:auto!important',
+        'object-fit:contain!important',
+    )
+    for needle in required_style:
+        if needle not in verify:
+            raise SystemExit(f'Homepage preview anti-stretch rule missing in {rel}: {needle}')
 
 asset = Path('site/img/oolita-browser-world-preview.jpg')
 if not asset.is_file() or asset.stat().st_size != 28490:
     raise SystemExit('Installed homepage preview is missing or has drifted')
-print('Homepage preview hrefs cache-busted on Spanish and English homepages.')
+print('Homepage preview dimensions corrected; desktop upscaling disabled on Spanish and English homepages.')
 PY
 
 cat >> site/_headers <<'EOF'
