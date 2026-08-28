@@ -13,9 +13,11 @@ principal-page assertions and canonicalises the single homepage CTA linking the
 three-materials section to the 3D-world explainer. The CTA normalisation is
 idempotent and prevents duplicate rows inherited from a previously mirrored
 production homepage from accumulating across deployments. The final native-
-Spanish editorial pass runs here, after every broader reader-facing mutation,
-so its reviewed wording is the last visible-copy state before integrity audit.
-The native pass also owns the final old-form no-straggler check.
+Spanish editorial pass runs here, after every broader reader-facing mutation.
+The homepage engagement/hierarchy guard then runs once more so the current-Sunday
+route and the lower project-credit placement are the final visible homepage state
+before integrity audit. The native pass also owns the final old-form no-straggler
+check.
 """
 from pathlib import Path
 import re
@@ -103,7 +105,7 @@ for rel, phrase in (
     if phrase not in text:
         raise SystemExit(f"Approved labyrinth location wording missing from {rel}: {phrase}")
 
-# The final Spanish pass is deliberately last among visible-copy transforms.
+# The final Spanish pass is deliberately last among broad visible-copy transforms.
 native = HERE / "apply_spanish_native_edit_v3.py"
 if not native.is_file():
     raise SystemExit(f"Missing native Spanish editorial pass: {native}")
@@ -114,4 +116,18 @@ try:
 finally:
     sys.argv = original_argv
 
-print("OOLITA fossil-dunes v2 final gate passed, including final Spanish editorial pass.")
+# Final homepage engagement/hierarchy guard. This must run after the native pass,
+# because that pass can reconstruct the homepage source structure from the reviewed
+# copy. Re-applying here makes the hierarchy deployment-stable while preserving the
+# same approved copy and attribution.
+home_engagement = HERE / "apply_desktop_sunday_panel_fix_v1.py"
+if not home_engagement.is_file():
+    raise SystemExit(f"Missing homepage engagement guard: {home_engagement}")
+original_argv = sys.argv[:]
+try:
+    sys.argv = [str(home_engagement), str(ROOT)]
+    runpy.run_path(str(home_engagement), run_name="__main__")
+finally:
+    sys.argv = original_argv
+
+print("OOLITA fossil-dunes v2 final gate passed, including final Spanish editorial and homepage hierarchy passes.")
