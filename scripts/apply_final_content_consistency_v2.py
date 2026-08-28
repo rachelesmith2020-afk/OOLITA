@@ -48,9 +48,7 @@ for path in owned:
         changed += 1
 
 # Spanish literary compatibility. The legacy credibility module must see its
-# historical *source* paragraph so that it can perform and validate its own edit.
-# A simple raw string replacement is insufficient because the same answer can
-# also occur earlier in JSON-LD; normalise the visible FAQ paragraph explicitly.
+# historical source paragraph so that it can perform and validate its own edit.
 labyrinth = ROOT / "que-es-un-laberinto/index.html"
 if not labyrinth.is_file():
     raise SystemExit("Missing Spanish labyrinth compatibility page")
@@ -98,7 +96,6 @@ if rendered != historical_timing:
     labyrinth.write_text(lab_text, encoding="utf-8")
     print("bridged visible Spanish labyrinth timing FAQ to legacy credibility source state")
 
-# Keep any structured FAQ copies in a state the old module already understands.
 lab_text = labyrinth.read_text(encoding="utf-8")
 if approved_timing in lab_text:
     labyrinth.write_text(lab_text.replace(approved_timing, legacy_timing), encoding="utf-8")
@@ -108,8 +105,6 @@ subprocess.run(
     check=True,
 )
 
-# Prove the legacy pass reached its expected intermediate geology state. The
-# workflow's next gates replace this with researched chronology before deploy.
 for path, needle in (
     (ROOT / "que-es-un-oolito/index.html", "100.000 y 128.000 años"),
     (ROOT / "en/what-is-an-ooid/index.html", "100,000 and 128,000 years"),
@@ -119,16 +114,62 @@ for path, needle in (
             f"Legacy consistency bridge did not reach expected intermediate state: {path.relative_to(ROOT)}"
         )
 
-# Reader-facing book excerpt repair. The genuine book artwork was moved out of
-# the old two-column excerpt wrapper; make the bilingual spread use the full
-# reading width instead of leaving it trapped in the former figure column.
-BOOK_READING_STYLE_ID = "oolita-book-reading-width-v1"
-BOOK_READING_STYLE = r'''<style id="oolita-book-reading-width-v1">
-#extracto-libro .book-excerpt-layout{display:block!important;width:100%!important;max-width:none!important}
-#extracto-libro .book-excerpt-spread{width:100%!important;max-width:none!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+# Reunite the genuine book illustration with the bilingual book passage. The
+# illustration belongs to this excerpt and must not float separately in the hero.
+BOOK_MARKER = "Electro frente al trazado del laberinto Oolita"
+BOOK_STYLE_ID = "oolita-book-excerpt-composed-v2"
+BOOK_STYLE = r'''<style id="oolita-book-excerpt-composed-v2">
+#extracto-libro .book-excerpt-layout{
+  display:grid!important;
+  grid-template-columns:minmax(14rem,20rem) minmax(0,1fr)!important;
+  gap:clamp(2rem,4vw,4rem)!important;
+  align-items:start!important;
+  width:min(100%,72rem)!important;
+  max-width:72rem!important;
+  margin:clamp(1.5rem,3vw,2.5rem) auto 0!important;
+}
+#extracto-libro .book-excerpt-figure{
+  display:block!important;
+  float:none!important;
+  width:100%!important;
+  max-width:20rem!important;
+  margin:0 auto!important;
+  padding:0!important;
+  clear:none!important;
+  text-align:center!important;
+}
+#extracto-libro .book-excerpt-figure img{
+  display:block!important;
+  width:100%!important;
+  max-width:20rem!important;
+  height:auto!important;
+  margin:0 auto!important;
+}
+#extracto-libro .book-excerpt-figure figcaption{
+  margin:.7rem auto 0!important;
+  max-width:20rem!important;
+}
+#extracto-libro .book-excerpt-spread{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+}
+@media(max-width:900px){
+  #extracto-libro .book-excerpt-layout{
+    grid-template-columns:1fr!important;
+    width:min(100%,46rem)!important;
+    max-width:46rem!important;
+  }
+  #extracto-libro .book-excerpt-figure{max-width:18rem!important}
+}
 @media(max-width:760px){
   #extracto-libro .book-excerpt-spread{grid-template-columns:1fr!important}
-  #extracto-libro .book-excerpt-page+.book-excerpt-page{border-left:0!important;border-top:1px solid rgba(45,78,35,.45)!important}
+  #extracto-libro .book-excerpt-page+.book-excerpt-page{
+    border-left:0!important;
+    border-top:1px solid rgba(45,78,35,.45)!important;
+  }
 }
 </style>'''
 
@@ -136,27 +177,95 @@ book_pages = (
     ROOT / "ediciones/libro/index.html",
     ROOT / "en/editions/book/index.html",
 )
+figure_re = re.compile(r'<figure\b[^>]*>[\s\S]*?</figure>', flags=re.I)
+layout_open_re = re.compile(r'<div\b[^>]*class=["\'][^"\']*\bbook-excerpt-layout\b[^"\']*["\'][^>]*>', flags=re.I)
+
+
+def normalize_figure(block: str) -> str:
+    opening = re.match(r'<figure\b[^>]*>', block, flags=re.I)
+    if not opening:
+        raise SystemExit("Malformed book illustration figure")
+    tag = opening.group(0)
+    tag = re.sub(r'\s+style\s*=\s*(["\']).*?\1', '', tag, flags=re.I | re.S)
+    cm = re.search(r'\bclass\s*=\s*(["\'])(.*?)\1', tag, flags=re.I | re.S)
+    if cm:
+        classes = [c for c in cm.group(2).split() if c != "oolita-book-hero-visual"]
+        if "book-excerpt-figure" not in classes:
+            classes.append("book-excerpt-figure")
+        new_classes = " ".join(classes)
+        tag = tag[:cm.start(2)] + new_classes + tag[cm.end(2):]
+    else:
+        tag = tag[:-1] + ' class="book-excerpt-figure">'
+    return tag + block[opening.end():]
+
+
 for path in book_pages:
     if not path.is_file():
-        raise SystemExit(f"Missing book page for reading-width repair: {path.relative_to(ROOT)}")
+        raise SystemExit(f"Missing book page for excerpt composition: {path.relative_to(ROOT)}")
     text = path.read_text(encoding="utf-8")
-    if 'id="extracto-libro"' not in text or "book-excerpt-layout" not in text or "book-excerpt-spread" not in text:
-        raise SystemExit(f"Book excerpt structure missing in {path.relative_to(ROOT)}")
+
+    figures = [m for m in figure_re.finditer(text) if BOOK_MARKER in m.group(0)]
+    if len(figures) != 1:
+        raise SystemExit(
+            f"Expected exactly one genuine book illustration in {path.relative_to(ROOT)}; found {len(figures)}"
+        )
+    figure = figures[0]
+    block = normalize_figure(figure.group(0))
+    text = text[:figure.start()] + text[figure.end():]
+
+    layout = layout_open_re.search(text)
+    if not layout:
+        raise SystemExit(f"Book excerpt layout missing in {path.relative_to(ROOT)}")
+    text = text[:layout.end()] + "\n" + block + "\n" + text[layout.end():]
+
+    # Remove obsolete visual-first and width-only overrides so this single
+    # composition rule is authoritative.
     text = re.sub(
-        r'<style\s+id=["\']oolita-book-reading-width-v1["\']>[\s\S]*?</style>',
+        r'<style\s+id=["\']oolita-book-visual-first-v1["\'][^>]*>[\s\S]*?</style>',
+        "",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        r'<style\s+id=["\']oolita-book-reading-width-v1["\'][^>]*>[\s\S]*?</style>',
+        "",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        r'<style\s+id=["\']oolita-book-excerpt-composed-v2["\'][^>]*>[\s\S]*?</style>',
         "",
         text,
         flags=re.I,
     )
     if "</head>" not in text:
         raise SystemExit(f"Book page has no </head>: {path.relative_to(ROOT)}")
-    text = text.replace("</head>", BOOK_READING_STYLE + "\n</head>", 1)
-    if text.count(f'id="{BOOK_READING_STYLE_ID}"') != 1:
-        raise SystemExit(f"Book reading-width style was not installed exactly once in {path.relative_to(ROOT)}")
+    text = text.replace("</head>", BOOK_STYLE + "\n</head>", 1)
+
+    # Fail closed: the illustration must now live inside the same excerpt layout
+    # and there must be no hero-only class left behind.
+    section_match = re.search(
+        r'<section\b[^>]*id=["\']extracto-libro["\'][^>]*>[\s\S]*?</section>',
+        text,
+        flags=re.I,
+    )
+    if not section_match or BOOK_MARKER not in section_match.group(0):
+        raise SystemExit(f"Book illustration is not inside the excerpt section in {path.relative_to(ROOT)}")
+    layout_match = re.search(
+        r'<div\b[^>]*class=["\'][^"\']*\bbook-excerpt-layout\b[^"\']*["\'][^>]*>[\s\S]*?<div\b[^>]*class=["\'][^"\']*\bbook-excerpt-spread\b',
+        section_match.group(0),
+        flags=re.I,
+    )
+    if not layout_match or BOOK_MARKER not in layout_match.group(0):
+        raise SystemExit(f"Illustration and bilingual passage are not composed together in {path.relative_to(ROOT)}")
+    if "oolita-book-hero-visual" in text:
+        raise SystemExit(f"Hero-only book illustration class survived in {path.relative_to(ROOT)}")
+    if text.count(f'id="{BOOK_STYLE_ID}"') != 1:
+        raise SystemExit(f"Book excerpt composition style is not unique in {path.relative_to(ROOT)}")
+
     path.write_text(text, encoding="utf-8")
 
-# Mark the two changed book routes fresh for search crawlers. The normal static
-# SEO gate still validates the resulting sitemap, canonicals and hreflang.
+
 def touch_sitemap(routes: set[str]) -> None:
     sitemap = ROOT / "sitemap.xml"
     if not sitemap.is_file():
@@ -189,5 +298,6 @@ touch_sitemap({"/ediciones/libro/", "/en/editions/book/"})
 print(
     "OOLITA final consistency compatibility passed: "
     f"{changed} geology page(s) bridged plus Spanish labyrinth compatibility; "
-    "book excerpt reading width repaired in ES/EN; final researched/editorial wording still pending."
+    "book illustration and bilingual excerpt reunited and centered in ES/EN; "
+    "final researched/editorial wording still pending."
 )
