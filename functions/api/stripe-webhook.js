@@ -134,6 +134,18 @@ function shippingFrom(session) {
   return session.shipping_details || session.collected_information?.shipping_details || null;
 }
 
+function normalizePostcode(value) {
+  return typeof value === 'string' ? value.trim().toUpperCase().replace(/\s+/g, '') : '';
+}
+
+function quotedBookVaultService(session) {
+  const serviceId = Number(session.metadata?.oolita_bookvault_service_id);
+  const amountMinor = Number(session.metadata?.oolita_shipping_amount_minor);
+  if (!Number.isInteger(serviceId) || serviceId <= 0) throw new Error('Missing BookVault quoted service ID');
+  if (!Number.isInteger(amountMinor) || amountMinor < 0) throw new Error('Missing BookVault quoted shipping amount');
+  return { serviceId, amountMinor };
+}
+
 function validateSessionRoute(session) {
   const shipping = shippingFrom(session);
   const actualCountry = shipping?.address?.country?.toUpperCase?.() || '';
@@ -157,7 +169,21 @@ function validateSessionRoute(session) {
     throw new Error(`Checkout currency ${session.currency} does not match ${route.currency}`);
   }
 
-  return { route, phase: metadataPhase, shipping };
+  let deliveryQuote = null;
+  if (route.provider === 'bookvault') {
+    const quotedPostcode = normalizePostcode(session.metadata?.oolita_quote_postcode);
+    const actualPostcode = normalizePostcode(shipping?.address?.postal_code);
+    if (!quotedPostcode || !actualPostcode || quotedPostcode !== actualPostcode) {
+      throw new Error('Paid shipping postcode does not match the BookVault quote postcode');
+    }
+    deliveryQuote = quotedBookVaultService(session);
+    const paidShipping = Number(session.shipping_cost?.amount_total);
+    if (!Number.isInteger(paidShipping) || paidShipping !== deliveryQuote.amountMinor) {
+      throw new Error('Paid shipping amount does not match the BookVault quote');
+    }
+  }
+
+  return { route, phase: metadataPhase, shipping, deliveryQuote };
 }
 
 function bookVaultHeaders(env) {
@@ -172,7 +198,7 @@ function requireBookVault(env) {
   if (!env.BOOKVAULT_API_KEY) throw new Error('BOOKVAULT_API_KEY is not configured');
 }
 
-function buildBookVaultOrder(session, env, phase, shipping) {
+function buildBookVaultOrder(session, env, phase, shipping, deliveryQuote) {
   const address = shipping?.address;
   const customer = session.customer_details || {};
   if (!shipping?.name || !address?.line1 || !address?.city || !address?.postal_code || address?.country !== 'GB') {
@@ -184,15 +210,17 @@ function buildBookVaultOrder(session, env, phase, shipping) {
     throw new Error('BOOKVAULT_ORDER_STATUS is invalid');
   }
 
+  const dispatchRequest = deliveryQuote?.serviceId
+    ? { RequestedService: 'Specified', RequestedServID: [deliveryQuote.serviceId] }
+    : { RequestedService: env.BOOKVAULT_REQUESTED_SERVICE || DEFAULT_REQUESTED_SERVICE };
+
   const docRef = `OOLITA-BV-${session.id}`.slice(0, 90);
   return {
     docRef,
     payload: {
       Status: status,
       DocRef: docRef,
-      DispatchRequest: {
-        RequestedService: env.BOOKVAULT_REQUESTED_SERVICE || DEFAULT_REQUESTED_SERVICE,
-      },
+      DispatchRequest: dispatchRequest,
       ProductionLevel: env.BOOKVAULT_PRODUCTION_LEVEL || DEFAULT_PRODUCTION_LEVEL,
       Address: {
         Addressee: shipping.name,
@@ -255,8 +283,8 @@ function bookVaultPodRef(result) {
   return result?.PodRef ?? result?.podRef ?? result?.PODRef ?? null;
 }
 
-async function fulfilBookVault(session, env, phase, shipping) {
-  const order = buildBookVaultOrder(session, env, phase, shipping);
+async function fulfilBookVault(session, env, phase, shipping, deliveryQuote) {
+  const order = buildBookVaultOrder(session, env, phase, shipping, deliveryQuote);
   const existing = await loadBookVaultOrder(order.docRef, env);
   if (existing) {
     const existingRef = bookVaultPodRef(existing);
@@ -318,7 +346,7 @@ export async function onRequestPost({ request, env }) {
     return json({ error: String(error.message || error) }, 422);
   }
 
-  const { route, phase, shipping } = validated;
+  const { route, phase, shipping, deliveryQuote } = validated;
   const provisionalDocRef = `${route.provider === 'bookvault' ? 'OOLITA-BV' : 'OOLITA-ES'}-${session.id}`.slice(0, 90);
   const db = env.OOLITA_SUBSCRIBERS;
   const eventId = event.id || 'unknown';
@@ -338,7 +366,7 @@ export async function onRequestPost({ request, env }) {
   try {
     let result;
     if (route.provider === 'bookvault') {
-      result = await fulfilBookVault(session, env, phase, shipping);
+      result = await fulfilBookVault(session, env, phase, shipping, deliveryQuote);
     } else if (route.provider === 'spanish_pod') {
       result = await fulfilSpanishPod(session, env, phase, shipping);
     } else {
