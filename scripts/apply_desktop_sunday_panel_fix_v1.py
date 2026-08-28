@@ -24,10 +24,43 @@ body.art-home p.oolita-project-credit{
 }
 @media(min-width:56.001rem){
   body.art-home .hero .der{min-width:0;overflow:hidden;display:flex;flex-direction:column}
-  body.art-home #oolita-art-field-sundays{width:100%!important;max-width:100%!important;min-height:100%!important;margin:0!important;padding:clamp(1.5rem,2.4vw,2.5rem)!important}
-  body.art-home #oolita-art-field-sundays .art-kicker{top:clamp(1.5rem,2.4vw,2.5rem)!important;left:clamp(1.5rem,2.4vw,2.5rem)!important}
-  body.art-home #oolita-art-field-sundays .art-word{max-width:100%!important;font-size:clamp(8rem,11.5vw,12rem)!important;line-height:.68!important;overflow-wrap:normal!important;white-space:nowrap!important}
-  body.art-home #oolita-art-field-sundays .art-caption{max-width:18rem!important;margin:clamp(1.25rem,2vw,2rem) 0 0!important;font-size:clamp(.95rem,1.1vw,1.1rem)!important}
+  body.art-home #oolita-art-field-sundays{
+    width:100%!important;
+    max-width:100%!important;
+    min-height:0!important;
+    height:auto!important;
+    aspect-ratio:1 / 1!important;
+    margin:0!important;
+    padding:clamp(1.4rem,2.2vw,2rem)!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-content:initial!important;
+    justify-content:flex-start!important;
+  }
+  body.art-home #oolita-art-field-sundays .art-kicker{
+    position:static!important;
+    inset:auto!important;
+    display:block!important;
+    margin:0!important;
+    font-size:clamp(.68rem,.78vw,.78rem)!important;
+    line-height:1.3!important;
+    letter-spacing:.15em!important;
+  }
+  body.art-home #oolita-art-field-sundays .art-word{
+    max-width:100%!important;
+    margin:auto 0 0!important;
+    font-size:clamp(6rem,8.2vw,8rem)!important;
+    line-height:.74!important;
+    letter-spacing:-.06em!important;
+    overflow-wrap:normal!important;
+    white-space:nowrap!important;
+  }
+  body.art-home #oolita-art-field-sundays .art-caption{
+    max-width:16rem!important;
+    margin:clamp(.9rem,1.3vw,1.25rem) 0 0!important;
+    font-size:clamp(.86rem,.95vw,.98rem)!important;
+    line-height:1.35!important;
+  }
 }
 @media(max-width:760px){
   body.art-home p.oolita-project-credit{margin:2rem 1.35rem 3rem!important;font-size:.88rem!important}
@@ -179,6 +212,8 @@ for rel, config in CURRENT.items():
         STYLE_ID,
         "#oolita-art-field-sundays",
         "width:100%!important",
+        "min-height:0!important",
+        "aspect-ratio:1 / 1!important",
         'data-current-sunday="03"',
         f'href="{config["href"]}"',
         config["kicker"],
@@ -199,4 +234,4 @@ for rel, config in CURRENT.items():
     if not timer or credit_pos <= timer.start():
         raise SystemExit(f"Project credit did not move below the countdown in {rel}")
 
-print("OOLITA original no-image hero, current-Sunday route, desktop containment and opening credit hierarchy validated in both homepages.")
+print("OOLITA original no-image hero, compact current-Sunday panel, desktop containment and opening credit hierarchy validated in both homepages.")
