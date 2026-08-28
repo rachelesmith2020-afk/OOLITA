@@ -91,9 +91,66 @@ def swap(path, section_id, block):
 
 swap("index.html", "seguir-oolita", ES)
 swap("en/index.html", "follow-oolita", EN)
-error_page = next((path for path in ("404.html", "404/index.html") if (ROOT / path).is_file()), None)
-if error_page:
-    swap(error_page, "seguir-oolita", ES)
+error_page = None
+for candidate in ("404.html", "404/index.html"):
+    page = ROOT / candidate
+    if not page.is_file():
+        continue
+    source = page.read_text(encoding="utf-8")
+    if 'id="seguir-oolita"' in source:
+        swap(candidate, "seguir-oolita", ES)
+        error_page = candidate
+        break
+if error_page is None:
+    print("Optional 404 Follow section absent; skipping its Follow rewrite.")
+
+EMAIL_ON = "<!--email_off-->"
+EMAIL_OFF = "<!--/email_off-->"
+MAILTO_ANCHOR_RE = re.compile(
+    r'<a\b[^>]*\bhref\s*=\s*(["\'])mailto:[^"\']+\1[^>]*>[\s\S]*?</a>',
+    flags=re.I,
+)
+
+
+def protect_mailto_anchors(path: Path) -> int:
+    text = path.read_text(encoding="utf-8")
+    matches = list(MAILTO_ANCHOR_RE.finditer(text))
+    if not matches:
+        return 0
+    parts = []
+    cursor = 0
+    wrapped = 0
+    for match in matches:
+        parts.append(text[cursor:match.start()])
+        left_on = text.rfind(EMAIL_ON, 0, match.start())
+        left_off = text.rfind(EMAIL_OFF, 0, match.start())
+        anchor = match.group(0)
+        if left_on > left_off:
+            parts.append(anchor)
+        else:
+            parts.append(EMAIL_ON + anchor + EMAIL_OFF)
+            wrapped += 1
+        cursor = match.end()
+    parts.append(text[cursor:])
+    if wrapped:
+        path.write_text("".join(parts), encoding="utf-8")
+    return wrapped
+
+
+wrapped_mailto = 0
+for html_path in ROOT.rglob("*.html"):
+    wrapped_mailto += protect_mailto_anchors(html_path)
+
+for html_path in ROOT.rglob("*.html"):
+    text = html_path.read_text(encoding="utf-8")
+    for match in MAILTO_ANCHOR_RE.finditer(text):
+        left_on = text.rfind(EMAIL_ON, 0, match.start())
+        left_off = text.rfind(EMAIL_OFF, 0, match.start())
+        if left_on <= left_off:
+            raise SystemExit(
+                f"Unprotected mailto anchor remains in {html_path.relative_to(ROOT)}"
+            )
+print(f"Cloudflare email exclusion verified; newly wrapped mailto anchors: {wrapped_mailto}.")
 
 follow_pages = [
     ("index.html", "oolita-follow-es", "/privacidad/"),
