@@ -1,6 +1,6 @@
 {
   "provider": "stripe",
-  "status": "checkout_staged_gbp_stripe_ready_eur_tbd",
+  "status": "checkout_staged_gbp_stripe_and_shipping_code_ready_eur_tbd",
   "checkout_mode": "dynamic_checkout_sessions_by_delivery_country",
   "launch": {
     "preorder_opens_at": "2027-01-03T00:00:00Z",
