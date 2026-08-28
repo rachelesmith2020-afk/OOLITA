@@ -1,6 +1,6 @@
 {
   "provider": "stripe",
-  "status": "checkout_staged_gbp_decided_eur_tbd",
+  "status": "checkout_staged_gbp_stripe_ready_eur_tbd",
   "checkout_mode": "dynamic_checkout_sessions_by_delivery_country",
   "launch": {
     "preorder_opens_at": "2027-01-03T00:00:00Z",
@@ -14,7 +14,7 @@
       "name_en": "OOLITA · bilingual book",
       "isbn13": "9781066939800",
       "release_date": "2027-01-31",
-      "stripe_product_id": null,
+      "stripe_product_id": "prod_V9i8v2t5IfLjdS",
       "pricing_decisions": {
         "GB": {
           "currency": "gbp",
@@ -58,8 +58,8 @@
         "en_gbp": {
           "locale": "en",
           "currency": "gbp",
-          "amount_minor": null,
-          "stripe_price_id": null,
+          "amount_minor": 1700,
+          "stripe_price_id": "price_1U9Oi8Hcycje25JhAOkHZr9L",
           "payment_link": null
         }
       }
