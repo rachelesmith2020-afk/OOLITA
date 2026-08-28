@@ -4,10 +4,10 @@ This is the operational source of truth for the physical OOLITA book checkout.
 
 ## Fixed publishing schedule
 
-- **2027-01-03:** paid pre-order phase begins.
+- **2027-01-03 at 00:00 CET:** paid pre-order phase begins, aligned with the published 3D-world opening time.
 - **2027-01-31:** publication date; checkout phase becomes normal sale.
 
-The dates are enforced server-side by `functions/_lib/commerce-config.js`. Changing labels or links in static HTML cannot open checkout early.
+The dates are enforced server-side by `functions/_lib/commerce-config.js`. The pre-order timestamp is stored with an explicit `+01:00` offset so **00:00 CET** is unambiguous. Changing labels or links in static HTML cannot open checkout early.
 
 ## UK pricing decision
 
@@ -47,8 +47,8 @@ The webhook signing secret is a Cloudflare secret and must never be committed to
 
 The book pages ship with an inert, hidden purchase control. The browser asks `GET /api/commerce-status` for the authoritative server phase and configured delivery routes before making that control usable.
 
-- Before **2027-01-03**, the purchase control remains hidden and the existing email-notification CTA remains public.
-- From **2027-01-03**, when at least one delivery route is fully configured, the label becomes **Reservar el libro / Pre-order the book**.
+- Before **2027-01-03 at 00:00 CET**, the purchase control remains hidden and the existing email-notification CTA remains public.
+- From **2027-01-03 at 00:00 CET**, when at least one delivery route is fully configured, the label becomes **Reservar el libro / Pre-order the book**.
 - From **2027-01-31**, it becomes **Comprar el libro / Buy the book**.
 - The customer chooses **delivery country** before Stripe Checkout is created. Website language never determines fulfilment.
 - GB checkout asks for a postcode before Stripe opens because BookVault shipping is destination-dependent.
@@ -84,7 +84,7 @@ The selected tracked service's `DelTotal` is converted to pence and passed to St
 
 A route is not purchasable unless all of the following are true:
 
-- the date is 2027-01-03 or later;
+- the time is **2027-01-03 00:00 CET** or later;
 - the route exists and its adapter is implemented;
 - the Stripe secret key is configured;
 - a Stripe book Price ID is configured for the route currency;
@@ -103,14 +103,22 @@ The Spain route therefore cannot accept money accidentally while its provider is
 
 The webhook creates `commerce_orders` if needed. `stripe_session_id` is the primary key, preventing duplicate POD orders when Stripe retries a webhook. BookVault also uses a deterministic `DocRef` so a lost API response can be recovered without printing a second copy.
 
-## Remaining launch inputs
+## Current production configuration and remaining launch tests
 
-The UK core architecture and live Stripe catalog objects are now prepared. Remaining inputs are secure configuration, provider completion and testing:
+Configured in Cloudflare production on 2026-08-28:
 
-1. Cloudflare production secrets/variables for the Stripe secret key, Stripe webhook secret and GBP Price ID.
-2. BookVault API key plus `BOOKVAULT_ENABLED=true` in Cloudflare.
-3. A live BookVault dispatch-quote test against OOLITA and a controlled end-to-end Stripe test before enabling GB.
-4. Spanish POD provider, product identifier, API contract, EUR retail price and shipping implementation.
-5. Complete end-to-end test orders, including postcode mismatch, duplicate webhooks and fulfilment failures.
+- `STRIPE_SECRET_KEY` — configured as a protected secret.
+- `STRIPE_WEBHOOK_SECRET` — configured as a protected secret.
+- `BOOKVAULT_API_KEY` — configured as a protected secret.
+- `BOOKVAULT_ENABLED=true` — configured.
+- `STRIPE_BOOK_PRICE_GBP_ID=price_1U9Oi8Hcycje25JhAOkHZr9L` — configured.
 
-Do not enable a route until a complete end-to-end test order has passed.
+Remaining gates before paid pre-order:
+
+1. Run a **non-ordering BookVault Dispatch quote/authentication test** using the production credential. Do not create a BookVault order during this check.
+2. Run a **controlled signed Stripe webhook test** and verify the production endpoint accepts a valid signature and rejects invalid/unsigned payloads.
+3. Keep the BookVault title dormant until its print files are final and BookVault file validation has passed.
+4. Select the Spain/EU POD provider only after the supplier replies are received and compared; no provider is selected yet.
+5. After the title is validated and sufficiently close to launch, run complete controlled end-to-end test orders covering postcode mismatch, duplicate webhooks and fulfilment failures before enabling paid sales.
+
+Do not enable a route for real customer payments until the relevant end-to-end test order has passed.
