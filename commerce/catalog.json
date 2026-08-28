@@ -18,8 +18,8 @@
       "pricing_decisions": {
         "GB": {
           "currency": "gbp",
-          "rrp_minor": 2000,
-          "rrp_display": "£20.00",
+          "rrp_minor": 1700,
+          "rrp_display": "£17.00",
           "bookvault_production_cost_minor": 527,
           "bookvault_production_cost_display": "£5.27",
           "shipping": "charged separately at checkout",
