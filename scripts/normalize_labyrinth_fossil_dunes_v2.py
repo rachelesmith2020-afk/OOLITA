@@ -143,4 +143,4 @@ try:
 finally:
     sys.argv = original_argv
 
-print("OOLITA final gate passed: geology, Spanish editorial, homepage hierarchy and book visual-first state validated.")
+print("OOLITA final gate passed: geology, Spanish editorial, homepage hierarchy and hardened book visual-first hierarchy validated.")
