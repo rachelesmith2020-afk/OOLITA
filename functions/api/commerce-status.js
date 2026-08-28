@@ -24,6 +24,7 @@ export async function onRequestGet({ env }) {
     phase,
     preorder_opens_at: BOOK.preorderOpensAt,
     release_at: BOOK.releaseAt,
+    supported_countries: countries,
     configured_countries: configuredCountries,
     checkout_countries: phase === 'interest' ? [] : configuredCountries,
   });
