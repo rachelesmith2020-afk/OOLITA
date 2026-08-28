@@ -61,6 +61,10 @@ style_re = re.compile(
 )
 figure_re = re.compile(r'<figure\b[^>]*>[\s\S]*?</figure>', flags=re.I)
 h1_re = re.compile(r'<h1\b[^>]*>[\s\S]*?</h1>', flags=re.I)
+hero_figure_re = re.compile(
+    rf'<figure\b[^>]*class=["\'][^"\']*\b{re.escape(FIGURE_CLASS)}\b[^"\']*["\'][^>]*>[\s\S]*?</figure>',
+    flags=re.I,
+)
 
 
 def add_class(tag: str, class_name: str) -> str:
@@ -113,17 +117,20 @@ for rel in PAGES:
     html = (ROOT / rel).read_text(encoding="utf-8")
     if html.count(BOOK_MARKER) != 1:
         raise SystemExit(f"Book illustration marker is not unique in {rel}")
-    if html.count(FIGURE_CLASS) != 1:
-        raise SystemExit(f"Book hero visual class is not unique in {rel}")
-    if html.count(STYLE_ID) != 1:
+    if len(style_re.findall(html)) != 1:
         raise SystemExit(f"Book visual-first style is not unique in {rel}")
+    hero_figures = list(hero_figure_re.finditer(html))
+    if len(hero_figures) != 1:
+        raise SystemExit(f"Book hero figure is not unique in {rel}: found {len(hero_figures)}")
     h1 = h1_re.search(html)
-    marker_pos = html.find(FIGURE_CLASS)
-    if not h1 or marker_pos <= h1.end():
+    hero = hero_figures[0]
+    if not h1 or hero.start() <= h1.end():
         raise SystemExit(f"Book illustration is not positioned after the H1 in {rel}")
+    if BOOK_MARKER not in hero.group(0):
+        raise SystemExit(f"Book hero figure is not the genuine book illustration in {rel}")
     # The figure should enter before the first ordinary paragraph following H1.
     next_paragraph = re.search(r'<p\b', html[h1.end():], flags=re.I)
-    if next_paragraph and marker_pos > h1.end() + next_paragraph.start():
+    if next_paragraph and hero.start() > h1.end() + next_paragraph.start():
         raise SystemExit(f"Book illustration does not lead the opening copy in {rel}")
 
 print("OOLITA book visual-first hierarchy applied and validated in Spanish and English.")
