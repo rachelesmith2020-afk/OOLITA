@@ -28,8 +28,10 @@ body.art-home p.oolita-project-credit{
     width:100%!important;
     max-width:100%!important;
     min-height:0!important;
-    height:auto!important;
-    aspect-ratio:1 / 1!important;
+    height:clamp(20rem,36vw,22rem)!important;
+    max-height:22rem!important;
+    aspect-ratio:auto!important;
+    flex:0 0 auto!important;
     margin:0!important;
     padding:clamp(1.4rem,2.2vw,2rem)!important;
     display:flex!important;
@@ -213,7 +215,8 @@ for rel, config in CURRENT.items():
         "#oolita-art-field-sundays",
         "width:100%!important",
         "min-height:0!important",
-        "aspect-ratio:1 / 1!important",
+        "height:clamp(20rem,36vw,22rem)!important",
+        "max-height:22rem!important",
         'data-current-sunday="03"',
         f'href="{config["href"]}"',
         config["kicker"],
