@@ -32,3 +32,4 @@ database_name = "OOLITA_SUBSCRIBERS"
 # Production propagation trigger: rerun clean main after Hallazgo base64 cleanup, 2026-08-25.
 # Production propagation trigger: launch-clock checkout wiring, 2026-08-28.
 # Production propagation trigger: non-secret UK commerce variables, 2026-08-28.
+# Production propagation trigger: bind production commerce secrets, 2026-08-28.
