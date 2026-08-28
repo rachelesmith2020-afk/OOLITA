@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Keep the homepage Sunday artwork inside its desktop hero column and make the current Sunday the live hero route."""
+"""Keep the homepage Sunday artwork inside its desktop hero column, route the current Sunday, and keep project credits out of the opening reading sequence."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -9,52 +9,28 @@ import sys
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 STYLE_ID = "oolita-desktop-sunday-panel-fix-v1"
 STYLE = r'''<style id="oolita-desktop-sunday-panel-fix-v1">
-/* The Sunday field is nested in the hero's right column. The general art-field
-   rule makes fields viewport-wide; on desktop that caused this one to cover the
-   hero copy. Keep it contained here, while retaining the full-width mobile row. */
 #oolita-art-field-sundays{position:relative}
-#oolita-art-field-sundays .oolita-current-sunday-hit{
-  position:absolute;
-  inset:0;
-  z-index:4;
-  display:block;
-  color:inherit;
-  text-decoration:none;
-}
-#oolita-art-field-sundays .oolita-current-sunday-hit:focus-visible{
-  outline:2px solid currentColor;
-  outline-offset:-6px;
+#oolita-art-field-sundays .oolita-current-sunday-hit{position:absolute;inset:0;z-index:4;display:block;color:inherit;text-decoration:none}
+#oolita-art-field-sundays .oolita-current-sunday-hit:focus-visible{outline:2px solid currentColor;outline-offset:-6px}
+body.art-home p.oolita-project-credit{
+  max-width:46rem!important;
+  margin-top:clamp(2rem,4vw,4rem)!important;
+  margin-right:max(3vw,calc((100vw - 1640px)/2))!important;
+  margin-bottom:clamp(3rem,6vw,5rem)!important;
+  margin-left:max(3vw,calc((100vw - 1640px)/2))!important;
+  font-size:clamp(.82rem,1vw,.95rem)!important;
+  line-height:1.55!important;
+  letter-spacing:.01em!important;
 }
 @media(min-width:56.001rem){
-  body.art-home .hero .der{
-    min-width:0;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-  }
-  body.art-home #oolita-art-field-sundays{
-    width:100%!important;
-    max-width:100%!important;
-    min-height:100%!important;
-    margin:0!important;
-    padding:clamp(1.5rem,2.4vw,2.5rem)!important;
-  }
-  body.art-home #oolita-art-field-sundays .art-kicker{
-    top:clamp(1.5rem,2.4vw,2.5rem)!important;
-    left:clamp(1.5rem,2.4vw,2.5rem)!important;
-  }
-  body.art-home #oolita-art-field-sundays .art-word{
-    max-width:100%!important;
-    font-size:clamp(8rem,11.5vw,12rem)!important;
-    line-height:.68!important;
-    overflow-wrap:normal!important;
-    white-space:nowrap!important;
-  }
-  body.art-home #oolita-art-field-sundays .art-caption{
-    max-width:18rem!important;
-    margin:clamp(1.25rem,2vw,2rem) 0 0!important;
-    font-size:clamp(.95rem,1.1vw,1.1rem)!important;
-  }
+  body.art-home .hero .der{min-width:0;overflow:hidden;display:flex;flex-direction:column}
+  body.art-home #oolita-art-field-sundays{width:100%!important;max-width:100%!important;min-height:100%!important;margin:0!important;padding:clamp(1.5rem,2.4vw,2.5rem)!important}
+  body.art-home #oolita-art-field-sundays .art-kicker{top:clamp(1.5rem,2.4vw,2.5rem)!important;left:clamp(1.5rem,2.4vw,2.5rem)!important}
+  body.art-home #oolita-art-field-sundays .art-word{max-width:100%!important;font-size:clamp(8rem,11.5vw,12rem)!important;line-height:.68!important;overflow-wrap:normal!important;white-space:nowrap!important}
+  body.art-home #oolita-art-field-sundays .art-caption{max-width:18rem!important;margin:clamp(1.25rem,2vw,2rem) 0 0!important;font-size:clamp(.95rem,1.1vw,1.1rem)!important}
+}
+@media(max-width:760px){
+  body.art-home p.oolita-project-credit{margin:2rem 1.35rem 3rem!important;font-size:.88rem!important}
 }
 </style>'''
 
@@ -65,6 +41,7 @@ CURRENT = {
         "kicker": "03 · LA MEMORIA DEL MAR",
         "word": "03",
         "caption": "23.08.26 · La piedra guarda la memoria del mar.",
+        "credit_marker": "Raquel Costantini hizo el laberinto",
     },
     "en/index.html": {
         "href": "/en/sundays/03-the-memory-of-the-sea/",
@@ -72,6 +49,7 @@ CURRENT = {
         "kicker": "03 · THE MEMORY OF THE SEA",
         "word": "03",
         "caption": "23 Aug 26 · The stone holds the memory of the sea.",
+        "credit_marker": "Raquel Costantini made the labyrinth",
     },
 }
 
@@ -90,6 +68,8 @@ hit_pattern = re.compile(
     r'<a\b[^>]*class=["\'][^"\']*\boolita-current-sunday-hit\b[^"\']*["\'][^>]*>[\s\S]*?</a>',
     flags=re.I,
 )
+paragraph_pattern = re.compile(r'<p\b[^>]*>[\s\S]*?</p>', flags=re.I)
+timer_pattern = re.compile(r'\brole\s*=\s*["\']timer["\']', flags=re.I)
 
 
 def set_tag_attribute(tag: str, name: str, value: str) -> str:
@@ -98,6 +78,21 @@ def set_tag_attribute(tag: str, name: str, value: str) -> str:
     if attr.search(tag):
         return attr.sub(replacement, tag, count=1)
     return tag[:-1] + f' {replacement}>'
+
+
+def add_class(tag: str, class_name: str) -> str:
+    match = re.search(r'\bclass\s*=\s*(["\'])(.*?)\1', tag, flags=re.I | re.S)
+    if match:
+        classes = match.group(2).split()
+        if class_name in classes:
+            return tag
+        updated = " ".join([*classes, class_name])
+        return tag[:match.start(2)] + updated + tag[match.end(2):]
+    return tag[:-1] + f' class="{class_name}">'
+
+
+def visible_text(fragment: str) -> str:
+    return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', fragment)).strip()
 
 
 def replace_class_text(block: str, class_name: str, value: str) -> str:
@@ -134,6 +129,30 @@ def patch_current_sunday(html: str, config: dict[str, str], rel: str) -> str:
     return html[:match.start()] + block + html[match.end():]
 
 
+def move_project_credit(html: str, marker: str, rel: str) -> str:
+    matches = [match for match in paragraph_pattern.finditer(html) if marker in visible_text(match.group(0))]
+    if len(matches) != 1:
+        raise SystemExit(f"Expected one homepage project credit in {rel}, found {len(matches)}")
+    match = matches[0]
+    block = match.group(0)
+    opening = re.match(r'<p\b[^>]*>', block, flags=re.I)
+    if not opening:
+        raise SystemExit(f"Malformed homepage project credit in {rel}")
+    new_opening = add_class(opening.group(0), "oolita-project-credit")
+    block = new_opening + block[opening.end():]
+    html = html[:match.start()] + html[match.end():]
+
+    timer = timer_pattern.search(html)
+    if not timer:
+        raise SystemExit(f"Homepage countdown timer missing in {rel}")
+    section_start = html.rfind("<section", 0, timer.start())
+    section_end_start = html.find("</section>", timer.end())
+    if section_start < 0 or section_end_start < 0:
+        raise SystemExit(f"Could not locate countdown section boundaries in {rel}")
+    insert_at = section_end_start + len("</section>")
+    return html[:insert_at] + "\n" + block + "\n" + html[insert_at:]
+
+
 for rel, config in CURRENT.items():
     target = ROOT / rel
     if not target.is_file():
@@ -146,6 +165,7 @@ for rel, config in CURRENT.items():
     else:
         raise SystemExit(f"Homepage has no </head>: {rel}")
     html = patch_current_sunday(html, config, rel)
+    html = move_project_credit(html, config["credit_marker"], rel)
     target.write_text(html, encoding="utf-8")
 
 for rel, config in CURRENT.items():
@@ -159,11 +179,17 @@ for rel, config in CURRENT.items():
         config["kicker"],
         config["caption"],
         "oolita-current-sunday-hit",
+        "oolita-project-credit",
+        config["credit_marker"],
     )
     for needle in required:
         if needle not in html:
-            raise SystemExit(f"Desktop Sunday panel invariant failed in {rel}: {needle}")
+            raise SystemExit(f"Homepage hierarchy invariant failed in {rel}: {needle}")
     if html.count('class="oolita-current-sunday-hit"') != 1:
         raise SystemExit(f"Current Sunday hit target duplicated in {rel}")
+    credit_pos = html.find(config["credit_marker"])
+    timer = timer_pattern.search(html)
+    if not timer or credit_pos <= timer.start():
+        raise SystemExit(f"Project credit did not move below the countdown in {rel}")
 
-print("OOLITA current-Sunday hero route and desktop panel containment validated in both homepages.")
+print("OOLITA current-Sunday route, desktop containment and opening credit hierarchy validated in both homepages.")
