@@ -2,8 +2,9 @@
 set -euo pipefail
 
 # Install the approved homepage Three.js preview as a first-party asset.
-# The versioned URL prevents mobile/browser caches from retaining the retired
-# blue-spine still after deployment.
+# Keep the canonical asset path required by the publication/SEO validators, but
+# append a cache-busting query string in homepage markup so mobile browsers do
+# not retain the retired blue-spine still.
 mkdir -p site/img
 
 tmp_preview="$(mktemp)"
@@ -56,12 +57,9 @@ if size != (800, 450):
     raise SystemExit(f'Homepage preview dimensions mismatch: {size}')
 PY
   then
-    mv "$tmp_preview" site/img/oolita-browser-world-preview-v2.jpg
-    # Keep the former URL serving the same new file for compatibility, while the
-    # homepage itself moves to the versioned URL below.
-    cp site/img/oolita-browser-world-preview-v2.jpg site/img/oolita-browser-world-preview.jpg
+    mv "$tmp_preview" site/img/oolita-browser-world-preview.jpg
     staged_ok=1
-    echo 'Homepage Three.js preview installed: 800x450, green poster spine, versioned URL.'
+    echo 'Homepage Three.js preview installed: 800x450, green poster spine.'
   fi
 fi
 
@@ -74,34 +72,31 @@ fi
 python3 - <<'PY'
 from pathlib import Path
 
-old = '/img/oolita-browser-world-preview.jpg'
-new = '/img/oolita-browser-world-preview-v2.jpg'
+bare = '/img/oolita-browser-world-preview.jpg'
+versioned = '/img/oolita-browser-world-preview.jpg?v=green-20260828'
 for rel in ('index.html', 'en/index.html'):
     page = Path('site') / rel
     if not page.is_file():
         raise SystemExit(f'Missing homepage during preview verification: {rel}')
     text = page.read_text(encoding='utf-8', errors='strict')
-    if old not in text and new not in text:
-        raise SystemExit(f'Homepage preview href missing from {rel}')
-    text = text.replace(old, new)
+    # Normalize either a previous cache-bust or the bare path to this release URL.
+    import re
+    text = re.sub(r'/img/oolita-browser-world-preview\.jpg(?:\?[^"\'\s<>]*)?', versioned, text)
     page.write_text(text, encoding='utf-8')
     verify = page.read_text(encoding='utf-8')
-    if new not in verify:
-        raise SystemExit(f'Versioned homepage preview href missing from {rel}: {new}')
-    if old in verify:
-        raise SystemExit(f'Retired homepage preview href remains in {rel}: {old}')
+    if versioned not in verify:
+        raise SystemExit(f'Cache-busted homepage preview href missing from {rel}: {versioned}')
+    # Keep the bare path substring present for downstream publication invariants.
+    if bare not in verify:
+        raise SystemExit(f'Canonical preview path missing from {rel}: {bare}')
 
-for rel in ('oolita-browser-world-preview-v2.jpg', 'oolita-browser-world-preview.jpg'):
-    asset = Path('site/img') / rel
-    if not asset.is_file() or asset.stat().st_size != 28490:
-        raise SystemExit(f'Installed homepage preview is missing or has drifted: {asset}')
-
-print('Homepage preview hrefs moved to cache-busting v2 URL on Spanish and English homepages.')
+asset = Path('site/img/oolita-browser-world-preview.jpg')
+if not asset.is_file() or asset.stat().st_size != 28490:
+    raise SystemExit('Installed homepage preview is missing or has drifted')
+print('Homepage preview hrefs cache-busted on Spanish and English homepages.')
 PY
 
 cat >> site/_headers <<'EOF'
-/img/oolita-browser-world-preview-v2.jpg
-  Cache-Control: public, max-age=31536000, immutable
 /img/oolita-browser-world-preview.jpg
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
 /
