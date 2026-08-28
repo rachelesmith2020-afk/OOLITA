@@ -16,6 +16,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 HERE = Path(__file__).resolve().parent
@@ -118,8 +119,75 @@ for path, needle in (
             f"Legacy consistency bridge did not reach expected intermediate state: {path.relative_to(ROOT)}"
         )
 
+# Reader-facing book excerpt repair. The genuine book artwork was moved out of
+# the old two-column excerpt wrapper; make the bilingual spread use the full
+# reading width instead of leaving it trapped in the former figure column.
+BOOK_READING_STYLE_ID = "oolita-book-reading-width-v1"
+BOOK_READING_STYLE = r'''<style id="oolita-book-reading-width-v1">
+#extracto-libro .book-excerpt-layout{display:block!important;width:100%!important;max-width:none!important}
+#extracto-libro .book-excerpt-spread{width:100%!important;max-width:none!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+@media(max-width:760px){
+  #extracto-libro .book-excerpt-spread{grid-template-columns:1fr!important}
+  #extracto-libro .book-excerpt-page+.book-excerpt-page{border-left:0!important;border-top:1px solid rgba(45,78,35,.45)!important}
+}
+</style>'''
+
+book_pages = (
+    ROOT / "ediciones/libro/index.html",
+    ROOT / "en/editions/book/index.html",
+)
+for path in book_pages:
+    if not path.is_file():
+        raise SystemExit(f"Missing book page for reading-width repair: {path.relative_to(ROOT)}")
+    text = path.read_text(encoding="utf-8")
+    if 'id="extracto-libro"' not in text or "book-excerpt-layout" not in text or "book-excerpt-spread" not in text:
+        raise SystemExit(f"Book excerpt structure missing in {path.relative_to(ROOT)}")
+    text = re.sub(
+        r'<style\s+id=["\']oolita-book-reading-width-v1["\']>[\s\S]*?</style>',
+        "",
+        text,
+        flags=re.I,
+    )
+    if "</head>" not in text:
+        raise SystemExit(f"Book page has no </head>: {path.relative_to(ROOT)}")
+    text = text.replace("</head>", BOOK_READING_STYLE + "\n</head>", 1)
+    if text.count(f'id="{BOOK_READING_STYLE_ID}"') != 1:
+        raise SystemExit(f"Book reading-width style was not installed exactly once in {path.relative_to(ROOT)}")
+    path.write_text(text, encoding="utf-8")
+
+# Mark the two changed book routes fresh for search crawlers. The normal static
+# SEO gate still validates the resulting sitemap, canonicals and hreflang.
+def touch_sitemap(routes: set[str]) -> None:
+    sitemap = ROOT / "sitemap.xml"
+    if not sitemap.is_file():
+        raise SystemExit("Missing sitemap.xml while marking changed book routes")
+    ns = "http://www.sitemaps.org/schemas/sitemap/0.9"
+    ET.register_namespace("", ns)
+    tree = ET.parse(sitemap)
+    root = tree.getroot()
+    seen: set[str] = set()
+    for url in root.findall(f"{{{ns}}}url"):
+        loc = url.find(f"{{{ns}}}loc")
+        if loc is None or not loc.text:
+            continue
+        route = re.sub(r"^https://oolita\.es", "", loc.text.strip())
+        if route not in routes:
+            continue
+        lastmod = url.find(f"{{{ns}}}lastmod")
+        if lastmod is None:
+            lastmod = ET.SubElement(url, f"{{{ns}}}lastmod")
+        lastmod.text = "2026-08-28"
+        seen.add(route)
+    missing = routes - seen
+    if missing:
+        raise SystemExit(f"Changed book route(s) missing from sitemap: {sorted(missing)}")
+    tree.write(sitemap, encoding="utf-8", xml_declaration=True)
+
+
+touch_sitemap({"/ediciones/libro/", "/en/editions/book/"})
+
 print(
     "OOLITA final consistency compatibility passed: "
     f"{changed} geology page(s) bridged plus Spanish labyrinth compatibility; "
-    "final researched/editorial wording still pending."
+    "book excerpt reading width repaired in ES/EN; final researched/editorial wording still pending."
 )
