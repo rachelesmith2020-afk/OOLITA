@@ -9,6 +9,14 @@ name = "oolita"
 pages_build_output_dir = "./site"
 compatibility_date = "2026-08-10"
 
+# Non-secret production commerce configuration. Credentials remain Cloudflare secrets.
+[vars]
+BOOKVAULT_ENABLED = "true"
+BOOKVAULT_OOLITA_ISBN = "9781066939800"
+BOOKVAULT_PRODUCTION_LEVEL = "Standard"
+BOOKVAULT_REQUESTED_SERVICE = "CheapestTracked"
+STRIPE_BOOK_PRICE_GBP_ID = "price_1U9Oi8Hcycje25JhAOkHZr9L"
+
 [[d1_databases]]
 database_id = "05b1cd1d-52fd-4a11-8142-13ab92a2c712"
 binding = "OOLITA_SUBSCRIBERS"
@@ -23,3 +31,4 @@ database_name = "OOLITA_SUBSCRIBERS"
 # Production propagation trigger: footer restage + latest SEO deployment, 2026-08-24.
 # Production propagation trigger: rerun clean main after Hallazgo base64 cleanup, 2026-08-25.
 # Production propagation trigger: launch-clock checkout wiring, 2026-08-28.
+# Production propagation trigger: non-secret UK commerce variables, 2026-08-28.
