@@ -69,6 +69,33 @@ if [ "$staged_ok" -ne 1 ]; then
   exit 1
 fi
 
+# The Sunday-03 publication layer predates the approved green-spine still and
+# still contains a legacy Google Drive download for the old blue-spine image.
+# It runs later in the same deployment, so without this guard it silently
+# overwrites the correct asset after this installer has succeeded. Disable that
+# one obsolete download in the checked-out build workspace. The Sunday image
+# download and all homepage markup logic in that layer remain untouched.
+python3 - <<'PY'
+from pathlib import Path
+
+publisher = Path('scripts/publish_sunday03_and_3d_preview_v1.py')
+if not publisher.is_file():
+    raise SystemExit(f'Missing later preview publisher: {publisher}')
+text = publisher.read_text(encoding='utf-8')
+legacy = 'download(WORLD_IMAGE, ROOT / "img/oolita-browser-world-preview.jpg")'
+guarded = '''# Homepage browser-world preview is owned by install_home_preview_v1.sh.
+# Do not restore the retired Drive-hosted blue-spine still here.
+world_preview = ROOT / "img/oolita-browser-world-preview.jpg"
+if not world_preview.is_file():
+    raise SystemExit(f"Approved homepage preview missing before Sunday publication: {world_preview}")'''
+if legacy in text:
+    text = text.replace(legacy, guarded, 1)
+    publisher.write_text(text, encoding='utf-8')
+elif 'Homepage browser-world preview is owned by install_home_preview_v1.sh.' not in text:
+    raise SystemExit('Legacy world-preview download changed unexpectedly; refusing an ambiguous deployment')
+print('Later Sunday publication prevented from overwriting the approved homepage preview.')
+PY
+
 python3 - <<'PY'
 from pathlib import Path
 
