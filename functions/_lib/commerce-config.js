@@ -1,7 +1,7 @@
 export const BOOK = Object.freeze({
   productKey: 'oolita-book',
   isbn13: '9781066939800',
-  preorderOpensAt: '2027-01-03T00:00:00Z',
+  preorderOpensAt: '2027-01-03T00:00:00+01:00',
   releaseAt: '2027-01-31T00:00:00Z',
   routes: Object.freeze({
     GB: Object.freeze({
