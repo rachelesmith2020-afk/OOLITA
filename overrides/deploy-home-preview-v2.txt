@@ -1,1 +1,1 @@
-Trigger production deployment after preventing the later Sunday publication layer from restoring the retired blue-spine homepage preview.
+Trigger production deployment for corrected homepage preview intrinsic ratio and no-upscale desktop rendering.
