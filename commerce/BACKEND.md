@@ -11,9 +11,9 @@ The dates are enforced server-side by `functions/_lib/commerce-config.js`. Chang
 
 ## UK pricing decision
 
-- **Canonical UK RRP:** £20.00.
+- **Canonical UK RRP:** £17.00.
 - **BookVault UK production cost:** £5.27 per copy for ISBN `9781066939800`.
-- **Shipping:** charged separately at checkout; it is not included in the £20.00 RRP.
+- **Shipping:** charged separately at checkout; it is not included in the £17.00 RRP.
 - Printed books are zero-rated for UK VAT under the normal UK treatment of qualifying books.
 - The direct website sale uses Stripe; the BookVault portal remains the fulfilment provider for GB orders.
 
@@ -66,6 +66,6 @@ These are commercial/provider decisions rather than missing backend structure:
 2. Customer shipping charge / Stripe Shipping Rate for GB and ES.
 3. Spanish POD provider, product identifier and API contract.
 4. Cloudflare secret values and Stripe webhook signing secret.
-5. Stripe Product/Price objects for the decided UK £20.00 price and the later EUR price.
+5. Stripe Product/Price objects for the decided UK £17.00 price and the later EUR price.
 
 Do not enable a route until a complete end-to-end test order has passed.
