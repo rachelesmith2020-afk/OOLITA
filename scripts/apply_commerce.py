@@ -26,6 +26,8 @@ catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
 if catalog.get("provider") != "stripe":
     raise SystemExit("Commerce catalog provider must be 'stripe'")
 
+dynamic_checkout = catalog.get("checkout_mode") == "dynamic_checkout_sessions_by_delivery_country"
+
 PRODUCTS = {
     "book": {
         "checkout_key": "book",
@@ -332,11 +334,16 @@ for product_key, spec in PRODUCTS.items():
                 )
             if product_key == "book" and fulfilment.get("status") != "ready":
                 raise SystemExit("Book checkout cannot go live until BookVault fulfilment status is 'ready'")
-        else:
-            if amount_minor is not None or stripe_price_id is not None:
+        elif amount_minor is not None or stripe_price_id is not None:
+            if not dynamic_checkout:
                 raise SystemExit(
-                    f"{product_key}/{offer_key} has partial price metadata but no payment link; refusing deployment"
+                    f"{product_key}/{offer_key} has price metadata without a Payment Link outside dynamic checkout mode"
                 )
+            if not isinstance(amount_minor, int) or amount_minor <= 0 or not stripe_product_id or not stripe_price_id:
+                raise SystemExit(
+                    f"{product_key}/{offer_key} has incomplete dynamic Stripe price metadata; refusing deployment"
+                )
+            print(f"commerce dynamic price staged: {product_key}/{offer_key} -> {currency.upper()} {amount_minor}")
 
         patch_page(
             page["path"],
