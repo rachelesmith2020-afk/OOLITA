@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Keep the homepage Sunday artwork inside its desktop hero column, route the current Sunday, and keep project credits out of the opening reading sequence."""
+"""Restore the original homepage Sunday hero, route the current Sunday, and keep project credits out of the opening reading sequence."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -66,6 +66,10 @@ panel_pattern = re.compile(
 )
 hit_pattern = re.compile(
     r'<a\b[^>]*class=["\'][^"\']*\boolita-current-sunday-hit\b[^"\']*["\'][^>]*>[\s\S]*?</a>',
+    flags=re.I,
+)
+hero_work_pattern = re.compile(
+    r'<figure\b[^>]*class=["\'][^"\']*\boolita-hero-work\b[^"\']*["\'][^>]*>[\s\S]*?</figure>',
     flags=re.I,
 )
 paragraph_pattern = re.compile(r'<p\b[^>]*>[\s\S]*?</p>', flags=re.I)
@@ -164,6 +168,7 @@ for rel, config in CURRENT.items():
         html = html.replace("</head>", STYLE + "\n</head>", 1)
     else:
         raise SystemExit(f"Homepage has no </head>: {rel}")
+    html = hero_work_pattern.sub("", html)
     html = patch_current_sunday(html, config, rel)
     html = move_project_credit(html, config["credit_marker"], rel)
     target.write_text(html, encoding="utf-8")
@@ -185,6 +190,8 @@ for rel, config in CURRENT.items():
     for needle in required:
         if needle not in html:
             raise SystemExit(f"Homepage hierarchy invariant failed in {rel}: {needle}")
+    if 'oolita-hero-work' in html:
+        raise SystemExit(f"Labyrinth hero image was not removed in {rel}")
     if html.count('class="oolita-current-sunday-hit"') != 1:
         raise SystemExit(f"Current Sunday hit target duplicated in {rel}")
     credit_pos = html.find(config["credit_marker"])
@@ -192,4 +199,4 @@ for rel, config in CURRENT.items():
     if not timer or credit_pos <= timer.start():
         raise SystemExit(f"Project credit did not move below the countdown in {rel}")
 
-print("OOLITA current-Sunday route, desktop containment and opening credit hierarchy validated in both homepages.")
+print("OOLITA original no-image hero, current-Sunday route, desktop containment and opening credit hierarchy validated in both homepages.")
