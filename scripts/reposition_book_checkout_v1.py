@@ -273,9 +273,9 @@ def reposition(rel: str, spec: dict[str, str]) -> None:
     text = text[:notify.end()] + "\n" + compact + text[notify.end():]
 
     style_re = re.compile(r'<style\s+id=["\']oolita-book-buy-position-v1["\']>[\s\S]*?</style>', flags=re.I)
-    text = style_re.sub(STYLE, text, count=1) if style_re.search(text) else text.replace('</head>', STYLE + '\n</head>', 1)
+    text = style_re.sub(lambda _: STYLE, text, count=1) if style_re.search(text) else text.replace('</head>', STYLE + '\n</head>', 1)
     runtime_re = re.compile(r'<script\s+id=["\']oolita-book-checkout-runtime-v1["\']>[\s\S]*?</script>', flags=re.I)
-    text = runtime_re.sub(RUNTIME, text, count=1) if runtime_re.search(text) else text.replace('</body>', RUNTIME + '\n</body>', 1)
+    text = runtime_re.sub(lambda _: RUNTIME, text, count=1) if runtime_re.search(text) else text.replace('</body>', RUNTIME + '\n</body>', 1)
     path.write_text(text, encoding="utf-8")
 
     final = path.read_text(encoding="utf-8")
