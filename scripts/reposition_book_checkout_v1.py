@@ -46,9 +46,10 @@ STYLE = r'''<style id="oolita-book-buy-position-v1">
 .oolita-book-checkout-dialog::backdrop{background:rgba(0,0,0,.35)}
 .oolita-book-checkout-dialog form{display:grid;gap:.9rem}
 .oolita-book-checkout-dialog label{display:grid;gap:.35rem}
-.oolita-book-checkout-dialog select,.oolita-book-checkout-dialog button{font:inherit;padding:.55rem .7rem}
+.oolita-book-checkout-dialog select,.oolita-book-checkout-dialog input,.oolita-book-checkout-dialog button{font:inherit;padding:.55rem .7rem}
 .oolita-book-checkout-dialog menu{display:flex;gap:.6rem;justify-content:flex-end;margin:0;padding:0}
 .oolita-book-checkout-error{min-height:1.2em;margin:0}
+.oolita-book-postcode[hidden]{display:none!important}
 @media (max-width:720px){.oolita-book-buy{margin-left:0;margin-top:.55rem}}
 </style>'''
 
@@ -60,14 +61,16 @@ RUNTIME = r'''<script id="oolita-book-checkout-runtime-v1">
   const copy = locale === 'es'
     ? {
         preorder: 'Reservar el libro', sale: 'Comprar el libro', title: 'Entrega',
-        country: 'País de entrega', continueText: 'Continuar al pago', cancel: 'Cancelar',
-        delivery: 'La entrega se añade en el pago.', unavailable: 'todavía no disponible',
+        country: 'País de entrega', postcode: 'Código postal', continueText: 'Continuar al pago', cancel: 'Cancelar',
+        delivery: 'La entrega se calcula con BookVault para tu código postal y se añade al pago.',
+        unavailable: 'todavía no disponible', postcodeError: 'Introduce un código postal válido del Reino Unido.',
         error: 'No se pudo iniciar el pago. Inténtalo de nuevo.'
       }
     : {
         preorder: 'Pre-order the book', sale: 'Buy the book', title: 'Delivery',
-        country: 'Delivery country', continueText: 'Continue to payment', cancel: 'Cancel',
-        delivery: 'Delivery is added at checkout.', unavailable: 'not yet available',
+        country: 'Delivery country', postcode: 'Postcode', continueText: 'Continue to payment', cancel: 'Cancel',
+        delivery: 'Delivery is quoted from BookVault for your postcode and added at checkout.',
+        unavailable: 'not yet available', postcodeError: 'Enter a valid UK postcode.',
         error: 'Checkout could not be started. Please try again.'
       };
   const countryNames = locale === 'es'
@@ -96,6 +99,14 @@ RUNTIME = r'''<script id="oolita-book-checkout-runtime-v1">
     labelButton(next.phase);
   }
 
+  function normalizeUkPostcode(value) {
+    return String(value || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  }
+
+  function validUkPostcode(value) {
+    return /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/.test(normalizeUkPostcode(value).replace(/\s+/g, ''));
+  }
+
   function ensureDialog() {
     let dialog = document.getElementById('oolita-book-checkout-dialog');
     if (dialog) return dialog;
@@ -105,24 +116,42 @@ RUNTIME = r'''<script id="oolita-book-checkout-runtime-v1">
     dialog.innerHTML = `<form method="dialog">
       <strong>${copy.title}</strong>
       <label>${copy.country}<select name="country" required></select></label>
+      <label class="oolita-book-postcode" hidden>${copy.postcode}<input name="postal_code" type="text" autocomplete="postal-code" inputmode="text" maxlength="9"></label>
       <p>${copy.delivery}</p>
       <p class="oolita-book-checkout-error" role="status" aria-live="polite"></p>
       <menu><button value="cancel" type="button" data-cancel>${copy.cancel}</button><button value="continue" type="submit">${copy.continueText}</button></menu>
     </form>`;
     document.body.appendChild(dialog);
+
+    const select = dialog.querySelector('select[name="country"]');
+    const postcodeWrap = dialog.querySelector('.oolita-book-postcode');
+    const postcode = dialog.querySelector('input[name="postal_code"]');
+    const syncPostcode = () => {
+      const needsPostcode = select.value === 'GB';
+      postcodeWrap.hidden = !needsPostcode;
+      postcode.required = needsPostcode;
+      if (!needsPostcode) postcode.value = '';
+    };
+    select.addEventListener('change', syncPostcode);
     dialog.querySelector('[data-cancel]').addEventListener('click', () => dialog.close());
     dialog.querySelector('form').addEventListener('submit', async (event) => {
       event.preventDefault();
       const error = dialog.querySelector('.oolita-book-checkout-error');
       const submit = dialog.querySelector('button[type="submit"]');
       error.textContent = '';
+      const country = select.value;
+      const postalCode = normalizeUkPostcode(postcode.value);
+      if (country === 'GB' && !validUkPostcode(postalCode)) {
+        error.textContent = copy.postcodeError;
+        postcode.focus();
+        return;
+      }
       submit.disabled = true;
       try {
-        const country = dialog.querySelector('select[name="country"]').value;
         const response = await fetch('/api/create-checkout', {
           method: 'POST',
           headers: {'content-type': 'application/json'},
-          body: JSON.stringify({country, locale, request_id: crypto.randomUUID()})
+          body: JSON.stringify({country, locale, postal_code: postalCode, request_id: crypto.randomUUID()})
         });
         const body = await response.json().catch(() => ({}));
         if (!response.ok || !body.url) throw new Error(body.error || 'checkout_creation_failed');
@@ -132,6 +161,7 @@ RUNTIME = r'''<script id="oolita-book-checkout-runtime-v1">
         submit.disabled = false;
       }
     });
+    dialog._oolitaSyncPostcode = syncPostcode;
     return dialog;
   }
 
@@ -150,6 +180,7 @@ RUNTIME = r'''<script id="oolita-book-checkout-runtime-v1">
       if (configured.has(code) && !select.value) option.selected = true;
       select.appendChild(option);
     }
+    if (typeof dialog._oolitaSyncPostcode === 'function') dialog._oolitaSyncPostcode();
     dialog.showModal();
   }
 
@@ -258,12 +289,12 @@ def reposition(rel: str, spec: dict[str, str]) -> None:
     assert checkout is not None
     if 'data-commerce-state="staged"' not in checkout.group(0) or 'href=' in checkout.group(0):
         raise SystemExit(f"Rendered checkout must remain inert until runtime status check in {rel}")
-    if '/api/commerce-status' not in final or '/api/create-checkout' not in final:
-        raise SystemExit(f"Runtime commerce endpoints missing in {rel}")
+    if '/api/commerce-status' not in final or '/api/create-checkout' not in final or 'postal_code' not in final:
+        raise SystemExit(f"Runtime commerce endpoints or postcode quote input missing in {rel}")
     print(f"book checkout positioned and runtime-wired: {rel}")
 
 
 for rel, spec in PAGES.items():
     reposition(rel, spec)
 
-print("OOLITA book checkout placement and launch-clock runtime validated on both language routes.")
+print("OOLITA book checkout placement, postcode quote and launch-clock runtime validated on both language routes.")
