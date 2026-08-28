@@ -1,1 +1,1 @@
-Trigger production deployment for corrected homepage preview intrinsic ratio and no-upscale desktop rendering.
+Final production publish after verifying the homepage Three.js preview renders at its correct intrinsic ratio with no desktop upscaling or distortion.
