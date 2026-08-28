@@ -15,10 +15,12 @@ idempotent and prevents duplicate rows inherited from a previously mirrored
 production homepage from accumulating across deployments. The final native-
 Spanish editorial pass runs here, after every broader reader-facing mutation.
 The homepage engagement/hierarchy guard then runs once more so the current-Sunday
-route and the lower project-credit placement are the final visible homepage state.
-The book visual-first guard then moves the existing genuine book illustration into
-the opening view on both language pages. These final guards run before integrity
-audit. The native pass also owns the final old-form no-straggler check.
+route and lower project-credit placement are the final visible homepage state.
+The book visual-first guard moves the existing genuine book illustration into the
+opening view, and the 3D visual-first guard brings the existing first-party browser
+world preview directly below the 3D-page H1. These final guards run before the
+static integrity audit. The native pass also owns the final old-form no-straggler
+check.
 """
 from pathlib import Path
 import re
@@ -143,4 +145,16 @@ try:
 finally:
     sys.argv = original_argv
 
-print("OOLITA final gate passed: geology, Spanish editorial, homepage hierarchy and hardened book visual-first hierarchy validated.")
+# Final 3D hierarchy guard. Use the established first-party browser-world still so
+# the visitor encounters the digital work before reading the technical explanation.
+world_visual = HERE / "apply_3d_visual_first_v1.py"
+if not world_visual.is_file():
+    raise SystemExit(f"Missing 3D visual-first guard: {world_visual}")
+original_argv = sys.argv[:]
+try:
+    sys.argv = [str(world_visual), str(ROOT)]
+    runpy.run_path(str(world_visual), run_name="__main__")
+finally:
+    sys.argv = original_argv
+
+print("OOLITA final gate passed: geology, Spanish editorial, homepage hierarchy, book visual-first and 3D visual-first states validated.")
