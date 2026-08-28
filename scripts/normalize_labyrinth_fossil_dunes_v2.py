@@ -15,9 +15,10 @@ idempotent and prevents duplicate rows inherited from a previously mirrored
 production homepage from accumulating across deployments. The final native-
 Spanish editorial pass runs here, after every broader reader-facing mutation.
 The homepage engagement/hierarchy guard then runs once more so the current-Sunday
-route and the lower project-credit placement are the final visible homepage state
-before integrity audit. The native pass also owns the final old-form no-straggler
-check.
+route and the lower project-credit placement are the final visible homepage state.
+The book visual-first guard then moves the existing genuine book illustration into
+the opening view on both language pages. These final guards run before integrity
+audit. The native pass also owns the final old-form no-straggler check.
 """
 from pathlib import Path
 import re
@@ -130,4 +131,16 @@ try:
 finally:
     sys.argv = original_argv
 
-print("OOLITA fossil-dunes v2 final gate passed, including final Spanish editorial and homepage hierarchy passes.")
+# Final book hierarchy guard. Reuse the genuine illustration already installed by
+# the book-excerpt pass and move it into the opening view; do not create new art.
+book_visual = HERE / "apply_book_visual_first_v1.py"
+if not book_visual.is_file():
+    raise SystemExit(f"Missing book visual-first guard: {book_visual}")
+original_argv = sys.argv[:]
+try:
+    sys.argv = [str(book_visual), str(ROOT)]
+    runpy.run_path(str(book_visual), run_name="__main__")
+finally:
+    sys.argv = original_argv
+
+print("OOLITA final gate passed: geology, Spanish editorial, homepage hierarchy and book visual-first state validated.")
