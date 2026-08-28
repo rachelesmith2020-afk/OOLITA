@@ -9,8 +9,16 @@ name = "oolita"
 pages_build_output_dir = "./site"
 compatibility_date = "2026-08-10"
 
-# Non-secret production commerce configuration. Credentials remain Cloudflare secrets.
+# Non-secret default commerce configuration. Credentials remain Cloudflare secrets.
 [vars]
+BOOKVAULT_ENABLED = "true"
+BOOKVAULT_OOLITA_ISBN = "9781066939800"
+BOOKVAULT_PRODUCTION_LEVEL = "Standard"
+BOOKVAULT_REQUESTED_SERVICE = "CheapestTracked"
+STRIPE_BOOK_PRICE_GBP_ID = "price_1U9Oi8Hcycje25JhAOkHZr9L"
+
+# Wrangler environments do not inherit top-level vars; repeat the production values explicitly.
+[env.production.vars]
 BOOKVAULT_ENABLED = "true"
 BOOKVAULT_OOLITA_ISBN = "9781066939800"
 BOOKVAULT_PRODUCTION_LEVEL = "Standard"
@@ -33,3 +41,4 @@ database_name = "OOLITA_SUBSCRIBERS"
 # Production propagation trigger: launch-clock checkout wiring, 2026-08-28.
 # Production propagation trigger: non-secret UK commerce variables, 2026-08-28.
 # Production propagation trigger: bind production commerce secrets, 2026-08-28.
+# Production propagation trigger: inherit commerce vars in production explicitly, 2026-08-28.
