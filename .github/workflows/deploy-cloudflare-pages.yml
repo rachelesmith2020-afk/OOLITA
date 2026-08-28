@@ -228,6 +228,10 @@ jobs:
         shell: bash
         run: python3 scripts/finalize_google_favicon_v1.py site
 
+      - name: Apply final Cloudflare email-protection exclusion
+        shell: bash
+        run: python3 scripts/apply_cloudflare_follow_v1.py site
+
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
         run: python3 scripts/audit_static_integrity_v1.py site
@@ -352,6 +356,10 @@ jobs:
       - name: Finalize stable Google favicon
         shell: bash
         run: python3 scripts/finalize_google_favicon_v1.py site
+
+      - name: Apply final Cloudflare email-protection exclusion
+        shell: bash
+        run: python3 scripts/apply_cloudflare_follow_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
