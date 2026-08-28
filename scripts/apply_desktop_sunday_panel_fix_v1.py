@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Keep the homepage Sunday artwork inside its hero column, route the current Sunday, introduce the labyrinth visually, and keep project credits out of the opening reading sequence."""
+"""Keep the homepage Sunday artwork inside its hero column, route the current Sunday, visibly introduce the labyrinth, and keep project credits out of the opening reading sequence."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -10,15 +10,41 @@ ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 STYLE_ID = "oolita-desktop-sunday-panel-fix-v1"
 HERO_IMAGE = "/laberinto/laberinto-oolita-los-escullos.jpg"
 STYLE = r'''<style id="oolita-desktop-sunday-panel-fix-v1">
-/* The physical work enters the first screen without changing the hero grid.
-   The photograph is decorative here because the same image appears later with
-   full alternative text; the current-Sunday card remains the live action. */
+/* The physical work occupies the upper part of the hero's right column.
+   The current-Sunday field remains a separate live action underneath it. */
 body.art-home .hero .der{
-  background-color:var(--art-paper)!important;
-  background-image:linear-gradient(rgba(45,78,35,.035),rgba(45,78,35,.10)),url('/laberinto/laberinto-oolita-los-escullos.jpg')!important;
-  background-size:cover!important;
-  background-position:center center!important;
-  background-repeat:no-repeat!important;
+  position:relative;
+  background:var(--art-paper)!important;
+}
+body.art-home .oolita-hero-work{
+  position:relative;
+  width:100%;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden;
+  background:var(--art-paper);
+  border:0!important;
+  border-bottom:1px solid rgba(45,78,35,.55)!important;
+}
+body.art-home .oolita-hero-work a{
+  display:block;
+  width:100%;
+  height:100%;
+  color:inherit;
+  text-decoration:none;
+}
+body.art-home .oolita-hero-work img{
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  object-fit:cover!important;
+  object-position:center 56%!important;
+  border-radius:0!important;
+}
+body.art-home .oolita-hero-work a:focus-visible{
+  outline:2px solid currentColor;
+  outline-offset:-6px;
 }
 #oolita-art-field-sundays{position:relative}
 #oolita-art-field-sundays .oolita-current-sunday-hit{position:absolute;inset:0;z-index:4;display:block;color:inherit;text-decoration:none}
@@ -34,14 +60,35 @@ body.art-home p.oolita-project-credit{
   letter-spacing:.01em!important;
 }
 @media(min-width:56.001rem){
-  body.art-home .hero .der{min-width:0;overflow:hidden;display:flex;flex-direction:column}
-  body.art-home #oolita-art-field-sundays{width:100%!important;max-width:100%!important;min-height:100%!important;margin:0!important;padding:clamp(1.5rem,2.4vw,2.5rem)!important}
+  body.art-home .hero .der{
+    min-width:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  body.art-home .oolita-hero-work{
+    flex:1 1 52%;
+    min-height:0;
+  }
+  body.art-home #oolita-art-field-sundays{
+    flex:0 0 48%;
+    width:100%!important;
+    max-width:100%!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:clamp(1.5rem,2.4vw,2.5rem)!important;
+  }
   body.art-home #oolita-art-field-sundays .art-kicker{top:clamp(1.5rem,2.4vw,2.5rem)!important;left:clamp(1.5rem,2.4vw,2.5rem)!important}
-  body.art-home #oolita-art-field-sundays .art-word{max-width:100%!important;font-size:clamp(8rem,11.5vw,12rem)!important;line-height:.68!important;overflow-wrap:normal!important;white-space:nowrap!important}
-  body.art-home #oolita-art-field-sundays .art-caption{max-width:18rem!important;margin:clamp(1.25rem,2vw,2rem) 0 0!important;font-size:clamp(.95rem,1.1vw,1.1rem)!important}
+  body.art-home #oolita-art-field-sundays .art-word{max-width:100%!important;font-size:clamp(6rem,9vw,9rem)!important;line-height:.68!important;overflow-wrap:normal!important;white-space:nowrap!important}
+  body.art-home #oolita-art-field-sundays .art-caption{max-width:18rem!important;margin:clamp(1rem,1.6vw,1.5rem) 0 0!important;font-size:clamp(.9rem,1vw,1.05rem)!important}
+}
+@media(max-width:56rem){
+  body.art-home .hero .der{display:block;overflow:hidden}
+  body.art-home .oolita-hero-work{height:44svh;min-height:20rem}
+  body.art-home #oolita-art-field-sundays{min-height:52svh!important}
+  body.art-home .oolita-hero-work img{object-position:center 54%!important}
 }
 @media(max-width:760px){
-  body.art-home .hero .der{background-position:center 48%!important}
   body.art-home p.oolita-project-credit{margin:2rem 1.35rem 3rem!important;font-size:.88rem!important}
 }
 </style>'''
@@ -54,6 +101,8 @@ CURRENT = {
         "word": "03",
         "caption": "23.08.26 · La piedra guarda la memoria del mar.",
         "credit_marker": "Raquel Costantini hizo el laberinto",
+        "hero_href": "/laberinto/",
+        "hero_alt": "El laberinto de piedra OOLITA en Los Escullos",
     },
     "en/index.html": {
         "href": "/en/sundays/03-the-memory-of-the-sea/",
@@ -62,6 +111,8 @@ CURRENT = {
         "word": "03",
         "caption": "23 Aug 26 · The stone holds the memory of the sea.",
         "credit_marker": "Raquel Costantini made the labyrinth",
+        "hero_href": "/en/labyrinth/",
+        "hero_alt": "The OOLITA stone labyrinth at Los Escullos",
     },
 }
 
@@ -78,6 +129,10 @@ panel_pattern = re.compile(
 )
 hit_pattern = re.compile(
     r'<a\b[^>]*class=["\'][^"\']*\boolita-current-sunday-hit\b[^"\']*["\'][^>]*>[\s\S]*?</a>',
+    flags=re.I,
+)
+hero_work_pattern = re.compile(
+    r'<figure\b[^>]*class=["\'][^"\']*\boolita-hero-work\b[^"\']*["\'][^>]*>[\s\S]*?</figure>',
     flags=re.I,
 )
 paragraph_pattern = re.compile(r'<p\b[^>]*>[\s\S]*?</p>', flags=re.I)
@@ -116,6 +171,21 @@ def replace_class_text(block: str, class_name: str, value: str) -> str:
     if count != 1:
         raise SystemExit(f"Current Sunday panel is missing .{class_name}")
     return updated
+
+
+def insert_hero_work(html: str, config: dict[str, str], rel: str) -> str:
+    html = hero_work_pattern.sub("", html)
+    panel = panel_pattern.search(html)
+    if not panel:
+        raise SystemExit(f"Sunday hero panel missing while inserting work image in {rel}")
+    figure = (
+        '<figure class="oolita-hero-work">'
+        f'<a href="{config["hero_href"]}" aria-label="{config["hero_alt"]}">'
+        f'<img src="{HERO_IMAGE}" alt="{config["hero_alt"]}" width="1400" height="1050" '
+        'loading="eager" fetchpriority="high" decoding="async">'
+        '</a></figure>'
+    )
+    return html[:panel.start()] + figure + "\n" + html[panel.start():]
 
 
 def patch_current_sunday(html: str, config: dict[str, str], rel: str) -> str:
@@ -176,6 +246,7 @@ for rel, config in CURRENT.items():
         html = html.replace("</head>", STYLE + "\n</head>", 1)
     else:
         raise SystemExit(f"Homepage has no </head>: {rel}")
+    html = insert_hero_work(html, config, rel)
     html = patch_current_sunday(html, config, rel)
     html = move_project_credit(html, config["credit_marker"], rel)
     target.write_text(html, encoding="utf-8")
@@ -185,8 +256,10 @@ for rel, config in CURRENT.items():
     required = (
         STYLE_ID,
         HERO_IMAGE,
+        "oolita-hero-work",
+        f'href="{config["hero_href"]}"',
+        config["hero_alt"],
         "#oolita-art-field-sundays",
-        "width:100%!important",
         'data-current-sunday="03"',
         f'href="{config["href"]}"',
         config["kicker"],
@@ -198,6 +271,8 @@ for rel, config in CURRENT.items():
     for needle in required:
         if needle not in html:
             raise SystemExit(f"Homepage hierarchy invariant failed in {rel}: {needle}")
+    if html.count('class="oolita-hero-work"') != 1:
+        raise SystemExit(f"Hero work image duplicated in {rel}")
     if html.count('class="oolita-current-sunday-hit"') != 1:
         raise SystemExit(f"Current Sunday hit target duplicated in {rel}")
     credit_pos = html.find(config["credit_marker"])
@@ -205,4 +280,4 @@ for rel, config in CURRENT.items():
     if not timer or credit_pos <= timer.start():
         raise SystemExit(f"Project credit did not move below the countdown in {rel}")
 
-print("OOLITA hero labyrinth image, current-Sunday route, desktop containment and opening credit hierarchy validated in both homepages.")
+print("OOLITA visible hero labyrinth image, current-Sunday route, desktop containment and opening credit hierarchy validated in both homepages.")
