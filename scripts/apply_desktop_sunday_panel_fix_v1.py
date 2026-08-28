@@ -28,8 +28,8 @@ body.art-home p.oolita-project-credit{
     width:100%!important;
     max-width:100%!important;
     min-height:0!important;
-    height:clamp(20rem,36vw,22rem)!important;
-    max-height:22rem!important;
+    height:18.5rem!important;
+    max-height:18.5rem!important;
     aspect-ratio:auto!important;
     flex:0 0 auto!important;
     margin:0!important;
@@ -50,8 +50,8 @@ body.art-home p.oolita-project-credit{
   }
   body.art-home #oolita-art-field-sundays .art-word{
     max-width:100%!important;
-    margin:auto 0 0!important;
-    font-size:clamp(6rem,8.2vw,8rem)!important;
+    margin:2.25rem 0 0!important;
+    font-size:clamp(5rem,6vw,5.75rem)!important;
     line-height:.74!important;
     letter-spacing:-.06em!important;
     overflow-wrap:normal!important;
@@ -60,7 +60,7 @@ body.art-home p.oolita-project-credit{
   body.art-home #oolita-art-field-sundays .art-caption{
     max-width:16rem!important;
     margin:clamp(.9rem,1.3vw,1.25rem) 0 0!important;
-    font-size:clamp(.86rem,.95vw,.98rem)!important;
+    font-size:clamp(.8rem,.88vw,.9rem)!important;
     line-height:1.35!important;
   }
 }
@@ -215,8 +215,8 @@ for rel, config in CURRENT.items():
         "#oolita-art-field-sundays",
         "width:100%!important",
         "min-height:0!important",
-        "height:clamp(20rem,36vw,22rem)!important",
-        "max-height:22rem!important",
+        "height:18.5rem!important",
+        "max-height:18.5rem!important",
         'data-current-sunday="03"',
         f'href="{config["href"]}"',
         config["kicker"],
