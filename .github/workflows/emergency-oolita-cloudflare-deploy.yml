@@ -54,4 +54,4 @@ jobs:
             --commit-hash="${GITHUB_SHA}" \
             --commit-message="OOLITA search snippet and Sunday alt repair"
 
-# Production trigger: search snippet and Sunday image-alt repair, 2026-08-31.
+# Production trigger: rerun search snippet and Sunday image-alt repair with idempotent schema guard, 2026-08-31.
