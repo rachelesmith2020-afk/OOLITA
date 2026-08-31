@@ -39,19 +39,19 @@ REPLACEMENTS = {
             "Carteles OOLITA — piedra, papel y código · Cabo de Gata",
         ),
         (
-            "Los nueve carteles que abrieron OOLITA: piedra, papel y código antes del laberinto, el libro y el mundo 3D.",
+            "Los nueve carteles tipográficos que abren OOLITA: piedra, papel y código — el laberinto de Los Escullos, el libro y el mundo 3D que abre el 3 de enero de 2027.",
             "Nueve carteles de OOLITA: la serie visual que presentó el laberinto de Los Escullos, el libro bilingüe y el mundo 3D en Cabo de Gata.",
         ),
     ],
     "laberinto/index.html": [
         (
-            "Cómo llegar al laberinto OOLITA en Los Escullos: coordenadas, acceso, qué esperar y cómo caminarlo, junto al Castillo de San Felipe en Cabo de Gata-Níjar.",
+            "Laberinto OOLITA en Los Escullos, Cabo de Gata: un camino de piedras sueltas en terreno junto a las dunas fósiles, sin entrada ni reserva.",
             "Visita el laberinto de piedra de tres metros en Los Escullos, Cabo de Gata. Gratis, sin reserva, junto al Castillo de San Felipe. Coordenadas y acceso.",
         ),
     ],
     "en/labyrinth/index.html": [
         (
-            "How to reach the OOLITA labyrinth at Los Escullos: coordinates, access, what to expect and how to walk it, beside Castillo de San Felipe in Cabo de Gata-Níjar.",
+            "A 3-metre classical stone labyrinth, laid by hand in 2021 on land beside the fossil dunes at Los Escullos, Cabo de Gata. How to find it and what to expect.",
             "Visit the three-metre stone labyrinth at Los Escullos, Cabo de Gata. Free, no booking, beside Castillo de San Felipe. Coordinates and access.",
         ),
     ],
@@ -72,7 +72,7 @@ for rel, pairs in REPLACEMENTS.items():
         path.write_text(text, encoding="utf-8")
         changed += 1
 
-# Safety gates: canonical URL behavior must remain untouched.
+# Safety gates: preserve canonical behavior and ensure archive images carry useful text alternatives.
 for rel in ("index.html", "domingos/index.html", "en/sundays/index.html", "carteles/index.html", "laberinto/index.html", "en/labyrinth/index.html"):
     text = (ROOT / rel).read_text(encoding="utf-8")
     if '<link rel="canonical"' not in text:
@@ -80,7 +80,8 @@ for rel in ("index.html", "domingos/index.html", "en/sundays/index.html", "carte
 
 for rel in ("domingos/index.html", "en/sundays/index.html"):
     text = (ROOT / rel).read_text(encoding="utf-8")
-    if text.count('alt=""') >= 3:
-        raise SystemExit(f"Sunday archive thumbnail alt cleanup did not complete: {rel}")
+    for n in ("01", "02", "03"):
+        if f'/domingos/img/{n}-180.jpg" alt=""' in text:
+            raise SystemExit(f"Empty Sunday thumbnail alt remains in {rel}: {n}")
 
 print(f"Search snippet + Sunday alt repair applied to {changed} page(s)")
