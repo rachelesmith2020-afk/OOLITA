@@ -37,6 +37,10 @@ jobs:
           python3 scripts/apply_voice_audit_v1.py site
           python3 scripts/apply_voice_audit_spanish_editions_v1.py site
 
+      - name: Repair structured-data publisher integrity
+        shell: bash
+        run: python3 scripts/apply_schema_publisher_integrity_v1.py site
+
       - name: Deploy directly to Cloudflare Pages production
         shell: bash
         run: |
@@ -44,6 +48,6 @@ jobs:
             --project-name=oolita \
             --branch=main \
             --commit-hash="${GITHUB_SHA}" \
-            --commit-message="OOLITA book-voice audit: final Spanish Editions pass"
+            --commit-message="OOLITA structured-data publisher integrity repair"
 
-# Emergency production trigger: publish corrected OOLITA cat favicon, 2026-08-25.
+# Production trigger: structured-data publisher integrity repair, 2026-08-31.
