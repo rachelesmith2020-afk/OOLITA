@@ -41,6 +41,10 @@ jobs:
         shell: bash
         run: python3 scripts/apply_schema_publisher_integrity_v1.py site
 
+      - name: Improve search snippets and Sunday image alternatives
+        shell: bash
+        run: python3 scripts/apply_search_snippet_and_alt_v1.py site
+
       - name: Deploy directly to Cloudflare Pages production
         shell: bash
         run: |
@@ -48,6 +52,6 @@ jobs:
             --project-name=oolita \
             --branch=main \
             --commit-hash="${GITHUB_SHA}" \
-            --commit-message="OOLITA structured-data publisher integrity repair"
+            --commit-message="OOLITA search snippet and Sunday alt repair"
 
-# Production trigger: structured-data publisher integrity repair, corrected runner, 2026-08-31.
+# Production trigger: search snippet and Sunday image-alt repair, 2026-08-31.
