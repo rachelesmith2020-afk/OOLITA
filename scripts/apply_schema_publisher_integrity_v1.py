@@ -2,10 +2,8 @@
 """Remove incomplete Vestini Tribe publisher Organization objects from JSON-LD.
 
 The visible publishing credit remains in page copy. We deliberately do not
-invent a publisher logo merely to satisfy structured-data tooling. Schema.org's
-publisher property expects a Person or Organization, so replacing the object
-with a plain string would be invalid; omission is the accurate fallback until
-an authoritative Vestini Tribe logo asset exists.
+invent a publisher logo merely to satisfy structured-data tooling. This repair
+is idempotent: an already-clean production mirror is a successful state.
 """
 from __future__ import annotations
 
@@ -19,7 +17,6 @@ SCRIPT_RE = re.compile(
     r'(<script\b[^>]*\btype\s*=\s*["\']application/ld\+json["\'][^>]*>)(.*?)(</script>)',
     flags=re.I | re.S,
 )
-
 removed = 0
 changed_files = 0
 
@@ -34,11 +31,7 @@ def is_incomplete_vestini_org(value: object) -> bool:
         types = {item for item in raw_type if isinstance(item, str)}
     else:
         types = set()
-    return (
-        "Organization" in types
-        and value.get("name") == "Vestini Tribe"
-        and not value.get("logo")
-    )
+    return "Organization" in types and value.get("name") == "Vestini Tribe" and not value.get("logo")
 
 
 def clean(node: object) -> object:
@@ -89,9 +82,6 @@ for path in ROOT.rglob("*.html"):
         path.write_text(updated, encoding="utf-8")
         changed_files += 1
 
-if removed == 0:
-    raise SystemExit("No incomplete Vestini Tribe publisher Organization objects found; refusing silent no-op")
-
 for path in ROOT.rglob("*.html"):
     text = path.read_text(encoding="utf-8")
     for match in SCRIPT_RE.finditer(text):
@@ -103,4 +93,7 @@ for path in ROOT.rglob("*.html"):
         if contains_incomplete_vestini_org(payload):
             raise SystemExit(f"Incomplete Vestini Tribe Organization remains in {path}")
 
-print(f"Structured-data publisher repair: removed {removed} incomplete Organization object(s) across {changed_files} HTML file(s)")
+if removed:
+    print(f"Structured-data publisher repair: removed {removed} incomplete Organization object(s) across {changed_files} HTML file(s)")
+else:
+    print("Structured-data publisher repair: already clean; no changes required")
