@@ -28,7 +28,12 @@ def is_incomplete_vestini_org(value: object) -> bool:
     if not isinstance(value, dict):
         return False
     raw_type = value.get("@type")
-    types = {raw_type} if isinstance(raw_type, str) else set(raw_type or []) if isinstance(raw_type, list) else set()
+    if isinstance(raw_type, str):
+        types = {raw_type}
+    elif isinstance(raw_type, list):
+        types = {item for item in raw_type if isinstance(item, str)}
+    else:
+        types = set()
     return (
         "Organization" in types
         and value.get("name") == "Vestini Tribe"
@@ -63,10 +68,8 @@ def contains_incomplete_vestini_org(node: object) -> bool:
 
 for path in ROOT.rglob("*.html"):
     text = path.read_text(encoding="utf-8")
-    touched = False
 
     def rewrite(match: re.Match[str]) -> str:
-        nonlocal_touched = False
         raw = match.group(2).strip()
         try:
             payload = json.loads(raw)
@@ -79,14 +82,10 @@ for path in ROOT.rglob("*.html"):
         after = json.dumps(cleaned, ensure_ascii=False, sort_keys=True)
         if before == after:
             return match.group(0)
-        nonlocal_touched = True
-        if nonlocal_touched:
-            nonlocal touched
-            touched = True
         return match.group(1) + json.dumps(cleaned, ensure_ascii=False, separators=(",", ":")) + match.group(3)
 
     updated = SCRIPT_RE.sub(rewrite, text)
-    if touched:
+    if updated != text:
         path.write_text(updated, encoding="utf-8")
         changed_files += 1
 
