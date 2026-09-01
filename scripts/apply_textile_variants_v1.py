@@ -182,7 +182,6 @@ def update_jsonld(text: str, cfg: dict, label: str) -> str:
         if not isinstance(obj, dict):
             return m.group(0)
         obj_id = obj.get("@id")
-        attrs = (m.group("attrs") or "") + (m.group("attrs2") or "")
         marker = ""
         if obj_id == webpage_id:
             found_page += 1
@@ -249,16 +248,19 @@ for rel, cfg in PAGES.items():
     print(f"textile variants + SEO published: {rel}")
 
 summaries = {
-    "en/editions/index.html": (("200 gsm", "oversized"), "White, two unisex cuts: 180 gsm regular or 200 gsm heavy oversized."),
-    "ediciones/index.html": (("200", "oversized"), "Blanca, dos cortes unisex: regular de 180 g/m² o heavy oversized de 200 g/m²."),
+    "en/editions/index.html": ("White, 200 gsm organic cotton, an oversized unisex fit.", "White, two unisex cuts: 180 gsm regular or 200 gsm heavy oversized."),
+    "ediciones/index.html": ("Blanca, de algodón orgánico de 200 gramos, de corte oversized unisex.", "Blanca, dos cortes unisex: regular de 180 g/m² o heavy oversized de 200 g/m²."),
 }
-for rel, (fragments, new) in summaries.items():
+for rel, (old, new) in summaries.items():
     path = ROOT / rel
     if not path.is_file():
         raise SystemExit(f"Missing Editions directory: {rel}")
     text = path.read_text(encoding="utf-8")
     if new not in text:
-        text = replace_element(text, "p", fragments, new, rel + " textile summary")
+        count = text.count(old)
+        if count != 1:
+            raise SystemExit(f"{rel} textile summary: expected one exact source string, found {count}")
+        text = text.replace(old, new, 1)
         path.write_text(text, encoding="utf-8")
     print(f"textile directory summary published: {rel}")
 
