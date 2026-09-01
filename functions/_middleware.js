@@ -14,6 +14,18 @@
  */
 export async function onRequest(context) {
   const url = new URL(context.request.url);
+
+  // Google discovered legacy homepage variants carrying ?follow=3d. Redirect
+  // only that exact obsolete parameter so link equity consolidates on the clean
+  // canonical URL without removing unrelated, potentially functional params.
+  if (url.searchParams.get("follow") === "3d") {
+    url.searchParams.delete("follow");
+    url.protocol = "https:";
+    url.hostname = "oolita.es";
+    url.port = "";
+    return Response.redirect(url.toString(), 301);
+  }
+
   const canonicalPath = url.pathname.replace(
     /%[0-9A-Fa-f]{2}|[A-Z]/g,
     (token) => token.startsWith("%") ? token : token.toLowerCase(),
