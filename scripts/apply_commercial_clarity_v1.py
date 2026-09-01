@@ -33,6 +33,8 @@ def replace_any_once(rel: str, old_forms: tuple[str, ...], new: str) -> None:
     path, text = read(rel)
     if new in text:
         return
+    if rel in ("en/editions/t-shirt/index.html", "ediciones/camiseta/index.html") and "RE-Creator STTU787" in text and "Blaster 2.0 STTU959" in text:
+        return
     for old in old_forms:
         count = text.count(old)
         if count == 1:
@@ -51,6 +53,8 @@ def replace_paragraph(
     """Replace one paragraph from any known source state; safe on rebuilt live HTML."""
     path, text = read(rel)
     if new_inner in text:
+        return
+    if rel in ("en/editions/t-shirt/index.html", "ediciones/camiseta/index.html") and "RE-Creator STTU787" in text and "Blaster 2.0 STTU959" in text:
         return
     markers = (marker,) if isinstance(marker, str) else marker
     pattern = re.compile(r"(<p\b[^>]*>)(.*?)(</p>)", flags=re.I | re.S)
@@ -168,9 +172,9 @@ replace_paragraph(
     "En desarrollo. Aún no hay fecha de publicación. Una publicación bilingüe para niños y familias: observar, dibujar, escuchar y registrar sin recoger ni alterar nada.",
 )
 
-# TEXTILE DETAIL — use the current European Blaster 2.0 specification and distinguish
-# product certifications from company memberships. No Fair Wear start year is stated
-# because the brand and Fair Wear currently publish different membership years.
+# TEXTILE DETAIL — legacy single-Blaster state is normalized when present. When the
+# final two-variant textile pass has already published RE-Creator + Blaster, the
+# helpers above preserve that newer state instead of forcing the old one-product copy.
 replace_paragraph(
     "en/editions/t-shirt/index.html",
     "It is a Stanley/Stella Blaster 2.0",
@@ -230,28 +234,10 @@ replace_any_once(
 required = {
     "en/index.html": (STATUS_EN,),
     "index.html": (STATUS_ES,),
-    "en/editions/index.html": (
-        "Available from 31.01.27",
-        "Available from 11.04.27",
-        "In development. No release date yet.",
-    ),
-    "ediciones/index.html": (
-        "Disponible desde el 31.01.27",
-        "Disponible desde el 11.04.27",
-        "En desarrollo. Aún no hay fecha de publicación.",
-    ),
-    "en/editions/t-shirt/index.html": (
-        "200 gsm single jersey in 100% organic ring-spun combed cotton",
-        "Stanley/Stella is a Fair Wear member and PETA-Approved; its products are made from 100% vegan materials",
-        "Credentials",
-        "GOTS · OEKO-TEX · Fair Wear member · PETA-Approved",
-    ),
-    "ediciones/camiseta/index.html": (
-        "algodón orgánico peinado e hilado en anillo",
-        "Stanley/Stella es miembro de Fair Wear y está aprobada por PETA; sus productos están hechos con materiales 100 % veganos",
-        "Credenciales",
-        "GOTS · OEKO-TEX · miembro de Fair Wear · PETA-Approved",
-    ),
+    "en/editions/index.html": ("Available from 31.01.27", "Available from 11.04.27", "In development. No release date yet."),
+    "ediciones/index.html": ("Disponible desde el 31.01.27", "Disponible desde el 11.04.27", "En desarrollo."),
+    "en/editions/t-shirt/index.html": ("RE-Creator STTU787", "Blaster 2.0 STTU959", "GRS, OCS and OEKO-TEX", "Credentials"),
+    "ediciones/camiseta/index.html": ("RE-Creator STTU787", "Blaster 2.0 STTU959", "GRS, OCS y OEKO-TEX", "Credenciales"),
 }
 stale = {
     "en/index.html": ("book goes on sale", "first textile edition goes on sale"),
