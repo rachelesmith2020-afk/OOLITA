@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Publish both garment choices for OOLITA's first textile edition.
 
-Runs at the final integrity gate so normal editorial/SEO passes cannot restore the
-former oversized-only copy. No price is exposed and no checkout is enabled here.
+Applied at the final integrity gate. No price is exposed and no checkout is enabled.
 """
 from __future__ import annotations
 
@@ -87,7 +86,7 @@ def contains_all(value: str, fragments: tuple[str, ...]) -> bool:
     return all(fragment.casefold() in low for fragment in fragments)
 
 
-def replace_element_by_fragments(text: str, tag: str, fragments: tuple[str, ...], new: str, label: str) -> str:
+def replace_element(text: str, tag: str, fragments: tuple[str, ...], new: str, label: str) -> str:
     if new in text:
         return text
     pattern = re.compile(rf"<(?P<tag>{re.escape(tag)})\b(?P<attrs>[^>]*)>(?P<body>[\s\S]*?)</(?P=tag)>", re.I)
@@ -99,16 +98,15 @@ def replace_element_by_fragments(text: str, tag: str, fragments: tuple[str, ...]
     return text[:m.start()] + replacement + text[m.end():]
 
 
-def replace_exact_value(text: str, old: str, new: str, label: str) -> str:
+def replace_fact_value(text: str, old: str, new: str, label: str) -> str:
     if new in text:
         return text
-    pattern = re.compile(r"<(?P<tag>dd|span|div|li)\b(?P<attrs>[^>]*)>(?P<body>[\s\S]*?)</(?P=tag)>", re.I)
-    matches = [m for m in pattern.finditer(text) if rendered(m.group("body")) == old]
+    pattern = re.compile(r"<span\b(?P<attrs>[^>]*)>(?P<body>[\s\S]*?)</span>", re.I)
+    matches = [m for m in pattern.finditer(text) if re.search(r"\bclass=[\"'][^\"']*\bv\b[^\"']*[\"']", m.group("attrs"), re.I) and rendered(m.group("body")) == old]
     if len(matches) != 1:
-        raise SystemExit(f"{label}: expected one isolated value {old!r}, found {len(matches)}")
+        raise SystemExit(f"{label}: expected one fact value {old!r}, found {len(matches)}")
     m = matches[0]
-    replacement = f"<{m.group('tag')}{m.group('attrs')}>{new}</{m.group('tag')}>"
-    return text[:m.start()] + replacement + text[m.end():]
+    return text[:m.start()] + f"<span{m.group('attrs')}>{new}</span>" + text[m.end():]
 
 
 def replace_img_alt(text: str, fragments: tuple[str, ...], new: str, label: str) -> str:
@@ -119,9 +117,8 @@ def replace_img_alt(text: str, fragments: tuple[str, ...], new: str, label: str)
     if len(matches) != 1:
         raise SystemExit(f"{label}: expected one image alt match, found {len(matches)}")
     m = matches[0]
-    tag = m.group(0)
-    patched = re.sub(r"\balt=([\"']).*?\1", lambda x: f'alt={x.group(1)}{new}{x.group(1)}', tag, count=1, flags=re.I | re.S)
-    return text[:m.start()] + patched + text[m.end():]
+    tag = re.sub(r"\balt=([\"']).*?\1", lambda x: f'alt={x.group(1)}{new}{x.group(1)}', m.group(0), count=1, flags=re.I | re.S)
+    return text[:m.start()] + tag + text[m.end():]
 
 
 def insert_before_heading(text: str, fragments: tuple[str, ...], block: str, label: str) -> str:
@@ -162,23 +159,54 @@ def set_meta(text: str, attr: str, value: str, content: str, required: bool = Tr
     return result
 
 
-def add_schema(text: str, cfg: dict) -> str:
-    if SCHEMA_MARKER in text:
-        return text
-    schema = {
-        "@context": "https://schema.org", "@type": "ProductGroup",
-        "@id": cfg["canonical"] + "#textile-edition", "url": cfg["canonical"],
-        "name": cfg["schema_name"], "brand": {"@type": "Brand", "name": "OOLITA"},
-        "color": "White", "releaseDate": "2027-04-11",
-        "hasVariant": [
-            {"@type": "Product", "name": "OOLITA Regular", "model": "Stanley/Stella RE-Creator STTU787", "material": "50% recycled cotton, 50% organic cotton", "size": "XXS–3XL"},
-            {"@type": "Product", "name": "OOLITA Heavy Oversized", "model": "Stanley/Stella Blaster 2.0 STTU959", "material": "100% organic ring-spun combed cotton", "size": "XXS–3XL"},
-        ],
-    }
-    script = '<script type="application/ld+json" data-oolita-textile-product-schema="v1">' + json.dumps(schema, ensure_ascii=False, separators=(",", ":")) + "</script>"
-    if "</head>" not in text:
-        raise SystemExit("Missing </head> for textile schema")
-    return text.replace("</head>", script + "\n</head>", 1)
+def product_variants() -> list[dict]:
+    return [
+        {"@type": "Product", "name": "OOLITA Regular", "sku": "OOLITA-UK-REGULAR-WHITE", "model": "Stanley/Stella RE-Creator STTU787", "material": "50% recycled cotton, 50% organic cotton", "size": "XXS–3XL", "color": "White"},
+        {"@type": "Product", "name": "OOLITA Heavy Oversized", "sku": "OOLITA-UK-OVERSIZED-WHITE", "model": "Stanley/Stella Blaster 2.0 STTU959", "material": "100% organic ring-spun combed cotton", "size": "XXS–3XL", "color": "White"},
+    ]
+
+
+def update_jsonld(text: str, cfg: dict, label: str) -> str:
+    script_re = re.compile(r"<script(?P<attrs>[^>]*)type=[\"']application/ld\+json[\"'](?P<attrs2>[^>]*)>(?P<body>[\s\S]*?)</script>", re.I)
+    webpage_id = cfg["canonical"] + "#webpage"
+    product_id = cfg["canonical"] + "#producto"
+    found_page = 0
+    found_product = 0
+
+    def patch(m: re.Match[str]) -> str:
+        nonlocal found_page, found_product
+        try:
+            obj = json.loads(html.unescape(m.group("body")).strip())
+        except Exception:
+            return m.group(0)
+        if not isinstance(obj, dict):
+            return m.group(0)
+        obj_id = obj.get("@id")
+        attrs = (m.group("attrs") or "") + (m.group("attrs2") or "")
+        marker = ""
+        if obj_id == webpage_id:
+            found_page += 1
+            obj["name"] = cfg["title"]
+            obj["description"] = cfg["description"]
+        elif obj_id == product_id:
+            found_product += 1
+            obj["@type"] = "ProductGroup"
+            obj["name"] = cfg["schema_name"]
+            obj["description"] = cfg["description"]
+            obj["releaseDate"] = "2027-04-11"
+            obj["brand"] = {"@type": "Brand", "name": "OOLITA"}
+            obj["color"] = "White"
+            obj["productGroupID"] = "oolita-textile-01"
+            obj["hasVariant"] = product_variants()
+            marker = ' data-oolita-textile-product-schema="v1"'
+        else:
+            return m.group(0)
+        return f'<script type="application/ld+json"{marker}>' + json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + "</script>"
+
+    result = script_re.sub(patch, text)
+    if found_page != 1 or found_product != 1:
+        raise SystemExit(f"{label}: expected one WebPage and one textile product JSON-LD block; found {found_page}/{found_product}")
+    return result
 
 
 if not ROOT.is_dir():
@@ -191,17 +219,14 @@ for rel, cfg in PAGES.items():
     text = path.read_text(encoding="utf-8")
 
     text = replace_img_alt(text, cfg["hero_fragments"], cfg["hero_new"], rel + " hero")
-    text = replace_element_by_fragments(text, "p", cfg["intro_fragments"], cfg["intro_new"], rel + " intro")
-    text = replace_element_by_fragments(text, "h2", cfg["garment_heading_fragments"], cfg["garment_heading_new"], rel + " garment heading")
-    text = replace_element_by_fragments(text, "p", cfg["garment_fragments"], cfg["garment_new"], rel + " garment copy")
-    text = replace_element_by_fragments(text, "p", cfg["credentials_fragments"], cfg["credentials_new"], rel + " credentials")
-
-    # Repair the old oversized-only fact table before adding the new cards, so the
-    # comparison heading cannot create accidental duplicate semantic matches.
+    text = replace_element(text, "p", cfg["intro_fragments"], cfg["intro_new"], rel + " intro")
+    text = replace_element(text, "h2", cfg["garment_heading_fragments"], cfg["garment_heading_new"], rel + " garment heading")
+    text = replace_element(text, "p", cfg["garment_fragments"], cfg["garment_new"], rel + " garment copy")
+    text = replace_element(text, "p", cfg["credentials_fragments"], cfg["credentials_new"], rel + " credentials")
     for old, new in cfg["specs"].items():
-        text = replace_exact_value(text, old, new, rel + " spec")
-
+        text = replace_fact_value(text, old, new, rel + " fact table")
     text = insert_before_heading(text, cfg["story_heading_fragments"], cfg["cards"], rel + " choices")
+
     if STYLE_MARKER not in text:
         if "</head>" not in text:
             raise SystemExit(f"Missing </head> in {rel}")
@@ -213,7 +238,7 @@ for rel, cfg in PAGES.items():
     text = set_meta(text, "property", "og:description", cfg["description"], False)
     text = set_meta(text, "name", "twitter:title", cfg["title"], False)
     text = set_meta(text, "name", "twitter:description", cfg["description"], False)
-    text = add_schema(text, cfg)
+    text = update_jsonld(text, cfg, rel)
 
     if len(cfg["description"]) > 160:
         raise SystemExit(f"Meta description exceeds 160 characters: {rel}")
@@ -233,7 +258,7 @@ for rel, (fragments, new) in summaries.items():
         raise SystemExit(f"Missing Editions directory: {rel}")
     text = path.read_text(encoding="utf-8")
     if new not in text:
-        text = replace_element_by_fragments(text, "p", fragments, new, rel + " textile summary")
+        text = replace_element(text, "p", fragments, new, rel + " textile summary")
         path.write_text(text, encoding="utf-8")
     print(f"textile directory summary published: {rel}")
 
