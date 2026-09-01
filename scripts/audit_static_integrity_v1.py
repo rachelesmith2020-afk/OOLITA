@@ -18,6 +18,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 import re
+import runpy
 import sys
 import xml.etree.ElementTree as ET
 
@@ -27,6 +28,20 @@ HOSTS = {"oolita.es", "www.oolita.es"}
 
 if not ROOT.is_dir():
     raise SystemExit(f"Missing built site: {ROOT}")
+
+# The textile choice is a final public product fact, so apply it immediately
+# before every integrity audit. This audit runs both during reconstruction and
+# again at the end of the production pipeline; the second run ensures later SEO
+# or editorial passes cannot restore the former oversized-only page.
+textile_script = Path(__file__).resolve().parent / "apply_textile_variants_v1.py"
+if not textile_script.is_file():
+    raise SystemExit(f"Missing textile variants layer: {textile_script}")
+old_argv = sys.argv[:]
+sys.argv = [str(textile_script), str(ROOT)]
+try:
+    runpy.run_path(str(textile_script), run_name="__main__")
+finally:
+    sys.argv = old_argv
 
 
 class PageParser(HTMLParser):
