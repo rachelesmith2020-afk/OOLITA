@@ -35,6 +35,40 @@ function editionsPage(locale) {
   return locale === 'es' ? 'https://oolita.es/ediciones/' : 'https://oolita.es/en/editions/';
 }
 
+function textileSelection(style, size, locale) {
+  const variant = getTextileVariant(style);
+  if (!variant) return { error: 'style must be regular or oversized', status: 400 };
+  const normalisedSize = normaliseTextileSize(variant, size);
+  if (!normalisedSize) return { error: 'unsupported_size', sizes: variant.sizes, status: 400 };
+  const normalisedLocale = locale === 'es' ? 'es' : locale === 'en' ? 'en' : null;
+  if (!normalisedLocale) return { error: 'locale must be en or es', status: 400 };
+  return { variant, size: normalisedSize, locale: normalisedLocale };
+}
+
+function dryRunPayload(env, variant, size) {
+  const runtime = textileRuntimeConfig(env, variant);
+  return {
+    dry_run: true,
+    phase: textilePhase(),
+    live_configured: runtime.configured,
+    missing: runtime.missing,
+    product_key: TEXTILE.productKey,
+    provider: TEXTILE.provider,
+    country: TEXTILE.country,
+    currency: TEXTILE.currency,
+    style: variant.key,
+    size,
+    sku: variant.sku,
+    supplier_product: variant.supplierProduct,
+    production_cost_minor: variant.productionCostMinor,
+    provisional_retail_minor: variant.provisionalRetailMinor,
+    configured_retail_minor: runtime.retailMinor,
+    configured_shipping_minor: positiveMinor(env?.TEXTILE_UK_SHIPPING_GBP_MINOR),
+    supplier_api_call: false,
+    creates_payment: false,
+  };
+}
+
 function addFixedShipping(params, amountMinor, locale) {
   if (!Number.isInteger(amountMinor) || amountMinor < 0) return;
   params.set('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
@@ -102,6 +136,19 @@ async function createStripeSession({ env, variant, size, locale, retailMinor, sh
   return parsed;
 }
 
+// Safe production diagnostic. It never creates a Stripe session and never calls a supplier.
+export async function onRequestGet({ request, env }) {
+  const url = new URL(request.url);
+  if (url.searchParams.get('dry_run') !== '1') return json({ error: 'dry_run_required' }, 400);
+  const selected = textileSelection(
+    url.searchParams.get('style'),
+    url.searchParams.get('size'),
+    url.searchParams.get('locale'),
+  );
+  if (selected.error) return json(selected, selected.status);
+  return json(dryRunPayload(env, selected.variant, selected.size));
+}
+
 export async function onRequestPost({ request, env }) {
   if (!originAllowed(request)) return json({ error: 'Origin not allowed' }, 403);
 
@@ -112,37 +159,12 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'Expected a JSON request body' }, 400);
   }
 
-  const variant = getTextileVariant(body?.style);
-  if (!variant) return json({ error: 'style must be regular or oversized' }, 400);
-  const size = normaliseTextileSize(variant, body?.size);
-  if (!size) return json({ error: 'unsupported_size', sizes: variant.sizes }, 400);
-  const locale = body?.locale === 'es' ? 'es' : body?.locale === 'en' ? 'en' : null;
-  if (!locale) return json({ error: 'locale must be en or es' }, 400);
-
+  const selected = textileSelection(body?.style, body?.size, body?.locale);
+  if (selected.error) return json(selected, selected.status);
+  const { variant, size, locale } = selected;
   const runtime = textileRuntimeConfig(env, variant);
-  const provisionalShippingMinor = positiveMinor(env?.TEXTILE_UK_SHIPPING_GBP_MINOR);
 
-  if (body?.dry_run === true) {
-    return json({
-      dry_run: true,
-      phase: textilePhase(),
-      live_configured: runtime.configured,
-      missing: runtime.missing,
-      product_key: TEXTILE.productKey,
-      provider: TEXTILE.provider,
-      country: TEXTILE.country,
-      currency: TEXTILE.currency,
-      style: variant.key,
-      size,
-      sku: variant.sku,
-      supplier_product: variant.supplierProduct,
-      production_cost_minor: variant.productionCostMinor,
-      provisional_retail_minor: variant.provisionalRetailMinor,
-      configured_retail_minor: runtime.retailMinor,
-      configured_shipping_minor: provisionalShippingMinor,
-      supplier_api_call: false,
-    });
-  }
+  if (body?.dry_run === true) return json(dryRunPayload(env, variant, size));
 
   const phase = textilePhase();
   if (phase !== 'sale') {
