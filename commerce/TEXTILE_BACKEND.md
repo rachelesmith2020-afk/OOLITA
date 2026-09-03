@@ -33,6 +33,10 @@ No alternative garment or second cut is part of the first textile edition.
 
 The provisional commercial working figure in code is £34. It is returned only by dry-run diagnostics and is not accepted as a live price unless the corresponding Cloudflare runtime value is deliberately configured.
 
+## Deployment guard
+
+After every successful production deployment, CI rechecks the live site fail-closed: sitemap/SEO and internal targets, a genuine HTTP 404 with no redirect, the single Blaster public state in Spanish and English, and the absence of internal legacy `?follow=3d` links.
+
 ## Known limitation of the no-supplier-API launch path
 
 The first version records the manual order on Stripe's success redirect rather than adding textile handling to the existing book webhook. Stripe itself still retains every successful payment and delivery address, so a missed browser redirect is recoverable from Stripe, but this is not the final belt-and-braces architecture. Before public launch either:
