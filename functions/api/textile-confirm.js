@@ -1,5 +1,6 @@
 import {
   TEXTILE,
+  getTextileStorefront,
   getTextileVariant,
   normaliseTextileSize,
   positiveMinor,
@@ -15,9 +16,8 @@ function json(body, status = 200) {
   });
 }
 
-function editionsPage(locale, state, sessionId = '') {
-  const base = locale === 'es' ? 'https://oolita.es/ediciones/' : 'https://oolita.es/en/editions/';
-  const url = new URL(base);
+function textilePage(storefront, state, sessionId = '') {
+  const url = new URL(storefront.page);
   url.searchParams.set('textile_order', state);
   if (sessionId) url.searchParams.set('session_id', sessionId);
   return url.toString();
@@ -131,7 +131,6 @@ export async function onRequestGet({ request, env }) {
 
   const url = new URL(request.url);
   const sessionId = url.searchParams.get('session_id') || '';
-  const locale = url.searchParams.get('locale') === 'es' ? 'es' : 'en';
   if (!/^cs_[A-Za-z0-9_]+$/.test(sessionId)) return json({ error: 'Invalid Checkout Session ID' }, 400);
 
   let session;
@@ -141,9 +140,6 @@ export async function onRequestGet({ request, env }) {
     return json({ error: 'stripe_session_lookup_failed', detail: String(error.message || error).slice(0, 300) }, 502);
   }
 
-  if (session.payment_status !== 'paid') {
-    return Response.redirect(editionsPage(locale, 'payment_pending', sessionId), 303);
-  }
   if (session.metadata?.oolita_product_key !== TEXTILE.productKey) {
     return json({ error: 'Not an OOLITA textile Checkout Session' }, 422);
   }
@@ -154,10 +150,19 @@ export async function onRequestGet({ request, env }) {
     return json({ error: 'Unexpected textile checkout currency' }, 422);
   }
 
+  const storefront = getTextileStorefront(session.metadata?.oolita_storefront);
+  if (!storefront || session.metadata?.oolita_locale !== storefront.locale) {
+    return json({ error: 'Invalid textile storefront metadata' }, 422);
+  }
+
   const variant = getTextileVariant(session.metadata?.oolita_textile_variant);
   const size = normaliseTextileSize(variant, session.metadata?.oolita_textile_size);
   if (!variant || !size || session.metadata?.oolita_textile_sku !== variant.sku) {
     return json({ error: 'Invalid textile variant metadata' }, 422);
+  }
+
+  if (session.payment_status !== 'paid') {
+    return Response.redirect(textilePage(storefront, 'payment_pending', sessionId), 303);
   }
 
   const shipping = shippingFrom(session);
@@ -173,5 +178,5 @@ export async function onRequestGet({ request, env }) {
     return json({ error: 'textile_order_record_failed', detail: String(error.message || error).slice(0, 300) }, 500);
   }
 
-  return Response.redirect(editionsPage(locale, 'success', sessionId), 303);
+  return Response.redirect(textilePage(storefront, 'success', sessionId), 303);
 }
