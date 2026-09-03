@@ -6,6 +6,20 @@ export const TEXTILE = Object.freeze({
   provider: 'inner_sanctum_manual',
   supplier: 'The Inner Sanctum Group',
   shippingMode: 'fixed_manual',
+  storefronts: Object.freeze({
+    es: Object.freeze({
+      key: 'es',
+      locale: 'es',
+      page: 'https://oolita.es/ediciones/camiseta/',
+      priceEnv: 'TEXTILE_ES_BLASTER_PRICE_GBP_ID',
+    }),
+    en: Object.freeze({
+      key: 'en',
+      locale: 'en',
+      page: 'https://oolita.es/en/editions/t-shirt/',
+      priceEnv: 'TEXTILE_EN_BLASTER_PRICE_GBP_ID',
+    }),
+  }),
   variants: Object.freeze({
     oversized: Object.freeze({
       key: 'oversized',
@@ -33,6 +47,12 @@ export function getTextileVariant(value) {
   return TEXTILE.variants[key] || null;
 }
 
+export function getTextileStorefront(value) {
+  if (typeof value !== 'string') return null;
+  const key = value.trim().toLowerCase();
+  return TEXTILE.storefronts[key] || null;
+}
+
 export function normaliseTextileSize(variant, value) {
   if (!variant || typeof value !== 'string') return null;
   const size = value.trim().toUpperCase();
@@ -44,11 +64,16 @@ export function positiveMinor(value) {
   return Number.isInteger(amount) && amount >= 0 ? amount : null;
 }
 
-export function textileRuntimeConfig(env, variant) {
+export function validStripePriceId(value) {
+  return typeof value === 'string' && /^price_[A-Za-z0-9]+$/.test(value.trim()) ? value.trim() : null;
+}
+
+export function textileRuntimeConfig(env, variant, storefront) {
   const missing = [];
   if (!env?.STRIPE_SECRET_KEY) missing.push('stripe_secret');
   if (!env?.OOLITA_SUBSCRIBERS) missing.push('orders_database');
   if (env?.TEXTILE_UK_ENABLED !== 'true') missing.push('textile_uk_enabled');
+  if (!storefront) missing.push('textile_storefront');
 
   const retailMinor = positiveMinor(env?.[variant.priceEnv]);
   if (retailMinor == null || retailMinor <= 0) missing.push(variant.priceEnv.toLowerCase());
@@ -56,10 +81,14 @@ export function textileRuntimeConfig(env, variant) {
   const shippingMinor = positiveMinor(env?.TEXTILE_UK_SHIPPING_GBP_MINOR);
   if (shippingMinor == null) missing.push('textile_uk_shipping_gbp_minor');
 
+  const priceId = storefront ? validStripePriceId(env?.[storefront.priceEnv]) : null;
+  if (storefront && !priceId) missing.push(storefront.priceEnv.toLowerCase());
+
   return {
     configured: missing.length === 0,
     missing,
     retailMinor,
     shippingMinor,
+    priceId,
   };
 }
