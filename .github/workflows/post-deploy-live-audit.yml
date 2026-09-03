@@ -58,17 +58,24 @@ jobs:
             'https://oolita.es/ediciones/'
             'https://oolita.es/en/editions/'
           )
+          retired='RE-Creator|STTU787|two unisex cuts|dos cortes unisex|regular and heavy oversized|regular y heavy oversized'
           for url in "${urls[@]}"; do
             body="$(curl -fsSL "$url")"
-            if printf '%s' "$body" | grep -Eiq 'RE-Creator|STTU787|two unisex cuts|dos cortes unisex|regular and heavy oversized|regular y heavy oversized'; then
+            if grep -Eiq "$retired" <<<"$body"; then
               echo "Retired textile copy found at $url"
               exit 1
             fi
           done
           es="$(curl -fsSL https://oolita.es/ediciones/camiseta/)"
           en="$(curl -fsSL https://oolita.es/en/editions/t-shirt/)"
-          printf '%s' "$es" | grep -Fq 'Stanley/Stella Blaster 2.0'
-          printf '%s' "$en" | grep -Fq 'Stanley/Stella Blaster 2.0'
+          if [[ "$es" != *"Stanley/Stella Blaster 2.0"* ]]; then
+            echo 'Blaster 2.0 missing from Spanish T-shirt page'
+            exit 1
+          fi
+          if [[ "$en" != *"Stanley/Stella Blaster 2.0"* ]]; then
+            echo 'Blaster 2.0 missing from English T-shirt page'
+            exit 1
+          fi
           echo 'Single Blaster public state verified in both languages.'
 
       - name: Verify legacy 3D links are not internal stragglers
@@ -81,7 +88,7 @@ jobs:
             'https://oolita.es/mundo-3d/' \
             'https://oolita.es/en/3d-world/'; do
             body="$(curl -fsSL "$url")"
-            if printf '%s' "$body" | grep -Fq '?follow=3d'; then
+            if grep -Fq '?follow=3d' <<<"$body"; then
               echo "Internal ?follow=3d straggler found at $url"
               exit 1
             fi
