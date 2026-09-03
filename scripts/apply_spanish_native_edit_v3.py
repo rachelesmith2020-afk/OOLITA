@@ -10,7 +10,8 @@ differs.
 Important: an approved replacement may already exist in one representation
 (for example JSON-LD) while the older wording still survives in visible HTML.
 The final pass therefore removes every remaining exact/whitespace-equivalent
-old form before treating a rule as already complete.
+old form before treating a rule as already complete. The textile edition has
+one garment only: Stanley/Stella Blaster 2.0.
 """
 from __future__ import annotations
 
@@ -26,26 +27,11 @@ def whitespace_pattern(text: str) -> re.Pattern[str]:
     return re.compile(r"\s+".join(re.escape(part) for part in parts))
 
 
-def final_two_variant_textile(rel: str, text: str) -> bool:
-    return (
-        rel == "ediciones/camiseta/index.html"
-        and "RE-Creator STTU787" in text
-        and "Blaster 2.0 STTU959" in text
-        and 'data-oolita-textile-choices="v1"' in text
-    )
-
-
 def replace_state(rel: str, old: str, new: str, label: str, *, required: bool = True) -> bool:
     path = ROOT / rel
     if not path.is_file():
         raise SystemExit(f"Missing Spanish editorial page: {rel}")
     text = path.read_text(encoding="utf-8")
-
-    # The final textile pass deliberately replaces the former single-Blaster
-    # wording with two garment choices. Do not make a later editorial compatibility
-    # rule collapse that newer state back to one product.
-    if label.startswith("T-shirt") and final_two_variant_textile(rel, text):
-        return False
 
     # Remove exact old forms first, even when the approved form already exists
     # elsewhere on the same page. This prevents structured-data/visible-copy
@@ -183,12 +169,9 @@ for rel, old, new, label in optional_rules:
     changed += int(replace_state(rel, old, new, label, required=False))
 
 # Final no-straggler gate for every approved rule. Required rules must end with
-# the approved form present and the old form absent. The two-variant textile state
-# supersedes the former single-Blaster micro-edit and is validated by its own pass.
+# the approved form present and the old form absent.
 for rel, old, new, label in required_rules:
     page = (ROOT / rel).read_text(encoding="utf-8")
-    if label.startswith("T-shirt") and final_two_variant_textile(rel, page):
-        continue
     if old in page or whitespace_pattern(old).search(page):
         raise SystemExit(f"Spanish old-form straggler remains in {rel} ({label})")
     if new not in page:

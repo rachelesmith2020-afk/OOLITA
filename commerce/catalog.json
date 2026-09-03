@@ -71,21 +71,8 @@
       "release_date": "2027-04-11",
       "stripe_product_id": null,
       "variants": {
-        "regular": {
-          "name": "OOLITA Regular",
-          "supplier": "The Inner Sanctum Group",
-          "garment": "Stanley/Stella RE-Creator STTU787",
-          "colour": "White",
-          "weight_gsm": 180,
-          "fit": "medium unisex",
-          "sizes": "XXS-3XL",
-          "composition": "50% recycled cotton, 50% organic cotton",
-          "production_cost_minor_gbp": 1700,
-          "provisional_retail_minor_gbp": 2400,
-          "fulfilment": "manual_pending_supplier_api"
-        },
         "oversized": {
-          "name": "OOLITA Heavy Oversized",
+          "name": "OOLITA Blaster 2.0",
           "supplier": "The Inner Sanctum Group",
           "garment": "Stanley/Stella Blaster 2.0 STTU959",
           "colour": "White",

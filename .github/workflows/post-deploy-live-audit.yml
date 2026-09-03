@@ -1,0 +1,89 @@
+name: OOLITA post-deploy live audit
+
+on:
+  workflow_run:
+    workflows: ["Deploy OOLITA to Cloudflare Pages"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oolita-post-deploy-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  live-audit:
+    if: >-
+      ${{ github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out deployed commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Run fail-closed live SEO audit
+        shell: bash
+        run: python3 scripts/audit_live_seo_v1.py https://oolita.es
+
+      - name: Verify real 404 response
+        shell: bash
+        run: |
+          set -euo pipefail
+          probe="https://oolita.es/__oolita-live-404-probe-${{ github.event.workflow_run.head_sha }}/"
+          code="$(curl -sS -o /tmp/oolita-404-body -D /tmp/oolita-404-headers -w '%{http_code}' "$probe")"
+          if [ "$code" != "404" ]; then
+            echo "Expected HTTP 404 for $probe, got $code"
+            cat /tmp/oolita-404-headers
+            exit 1
+          fi
+          if grep -Eiq '^location:' /tmp/oolita-404-headers; then
+            echo "404 probe unexpectedly redirected"
+            cat /tmp/oolita-404-headers
+            exit 1
+          fi
+          echo 'Live 404 verified: HTTP 404, no redirect.'
+
+      - name: Verify single Blaster public state
+        shell: bash
+        run: |
+          set -euo pipefail
+          urls=(
+            'https://oolita.es/ediciones/camiseta/'
+            'https://oolita.es/en/editions/t-shirt/'
+            'https://oolita.es/ediciones/'
+            'https://oolita.es/en/editions/'
+          )
+          for url in "${urls[@]}"; do
+            body="$(curl -fsSL "$url")"
+            if printf '%s' "$body" | grep -Eiq 'RE-Creator|STTU787|two unisex cuts|dos cortes unisex|regular and heavy oversized|regular y heavy oversized'; then
+              echo "Retired textile copy found at $url"
+              exit 1
+            fi
+          done
+          es="$(curl -fsSL https://oolita.es/ediciones/camiseta/)"
+          en="$(curl -fsSL https://oolita.es/en/editions/t-shirt/)"
+          printf '%s' "$es" | grep -Fq 'Stanley/Stella Blaster 2.0'
+          printf '%s' "$en" | grep -Fq 'Stanley/Stella Blaster 2.0'
+          echo 'Single Blaster public state verified in both languages.'
+
+      - name: Verify legacy 3D links are not internal stragglers
+        shell: bash
+        run: |
+          set -euo pipefail
+          for url in \
+            'https://oolita.es/' \
+            'https://oolita.es/en/' \
+            'https://oolita.es/mundo-3d/' \
+            'https://oolita.es/en/3d-world/'; do
+            body="$(curl -fsSL "$url")"
+            if printf '%s' "$body" | grep -Fq '?follow=3d'; then
+              echo "Internal ?follow=3d straggler found at $url"
+              exit 1
+            fi
+          done
+          echo 'No internal ?follow=3d stragglers found.'

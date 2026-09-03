@@ -1,1 +1,0 @@
-Validate and deploy the OOLITA first textile edition with both public garment choices: Regular RE-Creator STTU787 and Heavy Oversized Blaster 2.0 STTU959. No textile price or purchase control is opened by this change.

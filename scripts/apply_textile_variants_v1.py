@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Publish both garment choices for OOLITA's first textile edition.
+"""Publish and enforce OOLITA's single first textile garment.
 
-Applied at the final integrity gate. No price is exposed and no checkout is enabled.
+The first textile edition is Stanley/Stella Blaster 2.0 STTU959 only. This file
+keeps its historical name because the deployment integrity gate already invokes
+it, but it now acts as a fail-closed single-garment normalizer. It removes the
+accidental RE-Creator option, removes pre-launch Product schema, cleans the
+Editions summaries, and rejects any retired two-garment copy before deployment.
 """
 from __future__ import annotations
 
@@ -12,145 +16,102 @@ import sys
 from pathlib import Path
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
-STYLE_MARKER = 'data-oolita-textile-variants="v1"'
-CHOICE_MARKER = 'data-oolita-textile-choices="v1"'
-SCHEMA_MARKER = 'data-oolita-textile-product-schema="v1"'
 
 PAGES = {
     "en/editions/t-shirt/index.html": {
         "canonical": "https://oolita.es/en/editions/t-shirt/",
-        "title": "OOLITA T-shirt — regular and heavy oversized · OOLITA",
-        "description": "OOLITA's first textile edition: 180 gsm Stanley/Stella RE-Creator regular or 200 gsm Blaster 2.0 heavy oversized. Made on demand.",
-        "hero_fragments": ("Blaster 2.0", "oversized", "design"),
-        "hero_new": "White Stanley/Stella Blaster 2.0, heavy oversized option, without the design",
-        "intro_fragments": ("200 gsm", "oversized", "spring"),
-        "intro_new": "White, one OOLITA design and two unisex cuts: a 180 gsm regular option and a 200 gsm heavy oversized option. Details and the story of the design will unfold Sunday by Sunday through to spring.",
-        "garment_heading_fragments": ("which", "garment"),
-        "garment_heading_new": "Which garments.",
-        "garment_fragments": ("Stanley/Stella Blaster 2.0", "200 gsm", "dropped shoulder"),
-        "garment_new": "There are two Stanley/Stella choices. Regular is the RE-Creator STTU787: 180 gsm, medium fit, 50% recycled cotton and 50% organic cotton, made from Stanley/Stella's own organic cutting waste. Heavy Oversized is the Blaster 2.0 STTU959: 200 gsm, 100% organic ring-spun combed cotton, oversized with dropped shoulders and a 1x1 rib mock-neck collar. Both are unisex and available from XXS to 3XL.",
-        "credentials_fragments": ("Blaster 2.0", "GOTS", "OEKO-TEX", "Fair Wear"),
-        "credentials_new": "Stanley/Stella lists the RE-Creator with GRS, OCS and OEKO-TEX credentials and the Blaster 2.0 with GOTS and OEKO-TEX; both product pages also show Fair Wear. The two options keep the same traceable-garment standard while giving a choice of weight and cut.",
-        "story_heading_fragments": ("why", "story", "slow"),
-        "cards": '<div class="textile-choice-grid" data-oolita-textile-choices="v1"><article class="textile-choice"><p class="textile-choice-kicker">REGULAR</p><h3>Stanley/Stella RE-Creator</h3><p>STTU787 · 180 gsm · medium unisex fit</p><p>50% recycled cotton · 50% organic cotton · 1x1 rib neckline · XXS–3XL</p></article><article class="textile-choice"><p class="textile-choice-kicker">HEAVY OVERSIZED</p><h3>Stanley/Stella Blaster 2.0</h3><p>STTU959 · 200 gsm · oversized unisex fit</p><p>100% organic combed cotton · dropped shoulders · mock neck · XXS–3XL</p></article></div>',
-        "specs": {
-            "Stanley/Stella Blaster 2.0": "Regular · RE-Creator STTU787 / Heavy Oversized · Blaster 2.0 STTU959",
-            "100% organic combed cotton": "Regular · 50% recycled cotton + 50% organic / Heavy · 100% organic combed cotton",
-            "200 gsm · 20 singles": "Regular · 180 gsm / Heavy Oversized · 200 gsm",
-            "Oversized unisex · dropped shoulder": "Regular · medium unisex / Heavy Oversized · dropped shoulders",
-            "Mock-neck, elastane-free 1x1 rib": "Regular · 1x1 rib neckline / Heavy Oversized · mock-neck 1x1 rib",
-            "GOTS · OEKO-TEX · Fair Wear member · PETA-Approved": "RE-Creator · GRS · OCS · OEKO-TEX · Fair Wear / Blaster 2.0 · GOTS · OEKO-TEX · Fair Wear",
+        "title": "OOLITA T-shirt — Stanley/Stella Blaster 2.0 · OOLITA",
+        "description": "OOLITA's first textile edition: white Stanley/Stella Blaster 2.0, 200 gsm organic cotton, oversized unisex fit. Made on demand.",
+        "hero": "White Stanley/Stella Blaster 2.0, oversized unisex fit, without the design",
+        "intro": "White, 200 gsm organic cotton, an oversized unisex fit. For now just the bare garment: the design is unveiled Sunday by Sunday, through to spring.",
+        "heading": "Which garment.",
+        "garment": "It is a Stanley/Stella Blaster 2.0, not a generic tee: 200 gsm single jersey in organic ring-spun combed cotton. Oversized unisex cut with dropped shoulders, side seams, an elastane-free 1x1 rib mock-neck collar, self-fabric back-neck tape and twin-needle stitching at cuffs and hem. Available from XXS to 3XL.",
+        "credentials": "Stanley/Stella lists the Blaster 2.0 with GOTS and OEKO-TEX credentials. Stanley/Stella is a Fair Wear member and its products are listed as PETA-Approved Vegan.",
+        "facts": {
+            "Regular · RE-Creator STTU787 / Heavy Oversized · Blaster 2.0 STTU959": "Stanley/Stella Blaster 2.0",
+            "Regular · 50% recycled cotton + 50% organic / Heavy · 100% organic combed cotton": "100% organic combed cotton",
+            "Regular · 180 gsm / Heavy Oversized · 200 gsm": "200 gsm · 20 singles",
+            "Regular · medium unisex / Heavy Oversized · dropped shoulders": "Oversized unisex · dropped shoulder",
+            "Regular · 1x1 rib neckline / Heavy Oversized · mock-neck 1x1 rib": "Mock-neck, elastane-free 1x1 rib",
+            "RE-Creator · GRS · OCS · OEKO-TEX · Fair Wear / Blaster 2.0 · GOTS · OEKO-TEX · Fair Wear": "GOTS · OEKO-TEX · Fair Wear member · PETA-Approved",
         },
-        "schema_name": "OOLITA first textile edition",
+        "double_title": "OOLITA T-shirt — regular and heavy oversized · OOLITA",
+        "double_description": "OOLITA's first textile edition: 180 gsm Stanley/Stella RE-Creator regular or 200 gsm Blaster 2.0 heavy oversized. Made on demand.",
+        "double_hero": "White Stanley/Stella Blaster 2.0, heavy oversized option, without the design",
+        "double_intro": "White, one OOLITA design and two unisex cuts: a 180 gsm regular option and a 200 gsm heavy oversized option. Details and the story of the design will unfold Sunday by Sunday through to spring.",
+        "double_heading": "Which garments.",
+        "double_garment": "There are two Stanley/Stella choices. Regular is the RE-Creator STTU787: 180 gsm, medium fit, 50% recycled cotton and 50% organic cotton, made from Stanley/Stella's own organic cutting waste. Heavy Oversized is the Blaster 2.0 STTU959: 200 gsm, 100% organic ring-spun combed cotton, oversized with dropped shoulders and a 1x1 rib mock-neck collar. Both are unisex and available from XXS to 3XL.",
+        "double_credentials": "Stanley/Stella lists the RE-Creator with GRS, OCS and OEKO-TEX credentials and the Blaster 2.0 with GOTS and OEKO-TEX; both product pages also show Fair Wear. The two options keep the same traceable-garment standard while giving a choice of weight and cut.",
     },
     "ediciones/camiseta/index.html": {
         "canonical": "https://oolita.es/ediciones/camiseta/",
-        "title": "Camiseta OOLITA — regular y heavy oversized · OOLITA",
-        "description": "Primera edición textil OOLITA: RE-Creator Stanley/Stella de 180 g/m² regular o Blaster 2.0 de 200 g/m² heavy oversized, bajo demanda.",
-        "hero_fragments": ("Blaster 2.0", "oversized", "diseño"),
-        "hero_new": "Camiseta blanca Stanley/Stella Blaster 2.0, opción heavy oversized, sin el diseño",
-        "intro_fragments": ("200 g/m²", "oversized", "primavera"),
-        "intro_new": "Blanca, un diseño OOLITA y dos cortes unisex: opción regular de 180 g/m² y opción heavy oversized de 200 g/m². Los detalles y la historia del diseño se irán contando domingo a domingo hasta la primavera.",
-        "garment_heading_fragments": ("qué", "prenda"),
-        "garment_heading_new": "Qué prendas son.",
-        "garment_fragments": ("Stanley/Stella Blaster 2.0", "200 g/m²", "hombro caído"),
-        "garment_new": "Hay dos opciones Stanley/Stella. Regular es la RE-Creator STTU787: 180 g/m², corte medio, 50% algodón reciclado y 50% algodón orgánico, fabricada con recortes de algodón orgánico de la propia marca. Heavy Oversized es la Blaster 2.0 STTU959: 200 g/m², 100% algodón orgánico peinado e hilado en anillo, corte oversized con hombros caídos y cuello alto de canalé 1x1. Ambas son unisex y están disponibles de XXS a 3XL.",
-        "credentials_fragments": ("Blaster 2.0", "GOTS", "OEKO-TEX", "Fair Wear"),
-        "credentials_new": "Stanley/Stella muestra la RE-Creator con credenciales GRS, OCS y OEKO-TEX, y la Blaster 2.0 con GOTS y OEKO-TEX; las fichas de ambas prendas también muestran Fair Wear. Las dos opciones mantienen el mismo criterio de trazabilidad y permiten elegir gramaje y corte.",
-        "story_heading_fragments": ("por qué", "despacio"),
-        "cards": '<div class="textile-choice-grid" data-oolita-textile-choices="v1"><article class="textile-choice"><p class="textile-choice-kicker">REGULAR</p><h3>Stanley/Stella RE-Creator</h3><p>STTU787 · 180 g/m² · corte medio unisex</p><p>50% algodón reciclado · 50% algodón orgánico · cuello canalé 1x1 · XXS–3XL</p></article><article class="textile-choice"><p class="textile-choice-kicker">HEAVY OVERSIZED</p><h3>Stanley/Stella Blaster 2.0</h3><p>STTU959 · 200 g/m² · corte oversized unisex</p><p>100% algodón orgánico peinado · hombros caídos · cuello alto · XXS–3XL</p></article></div>',
-        "specs": {
-            "Stanley/Stella Blaster 2.0": "Regular · RE-Creator STTU787 / Heavy Oversized · Blaster 2.0 STTU959",
-            "100 % algodón orgánico peinado": "Regular · 50% algodón reciclado + 50% orgánico / Heavy · 100% algodón orgánico peinado",
-            "200 g/m² · 20 singles": "Regular · 180 g/m² / Heavy Oversized · 200 g/m²",
-            "Oversized unisex · hombro caído": "Regular · corte medio unisex / Heavy Oversized · hombros caídos",
-            "Alto, canalé 1x1 sin elastano": "Regular · cuello canalé 1x1 / Heavy Oversized · cuello alto canalé 1x1",
-            "GOTS · OEKO-TEX · miembro de Fair Wear · PETA-Approved": "RE-Creator · GRS · OCS · OEKO-TEX · Fair Wear / Blaster 2.0 · GOTS · OEKO-TEX · Fair Wear",
+        "title": "Camiseta OOLITA — Stanley/Stella Blaster 2.0 · OOLITA",
+        "description": "Primera edición textil OOLITA: Stanley/Stella Blaster 2.0 blanca, 200 g/m² de algodón orgánico y corte oversized unisex. Bajo demanda.",
+        "hero": "Camiseta blanca Stanley/Stella Blaster 2.0, corte oversized unisex, sin el diseño",
+        "intro": "Blanca, de algodón orgánico de 200 g/m² y corte oversized unisex. Los detalles y la historia del diseño se irán contando domingo a domingo hasta la primavera.",
+        "heading": "Qué prenda es.",
+        "garment": "Es una Stanley/Stella Blaster 2.0, no una camiseta genérica: jersey sencillo de algodón orgánico peinado e hilado en anillo, 200 g/m². Corte oversized, manga montada, hombro caído, cuello alto de canalé 1x1, cinta interior del cuello y pespunte doble en puños y bajo. Disponible de XXS a 3XL.",
+        "credentials": "Stanley/Stella muestra la Blaster 2.0 con certificaciones GOTS y OEKO-TEX. Stanley/Stella es miembro de Fair Wear y sus productos figuran como PETA-Approved Vegan.",
+        "facts": {
+            "Regular · RE-Creator STTU787 / Heavy Oversized · Blaster 2.0 STTU959": "Stanley/Stella Blaster 2.0",
+            "Regular · 50% algodón reciclado + 50% orgánico / Heavy · 100% algodón orgánico peinado": "100 % algodón orgánico peinado",
+            "Regular · 180 g/m² / Heavy Oversized · 200 g/m²": "200 g/m² · 20 singles",
+            "Regular · corte medio unisex / Heavy Oversized · hombros caídos": "Oversized unisex · hombro caído",
+            "Regular · cuello canalé 1x1 / Heavy Oversized · cuello alto canalé 1x1": "Alto, canalé 1x1 sin elastano",
+            "RE-Creator · GRS · OCS · OEKO-TEX · Fair Wear / Blaster 2.0 · GOTS · OEKO-TEX · Fair Wear": "GOTS · OEKO-TEX · miembro de Fair Wear · PETA-Approved",
         },
-        "schema_name": "Primera edición textil OOLITA",
+        "double_title": "Camiseta OOLITA — regular y heavy oversized · OOLITA",
+        "double_description": "Primera edición textil OOLITA: RE-Creator Stanley/Stella de 180 g/m² regular o Blaster 2.0 de 200 g/m² heavy oversized, bajo demanda.",
+        "double_hero": "Camiseta blanca Stanley/Stella Blaster 2.0, opción heavy oversized, sin el diseño",
+        "double_intro": "Blanca, un diseño OOLITA y dos cortes unisex: opción regular de 180 g/m² y opción heavy oversized de 200 g/m². Los detalles y la historia del diseño se irán contando domingo a domingo hasta la primavera.",
+        "double_heading": "Qué prendas son.",
+        "double_garment": "Hay dos opciones Stanley/Stella. Regular es la RE-Creator STTU787: 180 g/m², corte medio, 50% algodón reciclado y 50% algodón orgánico, fabricada con recortes de algodón orgánico de la propia marca. Heavy Oversized es la Blaster 2.0 STTU959: 200 g/m², 100% algodón orgánico peinado e hilado en anillo, corte oversized con hombros caídos y cuello alto de canalé 1x1. Ambas son unisex y están disponibles de XXS a 3XL.",
+        "double_credentials": "Stanley/Stella muestra la RE-Creator con credenciales GRS, OCS y OEKO-TEX, y la Blaster 2.0 con GOTS y OEKO-TEX; las fichas de ambas prendas también muestran Fair Wear. Las dos opciones mantienen el mismo criterio de trazabilidad y permiten elegir gramaje y corte.",
     },
 }
 
-STYLE = """<style data-oolita-textile-variants="v1">
-.textile-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-top:1px solid currentColor;border-bottom:1px solid currentColor;margin:1.75rem 0 2.25rem}.textile-choice{padding:1.2rem 1.25rem 1.25rem 0}.textile-choice+.textile-choice{border-left:1px solid currentColor;padding-left:1.25rem}.textile-choice h3{margin:.2rem 0 .55rem}.textile-choice p{margin:.35rem 0}.textile-choice-kicker{font-size:.75em;letter-spacing:.12em}.textile-choice-grid p:not(.textile-choice-kicker){opacity:.82}@media(max-width:700px){.textile-choice-grid{grid-template-columns:1fr}.textile-choice{padding:1rem 0}.textile-choice+.textile-choice{border-left:0;border-top:1px solid currentColor;padding-left:0}}
-</style>"""
-
 TAG_RE = re.compile(r"<[^>]+>")
+SCRIPT_RE = re.compile(
+    r"<script(?P<attrs>[^>]*)type=[\"']application/ld\+json[\"'](?P<attrs2>[^>]*)>(?P<body>[\s\S]*?)</script>",
+    re.I,
+)
+
 
 def rendered(value: str) -> str:
     return re.sub(r"\s+", " ", html.unescape(TAG_RE.sub(" ", value))).strip()
 
 
-def contains_all(value: str, fragments: tuple[str, ...]) -> bool:
-    low = value.casefold()
-    return all(fragment.casefold() in low for fragment in fragments)
-
-
-def replace_element(text: str, tag: str, fragments: tuple[str, ...], new: str, label: str) -> str:
-    if new in text:
-        return text
-    pattern = re.compile(rf"<(?P<tag>{re.escape(tag)})\b(?P<attrs>[^>]*)>(?P<body>[\s\S]*?)</(?P=tag)>", re.I)
-    matches = [m for m in pattern.finditer(text) if contains_all(rendered(m.group("body")), fragments)]
-    if len(matches) != 1:
-        raise SystemExit(f"{label}: expected one semantic match for {fragments!r}, found {len(matches)}")
-    m = matches[0]
-    replacement = f"<{m.group('tag')}{m.group('attrs')}>{new}</{m.group('tag')}>"
-    return text[:m.start()] + replacement + text[m.end():]
-
-
-def replace_fact_value(text: str, old: str, new: str, label: str) -> str:
-    if new in text:
-        return text
-    pattern = re.compile(r"<span\b(?P<attrs>[^>]*)>(?P<body>[\s\S]*?)</span>", re.I)
-    matches = [m for m in pattern.finditer(text) if re.search(r"\bclass=[\"'][^\"']*\bv\b[^\"']*[\"']", m.group("attrs"), re.I) and rendered(m.group("body")) == old]
-    if len(matches) != 1:
-        raise SystemExit(f"{label}: expected one fact value {old!r}, found {len(matches)}")
-    m = matches[0]
-    return text[:m.start()] + f"<span{m.group('attrs')}>{new}</span>" + text[m.end():]
-
-
-def replace_img_alt(text: str, fragments: tuple[str, ...], new: str, label: str) -> str:
-    if new in text:
-        return text
-    pattern = re.compile(r"<img\b[^>]*\balt=(?P<q>[\"'])(?P<alt>.*?)(?P=q)[^>]*>", re.I | re.S)
-    matches = [m for m in pattern.finditer(text) if contains_all(html.unescape(m.group("alt")), fragments)]
-    if len(matches) != 1:
-        raise SystemExit(f"{label}: expected one image alt match, found {len(matches)}")
-    m = matches[0]
-    tag = re.sub(r"\balt=([\"']).*?\1", lambda x: f'alt={x.group(1)}{new}{x.group(1)}', m.group(0), count=1, flags=re.I | re.S)
-    return text[:m.start()] + tag + text[m.end():]
-
-
-def insert_before_heading(text: str, fragments: tuple[str, ...], block: str, label: str) -> str:
-    if CHOICE_MARKER in text:
-        return text
-    pattern = re.compile(r"<h2\b[^>]*>[\s\S]*?</h2>", re.I)
-    matches = [m for m in pattern.finditer(text) if contains_all(rendered(m.group(0)), fragments)]
-    if len(matches) != 1:
-        raise SystemExit(f"{label}: expected one story heading, found {len(matches)}")
-    m = matches[0]
-    return text[:m.start()] + block + "\n" + text[m.start():]
+def literal(text: str, old: str, new: str) -> str:
+    return text.replace(old, new) if old in text else text
 
 
 def set_title(text: str, title: str) -> str:
-    pattern = re.compile(r"<title>[^<]*</title>", re.I)
-    if len(pattern.findall(text)) != 1:
-        raise SystemExit("Expected exactly one title tag")
-    return pattern.sub(f"<title>{title}</title>", text, count=1)
+    matches = re.findall(r"<title>[^<]*</title>", text, flags=re.I)
+    if len(matches) != 1:
+        raise SystemExit(f"Expected exactly one title tag, found {len(matches)}")
+    return re.sub(r"<title>[^<]*</title>", f"<title>{title}</title>", text, count=1, flags=re.I)
 
 
-def set_meta(text: str, attr: str, value: str, content: str, required: bool = True) -> str:
+def set_meta(text: str, attr: str, value: str, content: str, *, required: bool = True) -> str:
     tag_re = re.compile(r"<meta\b[^>]*>", re.I)
     matched = 0
-    def patch(m: re.Match[str]) -> str:
+
+    def patch(match: re.Match[str]) -> str:
         nonlocal matched
-        tag = m.group(0)
+        tag = match.group(0)
         if not re.search(rf"\b{re.escape(attr)}=[\"']{re.escape(value)}[\"']", tag, re.I):
             return tag
         matched += 1
         if re.search(r"\bcontent=([\"'])[^\"']*\1", tag, re.I):
-            return re.sub(r"\bcontent=([\"'])[^\"']*\1", lambda x: f"content={x.group(1)}{content}{x.group(1)}", tag, count=1, flags=re.I)
+            return re.sub(
+                r"\bcontent=([\"'])[^\"']*\1",
+                lambda m: f"content={m.group(1)}{content}{m.group(1)}",
+                tag,
+                count=1,
+                flags=re.I,
+            )
         return tag[:-1] + f' content="{content}">'
+
     result = tag_re.sub(patch, text)
     if required and matched != 1:
         raise SystemExit(f"Expected one meta {attr}={value}, found {matched}")
@@ -159,109 +120,191 @@ def set_meta(text: str, attr: str, value: str, content: str, required: bool = Tr
     return result
 
 
-def product_variants() -> list[dict]:
-    return [
-        {"@type": "Product", "name": "OOLITA Regular", "sku": "OOLITA-UK-REGULAR-WHITE", "model": "Stanley/Stella RE-Creator STTU787", "material": "50% recycled cotton, 50% organic cotton", "size": "XXS–3XL", "color": "White"},
-        {"@type": "Product", "name": "OOLITA Heavy Oversized", "sku": "OOLITA-UK-OVERSIZED-WHITE", "model": "Stanley/Stella Blaster 2.0 STTU959", "material": "100% organic ring-spun combed cotton", "size": "XXS–3XL", "color": "White"},
-    ]
-
-
-def update_jsonld(text: str, cfg: dict, label: str) -> str:
-    script_re = re.compile(r"<script(?P<attrs>[^>]*)type=[\"']application/ld\+json[\"'](?P<attrs2>[^>]*)>(?P<body>[\s\S]*?)</script>", re.I)
+def normalize_jsonld(text: str, cfg: dict, label: str) -> str:
     webpage_id = cfg["canonical"] + "#webpage"
     product_id = cfg["canonical"] + "#producto"
-    found_page = 0
-    found_product = 0
+    webpage_found = 0
+    product_removed = 0
 
-    def patch(m: re.Match[str]) -> str:
-        nonlocal found_page, found_product
+    def patch(match: re.Match[str]) -> str:
+        nonlocal webpage_found, product_removed
+        body = html.unescape(match.group("body")).strip()
         try:
-            obj = json.loads(html.unescape(m.group("body")).strip())
+            obj = json.loads(body)
         except Exception:
-            return m.group(0)
+            return match.group(0)
         if not isinstance(obj, dict):
-            return m.group(0)
-        obj_id = obj.get("@id")
-        marker = ""
+            return match.group(0)
+        obj_id = str(obj.get("@id", ""))
+        if obj_id == product_id:
+            product_removed += 1
+            return ""
         if obj_id == webpage_id:
-            found_page += 1
+            webpage_found += 1
             obj["name"] = cfg["title"]
             obj["description"] = cfg["description"]
-        elif obj_id == product_id:
-            found_product += 1
-            obj["@type"] = "ProductGroup"
-            obj["name"] = cfg["schema_name"]
-            obj["description"] = cfg["description"]
-            obj["releaseDate"] = "2027-04-11"
-            obj["brand"] = {"@type": "Brand", "name": "OOLITA"}
-            obj["color"] = "White"
-            obj["productGroupID"] = "oolita-textile-01"
-            obj["hasVariant"] = product_variants()
-            marker = ' data-oolita-textile-product-schema="v1"'
-        else:
-            return m.group(0)
-        return f'<script type="application/ld+json"{marker}>' + json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + "</script>"
+            return '<script type="application/ld+json">' + json.dumps(
+                obj, ensure_ascii=False, separators=(",", ":")
+            ) + "</script>"
+        return match.group(0)
 
-    result = script_re.sub(patch, text)
-    if found_page != 1 or found_product != 1:
-        raise SystemExit(f"{label}: expected one WebPage and one textile product JSON-LD block; found {found_page}/{found_product}")
+    result = SCRIPT_RE.sub(patch, text)
+    if webpage_found != 1:
+        raise SystemExit(f"{label}: expected one WebPage JSON-LD block, found {webpage_found}")
+    if product_removed > 1:
+        raise SystemExit(f"{label}: duplicated textile Product schema ({product_removed})")
     return result
+
+
+def normalize_page(rel: str, cfg: dict) -> None:
+    path = ROOT / rel
+    if not path.is_file():
+        raise SystemExit(f"Missing textile page: {rel}")
+    text = path.read_text(encoding="utf-8")
+
+    replacements = (
+        (cfg["double_title"], cfg["title"]),
+        (cfg["double_description"], cfg["description"]),
+        (cfg["double_hero"], cfg["hero"]),
+        (cfg["double_intro"], cfg["intro"]),
+        (cfg["double_heading"], cfg["heading"]),
+        (cfg["double_garment"], cfg["garment"]),
+        (cfg["double_credentials"], cfg["credentials"]),
+    )
+    for old, new in replacements:
+        text = literal(text, old, new)
+    for old, new in cfg["facts"].items():
+        text = literal(text, old, new)
+
+    # Remove the accidental two-choice cards and their dedicated CSS if present.
+    text = re.sub(
+        r'<div class="textile-choice-grid"[^>]*data-oolita-textile-choices="v1"[^>]*>[\s\S]*?</div>\s*',
+        "",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        r'<style[^>]*data-oolita-textile-variants="v1"[^>]*>[\s\S]*?</style>\s*',
+        "",
+        text,
+        flags=re.I,
+    )
+
+    # Accept and normalize closely related single-Blaster source states produced
+    # by older editorial passes.
+    if rel.startswith("en/"):
+        text = re.sub(
+            r"<h2([^>]*)>Which garments\.</h2>",
+            r"<h2\1>Which garment.</h2>",
+            text,
+            flags=re.I,
+        )
+    else:
+        text = re.sub(
+            r"<h2([^>]*)>Qué prendas son\.</h2>",
+            r"<h2\1>Qué prenda es.</h2>",
+            text,
+            flags=re.I,
+        )
+
+    text = set_title(text, cfg["title"])
+    text = set_meta(text, "name", "description", cfg["description"])
+    text = set_meta(text, "property", "og:title", cfg["title"], required=False)
+    text = set_meta(text, "property", "og:description", cfg["description"], required=False)
+    text = set_meta(text, "name", "twitter:title", cfg["title"], required=False)
+    text = set_meta(text, "name", "twitter:description", cfg["description"], required=False)
+    text = normalize_jsonld(text, cfg, rel)
+
+    # Positive and negative page-level gates.
+    visible = rendered(text)
+    for required in ("Stanley/Stella Blaster 2.0", "200", "XXS", "3XL"):
+        if required not in visible:
+            raise SystemExit(f"Single-Blaster invariant missing in {rel}: {required}")
+    retired = (
+        "RE-Creator",
+        "STTU787",
+        "two unisex cuts",
+        "dos cortes unisex",
+        "There are two Stanley/Stella choices",
+        "Hay dos opciones Stanley/Stella",
+        "Regular · RE-Creator",
+    )
+    for needle in retired:
+        if needle.casefold() in text.casefold():
+            raise SystemExit(f"Retired textile straggler remains in {rel}: {needle}")
+
+    # No Product/ProductGroup structured data is published while checkout and a
+    # verified public offer are not live.
+    for match in SCRIPT_RE.finditer(text):
+        try:
+            obj = json.loads(html.unescape(match.group("body")).strip())
+        except Exception:
+            continue
+        serial = json.dumps(obj, ensure_ascii=False).lower()
+        if '"@type": "product"' in serial or '"@type": "productgroup"' in serial:
+            raise SystemExit(f"Pre-launch Product schema remains in {rel}")
+
+    path.write_text(text, encoding="utf-8")
+    print(f"single Blaster textile + prelaunch SEO normalized: {rel}")
 
 
 if not ROOT.is_dir():
     raise SystemExit(f"Missing built site: {ROOT}")
 
 for rel, cfg in PAGES.items():
-    path = ROOT / rel
-    if not path.is_file():
-        raise SystemExit(f"Missing textile page: {rel}")
-    text = path.read_text(encoding="utf-8")
-
-    text = replace_img_alt(text, cfg["hero_fragments"], cfg["hero_new"], rel + " hero")
-    text = replace_element(text, "p", cfg["intro_fragments"], cfg["intro_new"], rel + " intro")
-    text = replace_element(text, "h2", cfg["garment_heading_fragments"], cfg["garment_heading_new"], rel + " garment heading")
-    text = replace_element(text, "p", cfg["garment_fragments"], cfg["garment_new"], rel + " garment copy")
-    text = replace_element(text, "p", cfg["credentials_fragments"], cfg["credentials_new"], rel + " credentials")
-    for old, new in cfg["specs"].items():
-        text = replace_fact_value(text, old, new, rel + " fact table")
-    text = insert_before_heading(text, cfg["story_heading_fragments"], cfg["cards"], rel + " choices")
-
-    if STYLE_MARKER not in text:
-        if "</head>" not in text:
-            raise SystemExit(f"Missing </head> in {rel}")
-        text = text.replace("</head>", STYLE + "\n</head>", 1)
-
-    text = set_title(text, cfg["title"])
-    text = set_meta(text, "name", "description", cfg["description"])
-    text = set_meta(text, "property", "og:title", cfg["title"], False)
-    text = set_meta(text, "property", "og:description", cfg["description"], False)
-    text = set_meta(text, "name", "twitter:title", cfg["title"], False)
-    text = set_meta(text, "name", "twitter:description", cfg["description"], False)
-    text = update_jsonld(text, cfg, rel)
-
-    if len(cfg["description"]) > 160:
-        raise SystemExit(f"Meta description exceeds 160 characters: {rel}")
-    for needle in ("RE-Creator STTU787", "Blaster 2.0 STTU959", CHOICE_MARKER, SCHEMA_MARKER, "2027-04-11"):
-        if needle not in text:
-            raise SystemExit(f"Missing textile marker {needle!r} in {rel}")
-    path.write_text(text, encoding="utf-8")
-    print(f"textile variants + SEO published: {rel}")
+    normalize_page(rel, cfg)
 
 summaries = {
-    "en/editions/index.html": ("White, 200 gsm organic cotton, an oversized unisex fit.", "White, two unisex cuts: 180 gsm regular or 200 gsm heavy oversized."),
-    "ediciones/index.html": ("Blanca, de algodón orgánico de 200 gramos, de corte oversized unisex.", "Blanca, dos cortes unisex: regular de 180 g/m² o heavy oversized de 200 g/m²."),
+    "en/editions/index.html": (
+        "White, two unisex cuts: 180 gsm regular or 200 gsm heavy oversized.",
+        "White, 200 gsm organic cotton, an oversized unisex fit.",
+    ),
+    "ediciones/index.html": (
+        "Blanca, dos cortes unisex: regular de 180 g/m² o heavy oversized de 200 g/m².",
+        "Blanca, de algodón orgánico de 200 gramos, de corte oversized unisex.",
+    ),
 }
 for rel, (old, new) in summaries.items():
     path = ROOT / rel
     if not path.is_file():
         raise SystemExit(f"Missing Editions directory: {rel}")
     text = path.read_text(encoding="utf-8")
+    text = literal(text, old, new)
+    if old in text:
+        raise SystemExit(f"Retired two-garment summary remains in {rel}")
     if new not in text:
-        count = text.count(old)
-        if count != 1:
-            raise SystemExit(f"{rel} textile summary: expected one exact source string, found {count}")
-        text = text.replace(old, new, 1)
-        path.write_text(text, encoding="utf-8")
-    print(f"textile directory summary published: {rel}")
+        raise SystemExit(f"Single-Blaster summary missing in {rel}")
+    path.write_text(text, encoding="utf-8")
+    print(f"single Blaster directory summary normalized: {rel}")
 
-print("OOLITA textile regular + heavy oversized public copy and SEO complete.")
+# The live canonical middleware intentionally redirects obsolete externally shared
+# ?follow=3d URLs. Internal links must never point at those redirecting URLs.
+for page in sorted(ROOT.rglob("*.html")):
+    text = page.read_text(encoding="utf-8")
+    updated = text.replace('/?follow=3d#seguir-oolita', '/#seguir-oolita')
+    updated = updated.replace('/en/?follow=3d#follow-oolita', '/en/#follow-oolita')
+    updated = updated.replace('https://oolita.es/?follow=3d#seguir-oolita', 'https://oolita.es/#seguir-oolita')
+    updated = updated.replace('https://oolita.es/en/?follow=3d#follow-oolita', 'https://oolita.es/en/#follow-oolita')
+    if updated != text:
+        page.write_text(updated, encoding="utf-8")
+
+# Final bundle-wide reader-facing straggler gate.
+retired_sitewide = (
+    "RE-Creator",
+    "STTU787",
+    "two unisex cuts",
+    "dos cortes unisex",
+    "regular and heavy oversized",
+    "regular y heavy oversized",
+    "?follow=3d",
+)
+stragglers: list[str] = []
+for page in sorted(ROOT.rglob("*.html")):
+    text = page.read_text(encoding="utf-8", errors="ignore")
+    for needle in retired_sitewide:
+        if needle.casefold() in text.casefold():
+            stragglers.append(f"{page.relative_to(ROOT)}: {needle}")
+if stragglers:
+    raise SystemExit("Retired textile/redirect stragglers remain:\n  - " + "\n  - ".join(stragglers))
+
+print("OOLITA single Blaster 2.0 textile source of truth enforced; retired textile and internal redirect stragglers absent.")

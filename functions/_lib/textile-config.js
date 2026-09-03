@@ -7,21 +7,10 @@ export const TEXTILE = Object.freeze({
   supplier: 'The Inner Sanctum Group',
   shippingMode: 'fixed_manual',
   variants: Object.freeze({
-    regular: Object.freeze({
-      key: 'regular',
-      sku: 'OOLITA-UK-REGULAR-WHITE',
-      name: 'OOLITA Regular',
-      supplierProduct: 'Stanley/Stella RE-Creator STTU787',
-      supplierProductPath: '/products/sx141',
-      productionCostMinor: 1700,
-      provisionalRetailMinor: 2400,
-      priceEnv: 'TEXTILE_REGULAR_PRICE_GBP_MINOR',
-      sizes: Object.freeze(['XXS', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL']),
-    }),
     oversized: Object.freeze({
       key: 'oversized',
       sku: 'OOLITA-UK-OVERSIZED-WHITE',
-      name: 'OOLITA Heavy Oversized',
+      name: 'OOLITA Blaster 2.0',
       supplierProduct: 'Stanley/Stella Blaster 2.0 STTU959',
       supplierProductPath: '/products/sx795',
       productionCostMinor: 2300,
