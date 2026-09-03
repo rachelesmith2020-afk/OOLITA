@@ -35,7 +35,7 @@ The provisional commercial working figure in code is £34. It is returned only b
 
 ## Deployment guard
 
-After every successful production deployment, CI rechecks the live site fail-closed: sitemap/SEO and internal targets, a genuine HTTP 404 with no redirect, the single Blaster public state in Spanish and English, and the absence of internal legacy `?follow=3d` links.
+After every successful production deployment, CI rechecks the live site fail-closed: sitemap/SEO and internal targets, a genuine HTTP 404 with no redirect, the single Blaster public state in Spanish and English, and the absence of internal legacy `?follow=3d` links. The reconstruction path is also required to remain idempotent when it mirrors an already-clean production origin.
 
 ## Known limitation of the no-supplier-API launch path
 
