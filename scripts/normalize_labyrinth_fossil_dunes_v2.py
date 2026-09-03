@@ -157,4 +157,31 @@ try:
 finally:
     sys.argv = original_argv
 
+# The textile pages changed on 2026-09-03. Keep their sitemap lastmod values in
+# lockstep with the deployed content so Google receives a strong recrawl signal in
+# both languages instead of inheriting the stale 2026-08-23 dates from the mirror.
+sitemap = ROOT / "sitemap.xml"
+if not sitemap.is_file():
+    raise SystemExit("Missing sitemap.xml while refreshing textile lastmod dates")
+sitemap_text = sitemap.read_text(encoding="utf-8")
+for textile_url in (
+    "https://oolita.es/ediciones/camiseta/",
+    "https://oolita.es/en/editions/t-shirt/",
+):
+    pattern = re.compile(
+        r"(<url>\s*<loc>"
+        + re.escape(textile_url)
+        + r"</loc>(?:(?!</url>)[\s\S])*?<lastmod>)[^<]+(</lastmod>)",
+        flags=re.I,
+    )
+    sitemap_text, changed = pattern.subn(
+        lambda match: match.group(1) + "2026-09-03" + match.group(2),
+        sitemap_text,
+        count=1,
+    )
+    if changed != 1:
+        raise SystemExit(f"Could not refresh textile sitemap lastmod: {textile_url}")
+sitemap.write_text(sitemap_text, encoding="utf-8")
+print("Textile sitemap lastmod refreshed for ES/EN T-shirt pages: 2026-09-03")
+
 print("OOLITA final gate passed: geology, Spanish editorial, homepage hierarchy, book visual-first and 3D visual-first states validated.")
