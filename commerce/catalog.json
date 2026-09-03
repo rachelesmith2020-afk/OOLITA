@@ -15,54 +15,9 @@
       "isbn13": "9781066939800",
       "release_date": "2027-01-31",
       "stripe_product_id": "prod_V9i8v2t5IfLjdS",
-      "pricing_decisions": {
-        "GB": {
-          "currency": "gbp",
-          "rrp_minor": 1700,
-          "rrp_display": "£17.00",
-          "bookvault_production_cost_minor": 527,
-          "bookvault_production_cost_display": "£5.27",
-          "shipping": "charged separately at checkout",
-          "status": "decided",
-          "decided_at": "2026-08-28"
-        }
-      },
-      "fulfilment": {
-        "provider": "bookvault",
-        "status": "staged",
-        "territory": "GB",
-        "isbn": "9781066939800",
-        "bookvault_title_id": "3788652",
-        "production_level": "Standard",
-        "requested_service": "CheapestTracked",
-        "routing_authoritative": "functions/_lib/commerce-config.js",
-        "routes": {
-          "GB": {
-            "provider": "bookvault",
-            "status": "staged"
-          },
-          "ES": {
-            "provider": "spanish_pod",
-            "status": "provider_pending"
-          }
-        }
-      },
-      "offers": {
-        "es_eur": {
-          "locale": "es",
-          "currency": "eur",
-          "amount_minor": null,
-          "stripe_price_id": null,
-          "payment_link": null
-        },
-        "en_gbp": {
-          "locale": "en",
-          "currency": "gbp",
-          "amount_minor": 1700,
-          "stripe_price_id": "price_1U9Oi8Hcycje25JhAOkHZr9L",
-          "payment_link": null
-        }
-      }
+      "pricing_decisions": {"GB":{"currency":"gbp","rrp_minor":1700,"rrp_display":"£17.00","bookvault_production_cost_minor":527,"bookvault_production_cost_display":"£5.27","shipping":"charged separately at checkout","status":"decided","decided_at":"2026-08-28"}},
+      "fulfilment": {"provider":"bookvault","status":"staged","territory":"GB","isbn":"9781066939800","bookvault_title_id":"3788652","production_level":"Standard","requested_service":"CheapestTracked","routing_authoritative":"functions/_lib/commerce-config.js","routes":{"GB":{"provider":"bookvault","status":"staged"},"ES":{"provider":"spanish_pod","status":"provider_pending"}}},
+      "offers": {"es_eur":{"locale":"es","currency":"eur","amount_minor":null,"stripe_price_id":null,"payment_link":null},"en_gbp":{"locale":"en","currency":"gbp","amount_minor":1700,"stripe_price_id":"price_1U9Oi8Hcycje25JhAOkHZr9L","payment_link":null}}
     },
     "textile_01": {
       "product_key": "oolita-textile-01",
@@ -70,57 +25,17 @@
       "name_en": "OOLITA · first textile edition",
       "release_date": "2027-04-11",
       "stripe_product_id": null,
-      "stripe_catalog_mode": "two_locale_products_with_persistent_prices",
+      "stripe_catalog_mode": "one_product_one_persistent_gbp_price_two_locale_storefronts",
+      "stripe_price_env": "TEXTILE_BLASTER_PRICE_GBP_ID",
       "storefronts": {
-        "es": {
-          "locale": "es",
-          "page": "https://oolita.es/ediciones/camiseta/",
-          "stripe_price_env": "TEXTILE_ES_BLASTER_PRICE_GBP_ID"
-        },
-        "en": {
-          "locale": "en",
-          "page": "https://oolita.es/en/editions/t-shirt/",
-          "stripe_price_env": "TEXTILE_EN_BLASTER_PRICE_GBP_ID"
-        }
+        "es": {"locale":"es","page":"https://oolita.es/ediciones/camiseta/"},
+        "en": {"locale":"en","page":"https://oolita.es/en/editions/t-shirt/"}
       },
       "variants": {
-        "oversized": {
-          "name": "OOLITA Blaster 2.0",
-          "supplier": "The Inner Sanctum Group",
-          "garment": "Stanley/Stella Blaster 2.0 STTU959",
-          "colour": "White",
-          "weight_gsm": 200,
-          "fit": "oversized unisex, dropped shoulder",
-          "sizes": "XXS-3XL",
-          "composition": "100% organic combed cotton",
-          "production_cost_minor_gbp": 2300,
-          "provisional_retail_minor_gbp": 3400,
-          "fulfilment": "manual_pending_supplier_api"
-        }
+        "oversized": {"name":"OOLITA Blaster 2.0","supplier":"The Inner Sanctum Group","garment":"Stanley/Stella Blaster 2.0 STTU959","colour":"White","weight_gsm":200,"fit":"oversized unisex, dropped shoulder","sizes":"XXS-3XL","composition":"100% organic combed cotton","production_cost_minor_gbp":2300,"provisional_retail_minor_gbp":3400,"fulfilment":"manual_pending_supplier_api"}
       },
-      "fulfilment": {
-        "provider": "inner_sanctum_manual",
-        "territory": "GB",
-        "status": "staged_manual",
-        "supplier_api": false,
-        "runtime_config": "functions/_lib/textile-config.js"
-      },
-      "offers": {
-        "es_eur": {
-          "locale": "es",
-          "currency": "eur",
-          "amount_minor": null,
-          "stripe_price_id": null,
-          "payment_link": null
-        },
-        "en_gbp": {
-          "locale": "en",
-          "currency": "gbp",
-          "amount_minor": null,
-          "stripe_price_id": null,
-          "payment_link": null
-        }
-      }
+      "fulfilment": {"provider":"inner_sanctum_manual","territory":"GB","status":"staged_manual","supplier_api":false,"runtime_config":"functions/_lib/textile-config.js"},
+      "offers": {"es_eur":{"locale":"es","currency":"eur","amount_minor":null,"stripe_price_id":null,"payment_link":null},"en_gbp":{"locale":"en","currency":"gbp","amount_minor":null,"stripe_price_id":null,"payment_link":null}}
     }
   }
 }

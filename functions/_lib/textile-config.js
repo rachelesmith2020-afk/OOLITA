@@ -6,18 +6,17 @@ export const TEXTILE = Object.freeze({
   provider: 'inner_sanctum_manual',
   supplier: 'The Inner Sanctum Group',
   shippingMode: 'fixed_manual',
+  stripePriceEnv: 'TEXTILE_BLASTER_PRICE_GBP_ID',
   storefronts: Object.freeze({
     es: Object.freeze({
       key: 'es',
       locale: 'es',
       page: 'https://oolita.es/ediciones/camiseta/',
-      priceEnv: 'TEXTILE_ES_BLASTER_PRICE_GBP_ID',
     }),
     en: Object.freeze({
       key: 'en',
       locale: 'en',
       page: 'https://oolita.es/en/editions/t-shirt/',
-      priceEnv: 'TEXTILE_EN_BLASTER_PRICE_GBP_ID',
     }),
   }),
   variants: Object.freeze({
@@ -81,8 +80,8 @@ export function textileRuntimeConfig(env, variant, storefront) {
   const shippingMinor = positiveMinor(env?.TEXTILE_UK_SHIPPING_GBP_MINOR);
   if (shippingMinor == null) missing.push('textile_uk_shipping_gbp_minor');
 
-  const priceId = storefront ? validStripePriceId(env?.[storefront.priceEnv]) : null;
-  if (storefront && !priceId) missing.push(storefront.priceEnv.toLowerCase());
+  const priceId = validStripePriceId(env?.[TEXTILE.stripePriceEnv]);
+  if (!priceId) missing.push(TEXTILE.stripePriceEnv.toLowerCase());
 
   return {
     configured: missing.length === 0,
