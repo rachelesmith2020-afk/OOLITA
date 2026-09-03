@@ -26,6 +26,42 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
+      - name: Verify textile Stripe source is two-storefront and persistent
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          const { TEXTILE } = await import('./functions/_lib/textile-config.js');
+          const storefronts = Object.keys(TEXTILE.storefronts).sort();
+          const variants = Object.keys(TEXTILE.variants).sort();
+          if (JSON.stringify(storefronts) !== JSON.stringify(['en', 'es'])) {
+            throw new Error(`Textile storefronts must be exactly en + es; found ${storefronts.join(', ')}`);
+          }
+          if (JSON.stringify(variants) !== JSON.stringify(['oversized'])) {
+            throw new Error(`Textile variants must be exactly oversized; found ${variants.join(', ')}`);
+          }
+          if (TEXTILE.storefronts.es.page !== 'https://oolita.es/ediciones/camiseta/') {
+            throw new Error('Spanish textile storefront points at the wrong page');
+          }
+          if (TEXTILE.storefronts.en.page !== 'https://oolita.es/en/editions/t-shirt/') {
+            throw new Error('English textile storefront points at the wrong page');
+          }
+          console.log('Textile source has exactly two storefronts and one Blaster variant.');
+          NODE
+          if grep -Fq 'line_items[0][price_data]' functions/api/textile-checkout.js; then
+            echo 'Inline Stripe price_data found in textile checkout; this can proliferate Stripe catalog objects.'
+            exit 1
+          fi
+          if grep -Fq 'product_data' functions/api/textile-checkout.js; then
+            echo 'Inline Stripe product_data found in textile checkout; this can proliferate Stripe catalog objects.'
+            exit 1
+          fi
+          if ! grep -Fq 'line_items[0][price]' functions/api/textile-checkout.js; then
+            echo 'Persistent Stripe price reference missing from textile checkout.'
+            exit 1
+          fi
+          echo 'Textile Stripe checkout reuses persistent prices; inline product creation is blocked.'
+
       - name: Run fail-closed live SEO audit
         shell: bash
         run: python3 scripts/audit_live_seo_v1.py https://oolita.es
