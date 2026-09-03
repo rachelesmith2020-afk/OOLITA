@@ -4,7 +4,8 @@
 This is not a conversion layer. It keeps the existing voice and product pages,
 but makes the higher-level routes answer four practical questions at a glance:
 what exists now, what opens free, when the book is released, and when the first
-textile edition is released. It also keeps the textile specification precise.
+textile edition is released. It also keeps the single Blaster textile
+specification precise and fails closed if the retired second garment returns.
 """
 from __future__ import annotations
 
@@ -33,8 +34,6 @@ def replace_any_once(rel: str, old_forms: tuple[str, ...], new: str) -> None:
     path, text = read(rel)
     if new in text:
         return
-    if rel in ("en/editions/t-shirt/index.html", "ediciones/camiseta/index.html") and "RE-Creator STTU787" in text and "Blaster 2.0 STTU959" in text:
-        return
     for old in old_forms:
         count = text.count(old)
         if count == 1:
@@ -53,8 +52,6 @@ def replace_paragraph(
     """Replace one paragraph from any known source state; safe on rebuilt live HTML."""
     path, text = read(rel)
     if new_inner in text:
-        return
-    if rel in ("en/editions/t-shirt/index.html", "ediciones/camiseta/index.html") and "RE-Creator STTU787" in text and "Blaster 2.0 STTU959" in text:
         return
     markers = (marker,) if isinstance(marker, str) else marker
     pattern = re.compile(r"(<p\b[^>]*>)(.*?)(</p>)", flags=re.I | re.S)
@@ -172,9 +169,7 @@ replace_paragraph(
     "En desarrollo. Aún no hay fecha de publicación. Una publicación bilingüe para niños y familias: observar, dibujar, escuchar y registrar sin recoger ni alterar nada.",
 )
 
-# TEXTILE DETAIL — legacy single-Blaster state is normalized when present. When the
-# final two-variant textile pass has already published RE-Creator + Blaster, the
-# helpers above preserve that newer state instead of forcing the old one-product copy.
+# TEXTILE DETAIL — one garment only: Stanley/Stella Blaster 2.0.
 replace_paragraph(
     "en/editions/t-shirt/index.html",
     "It is a Stanley/Stella Blaster 2.0",
@@ -186,6 +181,7 @@ replace_paragraph(
         "It carries GOTS organic cotton certification",
         "PETA lists the company as 100% vegan",
         "PETA-Approved; its products are made from 100% vegan materials",
+        "Stanley/Stella lists the Blaster 2.0 with GOTS and OEKO-TEX credentials",
     ),
     "Stanley/Stella lists the Blaster 2.0 with GOTS and OEKO-TEX certification. Stanley/Stella is a Fair Wear member and PETA-Approved; its products are made from 100% vegan materials.",
 )
@@ -200,6 +196,7 @@ replace_paragraph(
         "Lleva certificación GOTS de algodón orgánico",
         "PETA incluye a la empresa entre sus compañías 100 % veganas",
         "está aprobada por PETA; sus productos están hechos con materiales 100 % veganos",
+        "Stanley/Stella muestra la Blaster 2.0 con certificaciones GOTS y OEKO-TEX",
     ),
     "La ficha de Stanley/Stella muestra la Blaster 2.0 con certificaciones GOTS y OEKO-TEX. Stanley/Stella es miembro de Fair Wear y está aprobada por PETA; sus productos están hechos con materiales 100 % veganos.",
 )
@@ -236,8 +233,8 @@ required = {
     "index.html": (STATUS_ES,),
     "en/editions/index.html": ("Available from 31.01.27", "Available from 11.04.27", "In development. No release date yet."),
     "ediciones/index.html": ("Disponible desde el 31.01.27", "Disponible desde el 11.04.27", "En desarrollo."),
-    "en/editions/t-shirt/index.html": ("RE-Creator STTU787", "Blaster 2.0 STTU959", "GRS, OCS and OEKO-TEX", "Credentials"),
-    "ediciones/camiseta/index.html": ("RE-Creator STTU787", "Blaster 2.0 STTU959", "GRS, OCS y OEKO-TEX", "Credenciales"),
+    "en/editions/t-shirt/index.html": ("Stanley/Stella Blaster 2.0", "200 gsm", "Credentials"),
+    "ediciones/camiseta/index.html": ("Stanley/Stella Blaster 2.0", "200 g/m²", "Credenciales"),
 }
 stale = {
     "en/index.html": ("book goes on sale", "first textile edition goes on sale"),
@@ -250,6 +247,10 @@ stale = {
         "PETA Vegan · Fair Wear",
         "PETA-listed vegan company",
         "PETA lists the company as 100% vegan",
+        "RE-Creator",
+        "STTU787",
+        "two unisex cuts",
+        "There are two Stanley/Stella choices",
     ),
     "ediciones/camiseta/index.html": (
         "algodón orgánico peinado de hilo abierto",
@@ -258,6 +259,10 @@ stale = {
         "Vegano PETA · Fair Wear",
         "empresa vegana en PETA",
         "PETA incluye a la empresa entre sus compañías 100 % veganas",
+        "RE-Creator",
+        "STTU787",
+        "dos cortes unisex",
+        "Hay dos opciones Stanley/Stella",
     ),
 }
 for rel, phrases in required.items():
@@ -274,8 +279,8 @@ for rel, phrases in stale.items():
             raise SystemExit(f"Stale commercial status remains in {rel}: {phrase}")
 
 # Site-wide no-straggler gate. The target-page assertions above prove the new copy
-# exists; this scan proves retired commercial/credential wording does not survive
-# elsewhere in the final deploy bundle.
+# exists; this scan proves retired commercial/credential/textile wording does not
+# survive elsewhere in the final deploy bundle.
 sitewide_stale = (
     "book goes on sale",
     "first textile edition goes on sale",
@@ -292,6 +297,10 @@ sitewide_stale = (
     "miembro de Fair Wear desde 2012",
     "PETA-listed vegan company",
     "empresa vegana en PETA",
+    "RE-Creator",
+    "STTU787",
+    "two unisex cuts",
+    "dos cortes unisex",
 )
 stragglers: list[str] = []
 for page in sorted(ROOT.rglob("*.html")):
@@ -300,6 +309,6 @@ for page in sorted(ROOT.rglob("*.html")):
         if phrase in visible:
             stragglers.append(f"{page.relative_to(ROOT)}: {phrase}")
 if stragglers:
-    raise SystemExit("Commercial/credential stragglers remain:\n  - " + "\n  - ".join(stragglers))
+    raise SystemExit("Commercial/credential/textile stragglers remain:\n  - " + "\n  - ".join(stragglers))
 
-print("OOLITA commercial availability/status clarity, textile precision and site-wide no-straggler gate passed.")
+print("OOLITA commercial availability/status clarity, single-Blaster precision and site-wide no-straggler gate passed.")
