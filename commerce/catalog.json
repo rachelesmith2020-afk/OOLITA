@@ -70,6 +70,19 @@
       "name_en": "OOLITA · first textile edition",
       "release_date": "2027-04-11",
       "stripe_product_id": null,
+      "stripe_catalog_mode": "two_locale_products_with_persistent_prices",
+      "storefronts": {
+        "es": {
+          "locale": "es",
+          "page": "https://oolita.es/ediciones/camiseta/",
+          "stripe_price_env": "TEXTILE_ES_BLASTER_PRICE_GBP_ID"
+        },
+        "en": {
+          "locale": "en",
+          "page": "https://oolita.es/en/editions/t-shirt/",
+          "stripe_price_env": "TEXTILE_EN_BLASTER_PRICE_GBP_ID"
+        }
+      },
       "variants": {
         "oversized": {
           "name": "OOLITA Blaster 2.0",
