@@ -7,7 +7,8 @@ ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 PAGE = ROOT / "en/3d-world/index.html"
 OLD = "That day the link opens. If you want the notice, leave your email with OOLITA."
 NEW = "Leave your email with OOLITA and we’ll let you know when it opens."
-FOLLOW_HREF = 'href="/en/?follow=3d#follow-oolita"'
+FOLLOW_HREF = 'href="/en/#follow-oolita"'
+LEGACY_FOLLOW = '?follow=3d'
 
 if not PAGE.is_file():
     raise SystemExit("Missing expected page: en/3d-world/index.html")
@@ -31,6 +32,8 @@ if OLD in text:
 if text.count(NEW) != 1:
     raise SystemExit("Expected exactly one approved launch notice in en/3d-world/index.html")
 if FOLLOW_HREF not in text:
-    raise SystemExit("3D-world Follow OOLITA href is missing or changed")
+    raise SystemExit("3D-world direct Follow OOLITA href is missing or changed")
+if LEGACY_FOLLOW in text:
+    raise SystemExit("Legacy redirecting ?follow=3d href remains in 3D-world page")
 
-print("English 3D-world launch notice and follow href validated.")
+print("English 3D-world launch notice and direct follow href validated.")
