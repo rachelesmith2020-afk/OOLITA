@@ -37,7 +37,7 @@ function editionsPage(locale) {
 
 function textileSelection(style, size, locale) {
   const variant = getTextileVariant(style);
-  if (!variant) return { error: 'style must be regular or oversized', status: 400 };
+  if (!variant) return { error: 'style must be oversized', status: 400 };
   const normalisedSize = normaliseTextileSize(variant, size);
   if (!normalisedSize) return { error: 'unsupported_size', sizes: variant.sizes, status: 400 };
   const normalisedLocale = locale === 'es' ? 'es' : locale === 'en' ? 'en' : null;
