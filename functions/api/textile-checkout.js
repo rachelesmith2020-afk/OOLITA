@@ -1,5 +1,6 @@
 import {
   TEXTILE,
+  getTextileStorefront,
   getTextileVariant,
   normaliseTextileSize,
   positiveMinor,
@@ -31,22 +32,18 @@ function originAllowed(request) {
   return host === 'oolita.es' || host === 'www.oolita.es' || host === 'oolita.pages.dev' || host.endsWith('.oolita.pages.dev');
 }
 
-function editionsPage(locale) {
-  return locale === 'es' ? 'https://oolita.es/ediciones/' : 'https://oolita.es/en/editions/';
-}
-
 function textileSelection(style, size, locale) {
   const variant = getTextileVariant(style);
   if (!variant) return { error: 'style must be oversized', status: 400 };
   const normalisedSize = normaliseTextileSize(variant, size);
   if (!normalisedSize) return { error: 'unsupported_size', sizes: variant.sizes, status: 400 };
-  const normalisedLocale = locale === 'es' ? 'es' : locale === 'en' ? 'en' : null;
-  if (!normalisedLocale) return { error: 'locale must be en or es', status: 400 };
-  return { variant, size: normalisedSize, locale: normalisedLocale };
+  const storefront = getTextileStorefront(locale);
+  if (!storefront) return { error: 'locale must be en or es', status: 400 };
+  return { variant, size: normalisedSize, storefront };
 }
 
-function dryRunPayload(env, variant, size) {
-  const runtime = textileRuntimeConfig(env, variant);
+function dryRunPayload(env, variant, size, storefront) {
+  const runtime = textileRuntimeConfig(env, variant, storefront);
   return {
     dry_run: true,
     phase: textilePhase(),
@@ -56,6 +53,9 @@ function dryRunPayload(env, variant, size) {
     provider: TEXTILE.provider,
     country: TEXTILE.country,
     currency: TEXTILE.currency,
+    storefront: storefront.key,
+    storefront_count: Object.keys(TEXTILE.storefronts).length,
+    checkout_locale: storefront.locale,
     style: variant.key,
     size,
     sku: variant.sku,
@@ -64,6 +64,8 @@ function dryRunPayload(env, variant, size) {
     provisional_retail_minor: variant.provisionalRetailMinor,
     configured_retail_minor: runtime.retailMinor,
     configured_shipping_minor: positiveMinor(env?.TEXTILE_UK_SHIPPING_GBP_MINOR),
+    persistent_stripe_price: true,
+    persistent_price_configured: Boolean(runtime.priceId),
     supplier_api_call: false,
     creates_payment: false,
   };
@@ -80,27 +82,64 @@ function addFixedShipping(params, amountMinor, locale) {
   );
 }
 
-async function createStripeSession({ env, variant, size, locale, retailMinor, shippingMinor, requestId }) {
-  const params = new URLSearchParams();
-  const page = editionsPage(locale);
+async function loadStripePrice(env, priceId) {
+  const response = await fetch(`https://api.stripe.com/v1/prices/${encodeURIComponent(priceId)}`, {
+    headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}` },
+  });
+  const text = await response.text();
+  let parsed = null;
+  try {
+    parsed = text ? JSON.parse(text) : null;
+  } catch (_) {
+    parsed = null;
+  }
+  if (!response.ok) throw new Error(parsed?.error?.message || `Stripe price lookup returned HTTP ${response.status}`);
+  return parsed;
+}
 
+function validateStripePrice(price, priceId, retailMinor) {
+  if (!price || price.id !== priceId) throw new Error('Configured Stripe textile price could not be verified');
+  if (price.active !== true) throw new Error('Configured Stripe textile price is not active');
+  if (price.type !== 'one_time' || price.recurring) throw new Error('Configured Stripe textile price must be one-time');
+  if (price.currency?.toLowerCase?.() !== TEXTILE.currency) {
+    throw new Error(`Configured Stripe textile price must use ${TEXTILE.currency.toUpperCase()}`);
+  }
+  if (!Number.isInteger(price.unit_amount) || price.unit_amount !== retailMinor) {
+    throw new Error('Configured Stripe textile price amount does not match OOLITA runtime price');
+  }
+  if (typeof price.product !== 'string' || !price.product.startsWith('prod_')) {
+    throw new Error('Configured Stripe textile price has no reusable product');
+  }
+}
+
+async function createStripeSession({ env, variant, size, storefront, priceId, retailMinor, shippingMinor, requestId }) {
+  const stripePrice = await loadStripePrice(env, priceId);
+  validateStripePrice(stripePrice, priceId, retailMinor);
+
+  const params = new URLSearchParams();
   params.set('mode', 'payment');
-  params.set('locale', locale);
-  params.set('success_url', `https://oolita.es/api/textile-confirm?session_id={CHECKOUT_SESSION_ID}&locale=${locale}`);
-  params.set('cancel_url', `${page}?textile_order=cancelled`);
+  params.set('locale', storefront.locale);
+  params.set(
+    'success_url',
+    `https://oolita.es/api/textile-confirm?session_id={CHECKOUT_SESSION_ID}&locale=${storefront.locale}`,
+  );
+  params.set('cancel_url', `${storefront.page}?textile_order=cancelled`);
   params.set('customer_creation', 'always');
   params.set('phone_number_collection[enabled]', 'true');
   params.set('shipping_address_collection[allowed_countries][0]', TEXTILE.country);
   params.set('payment_method_types[0]', 'card');
-
-  params.set('line_items[0][price_data][currency]', TEXTILE.currency);
-  params.set('line_items[0][price_data][unit_amount]', String(retailMinor));
-  params.set('line_items[0][price_data][product_data][name]', variant.name);
-  params.set('line_items[0][price_data][product_data][description]', `${variant.supplierProduct} · White · ${size}`);
+  params.set('line_items[0][price]', priceId);
   params.set('line_items[0][quantity]', '1');
-  addFixedShipping(params, shippingMinor, locale);
+  params.set(
+    'custom_text[submit][message]',
+    storefront.locale === 'es'
+      ? `Talla seleccionada: ${size} · Stanley/Stella Blaster 2.0`
+      : `Selected size: ${size} · Stanley/Stella Blaster 2.0`,
+  );
+  addFixedShipping(params, shippingMinor, storefront.locale);
 
   params.set('metadata[oolita_product_key]', TEXTILE.productKey);
+  params.set('metadata[oolita_storefront]', storefront.key);
   params.set('metadata[oolita_textile_variant]', variant.key);
   params.set('metadata[oolita_textile_size]', size);
   params.set('metadata[oolita_textile_sku]', variant.sku);
@@ -111,7 +150,7 @@ async function createStripeSession({ env, variant, size, locale, retailMinor, sh
   params.set('metadata[oolita_production_cost_minor]', String(variant.productionCostMinor));
   params.set('metadata[oolita_retail_amount_minor]', String(retailMinor));
   params.set('metadata[oolita_shipping_amount_minor]', String(shippingMinor));
-  params.set('metadata[oolita_locale]', locale);
+  params.set('metadata[oolita_locale]', storefront.locale);
   params.set('metadata[oolita_manual_fulfilment]', 'true');
 
   const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -146,7 +185,7 @@ export async function onRequestGet({ request, env }) {
     url.searchParams.get('locale'),
   );
   if (selected.error) return json(selected, selected.status);
-  return json(dryRunPayload(env, selected.variant, selected.size));
+  return json(dryRunPayload(env, selected.variant, selected.size, selected.storefront));
 }
 
 export async function onRequestPost({ request, env }) {
@@ -161,10 +200,10 @@ export async function onRequestPost({ request, env }) {
 
   const selected = textileSelection(body?.style, body?.size, body?.locale);
   if (selected.error) return json(selected, selected.status);
-  const { variant, size, locale } = selected;
-  const runtime = textileRuntimeConfig(env, variant);
+  const { variant, size, storefront } = selected;
+  const runtime = textileRuntimeConfig(env, variant, storefront);
 
-  if (body?.dry_run === true) return json(dryRunPayload(env, variant, size));
+  if (body?.dry_run === true) return json(dryRunPayload(env, variant, size, storefront));
 
   const phase = textilePhase();
   if (phase !== 'sale') {
@@ -184,7 +223,8 @@ export async function onRequestPost({ request, env }) {
       env,
       variant,
       size,
-      locale,
+      storefront,
+      priceId: runtime.priceId,
       retailMinor: runtime.retailMinor,
       shippingMinor: runtime.shippingMinor,
       requestId,
@@ -192,6 +232,7 @@ export async function onRequestPost({ request, env }) {
     return json({
       session_id: session.id,
       url: session.url,
+      storefront: storefront.key,
       style: variant.key,
       size,
       currency: TEXTILE.currency,
