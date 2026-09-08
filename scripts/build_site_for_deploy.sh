@@ -42,6 +42,7 @@ mkdir -p site/images site/catalogo-hallazgo site/en/hallazgo-catalogue
 cp 'overrides/images/Untitled design.png' site/images/hallazgo-cover.png
 cp overrides/catalogo-hallazgo/index.html site/catalogo-hallazgo/index.html
 cp overrides/en/hallazgo-catalogue/index.html site/en/hallazgo-catalogue/index.html
+cp overrides/robots.txt site/robots.txt
 
 python3 - <<'PY'
 from pathlib import Path
