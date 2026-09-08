@@ -1,0 +1,12 @@
+# OOLITA — oolita.es
+# Raquel Costantini · Los Escullos, Cabo de Gata-Níjar
+#
+# Note: Cloudflare prepends its managed content-signals block
+# (search=yes, ai-train=no, use=reference) to this file automatically.
+# Do not paste that block in here as well — it would be duplicated.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://oolita.es/sitemap.xml
