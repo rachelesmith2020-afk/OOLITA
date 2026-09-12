@@ -50,6 +50,7 @@ on:
       - 'scripts/apply_attribution_consistency_v2.py'
       - 'scripts/apply_seo_followup_v1.py'
       - 'scripts/publish_sunday03_and_3d_preview_v1.py'
+      - 'scripts/publish_missing_sundays_v1.py'
       - 'scripts/apply_engagement_depth_v1.py'
       - 'scripts/apply_arena_archive_link_v1.py'
       - 'scripts/configure_cloudflare_analytics.py'
@@ -111,6 +112,7 @@ on:
       - 'scripts/apply_attribution_consistency_v2.py'
       - 'scripts/apply_seo_followup_v1.py'
       - 'scripts/publish_sunday03_and_3d_preview_v1.py'
+      - 'scripts/publish_missing_sundays_v1.py'
       - 'scripts/apply_engagement_depth_v1.py'
       - 'scripts/apply_arena_archive_link_v1.py'
       - 'scripts/configure_cloudflare_analytics.py'
@@ -231,6 +233,10 @@ jobs:
       - name: Apply final Cloudflare email-protection exclusion
         shell: bash
         run: python3 scripts/apply_cloudflare_follow_v1.py site
+
+      - name: Restore confirmed published Sundays 04 and 05
+        shell: bash
+        run: python3 scripts/publish_missing_sundays_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
@@ -360,6 +366,10 @@ jobs:
       - name: Apply final Cloudflare email-protection exclusion
         shell: bash
         run: python3 scripts/apply_cloudflare_follow_v1.py site
+
+      - name: Restore confirmed published Sundays 04 and 05
+        shell: bash
+        run: python3 scripts/publish_missing_sundays_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
