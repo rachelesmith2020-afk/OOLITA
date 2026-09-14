@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "brandId": "6767285",
+  "posts": [
+    {
+      "n": 4,
+      "date": "2026-08-30",
+      "short": "30.08.26",
+      "es": "El guardián",
+      "en": "The Guardian",
+      "es_slug": "04-el-guardian",
+      "en_slug": "04-the-guardian",
+      "status": "PUBLISHED",
+      "type": "POST",
+      "metricoolId": "365884258",
+      "publishedAt": "2026-08-30T18:00:00+01:00",
+      "instagram": "https://www.instagram.com/p/DcrAFHdiCd_/",
+      "image": "https://static.metricool.com/planner/202608/6767285-file-11209243474009143100.jpg",
+      "alt": "La Batería de San Felipe, del siglo XVIII, sobre la duna fósil de oolita frente al mar en Los Escullos, Cabo de Gata, cerca del laberinto. · The 18th-century Batería de San Felipe standing on the oolitic fossil dune above the sea at Los Escullos, Cabo de Gata, near the labyrinth.",
+      "es_text": "La Batería de San Felipe, mil setecientos setenta y uno. Una de las de Carlos III, entre Garrucha y Manilva.\nSe levanta sobre ocho metros de la misma duna fósil que da nombre al laberinto, trescientos veinticinco metros al norte.\nFuerte y laberinto comparten cimiento: piedra que fue mar.\nDentro del mundo guardará las cuarenta y cuatro obras.",
+      "en_text": "The Batería de San Felipe, seventeen seventy-one. One of Carlos III's, between Garrucha and Manilva.\nIt stands on eight metres of the same fossil dune that names the labyrinth, three hundred and twenty-five metres to the north.\nFort and labyrinth share a footing: stone that was once sea.\nInside the world it will hold the forty-four works."
+    },
+    {
+      "n": 5,
+      "date": "2026-09-06",
+      "short": "06.09.26",
+      "es": "El mundo",
+      "en": "The World",
+      "es_slug": "05-el-mundo",
+      "en_slug": "05-the-world",
+      "status": "PUBLISHED",
+      "type": "POST",
+      "metricoolId": "365884563",
+      "publishedAt": "2026-09-06T18:00:00+01:00",
+      "instagram": "https://www.instagram.com/p/Dc9Bop-COdr/",
+      "image": "https://static.metricool.com/planner/202608/6767285-file-1415095040247793992.jpg",
+      "alt": "La galería Hallazgo sobre la duna a la hora dorada, la figura y el gato en la senda, Morrón de Mateo y Cerro de la Viña nombrados: modelado sobre Los Escullos, Cabo de Gata. · The Hallazgo gallery on the dune at golden hour, the figure and the cat on the track before it, Morrón de Mateo and Cerro de la Viña named — modelled on Los Escullos, Cabo de Gata.",
+      "es_text": "Esto no es una fotografía. Es el mismo terreno, medido y vuelto a levantar.\nLa galería que guardará las cuarenta y cuatro obras, y delante, la figura y el gato en la senda.\nLos cerros conservan sus nombres: Morrón de Mateo, Cerro de la Viña.\nNada de esto se ha inventado. Se ha registrado.",
+      "en_text": "This is not a photograph. It is the same ground, measured and raised again.\nThe gallery that will hold the forty-four works, and before it, the figure and the cat on the track.\nThe hills keep their names: Morrón de Mateo, Cerro de la Viña.\nNone of it was invented. It was recorded."
+    },
+    {
+      "n": 6,
+      "date": "2026-09-13",
+      "short": "13.09.26",
+      "es": "El mapa",
+      "en": "The Map",
+      "es_slug": "06-el-mapa",
+      "en_slug": "06-the-map",
+      "status": "PUBLISHED",
+      "type": "POST",
+      "metricoolId": "365884704",
+      "publishedAt": "2026-09-13T18:00:00+01:00",
+      "instagram": "https://www.instagram.com/p/DdPDNAKCIn0/",
+      "image": "https://static.metricool.com/planner/202608/6767285-file-10042645677750190588.jpg",
+      "alt": "Página de collage hecha a mano de esta costa: Castillo de San Felipe y Los Escullos escritos a mano entre fragmentos reales de caliza, la piedra sobre la que se asienta el laberinto de Oolita, Cabo de Gata, Almería. · A hand-made collage page of this coast — Castillo de San Felipe and Los Escullos written by hand among real fragments of limestone, the stone the Oolita labyrinth at Los Escullos is laid on, Cabo de Gata, Almería.",
+      "es_text": "Seiscientos veinte metros de costa.\nLa orilla, el castillo y el laberinto, casi en línea recta, de norte a sur.\nDibujado a mano, antes de medirlo.\nTodo el mundo cabe en un paseo.",
+      "en_text": "Six hundred and twenty metres of coast.\nThe shore, the castle and the labyrinth, almost in a straight line, north to south.\nDrawn by hand, before any of it was measured.\nThe whole world fits into one walk."
+    }
+  ]
+}

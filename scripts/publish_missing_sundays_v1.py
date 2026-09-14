@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Restore Sundays 04/05 from Metricool's confirmed published posts.
+"""Build the archive from confirmed published Metricool Sunday posts.
 
-Run after the legacy Sunday transforms, before the final static audit.
-Future scheduled posts and draft Reels are deliberately not publication evidence.
+Run after legacy transforms, before the final static audit. The daily sync
+updates social/published_sundays.json; scheduled posts and draft Reels are excluded.
 """
 from pathlib import Path
 from html import escape
@@ -14,22 +14,41 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else 'site')
 BASE = 'https://oolita.es'
-POSTS = [
-    dict(n=4, date='2026-08-30', short='30.08.26', es='El guardián', en='The Guardian',
-         es_slug='04-el-guardian', en_slug='04-the-guardian',
-         instagram='https://www.instagram.com/p/DcrAFHdiCd_/',
-         image='https://static.metricool.com/planner/202608/6767285-file-11209243474009143100.jpg',
-         alt='La Batería de San Felipe, del siglo XVIII, sobre la duna fósil de oolita frente al mar en Los Escullos, Cabo de Gata, cerca del laberinto. · The 18th-century Batería de San Felipe standing on the oolitic fossil dune above the sea at Los Escullos, Cabo de Gata, near the labyrinth.',
-         es_text="La Batería de San Felipe, mil setecientos setenta y uno. Una de las de Carlos III, entre Garrucha y Manilva.\nSe levanta sobre ocho metros de la misma duna fósil que da nombre al laberinto, trescientos veinticinco metros al norte.\nFuerte y laberinto comparten cimiento: piedra que fue mar.\nDentro del mundo guardará las cuarenta y cuatro obras.",
-         en_text="The Batería de San Felipe, seventeen seventy-one. One of Carlos III's, between Garrucha and Manilva.\nIt stands on eight metres of the same fossil dune that names the labyrinth, three hundred and twenty-five metres to the north.\nFort and labyrinth share a footing: stone that was once sea.\nInside the world it will hold the forty-four works."),
-    dict(n=5, date='2026-09-06', short='06.09.26', es='El mundo', en='The World',
-         es_slug='05-el-mundo', en_slug='05-the-world',
-         instagram='https://www.instagram.com/p/Dc9Bop-COdr/',
-         image='https://static.metricool.com/planner/202608/6767285-file-1415095040247793992.jpg',
-         alt='La galería Hallazgo sobre la duna a la hora dorada, la figura y el gato en la senda, Morrón de Mateo y Cerro de la Viña nombrados: modelado sobre Los Escullos, Cabo de Gata. · The Hallazgo gallery on the dune at golden hour, the figure and the cat on the track before it, Morrón de Mateo and Cerro de la Viña named — modelled on Los Escullos, Cabo de Gata.',
-         es_text='Esto no es una fotografía. Es el mismo terreno, medido y vuelto a levantar.\nLa galería que guardará las cuarenta y cuatro obras, y delante, la figura y el gato en la senda.\nLos cerros conservan sus nombres: Morrón de Mateo, Cerro de la Viña.\nNada de esto se ha inventado. Se ha registrado.',
-         en_text='This is not a photograph. It is the same ground, measured and raised again.\nThe gallery that will hold the forty-four works, and before it, the figure and the cat on the track.\nThe hills keep their names: Morrón de Mateo, Cerro de la Viña.\nNone of it was invented. It was recorded.'),
-]
+MANIFEST = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(__file__).resolve().parents[1] / 'social/published_sundays.json'
+from datetime import datetime, date, timedelta, timezone
+from urllib.parse import urlsplit
+
+document = json.loads(MANIFEST.read_text(encoding='utf-8'))
+if document.get('version') != 1 or document.get('brandId') != '6767285':
+    raise SystemExit('Invalid OOLITA publication manifest')
+POSTS = sorted(document['posts'], key=lambda p: p['n'])
+seen = set()
+for p in POSTS:
+    n = p['n']
+    expected = date(2026, 8, 9) + timedelta(weeks=n-1)
+    if not isinstance(n, int) or not 4 <= n <= 22 or n in seen:
+        raise SystemExit('Invalid or duplicate Sunday number')
+    seen.add(n)
+    if p.get('status') != 'PUBLISHED' or p.get('type') != 'POST':
+        raise SystemExit('Only confirmed published Sunday image posts are allowed')
+    if p['date'] != expected.isoformat() or p['short'] != expected.strftime('%d.%m.%y'):
+        raise SystemExit('Sunday date does not match the series')
+    published = datetime.fromisoformat(p['publishedAt'])
+    if published.tzinfo is None or published > datetime.now(timezone.utc):
+        raise SystemExit('Future or timezone-less publication is not allowed')
+    if published.date() < expected:
+        raise SystemExit('Publication cannot precede its Sunday')
+    if not re.fullmatch(r'https://www\.instagram\.com/p/[A-Za-z0-9_-]+/', p['instagram']):
+        raise SystemExit('Missing canonical Instagram publication evidence')
+    media = urlsplit(p['image'])
+    if media.scheme != 'https' or media.netloc != 'static.metricool.com' or not media.path.startswith('/planner/'):
+        raise SystemExit('Unexpected media source')
+    for lang in ('es', 'en'):
+        if not re.fullmatch(f'{n:02}-[a-z0-9-]+', p[lang+'_slug']) or not p[lang+'_text'].strip() or not p[lang].strip():
+            raise SystemExit('Incomplete bilingual Sunday entry')
+if not POSTS:
+    raise SystemExit('Publication manifest must preserve the existing Sunday entries')
+
 
 def route(p, lang):
     return ('/domingos/' if lang == 'es' else '/en/sundays/') + p[lang + '_slug'] + '/'
@@ -81,14 +100,14 @@ for p in POSTS:
         text = once(r'<article\b[^>]*>.*?</article>', article, text, 'Sunday article')
         text = re.sub(r'<section\b[^>]*data-sunday-context[^>]*>.*?</section>', '', text, flags=re.S)
         # Template navigation must point at the actual previous Sunday.
-        previous = POSTS[0] if p['n'] == 5 else None
+        previous = next((item for item in reversed(POSTS) if item['n'] < p['n']), None)
         prev_route = route(previous, lang) if previous else templates[lang]
         prev_title = previous[lang] if previous else ('La memoria del mar' if lang == 'es' else 'The Memory of the Sea')
         text = once(r'<a class="fila" href="/(?:domingos/02-el-gato-de-verdad|en/sundays/02-the-cat-for-real)/">.*?</a>',
-                    f'<a class="fila" href="{prev_route}"><span class="num">{p["n"]-1:02}</span><span class="cuerpo"><span class="nombre">{escape(prev_title)}</span><span class="glo">{"Domingo anterior" if lang == "es" else "Previous Sunday"}</span></span><span class="flecha">←</span></a>', text, 'previous Sunday')
+                    f'<a class="fila" href="{prev_route}"><span class="num">{previous['n'] if previous else 3:02}</span><span class="cuerpo"><span class="nombre">{escape(prev_title)}</span><span class="glo">{"Domingo anterior" if lang == "es" else "Previous Sunday"}</span></span><span class="flecha">←</span></a>', text, 'previous Sunday')
         title = p[lang] + ' — ' + label + ' · OOLITA'
         text = once(r'<title>.*?</title>', '<title>' + escape(title) + '</title>', text, 'title')
-        published = p['date'] + 'T19:00:00+02:00'
+        published = p['publishedAt']
         values = {'description': p[lang+'_text'].splitlines()[0], 'og:title': title, 'twitter:title': title,
                   'og:description': p[lang+'_text'].splitlines()[0], 'twitter:description': p[lang+'_text'].splitlines()[0],
                   'og:url': BASE + route(p, lang), 'og:image': BASE + f'/domingos/img/{p["n"]:02}.jpg',
@@ -124,7 +143,7 @@ for lang, rel in (('es','domingos/index.html'), ('en','en/sundays/index.html')):
         row = (f'<a class="fila" href="{route(p,lang)}" data-sunday-archive-row="{n}">{thumb}<span class="num">{n:02}</span>'
                f'<span class="cuerpo"><span class="nombre">{escape(p[lang])}</span><span class="glo" lang="{other}">{escape(p[other])}</span></span>'
                f'<time class="cuando" datetime="{p["date"]}">{p["short"]}</time><span class="flecha">→</span></a>')
-        pattern = r'<div class="fila espera"><span class="num">'+f'{n:02}'+r'</span>.*?</div>|<a\b[^>]*data-sunday-archive-row="'+str(n)+r'"[^>]*>.*?</a>'
+        pattern = r'<div class="fila[^"]*"><span class="num">'+f'{n:02}'+r'</span>.*?</div>|<a\b[^>]*data-sunday-archive-row="'+str(n)+r'"[^>]*>.*?</a>'
         text = once(pattern, row, text, 'archive row '+str(n))
     # Count linked archive rows rather than elapsed dates; future items stay pending.
     count = len(set(re.findall(r'data-sunday-archive-row="(\d+)"', text)))
@@ -137,9 +156,9 @@ for lang, rel in (('es','domingos/index.html'), ('en','en/sundays/index.html')):
 latest = POSTS[-1]
 for lang, rel in (('es','index.html'), ('en','en/index.html')):
     text = (ROOT / rel).read_text(encoding='utf-8')
-    label = f'05 · {latest[lang]} · {latest["short"]}'
-    panel = (f'<section id="oolita-art-field-sundays" class="art-field art-field--gold" aria-label="{label}" data-current-sunday="05">'
-             f'<span class="art-kicker">05 · {latest[lang].upper()}</span><p class="art-word" aria-hidden="true">05</p>'
+    label = f'{latest["n"]:02} · {latest[lang]} · {latest["short"]}'
+    panel = (f'<section id="oolita-art-field-sundays" class="art-field art-field--gold" aria-label="{label}" data-current-sunday="{latest["n"]:02}">'
+             f'<span class="art-kicker">{latest["n"]:02} · {latest[lang].upper()}</span><p class="art-word" aria-hidden="true">{latest["n"]:02}</p>'
              f'<p class="art-caption">{latest["short"]} · {escape(latest[lang+"_text"].splitlines()[0])}</p>'
              f'<a class="oolita-current-sunday-hit" href="{route(latest,lang)}" aria-label="{label}"></a></section>')
     text = once(r'<section\b[^>]*id="oolita-art-field-sundays"[^>]*>.*?</section>', panel, text, 'homepage Sunday')
@@ -166,4 +185,4 @@ for p in POSTS:
             assert escape(line) in text, 'Published text changed'
         assert f'rel="canonical" href="{BASE+route(p,lang)}"' in text
         assert p['instagram'] in text
-print('Published Sundays 04 and 05: bilingual pages, exact media, archive links, homepage and sitemap verified.')
+print(f'Published Sundays through {latest["n"]:02}: bilingual pages, media, archive links, homepage and sitemap verified.')

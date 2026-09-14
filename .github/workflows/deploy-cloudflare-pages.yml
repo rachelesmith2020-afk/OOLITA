@@ -51,6 +51,8 @@ on:
       - 'scripts/apply_seo_followup_v1.py'
       - 'scripts/publish_sunday03_and_3d_preview_v1.py'
       - 'scripts/publish_missing_sundays_v1.py'
+      - 'social/published_sundays.json'
+      - 'scripts/test_sunday_publications.py'
       - 'scripts/apply_engagement_depth_v1.py'
       - 'scripts/apply_arena_archive_link_v1.py'
       - 'scripts/configure_cloudflare_analytics.py'
@@ -113,6 +115,8 @@ on:
       - 'scripts/apply_seo_followup_v1.py'
       - 'scripts/publish_sunday03_and_3d_preview_v1.py'
       - 'scripts/publish_missing_sundays_v1.py'
+      - 'social/published_sundays.json'
+      - 'scripts/test_sunday_publications.py'
       - 'scripts/apply_engagement_depth_v1.py'
       - 'scripts/apply_arena_archive_link_v1.py'
       - 'scripts/configure_cloudflare_analytics.py'
@@ -234,7 +238,11 @@ jobs:
         shell: bash
         run: python3 scripts/apply_cloudflare_follow_v1.py site
 
-      - name: Restore confirmed published Sundays 04 and 05
+      - name: Test Sunday publication gates
+        shell: bash
+        run: python3 scripts/test_sunday_publications.py
+
+      - name: Synchronize confirmed published Sunday archive
         shell: bash
         run: python3 scripts/publish_missing_sundays_v1.py site
 
@@ -367,7 +375,11 @@ jobs:
         shell: bash
         run: python3 scripts/apply_cloudflare_follow_v1.py site
 
-      - name: Restore confirmed published Sundays 04 and 05
+      - name: Test Sunday publication gates
+        shell: bash
+        run: python3 scripts/test_sunday_publications.py
+
+      - name: Synchronize confirmed published Sunday archive
         shell: bash
         run: python3 scripts/publish_missing_sundays_v1.py site
 
