@@ -312,11 +312,11 @@ HOME_RULES = {
          "homepage index entry 01"),
     ),
     "en/index.html": (
-        ("The stone labyrinth is already at Los Escullos; it is free and needs no booking.",
+        ("The stone labyrinth is already at Los Escullos; there is no ticket or booking.",
          "The stone labyrinth is at Los Escullos. We do not sign it or promote it as a destination: "
          "the same path is walked in the book and, from 3 January, in the 3D world.",
          "homepage access wording"),
-        ("The labyrinth is already there. Three metres. One path. Free. No sign. No booking.",
+        ("The labyrinth is already there. Three metres. One path. No ticket, no sign, no booking.",
          "Three metres. One path. Laid by hand in 2021 on a clearing that was already there. "
          "No sign, and no invitation.",
          "homepage stone card"),
@@ -342,10 +342,9 @@ for rel, old_desc, new_desc in (
      "Laberinto caminable de piedra en Los Escullos, Cabo de Gata: gratis y sin reserva.",
      "OOLITA: un laberinto de piedra en Cabo de Gata, colocado sobre un claro que ya existía. "
      "No es un destino."),
-    ("en/index.html",
-     "Walkable stone labyrinth at Los Escullos, Cabo de Gata: free, no booking.",
-     "OOLITA: a stone labyrinth in Cabo de Gata, laid on a clearing that was already there. "
-     "Not a destination."),
+    # The live English meta carries no invitation ("…and grows into a fable, field
+    # publications, textile editions and a 3D world"), so it is left alone. Only the
+    # Spanish one advertises "gratis y sin reserva".
 ):
     path, text = read(rel)
     text = replace_optional(text, old_desc, new_desc)
@@ -430,8 +429,7 @@ for page in sorted(ROOT.rglob("*.html")):
 BANNED = COORD_NEEDLES + (
     "gratis y sin reserva",
     "gratuito y no requiere reserva",
-    "free, no booking",
-    "free and needs no booking",
+    "No ticket, no sign, no booking.",
     # Wayfinding offers only. The rebuilt page legitimately says "Esta página
     # explicaba antes cómo llegar. Ya no lo hace." — banning the bare phrase
     # would fail the build on the sentence that states the policy.

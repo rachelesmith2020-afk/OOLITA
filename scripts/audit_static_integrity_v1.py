@@ -247,29 +247,15 @@ for rel in principal:
         "el laberinto está sobre una duna fósil",
         "loose calcarenite",
         "calcarenita suelta",
-        # Visitor-pressure policy, 15 September 2026. The labyrinth is not
-        # promoted as a destination and its position is not published, so a
-        # coordinate, a map link or an invitation reappearing on a principal
-        # page is a regression, not an edit.
-        "36.7993",
-        "36.799342",
-        "36°47′58″",
-        "2°03′47″",
-        "maps.google",
-        "gratis y sin reserva",
-        "gratuito y no requiere reserva",
-        "free, no booking",
-        "free and needs no booking",
-        # Narrow on purpose. The labyrinth page explains the policy with the
-        # sentence "Esta página explicaba antes cómo llegar. Ya no lo hace.",
-        # so the bare phrase is legitimate prose; what must never return is a
-        # wayfinding offer in a title or a call to action.
-        "cómo llegar y qué esperar",
-        "how to get there and what to expect",
-        "cómo llegar · oolita",
-        "how to get there · oolita",
-        "cómo encontrar y caminar el laberinto",
-        "how to find and walk the labyrinth",
+        # NOTE on the visitor-pressure policy (coordinates, map links and the
+        # "gratis / sin reserva" invitation): those terms are NOT checked here.
+        # This audit runs twice — once inside build_site_for_deploy.sh and again
+        # as the final workflow step — and at the first invocation the copy has
+        # not been cleaned yet, because the passes that carry it run later in the
+        # workflow. Checking here would fail the build on an intermediate state.
+        # The permanent fail-closed guard for those terms lives in
+        # scripts/apply_visitor_pressure_v1.py, which sweeps every built page and
+        # runs immediately before this audit's final invocation.
     ):
         if bad.lower() in text.lower():
             errors.append(f"Known factual/grammar straggler in {rel}: {bad}")

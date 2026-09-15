@@ -248,6 +248,10 @@ jobs:
         shell: bash
         run: python3 scripts/publish_missing_sundays_v1.py site
 
+      - name: Stop presenting the labyrinth as a destination
+        shell: bash
+        run: python3 scripts/apply_visitor_pressure_v1.py site
+
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
         run: python3 scripts/audit_static_integrity_v1.py site
@@ -384,6 +388,10 @@ jobs:
       - name: Synchronize confirmed published Sunday archive
         shell: bash
         run: python3 scripts/publish_missing_sundays_v1.py site
+
+      - name: Stop presenting the labyrinth as a destination
+        shell: bash
+        run: python3 scripts/apply_visitor_pressure_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
