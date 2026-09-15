@@ -188,6 +188,13 @@ python3 scripts/apply_editorial_internal_links_v1.py site
 
 # Final factual and structural gates run after all reader-facing mutations.
 python3 scripts/normalize_labyrinth_fossil_dunes_v2.py site
+
+# Visitor-pressure, geoheritage and independence pass. This MUST run after the
+# native editorial passes invoked by the gate above: those assert the former
+# access wording as their required final state, so removing it any earlier makes
+# them fail closed. Running it here means no existing guard is weakened.
+python3 scripts/apply_visitor_pressure_v1.py site
+
 python3 scripts/audit_static_integrity_v1.py site
 
 # Production propagation trigger: corrected bilingual consistency guard.

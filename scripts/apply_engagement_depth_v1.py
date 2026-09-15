@@ -404,7 +404,9 @@ def add_structured_data() -> None:
                     "addressRegion": "Almería",
                     "addressCountry": "ES",
                 },
-                "geo": {"@type": "GeoCoordinates", "latitude": 36.7993, "longitude": -2.0632},
+                # No "geo" block. A GeoCoordinates node is a machine-readable pin
+                # on an unstaffed feature inside a protected area; town-level
+                # PostalAddress is the most precision this page should publish.
             },
         }
         upsert_schema(rel, "oolita-cabo-place-schema", payload)
