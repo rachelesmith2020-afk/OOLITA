@@ -61,6 +61,7 @@ on:
       - 'scripts/verify_cloudflare_analytics.py'
       - 'scripts/submit_indexnow.py'
       - 'scripts/audit_live_seo_v1.py'
+      - 'scripts/apply_visitor_pressure_v1.py'
       - 'functions/**'
       - 'search/**'
       - 'commerce/**'
@@ -125,6 +126,7 @@ on:
       - 'scripts/verify_cloudflare_analytics.py'
       - 'scripts/submit_indexnow.py'
       - 'scripts/audit_live_seo_v1.py'
+      - 'scripts/apply_visitor_pressure_v1.py'
       - 'functions/**'
       - 'search/**'
       - 'commerce/**'
@@ -245,6 +247,10 @@ jobs:
       - name: Synchronize confirmed published Sunday archive
         shell: bash
         run: python3 scripts/publish_missing_sundays_v1.py site
+
+      - name: Stop presenting the labyrinth as a destination
+        shell: bash
+        run: python3 scripts/apply_visitor_pressure_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
@@ -382,6 +388,10 @@ jobs:
       - name: Synchronize confirmed published Sunday archive
         shell: bash
         run: python3 scripts/publish_missing_sundays_v1.py site
+
+      - name: Stop presenting the labyrinth as a destination
+        shell: bash
+        run: python3 scripts/apply_visitor_pressure_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash

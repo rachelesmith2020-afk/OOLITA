@@ -190,6 +190,12 @@ python3 scripts/apply_editorial_internal_links_v1.py site
 python3 scripts/normalize_labyrinth_fossil_dunes_v2.py site
 python3 scripts/audit_static_integrity_v1.py site
 
+# NOTE: the visitor-pressure pass (scripts/apply_visitor_pressure_v1.py) is NOT
+# run here. The workflow runs ~25 further reader-facing passes AFTER this script,
+# several of which re-assert the former access wording and the homepage
+# coordinates as their required state. It therefore runs as the last step of the
+# workflow, immediately before the final static-integrity audit.
+
 # Production propagation trigger: corrected bilingual consistency guard.
 # Production propagation trigger: row-scoped Sunday consistency validation.
 # Production propagation trigger: targeted detailed Sunday 03 repair.
