@@ -80,105 +80,115 @@ def replace_optional(text: str, old: str, new: str) -> str:
 # --------------------------------------------------------------------------
 
 MAIN_ES = '''<section class="hero"><span class="rot">El laberinto</span><h1 class="grande">Un camino. Un centro. <em>Un regreso</em>.</h1>
-<p class="parr">One path. One centre. One return.</p>
-<p class="parr">Un laberinto clásico de tres metros, colocado a mano en 2021 con piedras sueltas, en terreno junto a las dunas fósiles. En seco y sin fijar: no hay mortero, no se ha cortado nada, no se ha excavado nada. Un solo camino —sin bifurcaciones, sin callejones sin salida, sin forma de perderse. Se camina despacio.</p>
-<p class="parr"><small>Trazado clásico · 3 m · piedras sueltas · 2021</small></p></section>
-<section class="tramo env"><span class="rot">El origen</span><h2 class="grande">El claro que ya estaba.</h2>
-<p class="parr">El laberinto no abrió el suelo donde está. Lo encontró abierto.</p>
-<p class="parr">En 2021, en un año en que casi nadie se movía, se colocó sobre un claro que ya existía: terreno descubierto, sin vegetación, ya pisado. No se desbrozó. No se cortó ninguna planta. No se movió tierra. No se abrió suelo nuevo. Las piedras se pusieron en seco, sueltas, sin mortero y sin fijación —se levantan a mano en una mañana y el claro vuelve a ser exactamente lo que era.</p>
-<p class="parr">Esa fue toda la decisión de diseño: que el sitio pudiera deshacerse sin dejar rastro.</p></section>
-<section class="tramo"><span class="rot">El lugar</span><h2 class="grande">No es un destino.</h2>
-<p class="parr">Esta página explicaba antes cómo llegar. Ya no lo hace.</p>
-<p class="parr">No hay coordenadas, ni indicaciones desde el aparcamiento, ni distancias desde el castillo, ni un punto en el mapa. El laberinto no es un secreto: sencillamente no necesita visitas, y el lugar donde está necesita menos aún.</p>
-<p class="parr">Tres metros de piedra no justifican un viaje. Lo que hay debajo sí merece que se sepa. Es distinto.</p></section>
-<section class="tramo env"><span class="rot">Geodiversidad</span><h2 class="grande">Lo que hay debajo tiene 128.000 años.</h2>
+<p class="parr">One path. One centre. One return.</p></section>
+<section class="tramo env"><span class="rot">El origen</span><h2 class="grande">Dónde empieza.</h2>
+<p class="parr">El mundo se había parado, y yo no.</p>
+<p class="parr">Marruecos, Portugal, Italia, Sicilia, Francia, España. Meses de carretera por un continente detenido, y en cada sitio la misma pregunta: cuándo se para uno.</p>
+<p class="parr">Se paró aquí. En 2021, en la costa de Los Escullos, sobre un claro que ya existía —terreno descubierto, ya pisado, en terreno junto a las dunas fósiles— se colocó a mano un laberinto clásico de tres metros con piedras sueltas. Un solo camino: sin bifurcaciones, sin callejones sin salida, sin forma de perderse.</p>
+<p class="parr">No es una obra sobre viajar. Es una obra sobre dejar de hacerlo.</p></section>
+<section class="tramo"><span class="rot">El método</span><h2 class="grande">El claro que ya estaba.</h2>
+<p class="parr">El laberinto no abrió el suelo donde estuvo. Lo encontró abierto.</p>
+<p class="parr">No se desbrozó. No se cortó ninguna planta. No se movió tierra. No se abrió suelo nuevo. Las piedras se pusieron en seco, sueltas, sin mortero y sin fijación —se levantan a mano en una mañana y el claro vuelve a ser exactamente lo que era.</p>
+<p class="parr">Esa fue toda la decisión de diseño: que pudiera deshacerse sin dejar rastro.</p></section>
+<section class="tramo env"><span class="rot">Linaje</span><h2 class="grande">Tres mil años de piedras que van y vienen.</h2>
+<p class="parr">Un <a href="/que-es-un-laberinto/">laberinto</a> no es una invención reciente ni una propiedad de nadie.</p>
+<p class="parr">El más antiguo que puede fecharse con seguridad está incidido en una tablilla de barro de Pilos, en Grecia, hacia el año 1200 antes de nuestra era. Más de tres mil años.</p>
+<p class="parr">En el norte hay más de seiscientos laberintos de piedra registrados en Suecia, Noruega y Finlandia, casi todos en la costa: junto a puestos de pesca, fondeaderos naturales y asentamientos de temporada, muchos en islas. Se construyeron desde finales del siglo XIII, con su momento más intenso en los siglos XVI y XVII, y se siguen construyendo hoy. Los hicieron pescadores. Después maestros de escuela, como ejercicio para sus alumnos. Después gente de vacaciones, para que jugaran los niños.</p>
+<p class="parr">El trazado medieval que hoy se camina en tantas partes aparece en manuscritos desde el siglo IX y llega a su forma más conocida en los pavimentos de las catedrales góticas, sobre todo en Chartres. De ahí viene la tradición de facilitación en la que me formé con Veriditas.</p>
+<p class="parr">Ninguno de esos laberintos costeros duró para siempre. La mayoría se deshizo. La marea, el viento, la piedra movida, el tiempo. Y la práctica continuó: alguien volvía a colocarlos, en otra playa, en otro siglo.</p>
+<p class="parr">Un laberinto no se conserva. Se vuelve a caminar.</p></section>
+<section class="tramo"><span class="rot">Geodiversidad</span><h2 class="grande">Lo que hay debajo tiene 128.000 años.</h2>
 <p class="parr">Las eolianitas de Los Escullos son dunas fósiles: arena que el viento amontonó hace entre 128.000 y 100.000 años y que el tiempo cementó en roca. Están hechas de <a href="/que-es-un-oolito/">oolitos</a> —granos esféricos de carbonato cálcico formados en capas concéntricas alrededor de un núcleo, uno a uno, en agua somera y templada. De ese grano viene el nombre del proyecto.</p>
-<p class="parr">Figuran en el Inventario Andaluz de Georrecursos. Y se están rompiendo.</p>
-<p class="parr">La Junta de Andalucía describe «graves problemas» por el incremento de visitantes sobre estas formaciones, y ha proyectado para Los Escullos muretes de mampostería de 40 × 40 cm que contengan el paso a los senderos, junto con señalización y revegetación. Pisar fuera de sendero sobre dunas fósiles protegidas es infracción grave: de 601,02 a 60.101,21 euros.</p>
-<p class="parr">Una duna que tardó cien mil años en formarse se fractura bajo una bota en un segundo. No hay restauración posible. Esa es toda la aritmética.</p></section>
-<section class="tramo"><span class="rot">Biodiversidad</span><h2 class="grande">Un lugar que ya recibe demasiado.</h2>
-<p class="parr"><a href="/cabo-de-gata/">Cabo de Gata-Níjar</a> protege más de 49.000 hectáreas, de las cuales más de 12.000 son marinas.</p>
-<p class="parr">Bajo el agua: praderas de <em>Posidonia oceanica</em> y <em>Cymodocea nodosa</em>, ambas hábitats de interés comunitario. Diecinueve cuevas marinas inventariadas, alguna de más de cuarenta metros. Más de 150 comunidades marinas distintas —la mayor diversidad de los quince espacios protegidos estudiados en el proyecto LIFE IP Intemares. Arrecifes de <em>Dendropoma lebeche</em>, catalogado como amenazado. La lapa ferruginosa, en peligro.</p>
-<p class="parr">Fuera del agua: cormorán moñudo, gaviota de Audouin, flamencos en las salinas.</p>
-<p class="parr">Y encima de todo eso, la presión. En agosto de 2026 el Parque ya había superado las denuncias de todo 2025 por actividades organizadas sin autorización. Se debate una tasa turística. Las calas soportan cada verano más gente de la que pueden sostener.</p>
+<p class="parr">Figuran en el Inventario Andaluz de Georrecursos. Y se están rompiendo. La Junta de Andalucía describe «graves problemas» por el incremento de visitantes sobre estas formaciones, y ha proyectado para Los Escullos muretes de mampostería que contengan el paso a los senderos, junto con señalización y revegetación. Pisar fuera de sendero sobre dunas fósiles protegidas es infracción grave: de 601,02 a 60.101,21 euros.</p>
+<p class="parr">Pon las tres escalas juntas. La duna: cien mil años. El trazado: tres mil. Este laberinto: cinco.</p>
+<p class="parr">Una duna que tardó cien mil años en formarse se fractura bajo una bota en un segundo. No hay restauración posible. Lo efímero aquí no es la piedra que se coloca. Es la que lleva ahí desde antes de que existiéramos.</p></section>
+<section class="tramo env"><span class="rot">El lugar</span><h2 class="grande">No es un destino.</h2>
+<p class="parr">Esta página explicaba antes cómo llegar. Ya no lo hace.</p>
+<p class="parr">No hay coordenadas, ni indicaciones desde el aparcamiento, ni distancias desde el castillo, ni un punto en el mapa. Tampoco es una invitación a rehacerlo: <strong>el laberinto no se recrea, ni aquí ni en ningún otro punto del parque.</strong></p>
+<p class="parr"><a href="/cabo-de-gata/">Cabo de Gata-Níjar</a> protege más de 49.000 hectáreas, de las cuales más de 12.000 son marinas: praderas de <em>Posidonia oceanica</em> y <em>Cymodocea nodosa</em>, diecinueve cuevas marinas inventariadas, más de 150 comunidades marinas distintas —la mayor diversidad de los quince espacios protegidos estudiados en el proyecto LIFE IP Intemares. Arrecifes de <em>Dendropoma lebeche</em>, amenazado. La lapa ferruginosa, en peligro. Cormórán moñudo, gaviota de Audouin, flamencos en las salinas.</p>
+<p class="parr">En agosto de 2026 el Parque ya había superado las denuncias de todo 2025 por actividades organizadas sin autorización. Se debate una tasa turística. Las calas soportan cada verano más gente de la que pueden sostener.</p>
 <p class="parr">Ninguna de esas cifras necesita un visitante más por un laberinto de tres metros.</p></section>
-<section class="tramo env"><span class="rot">El método</span><h2 class="grande">De dónde salen estas reglas.</h2>
-<p class="parr">Raquel Costantini tiene formación en Ciencias Ambientales (BSc, Reino Unido) y trabajo de campo en conservación de hábitats, flora y fauna. No es un adorno biográfico: es de donde vienen las reglas de OOLITA, y por qué son las mismas desde 2021.</p>
-<p class="parr">No alterar lo vivo. Hallado, no tomado. Nada cortado, nada excavado, nada fijado. Todo reversible, y reversible a mano. Registrar antes que recoger: dibujar, medir, anotar y fotografiar en lugar de llevarse.</p>
-<p class="parr">Hallazgo —la práctica artística más amplia— trabaja únicamente con material que el paisaje ya ha soltado: un tallo de pita caído por sí solo, una vaina seca, una concha vacía. La atención empieza por lo que el lugar ya ha dejado ir.</p>
-<p class="parr">El laberinto sigue la misma regla, y por eso está hecho de piedras sueltas sobre un claro que ya estaba.</p></section>
-<section class="tramo"><span class="rot">Piedra · papel · código</span><h2 class="grande">Por eso OOLITA se hizo en tres materiales.</h2>
-<p class="parr">El <a href="/ediciones/libro/">libro</a> —cuarenta y ocho páginas, castellano e inglés en la misma doble página— recorre el <a href="/que-es-un-laberinto/">laberinto</a> página a página. Se lee en el tiempo que se tarda en caminarlo despacio.</p>
+<section class="tramo"><span class="rot">La práctica</span><h2 class="grande">De dónde salen estas reglas.</h2>
+<p class="parr">Soy licenciada en Ciencias Ambientales (BSc Hons, Reino Unido). Durante unos diez años enseñé reducción de estrés basada en la atención plena. Después me formé como facilitadora de laberintos con Veriditas, trabajando sobre todo la reflexión y la compasión.</p>
+<p class="parr">De ahí salen las reglas de OOLITA, y por eso son las mismas desde 2021: no alterar lo vivo; hallado, no tomado; nada cortado, nada excavado, nada fijado; todo reversible, y reversible a mano; registrar antes que recoger —dibujar, medir, anotar y fotografiar en lugar de llevarse.</p>
+<p class="parr">Hallazgo —la práctica artística más amplia— trabaja únicamente con material que el paisaje ya ha soltado: un tallo de pita caído por sí solo, una vaina seca, una concha vacía. La atención empieza por lo que el lugar ya ha dejado ir.</p></section>
+<section class="tramo env"><span class="rot">Piedra · papel · código</span><h2 class="grande">Reflexión e impermanencia.</h2>
+<p class="parr">Lo que pedía el laberinto —ir despacio, caminar con atención, dejar el sitio como estaba— no dependía de las piedras.</p>
+<p class="parr">Un laberinto no resuelve nada. No hay decisiones que tomar, no hay forma de equivocarse y no se llega a ningún sitio nuevo: se entra, se llega al centro, se vuelve a salir por donde se entró. Lo único que cambia es la atención de quien lo camina. Por eso funciona igual en piedra, en papel o en código.</p>
+<p class="parr">El <a href="/ediciones/libro/">libro</a> —cuarenta y ocho páginas, castellano e inglés en la misma doble página— recorre el laberinto página a página. Se lee en el tiempo que se tarda en caminarlo despacio.</p>
 <p class="parr">El <a href="/mundo-3d/">mundo 3D</a> abre el 3 de enero de 2027: el mismo trazado, la misma costa, la misma luz baja de la tarde, caminable desde el navegador. Sin descarga, sin cuenta, sin coste.</p>
 <p class="parr">No es un premio de consolación para quien no puede viajar. Es la forma prevista de recorrerlo. A veces es la distancia, a veces el dinero, a veces el cuerpo —y a veces, sencillamente, es que el lugar está mejor sin nosotros. Caminar el laberinto desde casa no deja ninguna huella sobre una duna de cien mil años.</p>
-<p class="parr">Las publicaciones de campo hacen lo mismo con lo demás: geología, viento, sombra, agua, salinas, aves, Posidonia, color y tiempo. Dibujar, escuchar, medir, anotar y fotografiar sin llevarse nada.</p>
 <p class="parr">Mirar de cerca no exige estar cerca.</p></section>
-<section class="tramo env"><span class="rot">Si vienes</span><h2 class="grande">Ven por el lugar, no por el laberinto.</h2>
+<section class="tramo"><span class="rot">Si vienes</span><h2 class="grande">Ven por el lugar, no por el laberinto.</h2>
 <p class="parr">Camina por los senderos señalizados. Los bordes son donde empieza el daño.</p>
 <p class="parr">No subas ni pises las dunas fósiles. Míralas desde el camino: desde ahí se ven mejor.</p>
-<p class="parr">No muevas piedra. Ni aquí, ni en ninguna parte del parque.</p>
+<p class="parr">No muevas piedra, y no coloques ninguna. Ni aquí, ni en ninguna parte del parque.</p>
 <p class="parr">Hallado, no tomado. No te lleves nada —ni una concha, ni un guijarro, ni una vaina.</p>
 <p class="parr">Aprende de la gente que vive y trabaja aquí. Llegaron antes.</p>
 <p class="parr">Deja el lugar como lo encontraste.</p></section>
-<section class="tramo"><span class="rot">Independencia</span><h2 class="grande">OOLITA es un proyecto independiente.</h2>
-<p class="parr">OOLITA es un proyecto independiente de Raquel Costantini con Vestini Tribe.</p>
-<p class="parr">No está vinculado, respaldado, autorizado ni promovido por el Parque Natural de Cabo de Gata-Níjar, la Junta de Andalucía ni ninguna otra administración, y no forma parte de ninguna red, programa ni figura de protección oficial. Los datos geológicos y ecológicos citados en esta página proceden de fuentes públicas que se citan como fuente y no como respaldo.</p>
-<p class="parr"><a href="/domingos/">22 domingos</a> &nbsp; <a href="/#seguir-oolita">Sigue OOLITA</a></p></section>'''
+<section class="tramo env"><span class="rot">Independencia</span><h2 class="grande">OOLITA es un proyecto independiente.</h2>
+<p class="parr">OOLITA es un proyecto independiente de Raquel Costantini con Vestini Tribe. No está vinculado, respaldado, autorizado ni promovido por el Parque Natural de Cabo de Gata-Níjar, la Junta de Andalucía ni ninguna otra administración, y no forma parte de ninguna red, programa ni figura de protección oficial. Los datos geológicos e históricos citados proceden de fuentes públicas, que se citan como fuente y no como respaldo.</p>
+<p class="parr"><a href="/domingos/">22 domingos</a>   <a href="/#seguir-oolita">Sigue OOLITA</a></p></section>'''
 
 
 MAIN_EN = '''<section class="hero"><span class="rot">The labyrinth</span><h1 class="grande">One path. One centre. <em>One return</em>.</h1>
-<p class="parr">Un camino. Un centro. Un regreso.</p>
-<p class="parr">A three-metre classical labyrinth, laid by hand in 2021 from loose stones, on land beside the fossil dunes. Dry-laid and unfixed: no mortar, nothing cut, nothing excavated. One path only — no forks, no dead ends, no way to get lost. You walk it slowly.</p>
-<p class="parr"><small>Classical design · 3 m · loose stones · 2021</small></p></section>
-<section class="tramo env"><span class="rot">The origin</span><h2 class="grande">The clearing that was already there.</h2>
-<p class="parr">The labyrinth did not open the ground it stands on. It found it open.</p>
-<p class="parr">In 2021, in a year when almost nobody was moving, it was laid on a clearing that already existed: bare ground, no vegetation, already walked. Nothing was cleared. No plant was cut. No earth was moved. No new ground was opened. The stones were set dry, loose, without mortar and without fixing — they lift by hand in a morning, and the clearing goes back to being exactly what it was.</p>
-<p class="parr">That was the whole design decision: that the thing could be undone without a trace.</p></section>
-<section class="tramo"><span class="rot">The place</span><h2 class="grande">It is not a destination.</h2>
-<p class="parr">This page used to explain how to get there. It no longer does.</p>
-<p class="parr">There are no coordinates, no directions from the car park, no distances from the castle, no pin on a map. The labyrinth is not a secret — it simply does not need visitors, and the place it stands in needs them less.</p>
-<p class="parr">Three metres of stone do not justify a journey. What lies underneath is worth knowing about. That is a different thing.</p></section>
-<section class="tramo env"><span class="rot">Geodiversity</span><h2 class="grande">What lies underneath is 128,000 years old.</h2>
+<p class="parr">Un camino. Un centro. Un regreso.</p></section>
+<section class="tramo env"><span class="rot">The origin</span><h2 class="grande">Where it begins.</h2>
+<p class="parr">The world had stopped, and I hadn't.</p>
+<p class="parr">Morocco, Portugal, Italy, Sicily, France, Spain. Months of road across a continent that had halted, and in every place the same question: when does a person stop.</p>
+<p class="parr">It stopped here. In 2021, on the coast at Los Escullos, on a clearing that already existed — bare ground, already walked, on land beside the fossil dunes — a three-metre classical labyrinth was laid by hand from loose stones. One path only: no forks, no dead ends, no way to get lost.</p>
+<p class="parr">It is not a work about travelling. It is a work about ceasing to.</p></section>
+<section class="tramo"><span class="rot">The method</span><h2 class="grande">The clearing that was already there.</h2>
+<p class="parr">The labyrinth did not open the ground it stood on. It found it open.</p>
+<p class="parr">Nothing was cleared. No plant was cut. No earth was moved. No new ground was opened. The stones were set dry, loose, without mortar and without fixing — they lift by hand in a morning, and the clearing goes back to being exactly what it was.</p>
+<p class="parr">That was the whole design decision: that it could be undone without a trace.</p></section>
+<section class="tramo env"><span class="rot">Lineage</span><h2 class="grande">Three thousand years of stones that come and go.</h2>
+<p class="parr">A <a href="/en/what-is-a-labyrinth/">labyrinth</a> is not a recent invention and belongs to nobody.</p>
+<p class="parr">The earliest that can be securely dated is incised on a clay tablet from Pylos, in Greece, around 1200 BCE. More than three thousand years.</p>
+<p class="parr">In the north, more than six hundred stone labyrinths are recorded in Sweden, Norway and Finland, nearly all of them coastal: beside fishing stations, natural harbours and seasonal settlements, many on offshore islands. They were built from the late thirteenth century, most intensively in the sixteenth and seventeenth, and they are still being built now. Fishermen made them. Then schoolmasters, as an exercise for their pupils. Then holidaymakers, for children to play in.</p>
+<p class="parr">The medieval pattern walked in so many places today appears in manuscripts from the ninth century and reaches its best-known form in the pavements of the gothic cathedrals, above all at Chartres. That is where the facilitation tradition I trained in with Veriditas comes from.</p>
+<p class="parr">None of those coastal labyrinths lasted. Most came apart — tide, wind, a stone moved, time. And the practice carried on: someone laid another, on another beach, in another century.</p>
+<p class="parr">A labyrinth is not preserved. It is walked again.</p></section>
+<section class="tramo"><span class="rot">Geodiversity</span><h2 class="grande">What lies underneath is 128,000 years old.</h2>
 <p class="parr">The Los Escullos aeolianites are fossil dunes: sand the wind heaped up between 128,000 and 100,000 years ago, which time then cemented into rock. They are made of <a href="/en/what-is-an-ooid/">ooids</a> — spherical grains of calcium carbonate built in concentric layers around a nucleus, one at a time, in shallow warm water. The project takes its name from that grain.</p>
-<p class="parr">They are listed in the Andalusian Inventory of Geological Resources. And they are breaking.</p>
-<p class="parr">The Junta de Andalucía describes "serious problems" caused by rising visitor numbers on these formations, and has drawn up plans for Los Escullos: 40 × 40 cm masonry walls to hold foot traffic to the paths, together with signage and replanting. Walking off-path on protected fossil dunes is a serious infraction, carrying a fine of 601.02 to 60,101.21 euros.</p>
-<p class="parr">A dune that took a hundred thousand years to form fractures under a boot in a second. It cannot be repaired. That is the whole arithmetic.</p></section>
-<section class="tramo"><span class="rot">Biodiversity</span><h2 class="grande">A place that already gets too much.</h2>
-<p class="parr"><a href="/en/cabo-de-gata/">Cabo de Gata-Níjar</a> protects more than 49,000 hectares, over 12,000 of them marine.</p>
-<p class="parr">Below the water: meadows of <em>Posidonia oceanica</em> and <em>Cymodocea nodosa</em>, both Habitats of Community Interest. Nineteen inventoried sea caves, some over forty metres long. More than 150 distinct marine communities — the greatest diversity of the fifteen protected areas studied under the LIFE IP Intemares project. Reefs of <em>Dendropoma lebeche</em>, listed as threatened. The ferruginous limpet, endangered.</p>
-<p class="parr">Above it: shag, Audouin's gull, flamingos on the salt pans.</p>
-<p class="parr">And on top of all of it, pressure. By August 2026 the park had already passed the whole of 2025's total of complaints about organised activity run without authorisation. A visitor tax is under discussion. Every summer the coves carry more people than they can hold.</p>
+<p class="parr">They are listed in the Andalusian Inventory of Geological Resources. And they are breaking. The Junta de Andalucía describes "serious problems" caused by rising visitor numbers on these formations, and has drawn up plans for Los Escullos: masonry walls to hold foot traffic to the paths, together with signage and replanting. Walking off-path on protected fossil dunes is a serious infraction, carrying a fine of 601.02 to 60,101.21 euros.</p>
+<p class="parr">Put the three scales side by side. The dune: a hundred thousand years. The pattern: three thousand. This labyrinth: five.</p>
+<p class="parr">A dune that took a hundred thousand years to form fractures under a boot in a second. It cannot be repaired. What is fleeting here is not the stone that was placed. It is the stone that has been here since before we existed.</p></section>
+<section class="tramo env"><span class="rot">The place</span><h2 class="grande">It is not a destination.</h2>
+<p class="parr">This page used to explain how to get there. It no longer does.</p>
+<p class="parr">There are no coordinates, no directions from the car park, no distances from the castle, no pin on a map. Nor is it an invitation to remake it: <strong>the labyrinth is not to be recreated, here or anywhere else in the park.</strong></p>
+<p class="parr"><a href="/en/cabo-de-gata/">Cabo de Gata-Níjar</a> protects more than 49,000 hectares, over 12,000 of them marine: meadows of <em>Posidonia oceanica</em> and <em>Cymodocea nodosa</em>, nineteen inventoried sea caves, more than 150 distinct marine communities — the greatest diversity of the fifteen protected areas studied under the LIFE IP Intemares project. Reefs of <em>Dendropoma lebeche</em>, threatened. The ferruginous limpet, endangered. Shag, Audouin's gull, flamingos on the salt pans.</p>
+<p class="parr">By August 2026 the park had already passed the whole of 2025's total of complaints about organised activity run without authorisation. A visitor tax is under discussion. Every summer the coves carry more people than they can hold.</p>
 <p class="parr">None of those numbers needs one more visitor for a three-metre labyrinth.</p></section>
-<section class="tramo env"><span class="rot">The method</span><h2 class="grande">Where these rules come from.</h2>
-<p class="parr">Raquel Costantini trained in Environmental Sciences (BSc, United Kingdom), with field work in the conservation of habitats, flora and fauna. That is not biographical decoration: it is where OOLITA's rules come from, and why they have not changed since 2021.</p>
-<p class="parr">Do not disturb what is living. Found, not taken. Nothing cut, nothing excavated, nothing fixed. Everything reversible, and reversible by hand. Record rather than collect: draw, measure, note and photograph instead of carrying away.</p>
-<p class="parr">Hallazgo — the wider artistic practice — works only with material the landscape has already released: an agave stem fallen of its own accord, a dry seed pod, an empty shell. Attention begins with what a place has already let go.</p>
-<p class="parr">The labyrinth follows the same rule. That is why it is made of loose stones on a clearing that was already there.</p></section>
-<section class="tramo"><span class="rot">Stone · paper · code</span><h2 class="grande">This is why OOLITA was made in three materials.</h2>
-<p class="parr">The <a href="/en/editions/book/">book</a> — forty-eight pages, Spanish and English sharing every spread — walks the <a href="/en/what-is-a-labyrinth/">labyrinth</a> page by page. It reads in the time it takes to walk it slowly.</p>
+<section class="tramo"><span class="rot">The practice</span><h2 class="grande">Where these rules come from.</h2>
+<p class="parr">I hold a BSc (Hons) in Environmental Science. For about ten years I taught mindfulness-based stress reduction. I then trained as a labyrinth facilitator with Veriditas, working mainly with reflection and compassion.</p>
+<p class="parr">That is where OOLITA's rules come from, and why they have not changed since 2021: do not disturb what is living; found, not taken; nothing cut, nothing excavated, nothing fixed; everything reversible, and reversible by hand; record rather than collect — draw, measure, note and photograph instead of carrying away.</p>
+<p class="parr">Hallazgo — the wider artistic practice — works only with material the landscape has already released: an agave stem fallen of its own accord, a dry seed pod, an empty shell. Attention begins with what a place has already let go.</p></section>
+<section class="tramo env"><span class="rot">Stone · paper · code</span><h2 class="grande">Reflection and impermanence.</h2>
+<p class="parr">What the labyrinth asked for — to go slowly, to walk with attention, to leave the place as it was — never depended on the stones.</p>
+<p class="parr">A labyrinth solves nothing. There are no decisions to make, no way to go wrong, and nowhere new to arrive: you go in, you reach the centre, you come back out the way you came. The only thing that changes is the attention of the person walking. That is why it works the same in stone, on paper or in code.</p>
+<p class="parr">The <a href="/en/editions/book/">book</a> — forty-eight pages, Spanish and English sharing every spread — walks the labyrinth page by page. It reads in the time it takes to walk it slowly.</p>
 <p class="parr">The <a href="/en/3d-world/">3D world</a> opens on 3 January 2027: the same design, the same coast, the same low afternoon light, walkable in the browser. No download, no account, no cost.</p>
 <p class="parr">It is not a consolation prize for people who cannot travel. It is the intended way to walk it. Sometimes it is the distance, sometimes the money, sometimes the body — and sometimes it is simply that the place does better without us. Walking the labyrinth from home leaves no mark on a hundred-thousand-year-old dune.</p>
-<p class="parr">The field publications do the same for everything else: geology, wind, shade, water, salt pans, birds, Posidonia, colour and time. Draw, listen, measure, note and photograph — and take nothing.</p>
 <p class="parr">Looking closely does not require being close.</p></section>
-<section class="tramo env"><span class="rot">If you come</span><h2 class="grande">Come for the place, not for the labyrinth.</h2>
+<section class="tramo"><span class="rot">If you come</span><h2 class="grande">Come for the place, not for the labyrinth.</h2>
 <p class="parr">Keep to the marked paths. The edges are where the damage starts.</p>
 <p class="parr">Do not climb or stand on the fossil dunes. Look at them from the path — they read better from there.</p>
-<p class="parr">Move no stone. Not here, not anywhere in the park.</p>
+<p class="parr">Move no stone, and place none. Not here, not anywhere in the park.</p>
 <p class="parr">Found, not taken. Take nothing away — not a shell, not a pebble, not a seed pod.</p>
 <p class="parr">Learn from the people who live and work here. They were here first.</p>
 <p class="parr">Leave the place as you found it.</p></section>
-<section class="tramo"><span class="rot">Independence</span><h2 class="grande">OOLITA is an independent project.</h2>
-<p class="parr">OOLITA is an independent project by Raquel Costantini with Vestini Tribe.</p>
-<p class="parr">It is not connected to, endorsed by, authorised by or promoted by the Cabo de Gata-Níjar Natural Park, the Junta de Andalucía or any other administration, and it forms no part of any official network, programme or designation. The geological and ecological facts cited on this page come from public sources, cited as sources and not as endorsement.</p>
-<p class="parr"><a href="/en/sundays/">22 Sundays</a> &nbsp; <a href="/en/#follow-oolita">Follow OOLITA</a></p></section>'''
+<section class="tramo env"><span class="rot">Independence</span><h2 class="grande">OOLITA is an independent project.</h2>
+<p class="parr">OOLITA is an independent project by Raquel Costantini with Vestini Tribe. It is not connected to, endorsed by, authorised by or promoted by the Cabo de Gata-Níjar Natural Park, the Junta de Andalucía or any other administration, and it forms no part of any official network, programme or designation. The geological and historical facts cited come from public sources, cited as sources and not as endorsement.</p>
+<p class="parr"><a href="/en/sundays/">22 Sundays</a>   <a href="/en/#follow-oolita">Follow OOLITA</a></p></section>'''
 
 
 TITLE_ES = "El laberinto de Los Escullos · OOLITA"
 TITLE_EN = "The Los Escullos labyrinth · OOLITA"
-DESC_ES = ("Un laberinto de piedra de tres metros sobre un claro que ya existía, en Cabo de Gata. "
-           "No es un destino: la misma senda se camina en papel y en 3D, sin viaje y sin huella.")
-DESC_EN = ("A three-metre stone labyrinth laid on a clearing that was already there, in Cabo de Gata. "
-           "Not a destination: the same path opens on paper and in 3D, with no journey and no trace.")
+DESC_ES = ("Un laberinto de piedra colocado en 2021 sobre un claro que ya existía, en Cabo de Gata. "
+           "Reflexión e impermanencia: la misma senda sigue en papel y en 3D, sin viaje y sin huella.")
+DESC_EN = ("A stone labyrinth laid in 2021 on a clearing that was already there, in Cabo de Gata. "
+           "Reflection and impermanence: the same path continues on paper and in 3D, with no journey and no trace.")
 
 
 # Every published form of the labyrinth's position. The pass fails closed if any
