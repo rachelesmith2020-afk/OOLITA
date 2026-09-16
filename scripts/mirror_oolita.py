@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Reconstruct the currently published OOLITA Pages site from its clean origin.
+"""Reconstruct OOLITA from a fixed, previously validated Pages deployment.
 
-All same-site links are normalized to https://oolita.pages.dev before fetching,
+All same-site links are normalized to the pinned deployment before fetching,
 so the custom-domain Cloudflare zone layer is never used. The crawler follows
 HTML links/requisites, srcset assets, CSS url()/imports, and common static asset
 references inside JS/JSON. It is intentionally bounded and fails on runaway
@@ -17,11 +17,16 @@ from urllib.request import Request, urlopen
 import re
 import sys
 
-ORIGIN = "https://oolita.pages.dev"
+# Last pre-visitor-pressure production build, commit b860465, run 34827914569.
+# Never seed legacy transforms from their own published output: after #98 the
+# live pages no longer contain the intermediate wording those transforms need.
+# Keep this immutable baseline until those transforms are replaced by sources.
+ORIGIN = "https://60cb79df.oolita.pages.dev"
+ORIGIN_HOST = urlsplit(ORIGIN).netloc
 OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 MAX_FILES = 500
 MAX_BYTES = 150 * 1024 * 1024
-ALLOWED_HOSTS = {"oolita.pages.dev", "oolita.es", "www.oolita.es"}
+ALLOWED_HOSTS = {ORIGIN_HOST, "oolita.pages.dev", "oolita.es", "www.oolita.es"}
 # This stale production asset is deliberately replaced by the deployment
 # wrapper after mirroring. Do not let its current 404 abort reconstruction.
 REPLACED_PATHS = {"/hallazgo/hallazgo-catalogue-cover.png"}
@@ -45,7 +50,7 @@ def normalize(raw: str, base: str = ORIGIN + "/") -> str | None:
     path = parts.path or "/"
     if path in REPLACED_PATHS:
         return None
-    return urlunsplit(("https", "oolita.pages.dev", path, "", ""))
+    return urlunsplit(("https", ORIGIN_HOST, path, "", ""))
 
 
 def destination(url: str, content_type: str, final_url: str) -> Path:
