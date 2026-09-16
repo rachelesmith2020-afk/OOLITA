@@ -98,7 +98,7 @@ MAIN_ES = '''<section class="hero"><span class="rot">El laberinto</span><h1 clas
 <p class="parr">El trazado medieval que hoy se camina en tantas partes aparece en manuscritos desde el siglo IX y llega a su forma más conocida en los pavimentos de las catedrales góticas, sobre todo en Chartres. De ahí viene la tradición de facilitación en la que me formé con Veriditas.</p>
 <p class="parr">Ninguno de esos laberintos costeros duró para siempre. La mayoría se deshizo. La marea, el viento, la piedra movida, el tiempo. Y la práctica continuó: alguien volvía a colocarlos, en otra playa, en otro siglo.</p>
 <p class="parr">Un laberinto no se conserva. Se vuelve a caminar.</p></section>
-<section class="tramo"><span class="rot">Geodiversidad</span><h2 class="grande">Lo que hay debajo tiene 128.000 años.</h2>
+<section class="tramo"><span class="rot">Geodiversidad</span><h2 class="grande">El suelo que hay al lado tiene 128.000 años.</h2>
 <p class="parr">Las eolianitas de Los Escullos son dunas fósiles: arena que el viento amontonó hace entre 128.000 y 100.000 años y que el tiempo cementó en roca. Están hechas de <a href="/que-es-un-oolito/">oolitos</a> —granos esféricos de carbonato cálcico formados en capas concéntricas alrededor de un núcleo, uno a uno, en agua somera y templada. De ese grano viene el nombre del proyecto.</p>
 <p class="parr">Figuran en el Inventario Andaluz de Georrecursos. Y se están rompiendo. La Junta de Andalucía describe «graves problemas» por el incremento de visitantes sobre estas formaciones, y ha proyectado para Los Escullos muretes de mampostería que contengan el paso a los senderos, junto con señalización y revegetación. Pisar fuera de sendero sobre dunas fósiles protegidas es infracción grave: de 601,02 a 60.101,21 euros.</p>
 <p class="parr">Pon las tres escalas juntas. La duna: cien mil años. El trazado: tres mil. Este laberinto: cinco.</p>
@@ -150,7 +150,7 @@ MAIN_EN = '''<section class="hero"><span class="rot">The labyrinth</span><h1 cla
 <p class="parr">The medieval pattern walked in so many places today appears in manuscripts from the ninth century and reaches its best-known form in the pavements of the gothic cathedrals, above all at Chartres. That is where the facilitation tradition I trained in with Veriditas comes from.</p>
 <p class="parr">None of those coastal labyrinths lasted. Most came apart — tide, wind, a stone moved, time. And the practice carried on: someone laid another, on another beach, in another century.</p>
 <p class="parr">A labyrinth is not preserved. It is walked again.</p></section>
-<section class="tramo"><span class="rot">Geodiversity</span><h2 class="grande">What lies underneath is 128,000 years old.</h2>
+<section class="tramo"><span class="rot">Geodiversity</span><h2 class="grande">The ground beside it is 128,000 years old.</h2>
 <p class="parr">The Los Escullos aeolianites are fossil dunes: sand the wind heaped up between 128,000 and 100,000 years ago, which time then cemented into rock. They are made of <a href="/en/what-is-an-ooid/">ooids</a> — spherical grains of calcium carbonate built in concentric layers around a nucleus, one at a time, in shallow warm water. The project takes its name from that grain.</p>
 <p class="parr">They are listed in the Andalusian Inventory of Geological Resources. And they are breaking. The Junta de Andalucía describes "serious problems" caused by rising visitor numbers on these formations, and has drawn up plans for Los Escullos: masonry walls to hold foot traffic to the paths, together with signage and replanting. Walking off-path on protected fossil dunes is a serious infraction, carrying a fine of 601.02 to 60,101.21 euros.</p>
 <p class="parr">Put the three scales side by side. The dune: a hundred thousand years. The pattern: three thousand. This labyrinth: five.</p>
@@ -385,7 +385,7 @@ HOME_RULES = {
         ("Cómo llegar y qué esperar →", "Qué es, y por qué no lo señalizamos →",
          "homepage labyrinth CTA"),
         ("El laberinto caminable · Cabo de Gata-Níjar",
-         "El laberinto, y el suelo de 128.000 años que hay debajo",
+         "El laberinto, y la costa de 128.000 años que hay al lado",
          "homepage index entry 01"),
     ),
     "en/index.html": (
@@ -400,7 +400,7 @@ HOME_RULES = {
         ("How to get there and what to expect →", "What it is, and why we don't sign it →",
          "homepage labyrinth CTA"),
         ("The walkable labyrinth · Cabo de Gata-Níjar",
-         "The labyrinth, and the 128,000-year-old ground beneath it",
+         "The labyrinth, and the 128,000-year-old coast beside it",
          "homepage index entry 01"),
     ),
 }
