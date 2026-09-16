@@ -26,6 +26,7 @@ already and audit_static_integrity_v1 validates them.
 from __future__ import annotations
 
 from pathlib import Path
+from html.parser import HTMLParser
 import re
 import sys
 
@@ -185,10 +186,10 @@ MAIN_EN = '''<section class="hero"><span class="rot">The labyrinth</span><h1 cla
 
 TITLE_ES = "El laberinto de Los Escullos · OOLITA"
 TITLE_EN = "The Los Escullos labyrinth · OOLITA"
-DESC_ES = ("Un laberinto de piedra colocado en 2021 sobre un claro que ya existía, en Cabo de Gata. "
-           "Reflexión e impermanencia: la misma senda sigue en papel y en 3D, sin viaje y sin huella.")
-DESC_EN = ("A stone labyrinth laid in 2021 on a clearing that was already there, in Cabo de Gata. "
-           "Reflection and impermanence: the same path continues on paper and in 3D, with no journey and no trace.")
+DESC_ES = ("Un laberinto de piedra en Cabo de Gata, colocado en 2021 sobre un claro existente. "
+           "Reflexión e impermanencia en piedra, papel y 3D.")
+DESC_EN = ("A stone labyrinth laid in 2021 on an existing clearing in Cabo de Gata. "
+           "Reflection and impermanence in stone, on paper and in 3D.")
 
 
 # Every published form of the labyrinth's position. The pass fails closed if any
@@ -412,18 +413,20 @@ for rel, rules in HOME_RULES.items():
     print(f"Homepage invitation wording retired: {rel}")
 
 
-# Homepage meta descriptions.
-for rel, old_desc, new_desc in (
+# Replace complete description tags, not a sentence prefix: the old prefix
+# replacement retained a suffix and produced a 181-character description.
+for rel, description in (
     ("index.html",
-     "Laberinto caminable de piedra en Los Escullos, Cabo de Gata: gratis y sin reserva.",
      "OOLITA: un laberinto de piedra en Cabo de Gata, colocado sobre un claro que ya existía. "
-     "No es un destino."),
+     "La misma senda sigue en papel y en 3D."),
     # The live English meta carries no invitation ("…and grows into a fable, field
     # publications, textile editions and a 3D world"), so it is left alone. Only the
     # Spanish one advertises "gratis y sin reserva".
 ):
     path, text = read(rel)
-    text = replace_optional(text, old_desc, new_desc)
+    for attr, key in (("name", "description"), ("property", "og:description"),
+                      ("name", "twitter:description")):
+        text = set_meta(text, attr, key, description, page=rel)
     write(path, text)
 
 
@@ -556,10 +559,26 @@ BANNED = COORD_NEEDLES + (
     "can be walked today",
 )
 
+class DescriptionParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.descriptions = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if tag == "meta" and attributes.get("name", "").lower() == "description":
+            self.descriptions.append(attributes.get("content", ""))
+
+
 leaks: list[str] = []
 for page in sorted(ROOT.rglob("*.html")):
     rel = page.relative_to(ROOT).as_posix()
     text = page.read_text(encoding="utf-8")
+    metadata = DescriptionParser()
+    metadata.feed(text)
+    for description in metadata.descriptions:
+        if len(description) > 160:
+            leaks.append(f"{rel}: description exceeds 160 characters ({len(description)})")
     for needle in BANNED:
         if needle in text:
             leaks.append(f"{rel}: {needle}")
