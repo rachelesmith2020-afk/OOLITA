@@ -492,6 +492,41 @@ for rel, block in (("sobre-oolita/index.html", METHOD_ES), ("en/about/index.html
 
 
 # --------------------------------------------------------------------------
+# 4b — /carteles/ and /en/posters/ carry the plainest invitation on the site:
+# "El laberinto real se puede caminar hoy mismo: cómo llegar". Neither page is
+# otherwise touched here, and the narrowed straggler guard deliberately does not
+# ban the bare phrase "cómo llegar", so nothing else would catch this. Left
+# alone it would also point at a page that no longer answers it.
+# --------------------------------------------------------------------------
+POSTER_INVITES = (
+    ("carteles/index.html",
+     re.compile(r'El laberinto real se puede caminar hoy mismo:\s*'
+                r'<a\b[^>]*href=["\']/laberinto/["\'][^>]*>[^<]*</a>\.'),
+     'El laberinto de Los Escullos está en el origen de todo esto: '
+     '<a href="/laberinto/">qué es, y por qué no lo señalizamos</a>.',
+     "se puede caminar hoy mismo"),
+    ("en/posters/index.html",
+     re.compile(r'The real labyrinth can be walked today:\s*'
+                r'<a\b[^>]*href=["\']/en/labyrinth/["\'][^>]*>[^<]*</a>\.'),
+     'The Los Escullos labyrinth is where all of this began: '
+     '<a href="/en/labyrinth/">what it is, and why we don\'t sign it</a>.',
+     "can be walked today"),
+)
+
+for rel, pattern, replacement, residue in POSTER_INVITES:
+    path, text = read(rel)
+    text, count = pattern.subn(replacement, text, count=1)
+    if count == 0 and residue in text:
+        raise SystemExit(
+            f"Invitation sentence present but unmatched in {rel} — the markup moved; "
+            f"fix the pattern rather than shipping the invitation"
+        )
+    if count:
+        write(path, text)
+        print(f"Poster-page invitation retired: {rel}")
+
+
+# --------------------------------------------------------------------------
 # 5 — strip every published coordinate, site-wide
 # --------------------------------------------------------------------------
 for page in sorted(ROOT.rglob("*.html")):
@@ -514,6 +549,11 @@ BANNED = COORD_NEEDLES + (
     "How to find and walk the labyrinth",
     "Gratis. Sin cartel. Sin reserva.",
     "Free. No sign. No booking.",
+    # The poster-page invitation. Found on the live site by an external link
+    # and exposure crawl, not by any build gate — neither page is otherwise
+    # touched by this pass.
+    "se puede caminar hoy mismo",
+    "can be walked today",
 )
 
 leaks: list[str] = []
