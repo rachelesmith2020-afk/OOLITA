@@ -389,31 +389,30 @@ for rel, old, new in (
 # --------------------------------------------------------------------------
 # 4 — /sobre-oolita/: lead with the environmental grounding, add independence
 # --------------------------------------------------------------------------
-for rel, old, new, label in (
-    ("sobre-oolita/index.html",
-     "Raquel Costantini es facilitadora de laberintos formada por Veriditas",
-     "Raquel Costantini tiene formación en Ciencias Ambientales (BSc, Reino Unido) y trabajo de "
-     "campo en conservación de hábitats, flora y fauna. Esa formación es la que fija el método: "
-     "no alterar lo vivo, hallado no tomado, nada cortado ni excavado ni fijado, todo reversible. "
-     "El laberinto se colocó en 2021 sobre un claro que ya existía. OOLITA es un proyecto "
-     "independiente: no está vinculado, respaldado ni promovido por el Parque Natural, la Junta "
-     "de Andalucía ni ninguna otra administración. Es además facilitadora de laberintos formada "
-     "por Veriditas",
-     "about practitioner grounding"),
-    ("en/about/index.html",
-     "Raquel Costantini is a Veriditas Trained Labyrinth Facilitator",
-     "Raquel Costantini trained in Environmental Sciences (BSc, United Kingdom), with field work "
-     "in the conservation of habitats, flora and fauna. That training is what sets the method: do "
-     "not disturb what is living, found not taken, nothing cut or excavated or fixed, everything "
-     "reversible. The labyrinth was laid in 2021 on a clearing that already existed. OOLITA is an "
-     "independent project: it is not connected to, endorsed by or promoted by the Natural Park, "
-     "the Junta de Andalucía or any other administration. She is also a Veriditas Trained "
-     "Labyrinth Facilitator",
-     "about practitioner grounding"),
-):
+METHOD_ES = '''<section class="tramo env" data-oolita-method>
+<span class="rot">El método</span><h2 class="grande">De dónde salen estas reglas.</h2>
+<p class="parr">Raquel Costantini tiene formación en Ciencias Ambientales (BSc, Reino Unido) y trabajo de campo en conservación de hábitats, flora y fauna. Esa formación es la que fija el método: no alterar lo vivo, hallado no tomado, nada cortado ni excavado ni fijado, todo reversible a mano.</p>
+<p class="parr">El laberinto se colocó en 2021 sobre un claro que ya existía: sin desbroce, sin corte, sin excavación y sin fijación. Se puede levantar a mano y el claro queda como estaba.</p>
+<p class="parr">OOLITA es un proyecto independiente. No está vinculado, respaldado, autorizado ni promovido por el Parque Natural de Cabo de Gata-Níjar, la Junta de Andalucía ni ninguna otra administración, y no forma parte de ninguna red, programa ni figura de protección oficial.</p></section>'''
+
+METHOD_EN = '''<section class="tramo env" data-oolita-method>
+<span class="rot">The method</span><h2 class="grande">Where these rules come from.</h2>
+<p class="parr">Raquel Costantini trained in Environmental Sciences (BSc, United Kingdom), with field work in the conservation of habitats, flora and fauna. That training is what sets the method: do not disturb what is living, found not taken, nothing cut or excavated or fixed, everything reversible by hand.</p>
+<p class="parr">The labyrinth was laid in 2021 on a clearing that already existed: nothing cleared, nothing cut, nothing excavated, nothing fixed. It lifts by hand and the clearing stays as it was.</p>
+<p class="parr">OOLITA is an independent project. It is not connected to, endorsed by, authorised by or promoted by the Cabo de Gata-Níjar Natural Park, the Junta de Andalucía or any other administration, and it forms no part of any official network, programme or designation.</p></section>'''
+
+# APPEND, do not splice. The Veriditas credential sits inside an <a> on both
+# About pages, so the visible sentence is not a contiguous string in the HTML
+# and any literal match against it fails (run #678). Appending is immune.
+for rel, block in (("sobre-oolita/index.html", METHOD_ES), ("en/about/index.html", METHOD_EN)):
     path, text = read(rel)
-    text = replace_once(text, old, new, page=rel, label=label)
+    if "data-oolita-method" in text:
+        continue
+    text, count = re.subn(r"</main>", block + "\n</main>", text, count=1, flags=re.I)
+    if count != 1:
+        raise SystemExit(f"Could not append the method section to {rel}")
     write(path, text)
+    print(f"Method and independence section published: {rel}")
 
 
 # --------------------------------------------------------------------------
