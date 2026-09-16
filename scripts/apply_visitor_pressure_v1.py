@@ -198,6 +198,53 @@ CHIP = re.compile(
     r'<span\b[^>]*class=["\'][^"\']*\boolita-place-fact\b[^"\']*["\'][^>]*>[\s\S]*?</span>\s*</span>'
 )
 
+# The position is carried into every built page by shared structured data, so it
+# has to be removed structurally rather than sentence by sentence.
+LD_GEO_RE = re.compile(r'"geo"\s*:\s*\{[^{}]*\}\s*,?')
+LD_LATLON_RE = re.compile(r'"(?:latitude|longitude)"\s*:\s*-?\d+(?:\.\d+)?\s*,?')
+# Tolerant of either minus sign, either separator, and the shorter or longer form.
+PAIR_RE = re.compile(r'36\.7993(?:42)?\s*[,·]\s*[-−–]?\s*2\.063\d*')
+DMS_RE = re.compile(
+    r'36\s*°\s*47\s*[′\']\s*58\s*[″"]?\s*N\s*[·,]?\s*2\s*°\s*03\s*[′\']\s*47\s*[″"]?\s*W'
+)
+# Catch-all for any lone decimal that is still one of this site's coordinates.
+BARE_COORD_RE = re.compile(r'[-−–]?\b(?:36\.7993\d*|2\.0631\d*|2\.0632\d*)\b')
+MAPS_URL_RE = re.compile(r'https?://(?:www\.)?maps\.google\.[^"\'\s<>]*', re.I)
+
+# Invitation wording that survives outside <main> — head meta, JSON-LD FAQ
+# entries, and the legacy-validator FAQ markers the reconstruction injects.
+INVITATION_EVERYWHERE = (
+    ("gratuito y no requiere reserva", "no se promociona como destino"),
+    ("Es gratuito y no requiere reserva.", "No se promociona como destino."),
+    ("gratis y sin reserva", "sin promoción"),
+    ("Gratis. Sin cartel. Sin reserva.", "Sin cartel, y sin invitación."),
+    ("Cómo llegar y qué esperar", "Qué es, y por qué no lo señalizamos"),
+    ("How to get there and what to expect", "What it is, and why we don't sign it"),
+    ("Cómo encontrar y caminar el laberinto", "Qué es el laberinto, y por qué no lo señalizamos"),
+    ("How to find and walk the labyrinth", "What the labyrinth is, and why we don't sign it"),
+    ("No ticket, no sign, no booking.", "No sign, and no invitation."),
+    ("it is free and needs no booking", "it is not promoted as a destination"),
+    ("free, no booking", "not a destination"),
+)
+
+
+LD_SCRIPT_RE = re.compile(
+    r'(<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>)([\s\S]*?)(</script>)', re.I
+)
+
+
+def clean_ld_block(match: "re.Match[str]") -> str:
+    """Drop geo/latitude/longitude from one JSON-LD block.
+
+    Scoped to ld+json only: the same substitutions run against the whole
+    document would also rewrite inline JS and CSS.
+    """
+    body = match.group(2)
+    body = LD_GEO_RE.sub("", body)
+    body = LD_LATLON_RE.sub("", body)
+    body = re.sub(r",\s*(?=[}\]])", "", body)
+    return match.group(1) + body + match.group(3)
+
 
 def drop_fact_chip(text: str, needle: str) -> str:
     """Remove a whole place-fact chip containing needle, not just its value.
@@ -240,10 +287,29 @@ def strip_coordinates(rel: str) -> None:
     )
     text = replace_optional(text, "325 metres to the north, the", "Nearby, the")
 
-    # 4 — anything left: neutralise rather than leave a decimal on the page.
+    # 4 — the known human-readable pairs.
     text = text.replace("36°47′58″ N · 2°03′47″ W", "Los Escullos · Níjar")
     text = text.replace("36.799342, −2.063165", "Los Escullos · Níjar")
     text = text.replace("36.7993, −2.0632", "Los Escullos · Níjar")
+
+    # 5 — structured data. A shared block carries the position into EVERY page,
+    # so this cannot be handled sentence by sentence. Drop geo/latitude/longitude
+    # from any JSON-LD graph, then sweep whatever textual form is left.
+    text = LD_SCRIPT_RE.sub(clean_ld_block, text)
+    text = PAIR_RE.sub("Los Escullos · Níjar", text)
+    text = DMS_RE.sub("Los Escullos · Níjar", text)
+    text = BARE_COORD_RE.sub("", text)
+    text = MAPS_URL_RE.sub("/laberinto/", text)
+
+    # 6 — the access invitation, wherever it survives outside <main>: head meta,
+    # JSON-LD FAQ entries, and the legacy-validator markers the reconstruction
+    # injects into the labyrinth pages.
+    for old, new in INVITATION_EVERYWHERE:
+        text = text.replace(old, new)
+
+    # 7 — artefacts left by the removals above.
+    text = text.replace("en las coordenadas .", ".").replace("en las coordenadas ,", ",")
+    text = text.replace("at .", ".").replace(" ,", ",").replace("  ", " ")
 
     if text != before:
         write(path, text)
