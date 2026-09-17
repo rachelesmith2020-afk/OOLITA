@@ -36,13 +36,13 @@ BOOK_PATHS = {
 
 LABYRINTH_BLOCKS = {
     "laberinto/index.html": """<section class="tramo env" data-reader-next="labyrinth">
-<span class="rot">03.01.27</span><h2 class="grande">El camino continúa en el navegador.</h2>
-<p class="parr">Si no puedes llegar a Los Escullos, el mismo camino abre en 3D el 3 de enero. Sin descarga. Sin cuenta. Sin coste.</p>
+<span class="rot">El laberinto</span><h2 class="grande">El camino en 3D.</h2>
+<p class="parr">El mundo 3D abre el 3 de enero. Se recorre en el navegador, sin descargar nada ni crear una cuenta.</p>
 <a class="fila" href="/?follow=3d#seguir-oolita" data-oolita-event="labyrinth-follow-intent"><span class="n">→</span><span class="nom">Avísame cuando abra</span><span class="glo">Mundo 3D · 03.01.27</span></a>
 </section>""",
     "en/labyrinth/index.html": """<section class="tramo env" data-reader-next="labyrinth">
-<span class="rot">03.01.27</span><h2 class="grande">The path continues in the browser.</h2>
-<p class="parr">If you cannot get to Los Escullos, the same path opens in 3D on 3 January. No download. No account. No cost.</p>
+<span class="rot">The labyrinth</span><h2 class="grande">The path in 3D.</h2>
+<p class="parr">The 3D world opens on 3 January. Walk it in your browser, with no download or account.</p>
 <a class="fila" href="/en/?follow=3d#follow-oolita" data-oolita-event="labyrinth-follow-intent"><span class="n">→</span><span class="nom">Tell me when it opens</span><span class="glo">3D world · 3 Jan 27</span></a>
 </section>""",
 }

@@ -359,6 +359,8 @@ BANNED = (
     "Is it free? Do I need to book?",
     "Cómo llegar, qué esperar",
     "Coordinates and access",
+    "Si no puedes llegar a Los Escullos",
+    "If you cannot get to Los Escullos",
     "cómo llegar · OOLITA",
     "how to get there · OOLITA",
     "Se puede caminar hoy mismo",
