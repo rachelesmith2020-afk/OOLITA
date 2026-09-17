@@ -111,7 +111,6 @@ MAIN_ES = '''<section class="hero"><span class="rot">El laberinto</span><h1 clas
 <p class="parr">Camina por los senderos señalizados. Los bordes son donde empieza el daño.</p>
 <p class="parr">No subas ni pises las dunas fósiles. Míralas desde el camino: desde ahí se ven mejor.</p>
 <p class="parr">No muevas piedra, y no coloques ninguna. Ni aquí, ni en ninguna parte del parque.</p>
-<p class="parr">Hallado, no tomado. No te lleves nada —ni una concha, ni un guijarro, ni una vaina.</p>
 <p class="parr">Respeta a quienes viven y trabajan aquí.</p>
 <p class="parr">Deja el lugar como lo encontraste.</p></section>
 <section class="tramo env"><span class="rot">Independencia</span><h2 class="grande">OOLITA es un proyecto independiente.</h2>
@@ -152,7 +151,6 @@ MAIN_EN = '''<section class="hero"><span class="rot">The labyrinth</span><h1 cla
 <p class="parr">Keep to the marked paths. The edges are where the damage starts.</p>
 <p class="parr">Do not climb or stand on the fossil dunes. Look at them from the path — they read better from there.</p>
 <p class="parr">Move no stone, and place none. Not here, not anywhere in the park.</p>
-<p class="parr">Found, not taken. Take nothing away — not a shell, not a pebble, not a seed pod.</p>
 <p class="parr">Respect the people who live and work here.</p>
 <p class="parr">Leave the place as you found it.</p></section>
 <section class="tramo env"><span class="rot">Independence</span><h2 class="grande">OOLITA is an independent project.</h2>
