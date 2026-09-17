@@ -258,6 +258,9 @@ jobs:
         shell: bash
         run: python3 scripts/apply_parque_natural_alignment_v1.py site
 
+      - name: Apply approved homepage labyrinth title
+        run: python3 scripts/apply_home_labyrinth_title_v1.py site
+
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
         run: python3 scripts/audit_static_integrity_v1.py site
@@ -402,6 +405,9 @@ jobs:
       - name: Align structured data, posters and footer with the Parque Natural letter
         shell: bash
         run: python3 scripts/apply_parque_natural_alignment_v1.py site
+
+      - name: Apply approved homepage labyrinth title
+        run: python3 scripts/apply_home_labyrinth_title_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
