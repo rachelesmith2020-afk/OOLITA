@@ -570,6 +570,31 @@ class DescriptionParser(HTMLParser):
             self.descriptions.append(attributes.get("content", ""))
 
 
+# --------------------------------------------------------------------------
+# Remove "Los Escullos" from persistent chrome (header band + <title>/og:title).
+# The Parque letter makes the exact site-name in the repeating header read as a
+# location pin on every page; the place stays in body content, not the chrome.
+# Region-level "Cabo de Gata-Níjar" replaces it. Runs last, after all builders.
+_CHROME_SUBS = [
+    # homepage band: two location spans -> one region span
+    ('<span class="rot">Los Escullos \u00b7 Cabo de Gata</span>\n <span class="rot mid">Los Escullos \u00b7 N\u00edjar</span>',
+     '<span class="rot">Cabo de Gata-N\u00edjar</span>'),
+    # inner-page band middle label
+    ('Los Escullos \u00b7 Cabo de Gata-N\u00edjar', 'Cabo de Gata-N\u00edjar'),
+    # titles / og:titles
+    ('El laberinto de Los Escullos', 'El laberinto'),
+    ('The Los Escullos labyrinth', 'The labyrinth'),
+    ('Los Escullos en el navegador', 'El laberinto en el navegador'),
+    ('Los Escullos in the browser', 'The labyrinth in the browser'),
+]
+for _page in sorted(ROOT.rglob("*.html")):
+    _t = _page.read_text(encoding="utf-8")
+    _orig = _t
+    for _old, _new in _CHROME_SUBS:
+        _t = _t.replace(_old, _new)
+    if _t != _orig:
+        _page.write_text(_t, encoding="utf-8")
+
 leaks: list[str] = []
 for page in sorted(ROOT.rglob("*.html")):
     rel = page.relative_to(ROOT).as_posix()
