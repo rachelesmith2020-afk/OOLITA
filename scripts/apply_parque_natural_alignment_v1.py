@@ -26,6 +26,7 @@ Fail closed: none of the retired wording may survive anywhere.
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import re
 import sys
 
@@ -83,7 +84,45 @@ def clean_lugar(text: str) -> str:
             node = old.sub(new, node) if isinstance(old, re.Pattern) else node.replace(old, new)
         return node
 
-    return LUGAR_NODE.sub(fix, text)
+    text = LUGAR_NODE.sub(fix, text)
+
+    # Parse nested nodes so access flags on the artwork and either language's
+    # Place cannot escape the legacy string substitutions above.
+    def clean_schema(match: re.Match) -> str:
+        data = json.loads(match.group(2))
+        changed = False
+
+        def walk(value):
+            nonlocal changed
+            if isinstance(value, dict):
+                if value.get('@id') in {'https://oolita.es/#lugar', 'https://oolita.es/#obra'}:
+                    for key in ('publicAccess', 'isAccessibleForFree'):
+                        if key in value:
+                            del value[key]
+                            changed = True
+                for child in value.values():
+                    walk(child)
+            elif isinstance(value, list):
+                for child in value:
+                    walk(child)
+
+        walk(data)
+        if not changed:
+            return match.group(0)
+        return match.group(1) + json.dumps(data, ensure_ascii=False, separators=(',', ':')) + match.group(3)
+
+    return re.sub(r'(<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>)(.*?)(</script>)',
+                  clean_schema, text, flags=re.S | re.I)
+
+
+DESTINATION_SUBS = (
+    (', junto al Castillo de San Felipe,', ','),
+    (', beside the Castillo de San Felipe,', ','),
+    (', junto al Castillo de San Felipe en Los Escullos,', ', en Cabo de Gata-Níjar,'),
+    (' beside the Castillo de San Felipe at Los Escullos,', ' in Cabo de Gata-Níjar,'),
+    ('Se puede caminar hoy mismo: ', 'La misma senda continúa en papel y en el navegador: '),
+    ('You can walk it today: ', 'The same path continues on paper and in the browser: '),
+)
 
 
 WEBPAGE_SUBS = (
@@ -229,7 +268,7 @@ def apply_page(path: Path) -> None:
     def transform(text: str) -> str:
         text = clean_lugar(text)
         for old, new in (PLACE_SUBS + WEBPAGE_SUBS + FAQ_SUBS + POSTER_SUBS
-                         + WORLD_SUBS + FACT_SUBS + ARTWORK_SUBS):
+                         + WORLD_SUBS + FACT_SUBS + ARTWORK_SUBS + DESTINATION_SUBS):
             text = old.sub(new, text) if isinstance(old, re.Pattern) else text.replace(old, new)
         text = GEO_META.sub("", text)
         text = FACT_ROW.sub("", text)
@@ -273,6 +312,10 @@ BANNED = (
     "Coordinates and access",
     "cómo llegar · OOLITA",
     "how to get there · OOLITA",
+    "Se puede caminar hoy mismo",
+    "You can walk it today",
+    "junto al Castillo de San Felipe",
+    "beside the Castillo de San Felipe",
     'name="ICBM"',
     'name="geo.position"',
     'name="geo.placename"',
@@ -296,7 +339,7 @@ for page in pages:
     if "</footer>" in text and "oolita-independence" not in text:
         leaks.append(f"{rel}: footer independence statement missing")
     for node in LUGAR_NODE.findall(text):
-        for forbidden in ("PostalAddress", '"hasMap"', "isAccessibleForFree"):
+        for forbidden in ("PostalAddress", '"hasMap"', "isAccessibleForFree", '"publicAccess"'):
             if forbidden in node:
                 leaks.append(f"{rel}: labyrinth Place node still carries {forbidden}")
 
