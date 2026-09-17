@@ -113,7 +113,7 @@ MAIN_ES = '''<section class="hero"><span class="rot">El laberinto</span><h1 clas
 <p class="parr">Deja el lugar como lo encontraste.</p></section>
 <section class="tramo env"><span class="rot">Independencia</span><h2 class="grande">OOLITA es un proyecto independiente.</h2>
 <p class="parr">OOLITA es un proyecto independiente de Raquel Costantini con Vestini Tribe. No está vinculado, respaldado, autorizado ni promovido por el Parque Natural de Cabo de Gata-Níjar, la Junta de Andalucía ni ninguna otra administración, y no forma parte de ninguna red, programa ni figura de protección oficial. Los datos geológicos e históricos citados proceden de fuentes públicas, que se citan como fuente y no como respaldo.</p>
-<p class="parr"><a href="/domingos/">22 domingos</a>   <a href="/#seguir-oolita">Sigue OOLITA</a></p></section>'''
+<p class="parr"><a href="https://labyrinthlocator.org/labyrinth/oolita/" rel="external noopener">Labyrinth Locator ↗</a>   <a href="/domingos/">22 domingos</a>   <a href="/#seguir-oolita">Sigue OOLITA</a></p></section>'''
 
 
 MAIN_EN = '''<section class="hero"><span class="rot">The labyrinth</span><h1 class="grande">One path. One centre. <em>One return</em>.</h1>
@@ -151,7 +151,7 @@ MAIN_EN = '''<section class="hero"><span class="rot">The labyrinth</span><h1 cla
 <p class="parr">Leave the place as you found it.</p></section>
 <section class="tramo env"><span class="rot">Independence</span><h2 class="grande">OOLITA is an independent project.</h2>
 <p class="parr">OOLITA is an independent project by Raquel Costantini with Vestini Tribe. It is not connected to, endorsed by, authorised by or promoted by the Cabo de Gata-Níjar Natural Park, the Junta de Andalucía or any other administration, and it forms no part of any official network, programme or designation. The geological and historical facts cited come from public sources, cited as sources and not as endorsement.</p>
-<p class="parr"><a href="/en/sundays/">22 Sundays</a>   <a href="/en/#follow-oolita">Follow OOLITA</a></p></section>'''
+<p class="parr"><a href="https://labyrinthlocator.org/labyrinth/oolita/" rel="external noopener">Labyrinth Locator ↗</a>   <a href="/en/sundays/">22 Sundays</a>   <a href="/en/#follow-oolita">Follow OOLITA</a></p></section>'''
 
 
 TITLE_ES = "El laberinto de Los Escullos · OOLITA"
