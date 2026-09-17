@@ -454,6 +454,14 @@ METHOD_EN = '''<section class="tramo env" data-oolita-method>
 # APPEND, do not splice. The Veriditas credential sits inside an <a> on both
 # About pages, so the visible sentence is not a contiguous string in the HTML
 # and any literal match against it fails (run #678). Appending is immune.
+for rel, old, new in (
+    ("sobre-oolita/index.html", "Desde 2021 vuelvo al mismo punto", "Desde 2021 Costantini vuelve al mismo punto"),
+    ("en/about/index.html", "Since 2021 I have returned to the same point", "Since 2021 Costantini has returned to the same point"),
+):
+    path, text = read(rel)
+    text = replace_once(text, old, new, page=rel, label="Costantini biography attribution")
+    write(path, text)
+
 for rel, block in (("sobre-oolita/index.html", METHOD_ES), ("en/about/index.html", METHOD_EN)):
     path, text = read(rel)
     if "data-oolita-method" in text:
