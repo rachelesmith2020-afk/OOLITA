@@ -159,12 +159,12 @@ POSTER_SUBS = (
 
 # --------------------------------------------------------------------------
 # 3b — the homepage fact table: a coordinate row that survived as a label with
-# the locality for a value, and an outbound link to the labyrinth directory.
-# The directory entry is not ours to edit, but pointing at it from our own
-# structured data and chrome is. Same block on /404/.
+# the locality for a value. Preserve the Labyrinth Locator directory link and
+# its structured-data reference; the listing is being updated separately.
+# Same block on /404/.
 # --------------------------------------------------------------------------
 FACT_ROW = re.compile(
-    r'\s*<div><span class="k">(?:Coordenadas|Coordinates|Directorio|Directory)</span>'
+    r'\s*<div><span class="k">(?:Coordenadas|Coordinates)</span>'
     r'<span class="v">.*?</span></div>',
     re.S,
 )
@@ -173,10 +173,6 @@ FACT_SUBS = (
      '<span class="k">Lugar</span><span class="v">Cabo de Gata-Níjar</span>'),
     ('<span class="k">Place</span><span class="v">Los Escullos, Níjar</span>',
      '<span class="k">Place</span><span class="v">Cabo de Gata-Níjar</span>'),
-)
-# The directory listing carries the location we no longer publish.
-DIRECTORY_SAMEAS = (
-    (re.compile(r',?"https://labyrinthlocator\.org/labyrinth/oolita"'), ""),
 )
 
 # --------------------------------------------------------------------------
@@ -233,7 +229,7 @@ def apply_page(path: Path) -> None:
     def transform(text: str) -> str:
         text = clean_lugar(text)
         for old, new in (PLACE_SUBS + WEBPAGE_SUBS + FAQ_SUBS + POSTER_SUBS
-                         + WORLD_SUBS + FACT_SUBS + ARTWORK_SUBS + DIRECTORY_SAMEAS):
+                         + WORLD_SUBS + FACT_SUBS + ARTWORK_SUBS):
             text = old.sub(new, text) if isinstance(old, re.Pattern) else text.replace(old, new)
         text = GEO_META.sub("", text)
         text = FACT_ROW.sub("", text)
@@ -284,7 +280,6 @@ BANNED = (
     "separated from Los Escullos by distance",
     "Geoparque UNESCO",
     "UNESCO Geopark",
-    "labyrinthlocator.org",
     "sobre las dunas fósiles",
     '<span class="k">Coordenadas</span>',
     '<span class="k">Coordinates</span>',
