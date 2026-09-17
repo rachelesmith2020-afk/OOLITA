@@ -63,6 +63,7 @@ on:
       - 'scripts/audit_live_seo_v1.py'
       - 'scripts/apply_visitor_pressure_v1.py'
       - 'scripts/apply_parque_natural_alignment_v1.py'
+      - 'scripts/publish_ground_before_v1.py'
       - 'functions/**'
       - 'search/**'
       - 'commerce/**'
@@ -129,6 +130,7 @@ on:
       - 'scripts/audit_live_seo_v1.py'
       - 'scripts/apply_visitor_pressure_v1.py'
       - 'scripts/apply_parque_natural_alignment_v1.py'
+      - 'scripts/publish_ground_before_v1.py'
       - 'functions/**'
       - 'search/**'
       - 'commerce/**'
@@ -257,6 +259,10 @@ jobs:
       - name: Align structured data, posters and footer with the Parque Natural letter
         shell: bash
         run: python3 scripts/apply_parque_natural_alignment_v1.py site
+
+      - name: Place archival ground photograph on both labyrinth pages
+        shell: bash
+        run: python3 scripts/publish_ground_before_v1.py site
 
       - name: Apply approved homepage labyrinth title
         run: python3 scripts/apply_home_labyrinth_title_v1.py site
@@ -405,6 +411,10 @@ jobs:
       - name: Align structured data, posters and footer with the Parque Natural letter
         shell: bash
         run: python3 scripts/apply_parque_natural_alignment_v1.py site
+
+      - name: Place archival ground photograph on both labyrinth pages
+        shell: bash
+        run: python3 scripts/publish_ground_before_v1.py site
 
       - name: Apply approved homepage labyrinth title
         run: python3 scripts/apply_home_labyrinth_title_v1.py site

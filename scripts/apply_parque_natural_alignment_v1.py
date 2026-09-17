@@ -136,6 +136,11 @@ WEBPAGE_SUBS = (
      "Free, no booking, beside Castillo de San Felipe. Coordinates and access.",
      "A three-metre stone labyrinth in Cabo de Gata-Níjar, laid by hand in 2021. "
      "It is not signposted, not promoted as a destination, and no directions are given."),
+    ("No se señaliza, no se indica cómo llegar y no se promociona como destino.",
+     "El laberinto de piedra de OOLITA: origen, método y cuidado del lugar."),
+    ("A three-metre stone labyrinth in Cabo de Gata-Níjar, laid by hand in 2021. "
+     "It is not signposted, not promoted as a destination, and no directions are given.",
+     "OOLITA's stone labyrinth: its origin, how it was made and care for the place."),
 )
 
 FAQ_SUBS = (
@@ -153,6 +158,16 @@ FAQ_SUBS = (
      '"text":"OOLITA does not promote the labyrinth as a destination and gives no '
      'directions. There are no staff and no facilities; if you find your own way there, '
      'keep to the path, stay off the fossil dunes and move no stones."}'),
+    ('"text":"OOLITA no promociona el laberinto como destino ni indica cómo llegar. '
+     'No hay personal ni servicios; si llegas por tu cuenta, ve por sendero, '
+     'no pises las dunas fósiles y no muevas piedras."',
+     '"text":"No damos indicaciones para llegar al laberinto. En el parque, permanece '
+     'en los senderos; no pises las dunas fósiles ni muevas piedras."'),
+    ('"text":"OOLITA does not promote the labyrinth as a destination and gives no '
+     'directions. There are no staff and no facilities; if you find your own way there, '
+     'keep to the path, stay off the fossil dunes and move no stones."',
+     '"text":"We do not give directions to the labyrinth. In the park, keep to the '
+     'marked paths; stay off the fossil dunes and move no stones."'),
 )
 
 # --------------------------------------------------------------------------
@@ -194,6 +209,28 @@ POSTER_SUBS = (
      "Oolita is a classical stone labyrinth, laid by hand in loose stone. "
      "It is not signposted and not promoted as a destination. "
      "Walk slowly and respectfully."),
+    ("Oolita es un laberinto clásico de tres metros, colocado a mano con piedra suelta. "
+     "No se señaliza ni se promociona como destino. Camina despacio y con respeto.",
+     "Oolita es un laberinto clásico de tres metros, trazado a mano con piedras sueltas "
+     "en 2021. El entorno es frágil: permanece en los senderos y deja las piedras "
+     "donde están."),
+    ("Oolita is a three-metre classical labyrinth, laid by hand in loose stone. "
+     "It is not signposted and not promoted as a destination. "
+     "Walk slowly and respectfully.",
+     "Oolita is a three-metre classical labyrinth, laid by hand from loose stones "
+     "in 2021. The ground around it is fragile: keep to the paths and leave the "
+     "stones where they are."),
+    ("Oolita es un laberinto clásico de piedra, colocado a mano con piedra suelta. "
+     "No se señaliza ni se promociona como destino. Camina despacio y con respeto.",
+     "Oolita es un laberinto clásico de piedra, trazado a mano con piedras sueltas "
+     "en 2021. El entorno es frágil: permanece en los senderos y deja las piedras "
+     "donde están."),
+    ("Oolita is a classical stone labyrinth, laid by hand in loose stone. "
+     "It is not signposted and not promoted as a destination. "
+     "Walk slowly and respectfully.",
+     "Oolita is a classical stone labyrinth, laid by hand from loose stones in "
+     "2021. The ground around it is fragile: keep to the paths and leave the "
+     "stones where they are."),
 )
 
 # --------------------------------------------------------------------------
@@ -246,6 +283,18 @@ WORLD_SUBS = (
      "The digital world carries the same route into the browser. It does not stand in "
      "for the stone: it is another way to walk it, intended as one from the start. "
      "The place remains in Cabo de Gata-Níjar; access changes material."),
+    ("El mundo digital lleva el mismo recorrido al navegador. No sustituye a la piedra: "
+     "es otra manera de caminarlo, pensada como tal desde el principio. El lugar sigue "
+     "estando en Cabo de Gata-Níjar; el acceso cambia de material.",
+     "El mundo digital se pensó desde el principio como otra forma de recorrer el mismo "
+     "camino. Cabo de Gata-Níjar sigue siendo el lugar de la obra; en el navegador, "
+     "el recorrido toma otra forma."),
+    ("The digital world carries the same route into the browser. It does not stand in "
+     "for the stone: it is another way to walk it, intended as one from the start. "
+     "The place remains in Cabo de Gata-Níjar; access changes material.",
+     "The digital world was planned from the start as another way to follow the same "
+     "path. Cabo de Gata-Níjar remains the place of the work; in the browser, the "
+     "path takes another form."),
 )
 
 # --------------------------------------------------------------------------
