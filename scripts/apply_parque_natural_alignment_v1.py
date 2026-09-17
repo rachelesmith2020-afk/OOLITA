@@ -137,10 +137,10 @@ WEBPAGE_SUBS = (
      "A three-metre stone labyrinth in Cabo de Gata-Níjar, laid by hand in 2021. "
      "It is not signposted, not promoted as a destination, and no directions are given."),
     ("No se señaliza, no se indica cómo llegar y no se promociona como destino.",
-     "El laberinto de piedra de OOLITA: origen, método y cuidado del lugar."),
+     "El laberinto de piedra de OOLITA: piedras sueltas, dunas fósiles y cuidado del lugar."),
     ("A three-metre stone labyrinth in Cabo de Gata-Níjar, laid by hand in 2021. "
      "It is not signposted, not promoted as a destination, and no directions are given.",
-     "OOLITA's stone labyrinth: its origin, how it was made and care for the place."),
+     "OOLITA's stone labyrinth: loose stones, fossil dunes and care for the place."),
 )
 
 FAQ_SUBS = (
