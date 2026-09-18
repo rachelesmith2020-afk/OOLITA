@@ -105,13 +105,6 @@ HOME_BODY_REPLACEMENTS = {
         ("11 ABR 27", "25 JUL 27"),
         ("31.01.27", "27.06.27"),
         ("11.04.27", "25.07.27"),
-        ("Follow the path to 3 January", "Follow the 3D world opening · 23 May"),
-        ("Los Escullos in 3D, from 3 January.", "Los Escullos in 3D, from 23 May."),
-        (
-            "Until then, 22 Sundays: one image a week, a path leading from Los Escullos to the opening of oolita.es. From 9 Aug 26 to 3 Jan 27 on ",
-            "22 Sundays: one image a week from Los Escullos. The series runs from 9 Aug 26 to 3 Jan 27 on ",
-        ),
-        ("from 3 January, in the 3D world.", "from 23 May, in the 3D world."),
         ("Seguir el camino hasta el 3 de enero", "Seguir la apertura del mundo 3D · 23 de mayo"),
         ("Los Escullos en 3D, desde el 3 de enero.", "Los Escullos en 3D, desde el 23 de mayo."),
         (
@@ -152,6 +145,13 @@ HOME_BODY_REPLACEMENTS = {
         ("11 APR 27", "25 JUL 27"),
         ("31.01.27", "27.06.27"),
         ("11.04.27", "25.07.27"),
+        ("Follow the path to 3 January", "Follow the 3D world opening · 23 May"),
+        ("Los Escullos in 3D, from 3 January.", "Los Escullos in 3D, from 23 May."),
+        (
+            "Until then, 22 Sundays: one image a week, a path leading from Los Escullos to the opening of oolita.es. From 9 Aug 26 to 3 Jan 27 on ",
+            "22 Sundays: one image a week from Los Escullos. The series runs from 9 Aug 26 to 3 Jan 27 on ",
+        ),
+        ("from 3 January, in the 3D world.", "from 23 May, in the 3D world."),
         (
             "From 3 January the whole book can be read free inside the 3D world; "
             "in print it will be available from 31 January 2027.",
