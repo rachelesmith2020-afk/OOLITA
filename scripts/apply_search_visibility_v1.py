@@ -217,22 +217,22 @@ if len(LABERINTO_DESCRIPTION) > 160:
 # pipeline, after voice normalization and fossil-dune corrections.
 CABO_FINAL = {
     "cabo-de-gata/index.html": (
-        "OOLITA empieza con un solo laberinto en Los Escullos. Desde ese camino mira Cabo de Gata: "
-        "la piedra, el viento, el agua, las aves, la flora y la gente que vive y trabaja aquí."
+        "OOLITA, el proyecto, crecerá a través de publicaciones de campo, pequeñas ediciones textiles "
+        "y colaboraciones realizadas en Cabo de Gata."
     ),
     "en/cabo-de-gata/index.html": (
-        "OOLITA begins with one labyrinth at Los Escullos. From that path it looks at Cabo de Gata: "
-        "stone, wind, water, birds, flora and the people who live and work here."
+        "OOLITA, the project, will grow through field publications, small textile editions "
+        "and collaborations made in Cabo de Gata."
     ),
 }
-CABO_OLD = {
+CABO_REJECTED = {
     "cabo-de-gata/index.html": (
-        "la piedra, el viento, el agua, las aves, los materiales y la gente que trabaja aquí.",
-        "a través del arte, la observación, los materiales y ediciones hechas con cuidado.",
+        "OOLITA empieza con un solo laberinto en Los Escullos.",
+        "OOLITA tiene un solo laberinto y no hará otro.",
     ),
     "en/cabo-de-gata/index.html": (
-        "stone, wind, water, birds, materials and the people who work here.",
-        "through art, observation, materials and carefully made editions.",
+        "OOLITA begins with one labyrinth at Los Escullos.",
+        "OOLITA has one labyrinth and will not make another.",
     ),
 }
 for rel, final_copy in CABO_FINAL.items():
@@ -241,14 +241,15 @@ for rel, final_copy in CABO_FINAL.items():
         raise SystemExit(f"Missing Cabo de Gata page at final gate: {rel}")
     cabo_text = cabo_page.read_text(encoding="utf-8")
     if cabo_text.count(final_copy) != 1:
-        raise SystemExit(f"Approved Cabo de Gata opening missing or duplicated after final transforms: {rel}")
-    for stale in CABO_OLD[rel]:
+        raise SystemExit(f"Approved Cabo de Gata project-growth sentence missing or duplicated: {rel}")
+    for stale in CABO_REJECTED[rel]:
         if stale in cabo_text:
-            raise SystemExit(f"Superseded Cabo de Gata wording survived final transforms: {rel}")
+            raise SystemExit(f"Rejected one-labyrinth narrative survived final transforms: {rel}")
+
 
 print(
-    "Final SEO/copy gate passed: labyrinth description <=160; Cabo flora + "
-    "live-and-work wording survived all transforms with no opening-copy stragglers."
+    "Final SEO/copy gate passed: labyrinth description <=160; approved bilingual "
+    "Cabo project-growth copy survived all transforms."
 )
 
 # Deployment trigger: mobile stone field grid specificity fix, 2026-08-23.
