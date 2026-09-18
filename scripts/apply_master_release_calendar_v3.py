@@ -211,6 +211,13 @@ held_before = {
     for path in ROOT.rglob("*.html")
     if is_held(path.relative_to(ROOT).as_posix())
 }
+held_home_before: dict[str, dict[str, int]] = {}
+for rel, phrases in HOME_HELD.items():
+    page = ROOT / rel
+    if not page.is_file():
+        raise SystemExit(f"Missing homepage shell before calendar pass: {rel}")
+    text = page.read_text(encoding="utf-8")
+    held_home_before[rel] = {phrase: text.count(phrase) for phrase in phrases}
 
 changed: list[str] = []
 for path in ROOT.rglob("*.html"):
@@ -262,9 +269,16 @@ for rel, phrases in HOME_HELD.items():
     if not page.is_file():
         raise SystemExit(f"Missing homepage shell after calendar pass: {rel}")
     text = page.read_text(encoding="utf-8")
-    for phrase in phrases:
-        if phrase not in text:
-            raise SystemExit(f"Held homepage phrase changed unexpectedly in {rel}: {phrase!r}")
+    after_counts = {phrase: text.count(phrase) for phrase in phrases}
+    if after_counts != held_home_before[rel]:
+        changed_phrases = {
+            phrase: (held_home_before[rel][phrase], after_counts[phrase])
+            for phrase in phrases
+            if held_home_before[rel][phrase] != after_counts[phrase]
+        }
+        raise SystemExit(
+            f"Held homepage chronology changed unexpectedly in {rel}: {changed_phrases!r}"
+        )
 
 required = {
     "index.html": ("23.05.2027", "27 JUN 27", "25 JUL 27", "23 de mayo de 2027", "27 de junio de 2027"),
