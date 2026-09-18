@@ -8,9 +8,10 @@ Approved public dates:
 - Hallazgo hardback: 16 September 2027 (unchanged)
 - Hallazgo public launch: 19 September 2027 (unchanged)
 
-The posters and 22 Sundays chronology are intentionally held for a separate
-editorial restructuring. Their pages, and the explicitly protected homepage
-phrases that describe that chronology, must not be altered by this layer.
+The poster pages and the 22 Sundays archive chronology remain held for a
+separate editorial restructuring. Homepage language must nevertheless keep the
+series chronology distinct from the 3D-world opening: oolita.es itself is not
+described as opening on the series end date.
 """
 from __future__ import annotations
 
@@ -73,31 +74,15 @@ REPLACEMENTS = (
 
 HOME_HELD = {
     "index.html": (
-        "Seguir el camino hasta el 3 de enero",
-        "Los Escullos en 3D, desde el 3 de enero.",
-        "Del 09.08.26 al 03.01.27",
-        "desde el 3 de enero, en el mundo 3D.",
         "09.08.26 → 03.01.27",
     ),
     "404.html": (
-        "Seguir el camino hasta el 3 de enero",
-        "Los Escullos en 3D, desde el 3 de enero.",
-        "Del 09.08.26 al 03.01.27",
-        "desde el 3 de enero, en el mundo 3D.",
         "09.08.26 → 03.01.27",
     ),
     "404/index.html": (
-        "Seguir el camino hasta el 3 de enero",
-        "Los Escullos en 3D, desde el 3 de enero.",
-        "Del 09.08.26 al 03.01.27",
-        "desde el 3 de enero, en el mundo 3D.",
         "09.08.26 → 03.01.27",
     ),
     "en/index.html": (
-        "Follow the path to 3 January",
-        "Los Escullos in 3D, from 3 January.",
-        "From 9 Aug 26 to 3 Jan 27",
-        "from 3 January, in the 3D world.",
         "9 Aug 26 → 3 Jan 27",
     ),
 }
@@ -116,6 +101,14 @@ HOME_BODY_REPLACEMENTS = {
         ("11 ABR 27", "25 JUL 27"),
         ("31.01.27", "27.06.27"),
         ("11.04.27", "25.07.27"),
+        ("Seguir el camino hasta el 3 de enero", "Seguir la apertura del mundo 3D · 23 de mayo"),
+        ("Los Escullos en 3D, desde el 3 de enero.", "Los Escullos en 3D, desde el 23 de mayo."),
+        ("desde el 3 de enero.", "desde el 23 de mayo."),
+        (
+            "Hasta entonces, 22 domingos: una imagen cada semana, un recorrido desde Los Escullos hasta la apertura de oolita.es. Del 09.08.26 al 03.01.27 en ",
+            "22 domingos: una imagen cada semana desde Los Escullos. La serie va del 09.08.26 al 03.01.27 en ",
+        ),
+        ("desde el 3 de enero, en el mundo 3D.", "desde el 23 de mayo, en el mundo 3D."),
         (
             "Desde el 3 de enero se podrá leer entero, gratis, dentro del mundo 3D; "
             "en papel estará disponible desde el 31 de enero de 2027.",
@@ -149,6 +142,14 @@ HOME_BODY_REPLACEMENTS = {
         ("11 APR 27", "25 JUL 27"),
         ("31.01.27", "27.06.27"),
         ("11.04.27", "25.07.27"),
+        ("Follow the path to 3 January", "Follow the 3D world opening · 23 May"),
+        ("Los Escullos in 3D, from 3 January.", "Los Escullos in 3D, from 23 May."),
+        ("from 3 January.", "from 23 May."),
+        (
+            "Until then, 22 Sundays: one image a week, a path leading from Los Escullos to the opening of oolita.es. From 9 Aug 26 to 3 Jan 27 on ",
+            "22 Sundays: one image a week from Los Escullos. The series runs from 9 Aug 26 to 3 Jan 27 on ",
+        ),
+        ("from 3 January, in the 3D world.", "from 23 May, in the 3D world."),
         (
             "From 3 January the whole book can be read free inside the 3D world; "
             "in print it will be available from 31 January 2027.",
@@ -293,8 +294,21 @@ for rel, phrases in HOME_HELD.items():
         )
 
 required = {
-    "index.html": ("23.05.2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "23 de mayo de 2027", "27 de junio de 2027"),
-    "en/index.html": ("23 May 2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "27 June 2027"),
+    "index.html": (
+        "23.05.2027", "00:00 CEST", "27 JUN 27", "25 JUL 27",
+        "23 de mayo de 2027", "27 de junio de 2027",
+        "Seguir la apertura del mundo 3D · 23 de mayo",
+        "desde el 23 de mayo.",
+        "La serie va del 09.08.26 al 03.01.27",
+        "desde el 23 de mayo, en el mundo 3D.",
+    ),
+    "en/index.html": (
+        "23 May 2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "27 June 2027",
+        "Follow the 3D world opening · 23 May",
+        "from 23 May.",
+        "The series runs from 9 Aug 26 to 3 Jan 27",
+        "from 23 May, in the 3D world.",
+    ),
     "mundo-3d/index.html": ("23.05.27", "23 de mayo"),
     "en/3d-world/index.html": ("23.05.27", "23 May"),
     "ediciones/libro/index.html": ("27.06.27", "27 de junio de 2027", "cinco semanas"),
@@ -313,11 +327,41 @@ for rel, needles in required.items():
         if needle not in text:
             raise SystemExit(f"Calendar validation failed in {rel}: missing {needle!r}")
 
+AMBIGUOUS_HOME_OPENING = {
+    "index.html": (
+        "apertura de oolita.es",
+        "Seguir el camino hasta el 3 de enero",
+        "desde el 3 de enero.",
+        "desde el 3 de enero, en el mundo 3D.",
+    ),
+    "404.html": (
+        "apertura de oolita.es",
+        "Seguir el camino hasta el 3 de enero",
+        "Los Escullos en 3D, desde el 3 de enero.",
+        "desde el 3 de enero, en el mundo 3D.",
+    ),
+    "404/index.html": (
+        "apertura de oolita.es",
+        "Seguir el camino hasta el 3 de enero",
+        "Los Escullos en 3D, desde el 3 de enero.",
+        "desde el 3 de enero, en el mundo 3D.",
+    ),
+    "en/index.html": (
+        "opening of oolita.es",
+        "Follow the path to 3 January",
+        "from 3 January.",
+        "from 3 January, in the 3D world.",
+    ),
+}
+
 for path in ROOT.rglob("*.html"):
     rel = path.relative_to(ROOT).as_posix()
     if is_held(rel):
         continue
     text = path.read_text(encoding="utf-8")
+    for phrase in AMBIGUOUS_HOME_OPENING.get(rel, ()):
+        if phrase in text:
+            raise SystemExit(f"Ambiguous site-opening wording survived in {rel}: {phrase!r}")
     if rel in HOME_HELD:
         for phrase in HOME_HELD[rel]:
             text = text.replace(phrase, "")
