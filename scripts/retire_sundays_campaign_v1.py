@@ -84,6 +84,8 @@ NEUTRAL_REPLACEMENTS = (
     ("The path, one Sunday at a time.", "Los Escullos in the browser."),
     ("Los Escullos en 3D, desde el 3 de enero.", "El mundo 3D abre el 23 de mayo de 2027."),
     ("Los Escullos in 3D, from 3 January.", "The 3D world opens on 23 May 2027."),
+    ("oolita.es abre el 23 de mayo.", "El mundo 3D de OOLITA abre el 23 de mayo."),
+    ("oolita.es opens on 23 May.", "The OOLITA 3D world opens on 23 May."),
     ("@oolita.es · una imagen cada domingo ↗", "@oolita.es ↗"),
     ("@oolita.es · one image every Sunday ↗", "@oolita.es ↗"),
     ("Los nueve carteles de la apertura de la cuenta", "Los carteles que abrieron la cuenta"),
