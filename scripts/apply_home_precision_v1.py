@@ -188,8 +188,8 @@ def patch_home(rel: str, *, en: bool) -> None:
     text = dedupe_exact_paragraph(text, manifesto_a, page=rel)
     text = dedupe_exact_paragraph(text, manifesto_b, page=rel)
 
-    text = remove_para_containing(text, sunday_caption, page=rel)
-    text = remove_para_containing(text, sunday_follow, page=rel)
+    text = remove_para_containing(text, sunday_caption, page=rel, required=False)
+    text = remove_para_containing(text, sunday_follow, page=rel, required=False)
 
     text = replace_para_containing(text, stone_caption_old, stone_caption_new, page=rel)
     text = replace_para_containing(text, stone_detail, stone_detail_new, page=rel)
