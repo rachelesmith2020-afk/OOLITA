@@ -311,7 +311,7 @@ for rel, spec in checks.items():
             raise SystemExit(f"{rel}: manifesto {target!r} occurs {count} times, expected 1")
     if len(re.findall(r"<h1\\b", text, re.I)) != 1:
         raise SystemExit(f"{rel}: homepage must contain exactly one H1")
-    meta = re.search(r'<meta\\b(?=[^>]*\\bname=["\\']description["\\'])[^>]*\\bcontent=["\\']([^"\\']*)["\\'][^>]*>', text, re.I)
+    meta = re.search(r"<meta\\b(?=[^>]*\\bname=['\\\"]description['\\\"])[^>]*\\bcontent=['\\\"]([^'\\\"]*)['\\\"][^>]*>", text, re.I)
     if not meta:
         raise SystemExit(f"{rel}: meta description missing")
     if len(unescape(meta.group(1))) > 160:
