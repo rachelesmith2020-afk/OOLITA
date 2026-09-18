@@ -178,14 +178,6 @@ jobs:
         shell: bash
         run: python3 scripts/apply_direction_v3.py site
 
-      - name: Prepare homepage growth definition
-        shell: bash
-        run: python3 scripts/growth_prep.py site
-
-      - name: Apply and validate growth layer
-        shell: bash
-        run: python3 scripts/apply_growth_v2.py site
-
       - name: Apply and validate commerce configuration
         shell: bash
         run: python3 scripts/apply_commerce.py site commerce/catalog.json
@@ -335,14 +327,6 @@ jobs:
       - name: Apply and validate Cabo de Gata direction
         shell: bash
         run: python3 scripts/apply_direction_v3.py site
-
-      - name: Prepare homepage growth definition
-        shell: bash
-        run: python3 scripts/growth_prep.py site
-
-      - name: Apply and validate growth layer
-        shell: bash
-        run: python3 scripts/apply_growth_v2.py site
 
       - name: Apply and validate commerce configuration
         shell: bash
