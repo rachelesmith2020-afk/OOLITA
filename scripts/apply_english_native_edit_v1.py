@@ -112,14 +112,20 @@ replace_any_state(
     "en/index.html",
     (
         "A labyrinth gives you one path to follow. You keep going.",
+        "OOLITA will continue to have one labyrinth",
+        "OOLITA has one labyrinth and will not make another",
         "A labyrinth asks you to decide nothing. You follow.",
     ),
     "A labyrinth asks you to decide nothing. You follow.",
 )
-replace_state(
+replace_any_state(
     "en/index.html",
-    "There will still be one OOLITA labyrinth: the one at Los Escullos. Around it will come field publications, small textile editions and collaborations made in Cabo de Gata.",
-    "OOLITA will continue to have one labyrinth: the one at Los Escullos. Around it, the project will grow through field publications, small textile editions and collaborations made in Cabo de Gata.",
+    (
+        "There will still be one OOLITA labyrinth: the one at Los Escullos. Around it will come field publications, small textile editions and collaborations made in Cabo de Gata.",
+        "OOLITA will continue to have one labyrinth: the one at Los Escullos. Around it, the project will grow through field publications, small textile editions and collaborations made in Cabo de Gata.",
+        "OOLITA has one labyrinth and will not make another. Around it, the project will grow through field publications, small textile editions and collaborations made in Cabo de Gata.",
+    ),
+    "OOLITA, the project, will grow through field publications, small textile editions and collaborations made in Cabo de Gata.",
 )
 
 # The limit is carried by the structure and by one plain fact: the physical
@@ -168,27 +174,27 @@ if not replace_paragraph_by_markers(
 
 # ABOUT — remove ambiguity and literal phrasing while keeping attribution and the
 # stone / paper / code structure intact.
-replace_state(
+replace_fragment_if_present(
     "en/about/index.html",
     "OOLITA begins with a stone labyrinth laid by hand by Raquel Costantini at Los Escullos in September 2021.",
     "OOLITA begins with a stone labyrinth that Raquel Costantini laid by hand at Los Escullos in September 2021.",
 )
-replace_state(
+replace_fragment_if_present(
     "en/about/index.html",
     "Hallazgo is their wider artistic practice.",
     "Hallazgo is Raquel Costantini’s wider artistic practice.",
 )
-replace_state(
+replace_fragment_if_present(
     "en/about/index.html",
     "Code is the 3D world that will make it walkable in the browser.",
     "Code is the 3D world that will make the same path walkable in the browser.",
 )
-replace_state(
+replace_fragment_if_present(
     "en/about/index.html",
     "None replaces the others.",
     "Each carries the same work in a different material.",
 )
-replace_state(
+replace_fragment_if_present(
     "en/about/index.html",
     "Hallazgo works with observation, recording, found objects and landscape.",
     "Hallazgo works through observation, recording, found objects and landscape.",
