@@ -28,7 +28,7 @@ Both storefronts reuse the same persistent Stripe Blaster 2.0 Price ID. The chec
 
 1. `POST /api/textile-checkout` receives `style`, `size`, and `locale`; the only accepted style is `oversized` and the only accepted storefronts are `es` and `en`.
 2. Before release, `dry_run: true` validates the complete OOLITA garment/size/provider/storefront mapping without creating a Stripe session.
-3. Live checkout is blocked until 11 April 2027 and until the UK textile runtime variables are explicitly configured.
+3. Live checkout is blocked until 25 July 2027 and until the UK textile runtime variables are explicitly configured.
 4. Before creating a Checkout Session, the backend retrieves the one configured persistent Stripe Blaster Price and verifies that it is active, one-time, GBP, and exactly matches the configured OOLITA retail amount.
 5. Stripe Checkout reuses that one persistent Price for both languages, collects a GB shipping address and phone number, and stores the OOLITA storefront, garment, size, SKU and Inner Sanctum product reference in Checkout metadata.
 6. Checkout cancellation returns to the exact Spanish or English T-shirt page. Successful payment redirects through `GET /api/textile-confirm`.
