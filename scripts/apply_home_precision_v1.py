@@ -60,10 +60,12 @@ def remove_para_containing(text: str, needle: str, *, page: str, required: bool 
 
 
 def remove_exact_heading(text: str, target: str, *, page: str) -> str:
-    pattern = re.compile(r"<h2\\b[^>]*>.*?</h2>", re.I | re.S)
+    pattern = re.compile(r"<h2\b[^>]*>.*?</h2>", re.I | re.S)
     matches = [m for m in pattern.finditer(text) if plain(m.group(0)).strip().rstrip(".") == target.rstrip(".")]
-    if len(matches) != 1:
-        raise SystemExit(f"{page}: expected exactly one H2 {target!r}, found {len(matches)}")
+    if len(matches) > 1:
+        raise SystemExit(f"{page}: ambiguous H2 {target!r}, found {len(matches)}")
+    if not matches:
+        return text
     m = matches[0]
     return text[:m.start()] + text[m.end():]
 
