@@ -14,9 +14,9 @@ on:
     # Weekly first-party reader-journey report.
     - cron: '30 7 * * 1'
     # 00:05 Europe/Madrid on the confirmed 2027 launch dates.
-    - cron: '5 23 2 1 *'   # 03 Jan 2027 · CET · 3D world
-    - cron: '5 23 30 1 *'  # 31 Jan 2027 · CET · book
-    - cron: '5 22 10 4 *'  # 11 Apr 2027 · CEST · textile
+    - cron: '5 22 22 5 *'  # 23 May 2027 · CEST · 3D world + book pre-orders
+    - cron: '5 22 26 6 *'  # 27 Jun 2027 · CEST · book general sale
+    - cron: '5 22 24 7 *'  # 25 Jul 2027 · CEST · first textile edition
     - cron: '5 22 15 9 *'  # 16 Sep 2027 · CEST · Hallazgo publication
     - cron: '5 22 18 9 *'  # 19 Sep 2027 · CEST · Hallazgo public launch
   workflow_dispatch:
