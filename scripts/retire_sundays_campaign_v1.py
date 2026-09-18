@@ -248,14 +248,6 @@ def clean_html(path: Path) -> None:
     text = CAMPAIGN_P_RE.sub("", text)
     text = CAMPAIGN_SMALL_ELEMENT_RE.sub("", text)
 
-    # The poster archive used to end with a separate "every Sunday / series
-    # continues" CTA. There is no replacement campaign, so remove that block.
-    text = re.sub(
-        r'<section\b[^>]*>.*?(?:Y cada domingo|And every Sunday).*?</section>',
-        "",
-        text,
-        flags=FLAGS,
-    )
 
     # Any remaining links into the retired archive are removed. The homepage
     # primary pillar has already been converted to the existing 3D-world page.
