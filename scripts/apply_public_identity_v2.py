@@ -160,22 +160,20 @@ for path, old, new in [
     p.write_text(text, encoding="utf-8")
 
 
-# Strict public-facing invariants.
+# Strict public-facing identity/provenance invariants. Release dates are
+# validated later by apply_master_release_calendar_v3.py, which is the sole
+# calendar authority.
 checks = {
     "index.html": [
-        "03.01.2027", "31 de enero de 2027", "16.05.27", "16.09.27", "19.09.27",
         "OOLITA · Un proyecto de Vestini Tribe · Raquel Costantini, artista y autora",
         "Sitio y mundo 3D construidos por Vestini Tribe.",
         "© Vestini Tribe. Textos y obras © Raquel Costantini.",
     ],
     "en/index.html": [
-        "03.01.2027", "31 January 2027", "16.05.27", "16.09.27", "19.09.27",
         "OOLITA · A Vestini Tribe project · Raquel Costantini, artist and author",
         "Site and 3D world built by Vestini Tribe.",
         "© Vestini Tribe. Texts and artworks © Raquel Costantini.",
     ],
-    "ediciones/camiseta/index.html": ["11.04.27"],
-    "en/editions/t-shirt/index.html": ["11.04.27"],
     "privacidad/index.html": ["Vestini Tribe es el responsable del tratamiento."],
     "en/privacy/index.html": ["Vestini Tribe is the data controller."],
     "ediciones/libro/index.html": ['<span class="k">Páginas</span><span class="v">48</span>'],
@@ -186,7 +184,7 @@ for path, needles in checks.items():
     _, text = read(path)
     for needle in needles:
         if needle not in text:
-            raise SystemExit(f"Public identity/date invariant missing in {path}: {needle}")
+            raise SystemExit(f"Public identity invariant missing in {path}: {needle}")
 
 forbidden = [
     "stone gathered within a few paces",
