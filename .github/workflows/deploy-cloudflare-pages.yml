@@ -426,9 +426,6 @@ jobs:
       - name: Apply approved homepage labyrinth title
         run: python3 scripts/apply_home_labyrinth_title_v1.py site
 
-      - name: Apply approved bilingual historical context
-        run: python3 scripts/apply_historical_context_v1.py site
-
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
         run: python3 scripts/audit_static_integrity_v1.py site
@@ -444,6 +441,12 @@ jobs:
         id: analytics_binding
         shell: bash
         run: python3 scripts/configure_cloudflare_analytics.py
+
+      - name: Finalize bilingual historical context and verify integrity
+        shell: bash
+        run: |
+          python3 scripts/apply_historical_context_v1.py site
+          python3 scripts/audit_static_integrity_v1.py site
 
       - name: Deploy complete site to Cloudflare Pages
         id: deploy_site
