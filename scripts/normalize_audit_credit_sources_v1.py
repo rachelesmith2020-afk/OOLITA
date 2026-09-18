@@ -120,7 +120,7 @@ for rel, seo in CABO_SEO.items():
             raise SystemExit(f"Cabo de Gata SEO/hreflang invariant missing in {rel}: {tag}")
 
     missing = []
-    for href in re.findall(r'href=["\\']([^"\\']+)["\\']', text, flags=re.I):
+    for href in re.findall(r"""href=["']([^"']+)["']""", text, flags=re.I):
         target = local_target(href)
         if target is not None and not target.is_file():
             missing.append((href, target.relative_to(ROOT)))
