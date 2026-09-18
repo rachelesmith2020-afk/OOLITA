@@ -137,6 +137,8 @@ def patch_footer_credit(path: Path) -> None:
     expected = FOOTER_CREDIT_EN if language == "en" else FOOTER_CREDIT_ES
     footer = re.search(r'<footer\b[\s\S]*?</footer>', text, flags=re.I)
     if not footer:
+        if path.relative_to(ROOT).as_posix() in {"404.html", "404/index.html"}:
+            return
         raise SystemExit(f"Missing footer while applying project credit in {path.relative_to(ROOT)}")
     footer_text = footer.group(0)
     if expected not in footer_text:
@@ -329,6 +331,10 @@ def add_privacy_footer(path: Path) -> None:
     label = "Privacy" if language == "en" else "Privacidad"
     footer = re.search(r'<footer\b[\s\S]*?</footer>', text, flags=re.I)
     if not footer:
+        if path.relative_to(ROOT).as_posix() in {"404.html", "404/index.html"}:
+            text = add_audit_style(text, page=str(path.relative_to(ROOT)))
+            path.write_text(text, encoding="utf-8")
+            return
         raise SystemExit(f"Missing footer in {path.relative_to(ROOT)}")
     if f'href="{href}"' not in footer.group(0):
         addition = f'<span class="rot"><a href="{href}">{label}</a></span>'
@@ -459,7 +465,12 @@ for page in ROOT.rglob("*.html"):
     language = "en" if re.search(r'<html\s+lang=["\']en(?:-[^"\']+)?["\']', text, flags=re.I) else "es"
     expected = FOOTER_CREDIT_EN if language == "en" else FOOTER_CREDIT_ES
     footer = re.search(r'<footer\b[\s\S]*?</footer>', text, flags=re.I)
-    if not footer or expected not in footer.group(0):
+    rel = page.relative_to(ROOT).as_posix()
+    if not footer:
+        if rel in {"404.html", "404/index.html"}:
+            continue
+        raise SystemExit(f"Global project credit missing in {page.relative_to(ROOT)}")
+    if expected not in footer.group(0):
         raise SystemExit(f"Global project credit missing in {page.relative_to(ROOT)}")
 
 social_pages = {
@@ -518,7 +529,12 @@ for page in ROOT.rglob("index.html"):
     language = "en" if re.search(r'<html\s+lang=["\']en(?:-[^"\']+)?["\']', text, flags=re.I) else "es"
     policy = "/en/privacy/" if language == "en" else "/privacidad/"
     footer = re.search(r'<footer\b[\s\S]*?</footer>', text, flags=re.I)
-    if not footer or f'href="{policy}"' not in footer.group(0):
+    rel = page.relative_to(ROOT).as_posix()
+    if not footer:
+        if rel == "404/index.html":
+            continue
+        raise SystemExit(f"Privacy footer link missing in {page.relative_to(ROOT)}")
+    if f'href="{policy}"' not in footer.group(0):
         raise SystemExit(f"Privacy footer link missing in {page.relative_to(ROOT)}")
     if 'id="oolita-audit-fixes-style"' not in text:
         raise SystemExit(f"Audit interaction style missing in {page.relative_to(ROOT)}")
@@ -558,8 +574,11 @@ for page in sorted(ROOT.rglob("index.html")):
     if duplicates:
         raise SystemExit(f"Duplicate IDs in {relative}: {duplicates}")
     for tag in ("html", "head", "body", "main", "h1", "footer", "title"):
-        if parser.tags.get(tag, 0) != 1:
-            raise SystemExit(f"Unexpected {tag} count in {relative}: {parser.tags.get(tag, 0)}")
+        count = parser.tags.get(tag, 0)
+        if tag == "footer" and relative.as_posix() == "404/index.html" and count == 0:
+            continue
+        if count != 1:
+            raise SystemExit(f"Unexpected {tag} count in {relative}: {count}")
     if parser.language not in {"es", "en"}:
         raise SystemExit(f"Unexpected document language in {relative}: {parser.language!r}")
     for nav in parser.navs:
