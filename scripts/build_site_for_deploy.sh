@@ -25,7 +25,7 @@ mirror_line = 'python3 scripts/mirror_oolita.py site\n'
 bridge = '''python3 - <<'PYHOMEBRIDGE'\nfrom pathlib import Path\np = Path('site/en/index.html')\ntext = p.read_text(encoding='utf-8')\nfinal = 'OOLITA begins with a three-metre classical labyrinth, laid by hand from stone at Los Escullos, on land beside the fossil dunes.'\nlegacy = 'OOLITA begins with a three-metre classical labyrinth, laid by hand from stone at Los Escullos, on land that was seabed a hundred thousand years ago.'\nif final in text:\n    p.write_text(text.replace(final, legacy, 1), encoding='utf-8')\n    print('bridged current homepage geology for legacy reconstruction')\nPYHOMEBRIDGE\n'''
 if mirror_line not in patched:
     raise SystemExit('Could not locate mirror step for homepage compatibility bridge')
-patched = patched.replace(mirror_line, mirror_line + bridge, 1)
+patched = patched.replace(mirror_line, mirror_line + 'python3 scripts/apply_historical_context_v1.py site --restore\n'.replace('\n', chr(10)) + bridge, 1)
 
 Path('/tmp/oolita-build-site-for-deploy.sh').write_text(patched, encoding='utf-8')
 PYWRAP

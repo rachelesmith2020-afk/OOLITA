@@ -62,6 +62,7 @@ on:
       - 'scripts/submit_indexnow.py'
       - 'scripts/audit_live_seo_v1.py'
       - 'scripts/apply_visitor_pressure_v1.py'
+      - 'scripts/apply_historical_context_v1.py'
       - 'scripts/apply_parque_natural_alignment_v1.py'
       - 'scripts/apply_reader_paths_v1.py'
       - 'scripts/publish_ground_before_v1.py'
@@ -130,6 +131,7 @@ on:
       - 'scripts/submit_indexnow.py'
       - 'scripts/audit_live_seo_v1.py'
       - 'scripts/apply_visitor_pressure_v1.py'
+      - 'scripts/apply_historical_context_v1.py'
       - 'scripts/apply_parque_natural_alignment_v1.py'
       - 'scripts/apply_reader_paths_v1.py'
       - 'scripts/publish_ground_before_v1.py'
@@ -268,6 +270,9 @@ jobs:
 
       - name: Apply approved homepage labyrinth title
         run: python3 scripts/apply_home_labyrinth_title_v1.py site
+
+      - name: Apply approved bilingual historical context
+        run: python3 scripts/apply_historical_context_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
@@ -420,6 +425,9 @@ jobs:
 
       - name: Apply approved homepage labyrinth title
         run: python3 scripts/apply_home_labyrinth_title_v1.py site
+
+      - name: Apply approved bilingual historical context
+        run: python3 scripts/apply_historical_context_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
