@@ -10,7 +10,13 @@ import sys
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 
 
-def r(path, old, new, expected=1, superseded_by=None):
+SUPERSEDED = {
+    "Caminar un laberinto sin ir hasta él.": "El camino, domingo a domingo.",
+    "Walk a labyrinth without going there.": "The path, one Sunday at a time.",
+}
+
+
+def r(path, old, new, expected=1):
     p = ROOT / path
     if not p.is_file():
         raise SystemExit(f"Missing expected page: {path}")
@@ -23,8 +29,8 @@ def r(path, old, new, expected=1, superseded_by=None):
         print(f"patched {path}: {old[:52]!r}")
     elif old_count == 0 and new_count >= expected:
         print(f"already reviewed {path}: {new[:52]!r}")
-    elif old_count == 0 and new_count == 0 and superseded_by and superseded_by in text:
-        print(f"superseded {path}: {superseded_by[:52]!r}")
+    elif old_count == 0 and new_count == 0 and SUPERSEDED.get(old) and SUPERSEDED[old] in text:
+        print(f"superseded {path}: {SUPERSEDED[old][:52]!r}")
     else:
         raise SystemExit(
             f"Unexpected wording state in {path}: expected {expected} old, "
@@ -32,7 +38,7 @@ def r(path, old, new, expected=1, superseded_by=None):
         )
 
 # Homepage — Spanish
-r("index.html", "Caminar un laberinto sin ir hasta él.", "El mismo camino, hecho de luz.", 2, superseded_by="El camino, domingo a domingo.")
+r("index.html", "Caminar un laberinto sin ir hasta él.", "El mismo camino, hecho de luz.", 2)
 r("index.html", "¿Te aviso cuando se abra la puerta? <!--email_off--><a href=\"mailto:oolita@tutamail.com\">Escríbeme</a><!--/email_off--> y te llamo de vuelta el 3 de enero.", "¿Quieres que te avise cuando se abra la puerta? <!--email_off--><a href=\"mailto:oolita@tutamail.com\">Escríbeme</a><!--/email_off-->. Te escribiré el 3 de enero.")
 r("index.html", "El recorrido es <a href=\"/ediciones/libro/\">el libro</a> en otra forma.", "<a href=\"/ediciones/libro/\">El libro</a> recorre la misma senda sobre papel.")
 r("index.html", "<span class=\"rot\">Piedra, papel y código</span>", "<span class=\"rot\">Piedra · papel · código</span>")
