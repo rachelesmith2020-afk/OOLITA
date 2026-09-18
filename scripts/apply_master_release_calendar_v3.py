@@ -74,19 +74,15 @@ REPLACEMENTS = (
 
 HOME_HELD = {
     "index.html": (
-        "Del 09.08.26 al 03.01.27",
         "09.08.26 → 03.01.27",
     ),
     "404.html": (
-        "Del 09.08.26 al 03.01.27",
         "09.08.26 → 03.01.27",
     ),
     "404/index.html": (
-        "Del 09.08.26 al 03.01.27",
         "09.08.26 → 03.01.27",
     ),
     "en/index.html": (
-        "From 9 Aug 26 to 3 Jan 27",
         "9 Aug 26 → 3 Jan 27",
     ),
 }
