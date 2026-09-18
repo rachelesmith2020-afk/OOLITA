@@ -281,10 +281,10 @@ for rel, phrases in HOME_HELD.items():
         )
 
 required = {
-    "index.html": ("23.05.2027", "27 JUN 27", "25 JUL 27", "23 de mayo de 2027", "27 de junio de 2027"),
-    "en/index.html": ("23 May 2027", "27 JUN 27", "25 JUL 27", "27 June 2027"),
-    "mundo-3d/index.html": ("23.05.27", "23 de mayo", "00:00 CEST"),
-    "en/3d-world/index.html": ("23.05.27", "23 May", "00:00 CEST"),
+    "index.html": ("23.05.2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "23 de mayo de 2027", "27 de junio de 2027"),
+    "en/index.html": ("23 May 2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "27 June 2027"),
+    "mundo-3d/index.html": ("23.05.27", "23 de mayo"),
+    "en/3d-world/index.html": ("23.05.27", "23 May"),
     "ediciones/libro/index.html": ("27.06.27", "27 de junio de 2027", "cinco semanas"),
     "en/editions/book/index.html": ("27 Jun 27", "27 June 2027", "five weeks"),
     "ediciones/camiseta/index.html": ("25.07.27", "25 de julio de 2027", "hasta el verano"),
