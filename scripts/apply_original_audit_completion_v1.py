@@ -89,9 +89,15 @@ def patch_follow_page(rel: str, language: str) -> None:
     text = text[:m.start()] + m.group(1) + new_intro + m.group(3) + text[m.end():]
 
     if hallazgo_chip not in text:
-        if book_chip not in text:
+        # Match the book chip by its stable input value: later voice passes have
+        # changed the visible label ("Books"/"Libros" -> "Book"/"Libro").
+        book_chip_match = re.search(
+            r'<label class="follow-chip"><input type="checkbox" name="interest" value="book"><span>[^<]*</span></label>',
+            text,
+        )
+        if book_chip_match is None:
             raise SystemExit(f"Book chip not found while adding Hallazgo in {rel}")
-        text = text.replace(book_chip, book_chip + hallazgo_chip, 1)
+        text = text[: book_chip_match.end()] + hallazgo_chip + text[book_chip_match.end() :]
 
     prefill_id = "oolita-follow-interest-prefill"
     if f'id="{prefill_id}"' not in text:

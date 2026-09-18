@@ -165,9 +165,11 @@ add_product_cta("ediciones/camiseta/index.html", 'data-checkout="textile-01"', t
 add_product_cta("en/editions/t-shirt/index.html", 'data-checkout="textile-01"', tee_en)
 
 # 7) Posters are explicitly an archive; current access information lives elsewhere.
+# The poster reconstruction dropped one plate and reworded the archive note, so the
+# anchors below match the current published wording.
 for path, needle, note, marker in [
-    ("carteles/index.html", "Con estos nueve carteles tipográficos abrió", '<p class="parr"><strong>Archivo:</strong> estos carteles documentan la campaña de apertura de 2026 y no se reescriben. Para información actual sobre la visita, consulta <a href="/laberinto/">El laberinto</a>.</p>', "estos carteles documentan la campaña de apertura de 2026"),
-    ("en/posters/index.html", "These nine typographic posters opened", '<p class="parr"><strong>Archive:</strong> these posters document the 2026 opening campaign and are not rewritten. For current visitor information, see <a href="/en/labyrinth/">The labyrinth</a>.</p>', "these posters document the 2026 opening campaign"),
+    ("carteles/index.html", "Con estos carteles tipográficos abrió", '<p class="parr"><strong>Archivo:</strong> estos carteles documentan la campaña de apertura de 2026 y no se reescriben. Para información actual sobre la visita, consulta <a href="/laberinto/">El laberinto</a>.</p>', "esta selección conserva los carteles"),
+    ("en/posters/index.html", "These typographic posters opened", '<p class="parr"><strong>Archive:</strong> these posters document the 2026 opening campaign and are not rewritten. For current visitor information, see <a href="/en/labyrinth/">The labyrinth</a>.</p>', "this selection keeps the posters"),
 ]:
     p, s = read(path)
     if marker not in s:

@@ -186,6 +186,18 @@ jobs:
         shell: bash
         run: python3 scripts/apply_commerce.py site commerce/catalog.json
 
+      - name: Prepare homepage growth definition
+        shell: bash
+        run: python3 scripts/growth_prep.py site
+
+      - name: Apply and validate growth layer
+        shell: bash
+        run: python3 scripts/apply_growth_v2.py site
+
+      - name: Apply and validate improvement-list completion
+        shell: bash
+        run: python3 scripts/apply_list_completion_v1.py site
+
       - name: Normalize live attribution for legacy audit
         shell: bash
         run: python3 scripts/normalize_audit_credit_sources_v1.py site
@@ -323,6 +335,18 @@ jobs:
       - name: Apply and validate commerce configuration
         shell: bash
         run: python3 scripts/apply_commerce.py site commerce/catalog.json
+
+      - name: Prepare homepage growth definition
+        shell: bash
+        run: python3 scripts/growth_prep.py site
+
+      - name: Apply and validate growth layer
+        shell: bash
+        run: python3 scripts/apply_growth_v2.py site
+
+      - name: Apply and validate improvement-list completion
+        shell: bash
+        run: python3 scripts/apply_list_completion_v1.py site
 
       - name: Normalize live attribution for legacy audit
         shell: bash

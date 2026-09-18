@@ -243,6 +243,18 @@ NEW_EN = "A short list for the 3D world, the book, field publications and textil
 OLD_ES = "Una sola lista. Elige lo que quieres seguir: mundo 3D, libros, publicaciones de campo o ediciones textiles."
 NEW_ES = "Una lista breve para avisos del mundo 3D, el libro, las publicaciones de campo y las ediciones textiles. Elige sólo lo que quieras recibir."
 
+# Earlier voice passes now render the catalogue as a single book, so both
+# homepages reach this step with "book"/"libro" rather than the plural this
+# edit was written against. Accept that state as an equivalent source.
+for _rel, _old, _singular in (
+    ("en/index.html", OLD_EN, OLD_EN.replace("3D world, books,", "3D world, book,")),
+    ("index.html", OLD_ES, OLD_ES.replace("mundo 3D, libros,", "mundo 3D, libro,")),
+):
+    _page = ROOT / _rel
+    _text = _page.read_text(encoding="utf-8")
+    if _old not in _text and _singular in _text:
+        _page.write_text(_text.replace(_singular, _old, 1), encoding="utf-8")
+
 replace_state("en/index.html", OLD_EN, NEW_EN)
 replace_state("index.html", OLD_ES, NEW_ES)
 

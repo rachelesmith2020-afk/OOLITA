@@ -88,13 +88,14 @@ def set_page_state(rel: str, purpose: str, primary_event: str, launch_id: str | 
     p.write_text(text[:m.start()] + tag + text[m.end():], encoding="utf-8")
 
 
+# The poster pages no longer carry a Sundays-archive action: that campaign is
+# retired, so those rows are removed rather than pointing at a dead destination.
 # Exactly one meaningful primary action on every published ES/EN page.
 # Selectors use stable destinations rather than reader-facing wording so the
 # copy freeze and the conversion system do not fight each other.
 PAGES = [
     ("index.html","follow-project","home-follow",dict(href_contains="#seguir-oolita"),None,None),
     ("laberinto/index.html","continue-remotely","labyrinth-follow-3d",dict(href_contains="follow=3d"),None,None),
-    ("carteles/index.html","open-sundays-archive","posters-sundays",dict(href_exact="/domingos/"),None,None),
     ("que-es-un-laberinto/index.html","see-oolita-labyrinth","explainer-labyrinth",dict(href_exact="/laberinto/"),None,None),
     ("que-es-un-oolito/index.html","see-place","ooid-cabo",dict(href_exact="/cabo-de-gata/"),None,None),
     ("ediciones/index.html","open-book-edition","editions-book",dict(href_exact="/ediciones/libro/"),None,None),
@@ -113,7 +114,6 @@ PAGES = [
 
     ("en/index.html","follow-project","home-follow",dict(href_contains="#follow-oolita"),None,None),
     ("en/labyrinth/index.html","continue-remotely","labyrinth-follow-3d",dict(href_contains="follow=3d"),None,None),
-    ("en/posters/index.html","open-sundays-archive","posters-sundays",dict(href_exact="/en/sundays/"),None,None),
     ("en/what-is-a-labyrinth/index.html","see-oolita-labyrinth","explainer-labyrinth",dict(href_exact="/en/labyrinth/"),None,None),
     ("en/what-is-an-ooid/index.html","see-place","ooid-cabo",dict(href_exact="/en/cabo-de-gata/"),None,None),
     ("en/editions/index.html","open-book-edition","editions-book",dict(href_exact="/en/editions/book/"),None,None),
@@ -130,8 +130,8 @@ PAGES = [
     ("en/3d-world/index.html","follow-3d","3d-follow",dict(href_contains="follow=3d"),"3d","2027-01-03T00:00:00+01:00"),
     ("en/hallazgo-catalogue/index.html","follow-hallazgo","hallazgo-follow",dict(href_contains="interest=hallazgo"),"hallazgo","2027-09-16T00:00:00+02:00"),
 ]
-if len(PAGES) != 36:
-    raise SystemExit(f"Expected 36 primary-action pages, got {len(PAGES)}")
+if len(PAGES) != 34:
+    raise SystemExit(f"Expected 34 primary-action pages, got {len(PAGES)}")
 
 for rel, purpose, event, selector, launch_id, launch_at in PAGES:
     set_page_state(rel, purpose, event, launch_id, launch_at)

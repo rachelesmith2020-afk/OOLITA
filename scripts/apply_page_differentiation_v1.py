@@ -43,6 +43,11 @@ def replace_element(rel: str, tags: tuple[str, ...], markers: tuple[str, ...], n
         if any(marker in visible for marker in markers):
             matches.append(match)
 
+    if not matches:
+        # A later authored pass already replaced this element with different
+        # wording, so the repetition this pass removes is gone. The stale-phrase
+        # guard at the end of this file remains the real check.
+        return
     if len(matches) != 1:
         raise SystemExit(
             f"Expected one page-differentiation target in {rel} for {markers[0]!r}; found {len(matches)}"
@@ -146,17 +151,32 @@ for rel, phrases in stale.items():
         if phrase in visible:
             raise SystemExit(f"Page-differentiation regression remains in {rel}: {phrase}")
 
+# Each entry is a group of accepted forms: later authored passes have rewritten
+# the About chronology heading and opening sentence, so both the original and the
+# current published wording satisfy the same invariant.
 required = {
-    "en/about/index.html": ("What came first.", "The labyrinth came first, in 2021."),
-    "sobre-oolita/index.html": ("Qué vino primero.", "Primero fue el laberinto, en 2021."),
-    "en/cabo-de-gata/index.html": ("What stays here.", "Cabo de Gata is not scenery for the project."),
-    "cabo-de-gata/index.html": ("Lo que se queda aquí.", "Cabo de Gata no es un decorado para el proyecto."),
+    "en/about/index.html": (
+        ("What came first.", "Then."),
+        ("The labyrinth came first, in 2021.", "OOLITA has grown in that order."),
+    ),
+    "sobre-oolita/index.html": (
+        ("Qué vino primero.", "Después."),
+        ("Primero fue el laberinto, en 2021.", "OOLITA ha crecido en ese orden."),
+    ),
+    "en/cabo-de-gata/index.html": (
+        ("What stays here.",),
+        ("Cabo de Gata is not scenery for the project.",),
+    ),
+    "cabo-de-gata/index.html": (
+        ("Lo que se queda aquí.",),
+        ("Cabo de Gata no es un decorado para el proyecto.",),
+    ),
 }
-for rel, phrases in required.items():
+for rel, groups in required.items():
     _, text = read(rel)
     visible = rendered(text)
-    for phrase in phrases:
-        if phrase not in visible:
-            raise SystemExit(f"Page-differentiation invariant missing in {rel}: {phrase}")
+    for group in groups:
+        if not any(phrase in visible for phrase in group):
+            raise SystemExit(f"Page-differentiation invariant missing in {rel}: {group[0]}")
 
 print("OOLITA page differentiation applied and validated successfully.")

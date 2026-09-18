@@ -119,7 +119,9 @@ replace_block("sobre-oolita/index.html", "OOLITA nace de un laberinto de piedra 
 replace_block("en/about/index.html", "OOLITA begins with a stone labyrinth that Raquel Costantini laid by hand", "Raquel Costantini laid it by hand at Los Escullos in September 2021.")
 replace_tag_text("sobre-oolita/index.html", ("h2", "h3"), "Qué vino primero.", "Después.")
 replace_tag_text("en/about/index.html", ("h2", "h3"), "What came first.", "Then.")
-replace_block("sobre-oolita/index.html", "Primero fue el laberinto, en 2021.", "El libro creció de caminarlo y volver a dibujarlo. El mundo 3D llegó después, cuando el mismo lugar necesitó otra forma de acceso. OOLITA ha crecido en ese orden.")
+# The Spanish native-voice pass now publishes "nació de recorrerlo"; that is the
+# current approved form of this same paragraph.
+replace_block("sobre-oolita/index.html", "Primero fue el laberinto, en 2021.", "El libro nació de recorrerlo y volver a dibujarlo. El mundo 3D llegó después, cuando el mismo lugar necesitó otra forma de acceso. OOLITA ha crecido en ese orden.")
 replace_block("en/about/index.html", "The labyrinth came first, in 2021.", "The book grew from walking it and drawing it again. The 3D world came later, when the same place needed another form of access. OOLITA has grown in that order.")
 
 # English About: remove explanatory filler and restore the place section.
