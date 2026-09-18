@@ -502,6 +502,55 @@ jobs:
           grep -E 'Los Escullos|Oolita|Three metres of classical design|The original is at' /tmp/oolita-en.html | head -n 20 || true
           exit 1
 
+      - name: Verify archival ground plate is live on both labyrinth pages
+        id: live_ground_archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          es_url="https://oolita.es/laberinto/?deploy=$GITHUB_SHA"
+          en_url="https://oolita.es/en/labyrinth/?deploy=$GITHUB_SHA"
+          img_url="https://oolita.es/laberinto/el-suelo-antes-photo.jpg?deploy=$GITHUB_SHA"
+
+          ok=0
+          for attempt in $(seq 1 18); do
+            curl -fsS -H 'Cache-Control: no-cache' "$es_url" -o /tmp/oolita-lab-es.html || true
+            curl -fsS -H 'Cache-Control: no-cache' "$en_url" -o /tmp/oolita-lab-en.html || true
+            curl -fsS -H 'Cache-Control: no-cache' "$img_url" -o /tmp/oolita-ground-before.jpg || true
+
+            if python3 - <<'PY'
+from pathlib import Path
+
+checks = (
+    (Path("/tmp/oolita-lab-es.html"), "Linaje"),
+    (Path("/tmp/oolita-lab-en.html"), "Lineage"),
+)
+for path, next_heading in checks:
+    html = path.read_text(encoding="utf-8", errors="replace")
+    assert html.count('data-oolita-ground-before="true"') == 1
+    assert html.count('/laberinto/el-suelo-antes-photo.jpg') == 1
+    assert html.count('>el suelo antes<') == 1
+    assert html.count('>OOLITA · septiembre 2021<') == 1
+    assert html.index('data-oolita-ground-before="true"') < html.index(next_heading)
+PY
+            then
+              dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 /tmp/oolita-ground-before.jpg 2>/dev/null || true)"
+              if [ "$dims" = "1200x1200" ]; then
+                ok=1
+                break
+              fi
+            fi
+
+            echo "Archival plate verification attempt $attempt not current yet."
+            sleep 5
+          done
+
+          if [ "$ok" != 1 ]; then
+            echo "Canonical labyrinth pages are not serving the approved archival plate."
+            exit 1
+          fi
+
+          echo "Canonical ES/EN labyrinth pages serve the approved ground-before archive in the intended placement."
+
       - name: Configure canonical host redirect
         id: canonical_redirect
         continue-on-error: true
