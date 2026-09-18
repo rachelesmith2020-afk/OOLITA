@@ -32,6 +32,7 @@ on:
       - 'scripts/apply_release_calendar_v1.py'
       - 'scripts/apply_release_calendar_v2.py'
       - 'scripts/apply_master_release_calendar_v3.py'
+      - 'scripts/retire_sundays_campaign_v1.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
       - 'scripts/apply_follow_mobile_finish.py'
       - 'scripts/normalize_audit_credit_sources_v1.py'
@@ -103,6 +104,7 @@ on:
       - 'scripts/apply_release_calendar_v1.py'
       - 'scripts/apply_release_calendar_v2.py'
       - 'scripts/apply_master_release_calendar_v3.py'
+      - 'scripts/retire_sundays_campaign_v1.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
       - 'scripts/apply_follow_mobile_finish.py'
       - 'scripts/normalize_audit_credit_sources_v1.py'
@@ -285,6 +287,10 @@ jobs:
         shell: bash
         run: python3 scripts/apply_master_release_calendar_v3.py site
 
+      - name: Retire 22 Sundays campaign and stale January launch references
+        shell: bash
+        run: python3 scripts/retire_sundays_campaign_v1.py site
+
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
         run: python3 scripts/audit_static_integrity_v1.py site
@@ -459,6 +465,7 @@ jobs:
           python3 scripts/apply_historical_context_v1.py site
           python3 scripts/apply_home_precision_v1.py site
           python3 scripts/apply_master_release_calendar_v3.py site
+          python3 scripts/retire_sundays_campaign_v1.py site
           python3 scripts/audit_static_integrity_v1.py site
 
       - name: Deploy complete site to Cloudflare Pages
