@@ -482,12 +482,34 @@ jobs:
           base = "https://oolita.es"
           checks = {
               "/": (
-                  ("23.05.2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "16.09.27", "19.09.27"),
-                  (),
+                  (
+                      "23.05.2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "16.09.27", "19.09.27",
+                      "Seguir la apertura del mundo 3D · 23 de mayo",
+                      "Los Escullos en 3D, desde el 23 de mayo.",
+                      "La serie va del 09.08.26 al 03.01.27",
+                      "desde el 23 de mayo, en el mundo 3D.",
+                  ),
+                  (
+                      "apertura de oolita.es",
+                      "Seguir el camino hasta el 3 de enero",
+                      "Los Escullos en 3D, desde el 3 de enero.",
+                      "desde el 3 de enero, en el mundo 3D.",
+                  ),
               ),
               "/en/": (
-                  ("23 May 2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "16 Sep 27", "19 Sep 27"),
-                  (),
+                  (
+                      "23 May 2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "16 Sep 27", "19 Sep 27",
+                      "Follow the 3D world opening · 23 May",
+                      "Los Escullos in 3D, from 23 May.",
+                      "The series runs from 9 Aug 26 to 3 Jan 27",
+                      "from 23 May, in the 3D world.",
+                  ),
+                  (
+                      "opening of oolita.es",
+                      "Follow the path to 3 January",
+                      "Los Escullos in 3D, from 3 January.",
+                      "from 3 January, in the 3D world.",
+                  ),
               ),
               "/mundo-3d/": (
                   ("23.05.27", "23 de mayo"),
