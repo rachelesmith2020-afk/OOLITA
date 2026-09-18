@@ -2,8 +2,8 @@
 
 ## Authoritative launch dates
 
-- Paid pre-orders open: **2027-01-03 00:00 UTC**.
-- Publication / normal sales begin: **2027-01-31 00:00 UTC**.
+- Paid pre-orders open: **2027-05-23 00:00 UTC**.
+- Publication / normal sales begin: **2027-06-27 00:00 UTC**.
 - Runtime enforcement lives in `functions/_lib/commerce-config.js`. The public site must not bypass that server-side gate.
 
 ## Product model
@@ -44,7 +44,7 @@ Secrets must never be committed to GitHub.
 
 ## Runtime safety
 
-`POST /api/create-checkout` refuses to create a Stripe session before 3 January 2027, for unsupported countries, or when the selected route lacks its Stripe price, shipping rate, provider adapter, or credentials.
+`POST /api/create-checkout` refuses to create a Stripe session before 23 May 2027, for unsupported countries, or when the selected route lacks its Stripe price, shipping rate, provider adapter, or credentials.
 
 `POST /api/stripe-webhook` verifies the Stripe signature, requires a paid OOLITA session, checks that the paid shipping country matches the country/provider encoded at Checkout creation, and uses D1 idempotency before fulfilment. BookVault can only receive GB addresses. The Spain adapter currently fails closed.
 
