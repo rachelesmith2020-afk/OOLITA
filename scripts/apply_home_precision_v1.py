@@ -81,17 +81,17 @@ def dedupe_exact_paragraph(text: str, target: str, *, page: str) -> str:
 
 def set_meta(text: str, attr: str, key: str, value: str, *, page: str) -> str:
     pattern = re.compile(
-        rf'<meta\\b(?=[^>]*\\b{re.escape(attr)}=["\\']{re.escape(key)}["\\'])[^>]*>',
+        rf"<meta\\b(?=[^>]*\\b{re.escape(attr)}=['\\\"]{re.escape(key)}['\\\"])[^>]*>",
         re.I,
     )
     matches = list(pattern.finditer(text))
     if len(matches) != 1:
         raise SystemExit(f"{page}: expected one {attr}={key} meta tag, found {len(matches)}")
     tag = matches[0].group(0)
-    if re.search(r'\\bcontent=["\\'][^"\\']*["\\']', tag, re.I):
+    if re.search(r"\\bcontent=['\\\"][^'\\\"]*['\\\"]", tag, re.I):
         new_tag = re.sub(
-            r'\\bcontent=(["\\'])[^"\\']*\\1',
-            lambda m: f'content={m.group(1)}{value}{m.group(1)}',
+            r"\\bcontent=(['\\\"])[^'\\\"]*\\1",
+            lambda m: f"content={m.group(1)}{value}{m.group(1)}",
             tag,
             count=1,
             flags=re.I,
