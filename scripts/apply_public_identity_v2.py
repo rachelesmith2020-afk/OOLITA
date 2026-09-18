@@ -42,6 +42,8 @@ def patch_footer(path: Path, text: str) -> str:
 
     m = re.search(r'<footer\b[\s\S]*?</footer>', text, flags=re.I)
     if not m:
+        if path.relative_to(ROOT).as_posix() in {"404.html", "404/index.html"}:
+            return text
         raise SystemExit(f"Missing footer in {path.relative_to(ROOT)}")
     footer = m.group(0)
     for old in old_credits:
