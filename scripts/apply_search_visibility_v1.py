@@ -68,7 +68,6 @@ run_layer("apply_search_visibility_core_v1.py")
 # intermediate forms used by earlier validation layers.
 run_layer("apply_reader_assessment_v1.py")
 run_layer("apply_book_excerpt_v1.py")
-run_layer("apply_sunday_archive_v1.py")
 run_layer("apply_seo_followup_v1.py")
 run_layer("apply_menu_hierarchy_v1.py")
 # The reconstructed live homepage may carry inline links inside otherwise
@@ -96,7 +95,6 @@ for rel, definition in (
         print(f"removed legacy taxonomy-first definition from {rel}")
 
 print("OOLITA final soft-marketing state preserved; legacy transformer skipped.")
-run_layer("publish_sunday03_and_3d_preview_v1.py")
 run_layer("apply_engagement_depth_v1.py")
 # Keep the external research trail attached to the About material section.
 run_layer("apply_arena_archive_link_v1.py")
