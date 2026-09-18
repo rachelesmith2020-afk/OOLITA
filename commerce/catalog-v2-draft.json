@@ -6,7 +6,7 @@
       "product_key": "oolita-book",
       "name_es": "OOLITA · libro bilingüe",
       "name_en": "OOLITA · bilingual book",
-      "release_date": "2027-01-31",
+      "release_date": "2027-06-27",
       "stripe_product_id": null,
       "offers": {
         "es_eur": {
@@ -29,7 +29,7 @@
       "product_key": "oolita-textile-01",
       "name_es": "OOLITA · primera edición textil",
       "name_en": "OOLITA · first textile edition",
-      "release_date": "2027-04-11",
+      "release_date": "2027-07-25",
       "stripe_product_id": null,
       "offers": {
         "es_eur": {
