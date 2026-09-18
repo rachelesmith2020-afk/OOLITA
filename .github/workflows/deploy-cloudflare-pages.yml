@@ -489,11 +489,11 @@ jobs:
           base = "https://oolita.es"
           checks = {
               "/": (
-                  ("23.05.2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "16.09.27", "19.09.27"),
+                  ("23.05.2027", "00:00 CEST", "16.09.27", "19.09.27"),
                   (),
               ),
               "/en/": (
-                  ("23 May 2027", "00:00 CEST", "27 JUN 27", "25 JUL 27", "16 Sep 27", "19 Sep 27"),
+                  ("23 May 2027", "00:00 CEST", "16 Sep 27", "19 Sep 27"),
                   (),
               ),
               "/mundo-3d/": (
@@ -562,6 +562,83 @@ jobs:
           done
           echo "Canonical domain did not converge to the approved release calendar."
           exit 1
+
+      - name: Verify retired Sundays campaign is absent on canonical domain
+        id: live_sundays_retired
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          import re
+          import urllib.request
+          from urllib.parse import urlsplit
+
+          sha = os.environ["GITHUB_SHA"]
+          base = "https://oolita.es"
+          pages = (
+              "/",
+              "/en/",
+              "/carteles/",
+              "/en/posters/",
+              "/laberinto/",
+              "/en/labyrinth/",
+              "/mundo-3d/",
+              "/en/3d-world/",
+              "/sobre-oolita/",
+              "/en/about/",
+              "/ediciones/camiseta/",
+              "/en/editions/t-shirt/",
+          )
+          forbidden = (
+              re.compile(r"22\s+Sundays", re.I),
+              re.compile(r"22\s+domingos", re.I),
+              re.compile(r"22[- ]Sunday", re.I),
+              re.compile(r"03\.01\.(?:27|2027)", re.I),
+              re.compile(r"\b3 January(?: 2027)?\b", re.I),
+              re.compile(r"\b3 Jan(?:uary)?(?: 2027| 27)?\b", re.I),
+              re.compile(r"\b3 de enero(?: de 2027)?\b", re.I),
+              re.compile(r"\b03 (?:JAN|ENE) 27\b", re.I),
+              re.compile(r"Sunday by Sunday", re.I),
+              re.compile(r"domingo a domingo", re.I),
+              re.compile(r"href=[\"'][^\"']*/(?:domingos|en/sundays)/", re.I),
+              re.compile(r"cartel-03\.(?:avif|webp|png)", re.I),
+          )
+
+          for path in pages:
+              url = f"{base}{path}?retirement={sha}"
+              req = urllib.request.Request(
+                  url,
+                  headers={"Cache-Control": "no-cache", "User-Agent": "OOLITA-retirement-audit/1.0"},
+              )
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  html = response.read().decode("utf-8", "replace")
+              hits = [pattern.pattern for pattern in forbidden if pattern.search(html)]
+              if hits:
+                  raise SystemExit(f"{path}: retired campaign material remains: {hits!r}")
+
+          redirects = {
+              "/domingos/": "/",
+              "/domingos/03-la-memoria-del-mar/": "/",
+              "/en/sundays/": "/en/",
+              "/en/sundays/03-the-memory-of-the-sea/": "/en/",
+          }
+          for old_path, expected_path in redirects.items():
+              url = f"{base}{old_path}?retirement={sha}"
+              req = urllib.request.Request(
+                  url,
+                  headers={"Cache-Control": "no-cache", "User-Agent": "OOLITA-retirement-audit/1.0"},
+              )
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  final_path = urlsplit(response.geturl()).path
+              if final_path != expected_path:
+                  raise SystemExit(
+                      f"{old_path}: expected redirect to {expected_path!r}, got {final_path!r}"
+                  )
+
+          print("Canonical domain is free of the retired 22-Sundays / 3-January campaign.")
+          print("Legacy Sundays URLs redirect to the appropriate language homepage.")
+          PY
 
       - name: Verify corrected bilingual homepage is live on canonical domain
         id: live_home_copy
