@@ -300,14 +300,14 @@ WORLD_SUBS = (
 # --------------------------------------------------------------------------
 # 5 — the independence statement moves into the footer, on every page.
 # --------------------------------------------------------------------------
-FOOTER_ES = ('<span class="rot oolita-independence">OOLITA es un proyecto independiente. '
+FOOTER_ES = ('<div class="env"><span class="rot oolita-independence">OOLITA es un proyecto independiente. '
              'No está vinculado, respaldado, autorizado ni promovido por el Parque Natural '
              'de Cabo de Gata-Níjar, la Junta de Andalucía ni ninguna otra '
-             'administración.</span>')
-FOOTER_EN = ('<span class="rot oolita-independence">OOLITA is an independent project. '
+             'administración.</span></div>')
+FOOTER_EN = ('<div class="env"><span class="rot oolita-independence">OOLITA is an independent project. '
              'It is not connected to, endorsed by, authorised by or promoted by the '
              'Cabo de Gata-Níjar Natural Park, the Junta de Andalucía or any other '
-             'administration.</span>')
+             'administration.</span></div>')
 
 
 def apply_page(path: Path) -> None:
