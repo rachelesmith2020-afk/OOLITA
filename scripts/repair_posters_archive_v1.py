@@ -156,8 +156,15 @@ def patch(rel: str, *, en: bool) -> None:
     path.write_text(text, encoding="utf-8")
 
     final = path.read_text(encoding="utf-8")
-    if final.count('<figure class="cartel">') != 8:
+    final_main_match = main_re.search(final)
+    if not final_main_match:
+        raise SystemExit(f"{rel}: restored main element missing")
+    final_main = final_main_match.group(0)
+    if final_main.count('<figure class="cartel">') != 8:
         raise SystemExit(f"{rel}: expected 8 retained posters")
+    # At this early reconstruction stage the inherited shell/footer may still
+    # contain legacy Sunday navigation; the final retirement pass removes and
+    # validates the complete page. Validate only this restored poster archive.
     banned = (
         "22 Sundays", "22 domingos", "3 January", "3 de enero",
         "31 January", "31 de enero", "11 April", "11 de abril",
@@ -165,10 +172,10 @@ def patch(rel: str, *, en: bool) -> None:
         "/domingos/", "/en/sundays/",
     )
     for needle in banned:
-        if needle.lower() in final.lower():
-            raise SystemExit(f"{rel}: obsolete poster chronology survived: {needle}")
+        if needle.lower() in final_main.lower():
+            raise SystemExit(f"{rel}: obsolete poster chronology survived in archive: {needle}")
     for needle in ("23 May 2027", "27 June 2027") if en else ("23 de mayo de 2027", "27 de junio de 2027"):
-        if needle not in final:
+        if needle not in final_main:
             raise SystemExit(f"{rel}: required current date missing: {needle}")
 
 patch("carteles/index.html", en=False)
