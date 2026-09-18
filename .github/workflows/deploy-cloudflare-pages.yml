@@ -518,20 +518,20 @@ jobs:
             curl -fsS -H 'Cache-Control: no-cache' "$img_url" -o /tmp/oolita-ground-before.jpg || true
 
             if python3 - <<'PY'
-from pathlib import Path
+          from pathlib import Path
 
-checks = (
-    (Path("/tmp/oolita-lab-es.html"), "Linaje"),
-    (Path("/tmp/oolita-lab-en.html"), "Lineage"),
-)
-for path, next_heading in checks:
-    html = path.read_text(encoding="utf-8", errors="replace")
-    assert html.count('data-oolita-ground-before="true"') == 1
-    assert html.count('/laberinto/el-suelo-antes-photo.jpg') == 1
-    assert html.count('>el suelo antes<') == 1
-    assert html.count('>OOLITA · septiembre 2021<') == 1
-    assert html.index('data-oolita-ground-before="true"') < html.index(next_heading)
-PY
+          checks = (
+              (Path("/tmp/oolita-lab-es.html"), "Linaje"),
+              (Path("/tmp/oolita-lab-en.html"), "Lineage"),
+          )
+          for path, next_heading in checks:
+              html = path.read_text(encoding="utf-8", errors="replace")
+              assert html.count('data-oolita-ground-before="true"') == 1
+              assert html.count('/laberinto/el-suelo-antes-photo.jpg') == 1
+              assert html.count('>el suelo antes<') == 1
+              assert html.count('>OOLITA · septiembre 2021<') == 1
+              assert html.index('data-oolita-ground-before="true"') < html.index(next_heading)
+          PY
             then
               dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 /tmp/oolita-ground-before.jpg 2>/dev/null || true)"
               if [ "$dims" = "1200x1200" ]; then
