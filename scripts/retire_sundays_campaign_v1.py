@@ -192,6 +192,23 @@ def clean_html(path: Path) -> None:
     # primary pillar has already been converted to the existing 3D-world page.
     text = SUNDAY_LINK_RE.sub("", text)
 
+    # Some late site layers inject the archive route into shared navigation as
+    # plain href attributes after the original anchor markup has been assembled.
+    # No public page should retain a reference to the retired archive: route any
+    # such residual href to the appropriate language homepage.
+    text = re.sub(
+        r'href=(["\\'])(?:https://oolita\\.es)?/domingos(?:/[^"\\']*)?\\1',
+        r'href=\\1/\\1',
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        r'href=(["\\'])(?:https://oolita\\.es)?/en/sundays(?:/[^"\\']*)?\\1',
+        r'href=\\1/en/\\1',
+        text,
+        flags=re.I,
+    )
+
     # Remove retired archive imagery that was embedded outside archive pages.
     text = re.sub(
         r'<picture\b[^>]*>.*?/(?:domingos|en/sundays)/.*?</picture>',
