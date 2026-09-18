@@ -1,8 +1,8 @@
 export const BOOK = Object.freeze({
   productKey: 'oolita-book',
   isbn13: '9781066939800',
-  preorderOpensAt: '2027-01-03T00:00:00+01:00',
-  releaseAt: '2027-01-31T00:00:00Z',
+  preorderOpensAt: '2027-05-23T00:00:00+02:00',
+  releaseAt: '2027-06-27T00:00:00+02:00',
   routes: Object.freeze({
     GB: Object.freeze({
       provider: 'bookvault',

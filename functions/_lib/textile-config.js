@@ -1,6 +1,6 @@
 export const TEXTILE = Object.freeze({
   productKey: 'oolita-textile-01',
-  releaseAt: '2027-04-11T00:00:00+02:00',
+  releaseAt: '2027-07-25T00:00:00+02:00',
   country: 'GB',
   currency: 'gbp',
   provider: 'inner_sanctum_manual',

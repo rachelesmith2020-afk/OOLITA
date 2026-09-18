@@ -4,10 +4,10 @@ This is the operational source of truth for the physical OOLITA book checkout.
 
 ## Fixed publishing schedule
 
-- **2027-01-03 at 00:00 CET:** paid pre-order phase begins, aligned with the published 3D-world opening time.
-- **2027-01-31:** publication date; checkout phase becomes normal sale.
+- **2027-05-23 at 00:00 CEST:** paid pre-order phase begins, aligned with the published 3D-world opening time.
+- **2027-06-27:** publication date; checkout phase becomes normal sale.
 
-The dates are enforced server-side by `functions/_lib/commerce-config.js`. The pre-order timestamp is stored with an explicit `+01:00` offset so **00:00 CET** is unambiguous. Changing labels or links in static HTML cannot open checkout early.
+The dates are enforced server-side by `functions/_lib/commerce-config.js`. The pre-order timestamp is stored with an explicit `+02:00` offset so **00:00 CEST** is unambiguous. Changing labels or links in static HTML cannot open checkout early.
 
 ## UK pricing decision
 
@@ -47,9 +47,9 @@ The webhook signing secret is a Cloudflare secret and must never be committed to
 
 The book pages ship with an inert, hidden purchase control. The browser asks `GET /api/commerce-status` for the authoritative server phase and configured delivery routes before making that control usable.
 
-- Before **2027-01-03 at 00:00 CET**, the purchase control remains hidden and the existing email-notification CTA remains public.
-- From **2027-01-03 at 00:00 CET**, when at least one delivery route is fully configured, the label becomes **Reservar el libro / Pre-order the book**.
-- From **2027-01-31**, it becomes **Comprar el libro / Buy the book**.
+- Before **2027-05-23 at 00:00 CEST**, the purchase control remains hidden and the existing email-notification CTA remains public.
+- From **2027-05-23 at 00:00 CEST**, when at least one delivery route is fully configured, the label becomes **Reservar el libro / Pre-order the book**.
+- From **2027-06-27**, it becomes **Comprar el libro / Buy the book**.
 - The customer chooses **delivery country** before Stripe Checkout is created. Website language never determines fulfilment.
 - GB checkout asks for a postcode before Stripe opens because BookVault shipping is destination-dependent.
 - A supported but unconfigured country is shown as unavailable rather than routed to the wrong POD.
@@ -84,7 +84,7 @@ The selected tracked service's `DelTotal` is converted to pence and passed to St
 
 A route is not purchasable unless all of the following are true:
 
-- the time is **2027-01-03 00:00 CET** or later;
+- the time is **2027-05-23 00:00 CEST** or later;
 - the route exists and its adapter is implemented;
 - the Stripe secret key is configured;
 - a Stripe book Price ID is configured for the route currency;
