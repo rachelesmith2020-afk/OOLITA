@@ -59,6 +59,15 @@ def remove_para_containing(text: str, needle: str, *, page: str, required: bool 
     return text[:m.start()] + text[m.end():]
 
 
+def remove_exact_heading(text: str, target: str, *, page: str) -> str:
+    pattern = re.compile(r"<h2\\b[^>]*>.*?</h2>", re.I | re.S)
+    matches = [m for m in pattern.finditer(text) if plain(m.group(0)).strip().rstrip(".") == target.rstrip(".")]
+    if len(matches) != 1:
+        raise SystemExit(f"{page}: expected exactly one H2 {target!r}, found {len(matches)}")
+    m = matches[0]
+    return text[:m.start()] + text[m.end():]
+
+
 def dedupe_exact_paragraph(text: str, target: str, *, page: str) -> str:
     matches = [m for m in P_RE.finditer(text) if plain(m.group(0)).rstrip(".") == target.rstrip(".")]
     if len(matches) < 1:
@@ -120,9 +129,8 @@ def patch_home(rel: str, *, en: bool) -> None:
         stone_caption_new = "Loose stone, laid by hand. 2021."
         stone_detail = "The original labyrinth was created in 2021 at Los Escullos"
         stone_detail_new = (
-            "The original is at Los Escullos, inside Cabo de Gata-Níjar Natural Park, Almería. "
-            "Three metres of classical design, dry-laid in loose stone: no mortar, cutting or "
-            "excavation. It is not signposted or promoted as a destination."
+            "Three metres of classical design, dry-laid in loose stone in 2021: no mortar, cutting "
+            "or excavation. It is not signposted or promoted as a destination."
         )
         material_stone = "The 2021 labyrinth at Los Escullos was the starting point"
         digital_needle = "The third opens on 3 January 2027 at 00:00 CET."
@@ -159,8 +167,7 @@ def patch_home(rel: str, *, en: bool) -> None:
         stone_caption_new = "Piedra suelta, colocada a mano. 2021."
         stone_detail = "El laberinto original se creó en 2021 en Los Escullos"
         stone_detail_new = (
-            "El original está en Los Escullos, dentro del Parque Natural de Cabo de Gata-Níjar "
-            "(Almería). Tres metros de trazado clásico, piedra suelta colocada en seco: sin mortero, "
+            "Tres metros de trazado clásico, piedra suelta colocada en seco en 2021: sin mortero, "
             "cortes ni excavación. No se señaliza ni se promociona como destino."
         )
         material_stone = "El laberinto de 2021 fue el punto de partida"
@@ -199,14 +206,9 @@ def patch_home(rel: str, *, en: bool) -> None:
     text = replace_para_containing(text, paper_caption, paper_caption_new, page=rel)
     text = replace_para_containing(text, follow_needle, follow_new, page=rel)
 
-    if en:
-        text, count = re.subn(r"<h2\b([^>]*)>\s*Oolita\s*</h2>", r"<h2\1>Los Escullos</h2>", text, count=1, flags=re.I)
-        if count != 1:
-            raise SystemExit(f"{rel}: expected English homepage labyrinth H2 'Oolita' exactly once")
-    else:
-        # Spanish already carries the intended place-name heading; assert it.
-        if not re.search(r"<h2\b[^>]*>\s*Los Escullos\s*</h2>", text, re.I):
-            raise SystemExit(f"{rel}: expected Spanish homepage labyrinth H2 'Los Escullos'")
+    # The section kicker already says THE LABYRINTH / EL LABERINTO.
+    # Remove the redundant monumental place-name/title line rather than replacing it.
+    text = remove_exact_heading(text, "Oolita" if en else "Los Escullos", page=rel)
 
     for attr, key in (
         ("name", "description"),
@@ -256,6 +258,7 @@ checks = {
         "must": (
             "Un camino, un centro, un regreso: la misma senda pasa ahora al papel y al código.",
             "Piedra suelta, colocada a mano. 2021.",
+            "Tres metros de trazado clásico, piedra suelta colocada en seco en 2021:",
             "No se señaliza ni se promociona como destino.",
             "48 páginas · español e inglés.",
             "Elige sólo lo que quieras recibir.",
@@ -266,6 +269,7 @@ checks = {
             "Piedra. Papel. Código. Tres materiales, un camino.",
             "Los Escullos en 3D, desde el 3 de enero.",
             "para recibir un aviso cuando se abra el mundo",
+            ">Los Escullos</h2>",
         ),
         "manifestos": (
             "Una fábula de laberinto para días ruidosos",
@@ -276,10 +280,10 @@ checks = {
         "must": (
             "One path, one centre, one return: the same route now moves through paper and code.",
             "Loose stone, laid by hand. 2021.",
+            "Three metres of classical design, dry-laid in loose stone in 2021:",
             "It is not signposted or promoted as a destination.",
             "48 pages · Spanish and English.",
             "Choose only what you want to receive.",
-            ">Los Escullos</h2>",
         ),
         "banned": (
             "The three-metre stone labyrinth created at Los Escullos in 2021",
@@ -287,6 +291,7 @@ checks = {
             "Stone. Paper. Code. Three materials, one path.",
             "Los Escullos in 3D, from 3 January.",
             "to be notified when the world opens",
+            ">Los Escullos</h2>",
             ">Oolita</h2>",
         ),
         "manifestos": (
