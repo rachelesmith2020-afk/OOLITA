@@ -55,33 +55,6 @@ LEGACY_FIRMA_EN = (
     '<span class="rot">Hallazgo</span><span class="rot">Almería, Spain</span></div>'
 )
 
-CABO_FINAL = {
-    "cabo-de-gata/index.html": (
-        "OOLITA empieza con un solo laberinto en Los Escullos. Desde ese camino mira Cabo de Gata: "
-        "la piedra, el viento, el agua, las aves, la flora y la gente que vive y trabaja aquí."
-    ),
-    "en/cabo-de-gata/index.html": (
-        "OOLITA begins with one labyrinth at Los Escullos. From that path it looks at Cabo de Gata: "
-        "stone, wind, water, birds, flora and the people who live and work here."
-    ),
-}
-
-CABO_VARIANTS = {
-    "cabo-de-gata/index.html": (
-        "OOLITA empieza con un solo laberinto en Los Escullos. Desde ese camino mira Cabo de Gata: "
-        "la piedra, el viento, el agua, las aves, los materiales y la gente que trabaja aquí.",
-        "OOLITA empieza con un solo laberinto en Los Escullos. Alrededor de ese camino crece una práctica "
-        "editorial y de trabajo de campo que mira Cabo de Gata a través del arte, la observación, los materiales "
-        "y ediciones hechas con cuidado.",
-    ),
-    "en/cabo-de-gata/index.html": (
-        "OOLITA begins with one labyrinth at Los Escullos. From that path it looks at Cabo de Gata: "
-        "stone, wind, water, birds, materials and the people who work here.",
-        "OOLITA begins with one labyrinth at Los Escullos. Around that path, a publishing and fieldwork practice "
-        "is growing: looking at Cabo de Gata through art, observation, materials and carefully made editions.",
-    ),
-}
-
 CABO_SEO = {
     "cabo-de-gata/index.html": {
         "canonical": "https://oolita.es/cabo-de-gata/",
@@ -126,33 +99,16 @@ def local_target(href: str) -> Path | None:
 if not ROOT.is_dir():
     raise SystemExit(f"Missing built site: {ROOT}")
 
-# Final Cabo de Gata opening: replace either the current live wording or the
-# older growth-source wording. This runs after apply_growth_v1.py, so it cannot
-# be overwritten by that page generator during the normal production workflow.
-for rel, final_copy in CABO_FINAL.items():
+# Cabo de Gata public copy is authoritative in the current site. Do not rewrite
+# its opening here: this script is only a legacy-validator bridge. Validate the
+# bilingual canonical/hreflang and local targets, then leave reader-facing copy
+# unchanged.
+for rel, seo in CABO_SEO.items():
     path = ROOT / rel
     if not path.is_file():
         raise SystemExit(f"Missing Cabo de Gata page: {rel}")
     text = path.read_text(encoding="utf-8")
-    if final_copy not in text:
-        replaced = False
-        for old in CABO_VARIANTS[rel]:
-            if old in text:
-                text = text.replace(old, final_copy, 1)
-                replaced = True
-                break
-        if not replaced:
-            raise SystemExit(f"Unexpected Cabo de Gata opening state: {rel}")
-        path.write_text(text, encoding="utf-8")
 
-    text = path.read_text(encoding="utf-8")
-    if final_copy not in text:
-        raise SystemExit(f"Final Cabo de Gata wording missing: {rel}")
-    for old in CABO_VARIANTS[rel]:
-        if old in text:
-            raise SystemExit(f"Old Cabo de Gata wording still present: {rel}")
-
-    seo = CABO_SEO[rel]
     required_tags = [
         f'<link rel="canonical" href="{seo["canonical"]}">',
         f'<link rel="alternate" hreflang="es" href="{seo["es"]}">',
@@ -164,7 +120,7 @@ for rel, final_copy in CABO_FINAL.items():
             raise SystemExit(f"Cabo de Gata SEO/hreflang invariant missing in {rel}: {tag}")
 
     missing = []
-    for href in re.findall(r'href=["\']([^"\']+)["\']', text, flags=re.I):
+    for href in re.findall(r'href=["\\']([^"\\']+)["\\']', text, flags=re.I):
         target = local_target(href)
         if target is not None and not target.is_file():
             missing.append((href, target.relative_to(ROOT)))
@@ -172,7 +128,7 @@ for rel, final_copy in CABO_FINAL.items():
         detail = ", ".join(f"{href} -> {target}" for href, target in missing)
         raise SystemExit(f"Cabo de Gata local href would 404 in {rel}: {detail}")
 
-print("Cabo de Gata flora/live-and-work wording, SEO/hreflang and local hrefs verified.")
+print("Cabo de Gata reader copy preserved; SEO/hreflang and local hrefs verified.")
 
 # Remove the already-final homepage credit so the legacy audit can insert its
 # own historical intermediate credit exactly once. The later voice + attribution
