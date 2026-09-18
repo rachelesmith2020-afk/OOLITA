@@ -334,6 +334,12 @@ sitemap = ROOT / "sitemap.xml"
 if sitemap.is_file():
     text = sitemap.read_text(encoding="utf-8")
     text = re.sub(
+        r'/carteles/img/cartel-03\.(avif|webp|png)',
+        lambda match: f'/carteles/img/cartel-01.{match.group(1).lower()}',
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
         r'\s*<url>\s*<loc>https://oolita\.es/(?:domingos|en/sundays)(?:/[^<]*)?</loc>.*?</url>\s*',
         "\n",
         text,
