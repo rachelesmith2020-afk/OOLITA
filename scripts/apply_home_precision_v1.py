@@ -19,7 +19,7 @@ ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 BASE = "https://oolita.es"
 LASTMOD = "2026-09-18"
 
-P_RE = re.compile(r"<p\\b[^>]*>.*?</p>", re.I | re.S)
+P_RE = re.compile(r"<p\b[^>]*>.*?</p>", re.I | re.S)
 TAG_RE = re.compile(r"<[^>]+>", re.S)
 
 
@@ -40,7 +40,7 @@ def replace_para_containing(text: str, needle: str, new_inner: str, *, page: str
         raise SystemExit(f"{page}: expected exactly one paragraph containing {needle!r}, found {len(matches)}")
     m = matches[0]
     block = m.group(0)
-    opening = re.match(r"<p\\b[^>]*>", block, re.I)
+    opening = re.match(r"<p\b[^>]*>", block, re.I)
     if not opening:
         raise SystemExit(f"{page}: malformed paragraph for {needle!r}")
     replacement = opening.group(0) + new_inner + "</p>"
@@ -81,16 +81,16 @@ def dedupe_exact_paragraph(text: str, target: str, *, page: str) -> str:
 
 def set_meta(text: str, attr: str, key: str, value: str, *, page: str) -> str:
     pattern = re.compile(
-        rf"<meta\\b(?=[^>]*\\b{re.escape(attr)}=['\\\"]{re.escape(key)}['\\\"])[^>]*>",
+        rf'''<meta\b(?=[^>]*\b{re.escape(attr)}=["']{re.escape(key)}["'])[^>]*>''',
         re.I,
     )
     matches = list(pattern.finditer(text))
     if len(matches) != 1:
         raise SystemExit(f"{page}: expected one {attr}={key} meta tag, found {len(matches)}")
     tag = matches[0].group(0)
-    if re.search(r"\\bcontent=['\\\"][^'\\\"]*['\\\"]", tag, re.I):
+    if re.search(r'''\bcontent=["'][^"']*["']''', tag, re.I):
         new_tag = re.sub(
-            r"\\bcontent=(['\\\"])[^'\\\"]*\\1",
+            r'''\bcontent=(["'])[^"']*\1''',
             lambda m: f"content={m.group(1)}{value}{m.group(1)}",
             tag,
             count=1,
@@ -200,12 +200,12 @@ def patch_home(rel: str, *, en: bool) -> None:
     text = replace_para_containing(text, follow_needle, follow_new, page=rel)
 
     if en:
-        text, count = re.subn(r"<h2\\b([^>]*)>\\s*Oolita\\s*</h2>", r"<h2\\1>Los Escullos</h2>", text, count=1, flags=re.I)
+        text, count = re.subn(r"<h2\b([^>]*)>\s*Oolita\s*</h2>", r"<h2\1>Los Escullos</h2>", text, count=1, flags=re.I)
         if count != 1:
             raise SystemExit(f"{rel}: expected English homepage labyrinth H2 'Oolita' exactly once")
     else:
         # Spanish already carries the intended place-name heading; assert it.
-        if not re.search(r"<h2\\b[^>]*>\\s*Los Escullos\\s*</h2>", text, re.I):
+        if not re.search(r"<h2\b[^>]*>\s*Los Escullos\s*</h2>", text, re.I):
             raise SystemExit(f"{rel}: expected Spanish homepage labyrinth H2 'Los Escullos'")
 
     for attr, key in (
@@ -309,9 +309,9 @@ for rel, spec in checks.items():
         count = paragraphs.count(target.rstrip("."))
         if count != 1:
             raise SystemExit(f"{rel}: manifesto {target!r} occurs {count} times, expected 1")
-    if len(re.findall(r"<h1\\b", text, re.I)) != 1:
+    if len(re.findall(r"<h1\b", text, re.I)) != 1:
         raise SystemExit(f"{rel}: homepage must contain exactly one H1")
-    meta = re.search(r"<meta\\b(?=[^>]*\\bname=['\\\"]description['\\\"])[^>]*\\bcontent=['\\\"]([^'\\\"]*)['\\\"][^>]*>", text, re.I)
+    meta = re.search(r'''<meta\b(?=[^>]*\bname=["']description["'])[^>]*\bcontent=["']([^"']*)["'][^>]*>''', text, re.I)
     if not meta:
         raise SystemExit(f"{rel}: meta description missing")
     if len(unescape(meta.group(1))) > 160:
