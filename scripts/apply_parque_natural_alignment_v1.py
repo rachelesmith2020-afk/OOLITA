@@ -300,11 +300,11 @@ WORLD_SUBS = (
 # --------------------------------------------------------------------------
 # 5 — the independence statement moves into the footer, on every page.
 # --------------------------------------------------------------------------
-FOOTER_ES = ('<div class="env"><span class="rot oolita-independence">OOLITA es un proyecto independiente. '
+FOOTER_ES = ('<div class="env" style="margin-top:1.4rem"><span class="rot oolita-independence" style="display:block;line-height:2">OOLITA es un proyecto independiente. '
              'No está vinculado, respaldado, autorizado ni promovido por el Parque Natural '
              'de Cabo de Gata-Níjar, la Junta de Andalucía ni ninguna otra '
              'administración.</span></div>')
-FOOTER_EN = ('<div class="env"><span class="rot oolita-independence">OOLITA is an independent project. '
+FOOTER_EN = ('<div class="env" style="margin-top:1.4rem"><span class="rot oolita-independence" style="display:block;line-height:2">OOLITA is an independent project. '
              'It is not connected to, endorsed by, authorised by or promoted by the '
              'Cabo de Gata-Níjar Natural Park, the Junta de Andalucía or any other '
              'administration.</span></div>')
