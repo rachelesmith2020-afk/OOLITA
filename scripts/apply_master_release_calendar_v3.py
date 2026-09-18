@@ -163,6 +163,10 @@ HOME_BODY_REPLACEMENTS = {
             "The 3D world opens on 3 January 2027 at 00:00 CET",
             "The 3D world opens on 23 May 2027 at 00:00 CEST",
         ),
+        (
+            "The 3D world opens at 00:00 CET on 3 January 2027",
+            "The 3D world opens at 00:00 CEST on 23 May 2027",
+        ),
         ("the full path opens on 3 January.", "the full path opens on 23 May."),
         ("opens 3 Jan 27", "opens 23 May 27"),
         ("00:00 CET", "00:00 CEST"),
