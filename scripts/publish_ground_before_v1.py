@@ -51,42 +51,39 @@ style = """<style id="oolita-ground-before-style">
 .oolita-ground-before{
   width:min(100%,42rem);
   margin:0 auto;
-  container-type:inline-size;
 }
 .oolita-ground-before-frame{
-  position:relative;
   width:100%;
-  aspect-ratio:1/1;
-  overflow:hidden;
+  box-sizing:border-box;
   background:#F4EDE3;
+  padding:5.66% 6.30% 3.9%;
 }
 .oolita-ground-before img{
-  position:absolute;
-  left:6.30%;
-  top:5.66%;
-  width:87.56%;
-  height:84.21%;
-  object-fit:cover;
   display:block;
+  width:100%;
+  height:auto;
+  object-fit:cover;
   margin:0!important;
   border:0!important;
   border-radius:0!important;
   box-shadow:none!important;
 }
 .oolita-ground-before figcaption{
-  position:absolute;
-  inset:0;
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:1rem;
+  width:100%;
   margin:0;
+  padding:1rem 0 0;
   color:#4D4A46;
   font-family:"Instrument Sans",system-ui,sans-serif;
   font-style:normal;
-  pointer-events:none;
 }
 .oolita-ground-before-title{
-  position:absolute;
-  left:6.30%;
-  top:92.82%;
-  font-size:2.88cqw;
+  margin:0;
+  padding:0;
+  font-size:clamp(1rem,2.25vw,1.2rem);
   line-height:1;
   font-weight:400;
   letter-spacing:-.035em;
@@ -94,17 +91,17 @@ style = """<style id="oolita-ground-before-style">
   white-space:nowrap;
 }
 .oolita-ground-before-meta{
-  position:absolute;
-  right:6.38%;
-  top:94.02%;
-  font-size:1.53cqw;
+  margin:0 0 0 auto;
+  padding:0;
+  font-size:clamp(.58rem,1vw,.68rem);
   line-height:1;
   font-weight:400;
   letter-spacing:.045em;
   white-space:nowrap;
 }
-@media (max-width:640px){
+@media (max-width:560px){
   .oolita-ground-before{width:min(100%,34rem)}
+  .oolita-ground-before figcaption{padding-top:.8rem}
 }
 </style>"""
 
@@ -121,7 +118,7 @@ pages = (
 
 archive = lambda alt: (
     '<section class="tramo oolita-ground-before-section" data-oolita-archive="true">'
-    '<figure class="oolita-ground-before" data-oolita-ground-before="true" data-oolita-ground-before-version="approved-ratios-v2">'
+    '<figure class="oolita-ground-before" data-oolita-ground-before="true" data-oolita-ground-before-version="flush-caption-v3">'
     '<div class="oolita-ground-before-frame">'
     f'<img src="/laberinto/el-suelo-antes-photo.jpg" width="1200" height="1200" '
     f'loading="lazy" decoding="async" alt="{escape(alt, quote=True)}">'
@@ -179,8 +176,8 @@ for rel, alt in pages:
     # Fail closed on structure and copy.
     if page.count('data-oolita-ground-before="true"') != 1:
         raise SystemExit(f"Archive figure count invalid: {rel}")
-    if page.count('data-oolita-ground-before-version="approved-ratios-v2"') != 1:
-        raise SystemExit(f"Approved archive ratio marker missing: {rel}")
+    if page.count('data-oolita-ground-before-version="flush-caption-v3"') != 1:
+        raise SystemExit(f"Flush archive caption marker missing: {rel}")
     if page.count('/laberinto/el-suelo-antes-photo.jpg') != 1:
         raise SystemExit(f"Archive image src count invalid: {rel}")
     if page.count("el suelo antes") != 1:
