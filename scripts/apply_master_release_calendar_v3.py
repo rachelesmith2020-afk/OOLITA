@@ -126,6 +126,10 @@ HOME_BODY_REPLACEMENTS = {
             "El tercero abre el 3 de enero de 2027 a las 00:00 CET.",
             "El tercero abre el 23 de mayo de 2027 a las 00:00 CEST.",
         ),
+        (
+            "El mundo 3D abre el 3 de enero de 2027 a las 00:00 CET",
+            "El mundo 3D abre el 23 de mayo de 2027 a las 00:00 CEST",
+        ),
         ("el camino completo abre el 3 de enero.", "el camino completo abre el 23 de mayo."),
         ("abre 03.01.27", "abre 23.05.27"),
         ("00:00 CET", "00:00 CEST"),
@@ -154,6 +158,10 @@ HOME_BODY_REPLACEMENTS = {
         (
             "The third opens on 3 January 2027 at 00:00 CET.",
             "The third opens on 23 May 2027 at 00:00 CEST.",
+        ),
+        (
+            "The 3D world opens on 3 January 2027 at 00:00 CET",
+            "The 3D world opens on 23 May 2027 at 00:00 CEST",
         ),
         ("the full path opens on 3 January.", "the full path opens on 23 May."),
         ("opens 3 Jan 27", "opens 23 May 27"),
