@@ -527,6 +527,7 @@ jobs:
           for path, next_heading in checks:
               html = path.read_text(encoding="utf-8", errors="replace")
               assert html.count('data-oolita-ground-before="true"') == 1
+              assert html.count('data-oolita-ground-before-version="approved-ratios-v2"') == 1
               assert html.count('/laberinto/el-suelo-antes-photo.jpg') == 1
               assert html.count('>el suelo antes<') == 1
               assert html.count('>OOLITA · septiembre 2021<') == 1
