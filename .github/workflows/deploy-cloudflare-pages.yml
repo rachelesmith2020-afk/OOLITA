@@ -32,6 +32,7 @@ on:
       - 'scripts/apply_release_calendar_v1.py'
       - 'scripts/apply_release_calendar_v2.py'
       - 'scripts/apply_master_release_calendar_v3.py'
+      - 'scripts/repair_posters_archive_v1.py'
       - 'scripts/retire_sundays_campaign_v1.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
       - 'scripts/apply_follow_mobile_finish.py'
@@ -104,6 +105,7 @@ on:
       - 'scripts/apply_release_calendar_v1.py'
       - 'scripts/apply_release_calendar_v2.py'
       - 'scripts/apply_master_release_calendar_v3.py'
+      - 'scripts/repair_posters_archive_v1.py'
       - 'scripts/retire_sundays_campaign_v1.py'
       - 'scripts/apply_cloudflare_follow_v1.py'
       - 'scripts/apply_follow_mobile_finish.py'
@@ -253,14 +255,6 @@ jobs:
       - name: Apply final Cloudflare email-protection exclusion
         shell: bash
         run: python3 scripts/apply_cloudflare_follow_v1.py site
-
-      - name: Test Sunday publication gates
-        shell: bash
-        run: python3 scripts/test_sunday_publications.py
-
-      - name: Synchronize confirmed published Sunday archive
-        shell: bash
-        run: python3 scripts/publish_missing_sundays_v1.py site
 
       - name: Stop presenting the labyrinth as a destination
         shell: bash
@@ -419,14 +413,6 @@ jobs:
       - name: Apply final Cloudflare email-protection exclusion
         shell: bash
         run: python3 scripts/apply_cloudflare_follow_v1.py site
-
-      - name: Test Sunday publication gates
-        shell: bash
-        run: python3 scripts/test_sunday_publications.py
-
-      - name: Synchronize confirmed published Sunday archive
-        shell: bash
-        run: python3 scripts/publish_missing_sundays_v1.py site
 
       - name: Stop presenting the labyrinth as a destination
         shell: bash
