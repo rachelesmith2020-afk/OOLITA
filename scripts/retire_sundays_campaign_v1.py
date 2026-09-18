@@ -27,6 +27,7 @@ if not ROOT.is_dir():
 FLAGS = re.I | re.S
 
 OLD_DATE_REPLACEMENTS = (
+    # Longer forms precede abbreviations so "3 Jan" cannot mutate "3 January".
     ("2027-01-03T00:00:00+01:00", "2027-05-23T00:00:00+02:00"),
     ("2027-01-03T00:00:00Z", "2027-05-23T00:00:00+02:00"),
     ("2027-01-03", "2027-05-23"),
@@ -34,16 +35,45 @@ OLD_DATE_REPLACEMENTS = (
     ("03.01.27", "23.05.27"),
     ("03 JAN 27", "23 MAY 27"),
     ("03 ENE 27", "23 MAY 27"),
-    ("3 Jan 2027", "23 May 2027"),
-    ("3 Jan 27", "23 May 27"),
-    ("3 Jan", "23 May"),
-    ("03 Jan", "23 May"),
-    ("3 ene", "23 mayo"),
-    ("03 ene", "23 mayo"),
     ("3 January 2027", "23 May 2027"),
     ("3 January", "23 May"),
     ("3 de enero de 2027", "23 de mayo de 2027"),
     ("3 de enero", "23 de mayo"),
+    ("3 Jan 2027", "23 May 2027"),
+    ("3 Jan 27", "23 May 27"),
+    ("03 Jan", "23 May"),
+    ("3 Jan", "23 May"),
+    ("03 ene", "23 mayo"),
+    ("3 ene", "23 mayo"),
+    ("23 Mayuary", "23 May"),
+
+    ("2027-01-31T00:00:00+01:00", "2027-06-27T00:00:00+02:00"),
+    ("2027-01-31T00:00:00Z", "2027-06-27T00:00:00+02:00"),
+    ("2027-01-31", "2027-06-27"),
+    ("31.01.2027", "27.06.2027"),
+    ("31.01.27", "27.06.27"),
+    ("31 JAN 27", "27 JUN 27"),
+    ("31 ENE 27", "27 JUN 27"),
+    ("31 January 2027", "27 June 2027"),
+    ("31 January", "27 June"),
+    ("31 de enero de 2027", "27 de junio de 2027"),
+    ("31 de enero", "27 de junio"),
+    ("31 Jan 2027", "27 Jun 2027"),
+    ("31 Jan 27", "27 Jun 27"),
+
+    ("2027-04-11T00:00:00+02:00", "2027-07-25T00:00:00+02:00"),
+    ("2027-04-11", "2027-07-25"),
+    ("11.04.2027", "25.07.2027"),
+    ("11.04.27", "25.07.27"),
+    ("11 APR 27", "25 JUL 27"),
+    ("11 ABR 27", "25 JUL 27"),
+    ("11 April 2027", "25 July 2027"),
+    ("11 April", "25 July"),
+    ("11 de abril de 2027", "25 de julio de 2027"),
+    ("11 de abril", "25 de julio"),
+    ("11 Apr 2027", "25 Jul 2027"),
+    ("11 Apr 27", "25 Jul 27"),
+
     ("00:00 CET", "00:00 CEST"),
 )
 
@@ -63,6 +93,12 @@ NEUTRAL_REPLACEMENTS = (
     ("The nine posters", "The posters"),
     ("nueve carteles", "carteles"),
     ("nine posters", "posters"),
+    ("These nine typographic posters", "These typographic posters"),
+    ("these nine typographic posters", "these typographic posters"),
+    ("The nine typographic posters", "The typographic posters"),
+    ("Estos nueve carteles tipográficos", "Estos carteles tipográficos"),
+    ("estos nueve carteles tipográficos", "estos carteles tipográficos"),
+    ("Los nueve carteles tipográficos", "Los carteles tipográficos"),
     ("nueve láminas", "una serie de láminas"),
     ("nine plates", "a series of plates"),
     ("9 carteles", "Archivo bilingüe"),
@@ -209,6 +245,15 @@ def clean_html(path: Path) -> None:
     # second countdown concept.
     text = CAMPAIGN_P_RE.sub("", text)
     text = CAMPAIGN_SMALL_ELEMENT_RE.sub("", text)
+
+    # The poster archive used to end with a separate "every Sunday / series
+    # continues" CTA. There is no replacement campaign, so remove that block.
+    text = re.sub(
+        r'<section\b[^>]*>.*?(?:Y cada domingo|And every Sunday).*?</section>',
+        "",
+        text,
+        flags=FLAGS,
+    )
 
     # Any remaining links into the retired archive are removed. The homepage
     # primary pillar has already been converted to the existing 3D-world page.
