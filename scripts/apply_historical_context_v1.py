@@ -70,6 +70,8 @@ RULES = [
 ('laberinto caminable, land art', 'archivo del laberinto, land art'),
 ('Oolita is a three-metre classical labyrinth, laid by hand from loose stones in 2021. The ground around it is fragile: keep to the paths and leave the stones where they are.', 'Oolita began with a three-metre classical labyrinth, laid by hand from loose stones in 2021. This archive records the original work; it does not offer access to the installation.'),
 ('Oolita es un laberinto clásico de tres metros, trazado a mano con piedras sueltas en 2021. El entorno es frágil: permanece en los senderos y deja las piedras donde están.', 'Oolita nació de un laberinto clásico de tres metros, trazado a mano con piedras sueltas en 2021. El entorno es frágil: permanece en los senderos y deja las piedras donde están.'),
+('OOLITA tiene un solo laberinto y no hará otro. Alrededor de él vendrán publicaciones de campo, pequeñas ediciones textiles y colaboraciones hechas en Cabo de Gata.', 'OOLITA, el proyecto, crecerá a través de publicaciones de campo, pequeñas ediciones textiles y colaboraciones realizadas en Cabo de Gata.'),
+('OOLITA has one labyrinth and will not make another. Around it, the project will grow through field publications, small textile editions and collaborations made in Cabo de Gata.', 'OOLITA, the project, will grow through field publications, small textile editions and collaborations made in Cabo de Gata.'),
 ]
 
 NOTICE_ES = '<p class="parr" data-oolita-archive-context>OOLITA no señaliza el laberinto ni organiza visitas. La misma senda se camina en el libro y en el mundo 3D.</p>'
