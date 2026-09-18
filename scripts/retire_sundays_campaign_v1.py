@@ -195,6 +195,16 @@ def clean_html(path: Path) -> None:
             flags=re.I,
         )
 
+    # Poster 03 was the retired campaign artwork. Any residual metadata,
+    # preload or responsive-image reference must point at an existing neutral
+    # poster asset with the same encoding.
+    text = re.sub(
+        r'/carteles/img/cartel-03\.(avif|webp|png)',
+        lambda match: f'/carteles/img/cartel-01.{match.group(1).lower()}',
+        text,
+        flags=re.I,
+    )
+
     # Campaign paragraphs and labels are removed rather than rewritten into a
     # second countdown concept.
     text = CAMPAIGN_P_RE.sub("", text)
@@ -285,6 +295,12 @@ def clean_json_value(value):
         return out
     if isinstance(value, str):
         value = replace_dates(value)
+        value = re.sub(
+            r'/carteles/img/cartel-03\.(avif|webp|png)',
+            lambda match: f'/carteles/img/cartel-01.{match.group(1).lower()}',
+            value,
+            flags=re.I,
+        )
         for old, new in NEUTRAL_REPLACEMENTS:
             value = value.replace(old, new)
         value = re.sub(r'22[- ]Sunday(?:s)?', "project", value, flags=re.I)
@@ -373,6 +389,7 @@ forbidden_patterns = (
     re.compile(r'Sunday by Sunday', re.I),
     re.compile(r'domingo a domingo', re.I),
     re.compile(r'(?:href|src|srcset)=["\'][^"\']*/(?:domingos|en/sundays)/', re.I),
+    re.compile(r'cartel-03\.(?:avif|webp|png)', re.I),
     re.compile(r'2027-01-03', re.I),
     re.compile(r'03\.01\.2027', re.I),
     re.compile(r'03\.01\.27', re.I),
