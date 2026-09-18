@@ -459,7 +459,48 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npx --yes wrangler@latest pages deploy site --project-name=oolita --commit-dirty=true
+          npx --yes wrangler@latest pages deploy site --project-name=oolita --branch=main --commit-dirty=true
+
+      - name: Verify corrected bilingual homepage is live on canonical domain
+        id: live_home_copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          es_url="https://oolita.es/?deploy=$GITHUB_SHA"
+          en_url="https://oolita.es/en/?deploy=$GITHUB_SHA"
+          for attempt in $(seq 1 18); do
+            curl -fsS -H 'Cache-Control: no-cache' "$es_url" -o /tmp/oolita-es.html || true
+            curl -fsS -H 'Cache-Control: no-cache' "$en_url" -o /tmp/oolita-en.html || true
+
+            es_ok=0
+            en_ok=0
+            if grep -Fq 'Tres metros de trazado clásico, piedra suelta colocada en seco en 2021:' /tmp/oolita-es.html 2>/dev/null \
+               && ! grep -Eq '<h2[^>]*>[[:space:]]*Los Escullos[[:space:]]*</h2>' /tmp/oolita-es.html 2>/dev/null \
+               && ! grep -Fq 'El original está en Los Escullos' /tmp/oolita-es.html 2>/dev/null; then
+              es_ok=1
+            fi
+
+            if grep -Fq 'Three metres of classical design, dry-laid in loose stone in 2021:' /tmp/oolita-en.html 2>/dev/null \
+               && ! grep -Eq '<h2[^>]*>[[:space:]]*(Los Escullos|Oolita)[[:space:]]*</h2>' /tmp/oolita-en.html 2>/dev/null \
+               && ! grep -Fq 'The original is at Los Escullos' /tmp/oolita-en.html 2>/dev/null; then
+              en_ok=1
+            fi
+
+            if [ "$es_ok" = 1 ] && [ "$en_ok" = 1 ]; then
+              echo "Canonical domain is serving the corrected ES/EN homepage."
+              exit 0
+            fi
+
+            echo "Canonical homepage verification attempt $attempt not current yet."
+            sleep 5
+          done
+
+          echo 'Canonical domain is still serving stale homepage content.'
+          echo '--- Spanish evidence ---'
+          grep -E 'Los Escullos|Tres metros de trazado clásico|El original está' /tmp/oolita-es.html | head -n 20 || true
+          echo '--- English evidence ---'
+          grep -E 'Los Escullos|Oolita|Three metres of classical design|The original is at' /tmp/oolita-en.html | head -n 20 || true
+          exit 1
 
       - name: Configure canonical host redirect
         id: canonical_redirect
