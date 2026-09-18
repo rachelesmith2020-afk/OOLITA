@@ -197,14 +197,14 @@ def clean_html(path: Path) -> None:
     # No public page should retain a reference to the retired archive: route any
     # such residual href to the appropriate language homepage.
     text = re.sub(
-        r"href=([\"'])(?:https://oolita\\.es)?/domingos(?:/[^\"']*)?\\1",
-        r"href=\\1/\\1",
+        r"href=([\"'])(?:https://oolita\.es)?/domingos(?:/[^\"']*)?\1",
+        r"href=\1/\1",
         text,
         flags=re.I,
     )
     text = re.sub(
-        r"href=([\"'])(?:https://oolita\\.es)?/en/sundays(?:/[^\"']*)?\\1",
-        r"href=\\1/en/\\1",
+        r"href=([\"'])(?:https://oolita\.es)?/en/sundays(?:/[^\"']*)?\1",
+        r"href=\1/en/\1",
         text,
         flags=re.I,
     )
