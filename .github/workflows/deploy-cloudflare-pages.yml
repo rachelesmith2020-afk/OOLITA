@@ -63,6 +63,7 @@ on:
       - 'scripts/audit_live_seo_v1.py'
       - 'scripts/apply_visitor_pressure_v1.py'
       - 'scripts/apply_historical_context_v1.py'
+      - 'scripts/apply_home_precision_v1.py'
       - 'scripts/apply_parque_natural_alignment_v1.py'
       - 'scripts/apply_reader_paths_v1.py'
       - 'scripts/publish_ground_before_v1.py'
@@ -132,6 +133,7 @@ on:
       - 'scripts/audit_live_seo_v1.py'
       - 'scripts/apply_visitor_pressure_v1.py'
       - 'scripts/apply_historical_context_v1.py'
+      - 'scripts/apply_home_precision_v1.py'
       - 'scripts/apply_parque_natural_alignment_v1.py'
       - 'scripts/apply_reader_paths_v1.py'
       - 'scripts/publish_ground_before_v1.py'
@@ -273,6 +275,9 @@ jobs:
 
       - name: Apply approved bilingual historical context
         run: python3 scripts/apply_historical_context_v1.py site
+
+      - name: Apply final bilingual homepage precision
+        run: python3 scripts/apply_home_precision_v1.py site
 
       - name: Audit final static hrefs, sitemap, canonicals and hreflang
         shell: bash
@@ -442,10 +447,11 @@ jobs:
         shell: bash
         run: python3 scripts/configure_cloudflare_analytics.py
 
-      - name: Finalize bilingual historical context and verify integrity
+      - name: Finalize bilingual historical context, homepage precision and integrity
         shell: bash
         run: |
           python3 scripts/apply_historical_context_v1.py site
+          python3 scripts/apply_home_precision_v1.py site
           python3 scripts/audit_static_integrity_v1.py site
 
       - name: Deploy complete site to Cloudflare Pages
