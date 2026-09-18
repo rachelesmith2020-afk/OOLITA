@@ -199,4 +199,8 @@ python3 scripts/audit_static_integrity_v1.py site
 # Production propagation trigger: corrected bilingual consistency guard.
 # Production propagation trigger: row-scoped Sunday consistency validation.
 # Production propagation trigger: targeted detailed Sunday 03 repair.
+# Final public-calendar guard: retire the obsolete 22-Sundays / 3-January
+# campaign after every reconstruction, including direct/local builds.
+python3 scripts/retire_sundays_and_old_launch_v1.py site
+
 # Production propagation trigger: geology authority, editorial hrefs and final integrity gates.
