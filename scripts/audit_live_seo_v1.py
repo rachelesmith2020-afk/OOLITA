@@ -347,7 +347,7 @@ def main() -> None:
     # would be a stale audit straggler rather than a production-cache invariant.
     cache_probes = {
         BASE + "/fonts/instrument-sans-var-latin.woff2": (31536000, True),
-        BASE + "/domingos/img/03.jpg": (2592000, False),
+        BASE + "/carteles/img/cartel-01.png": (2592000, False),
     }
     for cache_url, (minimum_age, immutable) in cache_probes.items():
         cache_status, _, cache_headers, _, _ = request(cache_url, method="HEAD")
