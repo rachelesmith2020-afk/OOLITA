@@ -448,6 +448,21 @@ forbidden_patterns = (
     re.compile(r'\b3 Jan(?:uary)?(?: 2027| 27)?\b', re.I),
     re.compile(r'\b3 de enero(?: de 2027)?\b', re.I),
     re.compile(r'\b03 (?:JAN|ENE) 27\b', re.I),
+    re.compile(r'23 Mayuary', re.I),
+    re.compile(r'2027-01-31', re.I),
+    re.compile(r'31\.01\.(?:27|2027)', re.I),
+    re.compile(r'\b31 January(?: 2027)?\b', re.I),
+    re.compile(r'\b31 Jan(?:uary)?(?: 2027| 27)?\b', re.I),
+    re.compile(r'\b31 de enero(?: de 2027)?\b', re.I),
+    re.compile(r'2027-04-11', re.I),
+    re.compile(r'11\.04\.(?:27|2027)', re.I),
+    re.compile(r'\b11 April(?: 2027)?\b', re.I),
+    re.compile(r'\b11 Apr(?:il)?(?: 2027| 27)?\b', re.I),
+    re.compile(r'\b11 de abril(?: de 2027)?\b', re.I),
+    re.compile(r'And every Sunday', re.I),
+    re.compile(r'Y cada domingo', re.I),
+    re.compile(r'The series continues', re.I),
+    re.compile(r'La serie continúa', re.I),
 )
 bad = []
 for path in sorted(ROOT.rglob("*")):
