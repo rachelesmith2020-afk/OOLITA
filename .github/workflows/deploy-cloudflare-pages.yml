@@ -568,7 +568,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
+          for attempt in $(seq 1 18); do
+            if python3 - <<'PY'
           import os
           import re
           import urllib.request
@@ -639,6 +640,15 @@ jobs:
           print("Canonical domain is free of the retired 22-Sundays / 3-January campaign.")
           print("Legacy Sundays URLs redirect to the appropriate language homepage.")
           PY
+            then
+              echo "Canonical domain has converged to the retired-campaign state."
+              exit 0
+            fi
+            echo "Retired-campaign verification attempt $attempt not current yet."
+            sleep 5
+          done
+          echo "Canonical domain did not converge to the retired-campaign state."
+          exit 1
 
       - name: Verify corrected bilingual homepage is live on canonical domain
         id: live_home_copy
