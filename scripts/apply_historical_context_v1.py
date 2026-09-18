@@ -100,4 +100,23 @@ for path in sorted(ROOT.rglob('*.html')):
     if text != original:
         path.write_text(text, encoding='utf-8')
         changed += 1
+if not RESTORE:
+    approved_home = {
+        'index.html': 'OOLITA, el proyecto, crecerá a través de publicaciones de campo, pequeñas ediciones textiles y colaboraciones realizadas en Cabo de Gata.',
+        'en/index.html': 'OOLITA, the project, will grow through field publications, small textile editions and collaborations made in Cabo de Gata.',
+    }
+    rejected_home = {
+        'index.html': 'OOLITA tiene un solo laberinto y no hará otro.',
+        'en/index.html': 'OOLITA has one labyrinth and will not make another.',
+    }
+    for rel, approved in approved_home.items():
+        page = ROOT / rel
+        if not page.is_file():
+            raise SystemExit(f'Missing homepage while validating project-growth copy: {rel}')
+        current = page.read_text(encoding='utf-8')
+        if current.count(approved) != 1:
+            raise SystemExit(f'Approved homepage project-growth copy missing or duplicated: {rel}')
+        if rejected_home[rel] in current:
+            raise SystemExit(f'Rejected one-labyrinth homepage sentence remains: {rel}')
+
 print(f'Historical context: {changed} pages updated; restore={RESTORE}')
