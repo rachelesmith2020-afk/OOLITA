@@ -239,9 +239,9 @@ def remove_generic_sunday03_note(rel: str, marker: str) -> None:
 
 
 OLD_EN = "One list. Choose what you want to follow: the 3D world, books, field publications or textile editions."
-NEW_EN = "One list. The 3D opening, books, field publications and textile editions. Choose what you want to hear about. We write when there is something to tell you."
+NEW_EN = "A short list for the 3D world, the book, field publications and textile editions. Choose only what you want to receive."
 OLD_ES = "Una sola lista. Elige lo que quieres seguir: mundo 3D, libros, publicaciones de campo o ediciones textiles."
-NEW_ES = "Una sola lista. La apertura del mundo 3D, libros, publicaciones de campo y ediciones textiles. Elige lo que quieres recibir. Escribimos cuando hay algo que contar."
+NEW_ES = "Una lista breve para avisos del mundo 3D, el libro, las publicaciones de campo y las ediciones textiles. Elige sólo lo que quieras recibir."
 
 replace_state("en/index.html", OLD_EN, NEW_EN)
 replace_state("index.html", OLD_ES, NEW_ES)
