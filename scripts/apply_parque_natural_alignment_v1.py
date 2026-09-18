@@ -174,7 +174,7 @@ FAQ_SUBS = (
 # 2 — geo meta: the locality broadcast, and the empty pair left behind.
 # --------------------------------------------------------------------------
 GEO_META = re.compile(
-    r'\s*<meta\s+name=["\'](?:ICBM|geo\.position|geo\.placename)["\'][^>]*>',
+    r'\s*<meta\s+name=["\'](?:ICBM|geo\.position|geo\.placename|geo\.region)["\'][^>]*>',
     re.I,
 )
 
@@ -370,6 +370,7 @@ BANNED = (
     'name="ICBM"',
     'name="geo.position"',
     'name="geo.placename"',
+    'name="geo.region"',
     "separadas de Los Escullos por la distancia",
     "separated from Los Escullos by distance",
     "Geoparque UNESCO",
