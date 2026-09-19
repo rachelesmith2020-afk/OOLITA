@@ -44,14 +44,14 @@ def make_page(source: str, target: str, language: str) -> None:
             "02-the-cat-for-real": "03-the-memory-of-the-sea",
             "El gato, de verdad": "La memoria del mar",
             "The cat, for real": "The Memory of the Sea",
-            "Domingo 02 de 22": "Domingo 03 de 22",
-            "Domingo 02 de los 22": "Domingo 03 de los 22",
+            "Domingo 02": "Domingo 03 de 22",
+            "Domingo 02": "Domingo 03 de los 22",
             "16 de agosto de 2026": "23 de agosto de 2026",
             "2026-08-16T19:00:00+02:00": "2026-08-23T19:00:00+02:00",
             "/domingos/img/02": "/domingos/img/03",
         }
         article = """<article class="tramo">
-<span class="rot">Domingo 03 de 22 · 23 de agosto de 2026</span>
+<span class="rot">Domingo 03 · 23 de agosto de 2026</span>
 <h1 class="grande">La memoria del mar</h1>
 <p class="lema-en" lang="en">The Memory of the Sea</p>
 <p class="lema">La piedra guarda la memoria del mar.</p>
@@ -79,14 +79,14 @@ def make_page(source: str, target: str, language: str) -> None:
             "02-el-gato-de-verdad": "03-la-memoria-del-mar",
             "The cat, for real": "The Memory of the Sea",
             "El gato, de verdad": "La memoria del mar",
-            "Sunday 02 of 22": "Sunday 03 of 22",
-            "Sunday 02 of the 22": "Sunday 03 of the 22",
+            "Sunday 02": "Sunday 03 of 22",
+            "Sunday 02": "Sunday 03 of the 22",
             "16 August 2026": "23 August 2026",
             "2026-08-16T19:00:00+02:00": "2026-08-23T19:00:00+02:00",
             "/domingos/img/02": "/domingos/img/03",
         }
         article = """<article class="tramo">
-<span class="rot">Sunday 03 of 22 · 23 August 2026</span>
+<span class="rot">Sunday 03 · 23 August 2026</span>
 <h1 class="grande">The Memory of the Sea</h1>
 <p class="lema-en" lang="es">La memoria del mar</p>
 <p class="lema">The stone holds the memory of the sea.</p>
@@ -131,9 +131,9 @@ SUNDAY_SCHEMA = {
         "headline": "La memoria del mar",
         "alternativeHeadline": "The Memory of the Sea",
         "description": "La piedra guarda la memoria del mar: una historia breve sobre los oolitos, la duna fósil y el origen del nombre OOLITA.",
-        "section": "22 domingos",
+        "section": "Domingos",
         "language": "es",
-        "imageCaption": "Domingo 03 de la serie 22 domingos de OOLITA: La memoria del mar.",
+        "imageCaption": "Domingo 03 del archivo Domingos de OOLITA: La memoria del mar.",
         "crumbs": [
             ("OOLITA", "https://oolita.es/"),
             ("Domingos", "https://oolita.es/domingos/"),
@@ -145,9 +145,9 @@ SUNDAY_SCHEMA = {
         "headline": "The Memory of the Sea",
         "alternativeHeadline": "La memoria del mar",
         "description": "The stone holds the memory of the sea: a short story about ooids, the fossil dune and the origin of the name OOLITA.",
-        "section": "22 Sundays",
+        "section": "Sundays",
         "language": "en",
-        "imageCaption": "Sunday 03 of OOLITA's 22 Sundays series: The Memory of the Sea.",
+        "imageCaption": "Sunday 03 of OOLITA's Sundays archive: The Memory of the Sea.",
         "crumbs": [
             ("OOLITA", "https://oolita.es/en/"),
             ("Sundays", "https://oolita.es/en/sundays/"),
