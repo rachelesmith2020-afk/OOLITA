@@ -78,8 +78,8 @@ FRAMING_REPLACEMENTS = (
     ("22 DOMINGOS", "DOMINGOS"),
     ("22-Sunday", "Sunday"),
     ("22 Sunday", "Sunday"),
-    ("twenty-two Sundays", "the Sundays"),
-    ("veintidós domingos", "los domingos"),
+    ("twenty-two Sundays", "Sundays"),
+    ("veintidós domingos", "domingos"),
     ("Las veintidós juntas hacen el recorrido.", "Juntas hacen el recorrido."),
     ("The twenty-two together make the walk.", "Together they make the walk."),
 )
