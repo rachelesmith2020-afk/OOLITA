@@ -104,41 +104,46 @@ def generic_framing(text: str) -> str:
     return text
 
 def set_meta_content(text: str, key: str, value: str) -> str:
-    pattern = re.compile(
-        rf'(<meta\\b(?=[^>]*(?:name|property)=[\"\\\']{re.escape(key)}[\"\\\'])[^>]*\\bcontent=[\"\\\'])[^"\\\']*([\"\\\'][^>]*>)',
-        re.I,
-    )
-    return pattern.sub(lambda m: m.group(1) + value + m.group(2), text)
+    key_re = re.compile(rf'(?:name|property)=["\\\']{re.escape(key)}["\\\']', re.I)
+    content_re = re.compile(r'content=(["\\\']).*?\\1', re.I | re.S)
+
+    def patch_tag(match: re.Match[str]) -> str:
+        tag = match.group(0)
+        if not key_re.search(tag):
+            return tag
+        return content_re.sub(lambda m: f'content={m.group(1)}{value}{m.group(1)}', tag, count=1)
+
+    return re.sub(r'<meta\\b[^>]*>', patch_tag, text, flags=re.I)
 
 def patch_published_sunday_context(rel: str, text: str) -> str:
-    replacements = {
+    exact = {
         "domingos/01-el-doble/index.html": (
             (
-                r'<section\\b[^>]*>\\s*<span class="rot">La entrada</span>.*?</section>',
-                '<section class="tramo sunday-context-note"><span class="rot">La entrada</span><h2>El primer paso dentro.</h2><p class="parr">Domingo 01 abre el archivo. Desde aquí, una imagen nueva cada domingo conserva el ritmo del proyecto hasta la apertura del mundo 3D el 23 de mayo de 2027.</p></section>',
+                "Éste es el domingo uno de veintidós: la boca del laberinto, el único punto por el que se entra y por el que, cinco meses después, se saldrá. Desde aquí quedan veintiun domingos hasta la apertura del 23 de mayo, y diez hasta el centro. Un laberinto clásico no da a elegir nada en toda su longitud; la única decisión está aquí, en entrar. Lo que viene después es una imagen por semana, a la misma hora, hasta el final.",
+                "Domingo 01 abre el archivo. Desde aquí, una imagen nueva cada domingo conserva el ritmo del proyecto hasta la apertura del mundo 3D el 23 de mayo de 2027.",
             ),
         ),
         "en/sundays/01-the-double/index.html": (
             (
-                r'<section\\b[^>]*>\\s*<span class="rot">The entrance</span>.*?</section>',
-                '<section class="tramo sunday-context-note"><span class="rot">The entrance</span><h2>The first step inside.</h2><p class="parr">Sunday 01 opens the archive. From here, one new image each Sunday keeps the project\'s measured pace through to the 3D-world launch on 23 May 2027.</p></section>',
+                "This is Sunday one of twenty-two: the mouth of the labyrinth, the single point you enter by and, five months from now, leave by. Twenty-one Sundays remain until the opening on 23 May, and ten until the centre. A classical labyrinth offers no choice along its whole length; the only decision is here, in going in. Everything after this is one image a week, at the same hour, until it is done.",
+                "Sunday 01 opens the archive. From here, one new image each Sunday keeps the project's measured pace through to the 3D-world launch on 23 May 2027.",
             ),
         ),
         "domingos/02-el-gato-de-verdad/index.html": (
             (
-                r'<section\\b[^>]*>\\s*<span class="rot">Hacia dentro</span>.*?</section>',
-                '<section class="tramo sunday-context-note"><span class="rot">Hacia dentro</span><h2>El camino continúa.</h2><p class="parr">Domingo 02 continúa el archivo semanal. La numeración conserva el orden de publicación; cada entrada mantiene su fecha y su lugar en la serie hasta el 23 de mayo de 2027.</p></section>',
+                "Éste es el domingo 2, en los circuitos que llevan hacia dentro. Es el tramo más largo del trazado y el que más engaña: el camino se dobla sobre sí mismo y pasa cerca del centro varias veces sin llegar a él. Faltan 9 domingos para el centro y 20 para la salida. Aquí se aprende a no acelerar, porque acelerar no acorta nada.",
+                "Domingo 02 continúa el archivo semanal. La numeración conserva el orden de publicación; cada entrada mantiene su fecha y su lugar en la serie hasta el 23 de mayo de 2027.",
             ),
         ),
         "en/sundays/02-the-cat-for-real/index.html": (
             (
-                r'<section\\b[^>]*>\\s*<span class="rot">Inward</span>.*?</section>',
-                '<section class="tramo sunday-context-note"><span class="rot">Inward</span><h2>The path continues.</h2><p class="parr">Sunday 02 continues the weekly archive. The numbering preserves publication order; each entry keeps its date and place in the series through to 23 May 2027.</p></section>',
+                "This is Sunday 2, in the circuits that lead inward. It is the longest stretch of the drawing and the most deceptive: the path folds back on itself and passes close to the centre several times without arriving. 9 Sundays remain until the centre, 20 until the exit. This is where you learn not to hurry, because hurrying shortens nothing.",
+                "Sunday 02 continues the weekly archive. The numbering preserves publication order; each entry keeps its date and place in the series through to 23 May 2027.",
             ),
         ),
     }
-    for pattern, replacement in replacements.get(rel, ()):
-        text = re.sub(pattern, replacement, text, count=1, flags=re.I | re.S)
+    for old, new in exact.get(rel, ()):
+        text = text.replace(old, new)
 
     if rel == "domingos/03-la-memoria-del-mar/index.html":
         desc = "La piedra guarda la memoria del mar: oolitos, duna fósil y el origen del nombre OOLITA en Los Escullos, Cabo de Gata."
@@ -149,7 +154,6 @@ def patch_published_sunday_context(rel: str, text: str) -> str:
         for key in ("description", "og:description", "twitter:description"):
             text = set_meta_content(text, key, desc)
 
-    # Never let obsolete total-count arithmetic survive on published pages.
     banned = (
         "domingo uno de veintidós",
         "Sunday one of twenty-two",
