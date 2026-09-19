@@ -277,7 +277,7 @@ jobs:
         shell: bash
         run: python3 scripts/apply_master_release_calendar_v3.py site
 
-      - name: Retire 22 Sundays campaign and stale January launch references
+      - name: Preserve Sundays archive and retire stale launch framing
         shell: bash
         run: python3 scripts/retire_sundays_campaign_v1.py site
 
@@ -537,7 +537,7 @@ jobs:
           echo "Canonical domain did not converge to the approved release calendar."
           exit 1
 
-      - name: Verify retired Sundays campaign is absent on canonical domain
+      - name: Verify Sundays archive is preserved on canonical domain
         id: live_sundays_retired
         shell: bash
         run: |
@@ -576,7 +576,6 @@ jobs:
               re.compile(r"\b03 (?:JAN|ENE) 27\b", re.I),
               re.compile(r"Sunday by Sunday", re.I),
               re.compile(r"domingo a domingo", re.I),
-              re.compile(r"href=[\"'][^\"']*/(?:domingos|en/sundays)/", re.I),
               re.compile(r"cartel-03\.(?:avif|webp|png)", re.I),
           )
 
@@ -592,36 +591,45 @@ jobs:
               if hits:
                   raise SystemExit(f"{path}: retired campaign material remains: {hits!r}")
 
-          redirects = {
-              "/domingos/": "/",
-              "/domingos/03-la-memoria-del-mar/": "/",
-              "/en/sundays/": "/en/",
-              "/en/sundays/03-the-memory-of-the-sea/": "/en/",
-          }
-          for old_path, expected_path in redirects.items():
-              url = f"{base}{old_path}?retirement={sha}"
+          sunday_pages = (
+              "/domingos/",
+              "/en/sundays/",
+              "/domingos/01-el-doble/",
+              "/en/sundays/01-the-double/",
+              "/domingos/06-el-mapa/",
+              "/en/sundays/06-the-map/",
+          )
+          for path in sunday_pages:
+              url = f"{base}{path}?sundays={sha}"
               req = urllib.request.Request(
                   url,
-                  headers={"Cache-Control": "no-cache", "User-Agent": "OOLITA-retirement-audit/1.0"},
+                  headers={"Cache-Control": "no-cache", "User-Agent": "OOLITA-sundays-audit/1.0"},
               )
               with urllib.request.urlopen(req, timeout=20) as response:
+                  status = response.status
                   final_path = urlsplit(response.geturl()).path
-              if final_path != expected_path:
+                  html = response.read().decode("utf-8", "replace")
+              if status != 200 or final_path != path:
                   raise SystemExit(
-                      f"{old_path}: expected redirect to {expected_path!r}, got {final_path!r}"
+                      f"{path}: expected its own 200 page, got status={status} final={final_path!r}"
                   )
+              if path in {"/domingos/", "/en/sundays/"}:
+                  required = ("42", "23.05.2027")
+                  missing = [token for token in required if token not in html]
+                  if missing:
+                      raise SystemExit(f"{path}: preserved archive missing {missing!r}")
 
-          print("Canonical domain is free of the retired 22-Sundays / 3-January campaign.")
-          print("Legacy Sundays URLs redirect to the appropriate language homepage.")
+          print("Canonical domain is free of obsolete 22-part launch framing.")
+          print("Domingos / Sundays archive and published entry URLs return their own 200 pages.")
           PY
             then
-              echo "Canonical domain has converged to the retired-campaign state."
+              echo "Canonical domain has converged to the preserved-Sundays state."
               exit 0
             fi
-            echo "Retired-campaign verification attempt $attempt not current yet."
+            echo "Sundays-preservation verification attempt $attempt not current yet."
             sleep 5
           done
-          echo "Canonical domain did not converge to the retired-campaign state."
+          echo "Canonical domain did not converge to the preserved-Sundays state."
           exit 1
 
       - name: Verify corrected bilingual homepage is live on canonical domain
