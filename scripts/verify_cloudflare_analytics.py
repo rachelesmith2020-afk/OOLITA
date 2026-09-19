@@ -42,5 +42,15 @@ for env_name in ("production", "preview"):
     binding = bindings.get(BINDING)
     print(f"{env_name}_analytics_binding={binding!r}")
 print("Analytics binding state reported; deployment cleanup remains authoritative.")
+latest = project.get("latest_deployment") or {}
+trigger = latest.get("deployment_trigger") or {}
+metadata = trigger.get("metadata") or {}
+print(f"latest_deployment_id={latest.get('id')!r}")
+print(f"latest_environment={latest.get('environment')!r}")
+print(f"latest_url={latest.get('url')!r}")
+print(f"latest_created_on={latest.get('created_on')!r}")
+print(f"latest_commit_hash={metadata.get('commit_hash')!r}")
+print(f"latest_branch={metadata.get('branch')!r}")
+print(f"latest_stage={(latest.get('latest_stage') or {}).get('status')!r}")
 
 # Production propagation trigger: all six reviewed passes, exact-block Hallazgo fix, SEO/href/no-straggler verification.
