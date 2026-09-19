@@ -280,8 +280,29 @@ for page in sorted(ROOT.rglob("*.html")):
     # date, so launch-date replacement is safe there. Future entries are not yet
     # present in the build.
     text = replace_launch_dates(text)
+
+    # Poster 03 is the obsolete baked "22 DOMINGOS / 22 SUNDAYS" campaign art.
+    # Retire that one card without touching the Sunday publications themselves.
+    if rel in {"carteles/index.html", "en/posters/index.html"}:
+        for tag in ("article", "li", "figure"):
+            text = re.sub(
+                rf'<{tag}\\b[^>]*>.*?cartel-03\\.(?:avif|webp|png).*?</{tag}>',
+                "",
+                text,
+                flags=re.I | re.S,
+            )
+    text = re.sub(
+        r'/carteles/img/cartel-03\\.(avif|webp|png)',
+        lambda m: f'/carteles/img/cartel-01.{m.group(1).lower()}',
+        text,
+        flags=re.I,
+    )
+
     if text != original:
         page.write_text(text, encoding="utf-8")
+
+for ext in ("avif", "webp", "png"):
+    (ROOT / "carteles" / "img" / f"cartel-03.{ext}").unlink(missing_ok=True)
 
 for rel, lang in ARCHIVE_PATHS.items():
     patch_archive(ROOT / rel, lang)
