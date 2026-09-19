@@ -10,6 +10,20 @@ OOLITA combines place-based environmental research, bilingual publishing, digita
 
 The repository is used to manage the website as a live digital project rather than as a static portfolio. Work includes content maintenance, deployment, validation, accessibility, search, analytics and supporting web infrastructure.
 
+## Maintainer role
+
+The project is maintained by **Rachele Smith**. Day-to-day work includes:
+
+- researching and checking environmental and project information
+- preparing and reviewing English- and Spanish-language content
+- maintaining website content and code
+- using Git for version control and change tracking
+- managing Cloudflare-based deployment
+- reviewing changes against written requirements before publication
+- producing project documentation and maintaining structured digital records
+
+The repository reflects practical project maintenance rather than a claim of professional software-engineering specialization.
+
 ## Technical workflow
 
 The project uses a Git-based workflow with:
@@ -42,11 +56,11 @@ Reader-facing authored copy is intentionally controlled. The current content pol
 
 ## Skills demonstrated
 
-This project involves practical use of:
+This project provides evidence of practical work in:
 
+- research, evidence checking and documentation
 - Git and version-controlled workflows
 - website and content management
-- structured research and documentation
 - bilingual English/Spanish publishing
 - quality assurance and detailed procedural checking
 - Cloudflare-based deployment
@@ -55,7 +69,3 @@ This project involves practical use of:
 ## Website
 
 **https://oolita.es**
-
----
-
-Maintained by **Rachele Smith**.
