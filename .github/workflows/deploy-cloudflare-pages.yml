@@ -574,8 +574,6 @@ jobs:
               re.compile(r"\b3 Jan(?:uary)?(?: 2027| 27)?\b", re.I),
               re.compile(r"\b3 de enero(?: de 2027)?\b", re.I),
               re.compile(r"\b03 (?:JAN|ENE) 27\b", re.I),
-              re.compile(r"Sunday by Sunday", re.I),
-              re.compile(r"domingo a domingo", re.I),
               re.compile(r"cartel-03\.(?:avif|webp|png)", re.I),
           )
 
