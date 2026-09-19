@@ -14,6 +14,7 @@ from html import escape
 from pathlib import Path
 import re
 import sys
+import xml.etree.ElementTree as ET
 
 # Validation-only PR marker. Production behavior is unchanged.
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
@@ -468,6 +469,45 @@ for page in sorted(ROOT.rglob("*.html")):
 
 for ext in ("avif", "webp", "png"):
     (ROOT / "carteles" / "img" / f"cartel-03.{ext}").unlink(missing_ok=True)
+
+# Keep sitemap crawl signals aligned with this deployment. The retired poster 03
+# image must not remain advertised, and pages materially changed by this fix
+# should carry today's lastmod so crawlers can prioritize a refresh.
+sitemap = ROOT / "sitemap.xml"
+if sitemap.is_file():
+    ET.register_namespace("", "http://www.sitemaps.org/schemas/sitemap/0.9")
+    ET.register_namespace("xhtml", "http://www.w3.org/1999/xhtml")
+    ET.register_namespace("image", "http://www.google.com/schemas/sitemap-image/1.1")
+    tree = ET.parse(sitemap)
+    sm = "http://www.sitemaps.org/schemas/sitemap/0.9"
+    img = "http://www.google.com/schemas/sitemap-image/1.1"
+    changed_urls = {
+        "https://oolita.es/",
+        "https://oolita.es/en/",
+        "https://oolita.es/domingos/",
+        "https://oolita.es/en/sundays/",
+        "https://oolita.es/domingos/01-el-doble/",
+        "https://oolita.es/en/sundays/01-the-double/",
+        "https://oolita.es/domingos/02-el-gato-de-verdad/",
+        "https://oolita.es/en/sundays/02-the-cat-for-real/",
+        "https://oolita.es/domingos/03-la-memoria-del-mar/",
+        "https://oolita.es/en/sundays/03-the-memory-of-the-sea/",
+        "https://oolita.es/domingos/04-el-guardian/",
+        "https://oolita.es/en/sundays/04-the-guardian/",
+    }
+    for url_el in tree.getroot().findall(f"{{{sm}}}url"):
+        loc_el = url_el.find(f"{{{sm}}}loc")
+        loc = (loc_el.text or "").strip() if loc_el is not None else ""
+        if loc in changed_urls:
+            lastmod = url_el.find(f"{{{sm}}}lastmod")
+            if lastmod is None:
+                lastmod = ET.SubElement(url_el, f"{{{sm}}}lastmod")
+            lastmod.text = "2026-09-19"
+        for image_el in list(url_el.findall(f"{{{img}}}image")):
+            image_loc = image_el.find(f"{{{img}}}loc")
+            if image_loc is not None and "cartel-03." in (image_loc.text or ""):
+                url_el.remove(image_el)
+    tree.write(sitemap, encoding="utf-8", xml_declaration=True)
 
 for rel, lang in ARCHIVE_PATHS.items():
     patch_archive(ROOT / rel, lang)
