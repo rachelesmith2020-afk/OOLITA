@@ -429,6 +429,26 @@ for page in sorted(ROOT.rglob("*.html")):
     else:
         text = replace_launch_dates(text)
 
+    # Some legacy homepage builders split the countdown date around a span,
+    # so plain-text date replacement cannot see the complete old date. Keep
+    # the server-delivered HTML aligned with the rendered 23 May countdown.
+    if rel == "en/index.html":
+        text = re.sub(
+            r'(<p\\b[^>]*class=["\\\'][^"\\\']*\\bdia\\b[^"\\\']*["\\\'][^>]*>)\\s*3\\s+Jan\\s*(<span\\b[^>]*>\\s*2027\\s*</span>)',
+            r'\\g<1>23 May \\g<2>',
+            text,
+            count=1,
+            flags=re.I | re.S,
+        )
+    elif rel in {"index.html", "404.html", "404/index.html"}:
+        text = re.sub(
+            r'(<p\\b[^>]*class=["\\\'][^"\\\']*\\bdia\\b[^"\\\']*["\\\'][^>]*>)\\s*03\\.01\\.\\s*(<span\\b[^>]*>\\s*2027\\s*</span>)',
+            r'\\g<1>23.05.\\g<2>',
+            text,
+            count=1,
+            flags=re.I | re.S,
+        )
+
     # Poster 03 is the obsolete baked "22 DOMINGOS / 22 SUNDAYS" campaign art.
     # Retire that one card without touching the Sunday publications themselves.
     if rel in {"carteles/index.html", "en/posters/index.html"}:
