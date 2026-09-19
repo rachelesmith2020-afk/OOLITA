@@ -103,6 +103,68 @@ def generic_framing(text: str) -> str:
         text = text.replace(old, new)
     return text
 
+def set_meta_content(text: str, key: str, value: str) -> str:
+    pattern = re.compile(
+        rf'(<meta\\b(?=[^>]*(?:name|property)=[\"\\\']{re.escape(key)}[\"\\\'])[^>]*\\bcontent=[\"\\\'])[^"\\\']*([\"\\\'][^>]*>)',
+        re.I,
+    )
+    return pattern.sub(lambda m: m.group(1) + value + m.group(2), text)
+
+def patch_published_sunday_context(rel: str, text: str) -> str:
+    replacements = {
+        "domingos/01-el-doble/index.html": (
+            (
+                r'<section\\b[^>]*>\\s*<span class="rot">La entrada</span>.*?</section>',
+                '<section class="tramo sunday-context-note"><span class="rot">La entrada</span><h2>El primer paso dentro.</h2><p class="parr">Domingo 01 abre el archivo. Desde aquí, una imagen nueva cada domingo conserva el ritmo del proyecto hasta la apertura del mundo 3D el 23 de mayo de 2027.</p></section>',
+            ),
+        ),
+        "en/sundays/01-the-double/index.html": (
+            (
+                r'<section\\b[^>]*>\\s*<span class="rot">The entrance</span>.*?</section>',
+                '<section class="tramo sunday-context-note"><span class="rot">The entrance</span><h2>The first step inside.</h2><p class="parr">Sunday 01 opens the archive. From here, one new image each Sunday keeps the project\'s measured pace through to the 3D-world launch on 23 May 2027.</p></section>',
+            ),
+        ),
+        "domingos/02-el-gato-de-verdad/index.html": (
+            (
+                r'<section\\b[^>]*>\\s*<span class="rot">Hacia dentro</span>.*?</section>',
+                '<section class="tramo sunday-context-note"><span class="rot">Hacia dentro</span><h2>El camino continúa.</h2><p class="parr">Domingo 02 continúa el archivo semanal. La numeración conserva el orden de publicación; cada entrada mantiene su fecha y su lugar en la serie hasta el 23 de mayo de 2027.</p></section>',
+            ),
+        ),
+        "en/sundays/02-the-cat-for-real/index.html": (
+            (
+                r'<section\\b[^>]*>\\s*<span class="rot">Inward</span>.*?</section>',
+                '<section class="tramo sunday-context-note"><span class="rot">Inward</span><h2>The path continues.</h2><p class="parr">Sunday 02 continues the weekly archive. The numbering preserves publication order; each entry keeps its date and place in the series through to 23 May 2027.</p></section>',
+            ),
+        ),
+    }
+    for pattern, replacement in replacements.get(rel, ()):
+        text = re.sub(pattern, replacement, text, count=1, flags=re.I | re.S)
+
+    if rel == "domingos/03-la-memoria-del-mar/index.html":
+        desc = "La piedra guarda la memoria del mar: oolitos, duna fósil y el origen del nombre OOLITA en Los Escullos, Cabo de Gata."
+        for key in ("description", "og:description", "twitter:description"):
+            text = set_meta_content(text, key, desc)
+    elif rel == "en/sundays/03-the-memory-of-the-sea/index.html":
+        desc = "The stone holds the memory of the sea: ooids, the fossil dune and the origin of the name OOLITA at Los Escullos, Cabo de Gata."
+        for key in ("description", "og:description", "twitter:description"):
+            text = set_meta_content(text, key, desc)
+
+    # Never let obsolete total-count arithmetic survive on published pages.
+    banned = (
+        "domingo uno de veintidós",
+        "Sunday one of twenty-two",
+        "veintiun domingos hasta la apertura",
+        "Twenty-one Sundays remain until the opening",
+        "Faltan 9 domingos para el centro",
+        "9 Sundays remain until the centre",
+        "20 para la salida",
+        "20 until the exit",
+    )
+    for token in banned:
+        if token.lower() in text.lower():
+            raise SystemExit(f"Obsolete Sunday arithmetic survived in {rel}: {token!r}")
+    return text
+
 def replace_launch_dates(text: str) -> str:
     for old, new in DATE_REPLACEMENTS:
         text = text.replace(old, new)
@@ -230,7 +292,7 @@ def patch_archive(path: Path, lang: str) -> None:
         flags=re.S,
     )
     text = re.sub(
-        r"The numbering is not decorative\..*?Walking the labyrinth and reading the series are the same gesture at a different speed\.",
+        r"The numbering is not (?:decorative|decoration)\..*?Walking the labyrinth and reading the series are the same gesture at different speeds?\.",
         "The numbering preserves publication order: each Sunday keeps its date and remains in the archive. Reading the series is another way of moving through the project.",
         text,
         flags=re.S,
@@ -282,14 +344,23 @@ def patch_archive(path: Path, lang: str) -> None:
         rows = pending_rows(lang)
         text = text[:match.end()] + "\n" + rows + text[match.end():]
 
-    # Current-facing headings and metadata.
+    # Current-facing headings and metadata across ordinary, Open Graph and Twitter surfaces.
     title = "Sundays — OOLITA archive to launch" if en else "Domingos — archivo OOLITA hasta la apertura"
-    text = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", text, count=1, flags=re.S)
-    text = re.sub(r'(<meta\s+name="description"\s+content=")[^"]*(")', lambda m: m.group(1) + (
+    description = (
         "One image every Sunday from 9 August 2026 to the OOLITA 3D-world launch on 23 May 2027. Bilingual archive."
         if en else
         "Una imagen cada domingo desde el 9 de agosto de 2026 hasta la apertura del mundo 3D de OOLITA el 23 de mayo de 2027. Archivo bilingüe."
-    ) + m.group(2), text, count=1)
+    )
+    text = re.sub(r"<title[^>]*>.*?</title>", f"<title>{title}</title>", text, count=1, flags=re.I | re.S)
+    for key in ("description", "og:description", "twitter:description"):
+        text = set_meta_content(text, key, description)
+    for key in ("og:title", "twitter:title"):
+        text = set_meta_content(text, key, title)
+
+    for stale in ("3 January 2027", "3 de enero de 2027", "03.01.2027"):
+        head = text.split("</head>", 1)[0]
+        if stale in head:
+            raise SystemExit(f"Stale launch metadata survived in {path.relative_to(ROOT)}: {stale}")
 
     path.write_text(text, encoding="utf-8")
 
@@ -339,6 +410,9 @@ for page in sorted(ROOT.rglob("*.html")):
         text,
         flags=re.I,
     )
+
+    if sunday_number is not None and sunday_number <= 6:
+        text = patch_published_sunday_context(rel, text)
 
     if text != original:
         page.write_text(text, encoding="utf-8")
