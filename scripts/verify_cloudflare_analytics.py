@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 import urllib.error
 import urllib.request
 
@@ -86,5 +88,31 @@ for path in sunday_paths:
         if "42" not in body or "2027-05-23" not in body:
             raise SystemExit(f"Sunday archive framing incomplete: {target}")
     print(f"sunday_route_ok={path}")
+
+# Run the production-wide fail-closed SEO crawler used by the post-deploy job.
+subprocess.run(
+    [sys.executable, "scripts/audit_live_seo_v1.py", "https://oolita.es"],
+    check=True,
+)
+
+# Verify a genuine missing route remains a 404 with no redirect.
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+probe = "https://oolita.es/__oolita-final-seo-404-probe-3292419/"
+opener = urllib.request.build_opener(NoRedirect())
+try:
+    opener.open(
+        urllib.request.Request(probe, headers={"User-Agent": "OOLITA final 404 audit/1.0"}),
+        timeout=30,
+    )
+    raise SystemExit("404 probe unexpectedly returned success")
+except urllib.error.HTTPError as exc:
+    if exc.code != 404:
+        raise SystemExit(f"404 probe returned {exc.code}, expected 404")
+    if exc.headers.get("Location"):
+        raise SystemExit(f"404 probe redirected to {exc.headers.get('Location')}")
+print("live_404_ok=404-no-redirect")
 
 # Production propagation trigger: all six reviewed passes, exact-block Hallazgo fix, SEO/href/no-straggler verification.
