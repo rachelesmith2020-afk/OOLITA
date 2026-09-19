@@ -1,33 +1,38 @@
 #!/usr/bin/env python3
-"""Retire the obsolete 22-Sundays launch campaign from the built OOLITA site.
+"""Preserve OOLITA's Sunday archive while retiring the obsolete 22-Sundays launch framing.
 
-This is deliberately a final deployment layer. Older reconstruction scripts may
-still know how to rebuild the historical Sundays archive, but the public site
-must no longer expose that campaign or the superseded 3 January 2027 launch
-date.
-
-Public state after this pass:
-- 3D world: 23 May 2027, 00:00 CEST.
-- No 22 Sundays / 22 domingos campaign copy, navigation or archive pages.
-- Legacy Sunday URLs redirect permanently to the appropriate language homepage.
-- Poster 03 (the "22 DOMINGOS / 22 SUNDAYS" artwork) is not published.
+The archive name is now simply Domingos / Sundays. The sequence begins on
+9 August 2026 and continues every Sunday through the 3D-world launch on
+23 May 2027: 42 Sundays in total. Existing published entries and URLs are
+preserved. This final deployment layer removes obsolete 22-part framing and
+updates launch-facing copy without rewriting legitimate Sunday publication dates.
 """
 from __future__ import annotations
 
+from datetime import date, timedelta
+from html import escape
 from pathlib import Path
-import json
 import re
-import shutil
 import sys
 
 ROOT = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
 if not ROOT.is_dir():
     raise SystemExit(f"Missing built site: {ROOT}")
 
-FLAGS = re.I | re.S
+START = date(2026, 8, 9)
+LAUNCH = date(2027, 5, 23)
+TOTAL = 42
+if START + timedelta(weeks=TOTAL - 1) != LAUNCH:
+    raise SystemExit("Sunday calendar invariant failed")
 
-OLD_DATE_REPLACEMENTS = (
-    # Longer forms precede abbreviations so "3 Jan" cannot mutate "3 January".
+ARCHIVE_PATHS = {
+    "domingos/index.html": "es",
+    "en/sundays/index.html": "en",
+}
+
+# These substitutions are safe outside the Sunday archive itself, where
+# 03.01.27 remains a legitimate publication date for Sunday 22.
+DATE_REPLACEMENTS = (
     ("2027-01-03T00:00:00+01:00", "2027-05-23T00:00:00+02:00"),
     ("2027-01-03T00:00:00Z", "2027-05-23T00:00:00+02:00"),
     ("2027-01-03", "2027-05-23"),
@@ -41,14 +46,7 @@ OLD_DATE_REPLACEMENTS = (
     ("3 de enero", "23 de mayo"),
     ("3 Jan 2027", "23 May 2027"),
     ("3 Jan 27", "23 May 27"),
-    ("03 Jan", "23 May"),
-    ("3 Jan", "23 May"),
-    ("03 ene", "23 mayo"),
-    ("3 ene", "23 mayo"),
-    ("23 Mayuary", "23 May"),
-
     ("2027-01-31T00:00:00+01:00", "2027-06-27T00:00:00+02:00"),
-    ("2027-01-31T00:00:00Z", "2027-06-27T00:00:00+02:00"),
     ("2027-01-31", "2027-06-27"),
     ("31.01.2027", "27.06.2027"),
     ("31.01.27", "27.06.27"),
@@ -58,9 +56,6 @@ OLD_DATE_REPLACEMENTS = (
     ("31 January", "27 June"),
     ("31 de enero de 2027", "27 de junio de 2027"),
     ("31 de enero", "27 de junio"),
-    ("31 Jan 2027", "27 Jun 2027"),
-    ("31 Jan 27", "27 Jun 27"),
-
     ("2027-04-11T00:00:00+02:00", "2027-07-25T00:00:00+02:00"),
     ("2027-04-11", "2027-07-25"),
     ("11.04.2027", "25.07.2027"),
@@ -71,436 +66,273 @@ OLD_DATE_REPLACEMENTS = (
     ("11 April", "25 July"),
     ("11 de abril de 2027", "25 de julio de 2027"),
     ("11 de abril", "25 de julio"),
-    ("11 Apr 2027", "25 Jul 2027"),
-    ("11 Apr 27", "25 Jul 27"),
-
     ("00:00 CET", "00:00 CEST"),
 )
 
-NEUTRAL_REPLACEMENTS = (
-    ("Seguir el camino hasta el 3 de enero", "Explorar OOLITA"),
-    ("Follow the path to 3 January", "Explore OOLITA"),
-    ("El camino, domingo a domingo.", "Los Escullos en el navegador."),
-    ("The path, one Sunday at a time.", "Los Escullos in the browser."),
-    ("Los Escullos en 3D, desde el 3 de enero.", "El mundo 3D abre el 23 de mayo de 2027."),
-    ("Los Escullos in 3D, from 3 January.", "The 3D world opens on 23 May 2027."),
-    ("oolita.es abre el 23 de mayo.", "El mundo 3D de OOLITA abre el 23 de mayo."),
-    ("oolita.es opens on 23 May.", "The OOLITA 3D world opens on 23 May."),
-    ("@oolita.es · una imagen cada domingo ↗", "@oolita.es ↗"),
-    ("@oolita.es · one image every Sunday ↗", "@oolita.es ↗"),
-    ("Los nueve carteles de la apertura de la cuenta", "Los carteles que abrieron la cuenta"),
-    ("The nine posters that opened the account", "The posters that opened the account"),
-    ("The nine posters — the opening of OOLITA", "The posters — OOLITA"),
-    ("Los nueve carteles", "Los carteles"),
-    ("The nine posters", "The posters"),
-    ("nueve carteles", "carteles"),
-    ("nine posters", "posters"),
-    ("These nine typographic posters", "These typographic posters"),
-    ("these nine typographic posters", "these typographic posters"),
-    ("The nine typographic posters", "The typographic posters"),
-    ("Estos nueve carteles tipográficos", "Estos carteles tipográficos"),
-    ("estos nueve carteles tipográficos", "estos carteles tipográficos"),
-    ("Los nueve carteles tipográficos", "Los carteles tipográficos"),
-    ("nueve láminas", "una serie de láminas"),
-    ("nine plates", "a series of plates"),
-    ("9 carteles", "Archivo bilingüe"),
-    ("9 posters", "Bilingual archive"),
-    ("Cada domingo aparece un poco más del diseño.", "El diseño se irá revelando poco a poco hasta el verano."),
-    ("Each Sunday a little more of the design appears.", "The design will be revealed gradually through to summer."),
-    ("Detalles e historia · domingo a domingo", "Detalles e historia · revelados poco a poco"),
-    ("Details and story · Sunday by Sunday", "Details and story · revealed gradually"),
-    ("domingo a domingo hasta el verano.", "poco a poco hasta el verano."),
-    ("Sunday by Sunday through to summer.", "gradually through to summer."),
+FRAMING_REPLACEMENTS = (
+    ("22 domingos de OOLITA", "Domingos de OOLITA"),
+    ("22 Sundays of OOLITA", "Sundays of OOLITA"),
+    ("22 domingos", "Domingos"),
+    ("22 Sundays", "Sundays"),
+    ("22 SUNDAYS", "SUNDAYS"),
+    ("22 DOMINGOS", "DOMINGOS"),
+    ("22-Sunday", "Sunday"),
+    ("22 Sunday", "Sunday"),
+    ("twenty-two Sundays", "the Sundays"),
+    ("veintidós domingos", "los domingos"),
+    ("Las veintidós juntas hacen el recorrido.", "Juntas hacen el recorrido."),
+    ("The twenty-two together make the walk.", "Together they make the walk."),
 )
 
-CAMPAIGN_P_RE = re.compile(
-    r'<p\b[^>]*>(?:(?!</p>).)*?'
-    r'(?:22\s*(?:Sundays|domingos)|22[- ]Sunday|'
-    r'twenty[- ]two\s+Sundays|veintid[oó]s\s+domingos|'
-    r'one image (?:every Sunday|each Sunday|a week)|'
-    r'una imagen (?:cada domingo|cada semana)|'
-    r'one Sunday at a time|domingo a domingo|'
-    r'archive grows each Sunday|archivo crece cada domingo|'
-    r'Sundays eleven and twelve|domingos once y doce)'
-    r'(?:(?!</p>).)*?</p>',
-    FLAGS,
-)
+def sunday_dates():
+    for n in range(1, TOTAL + 1):
+        d = START + timedelta(weeks=n - 1)
+        yield n, d, d.strftime("%d.%m")
 
-CAMPAIGN_SMALL_ELEMENT_RE = re.compile(
-    r'<(?P<tag>h[1-6]|span|li)\b[^>]*>(?:(?!</(?P=tag)>).)*?'
-    r'(?:22\s*(?:Sundays|domingos)|22[- ]Sunday|'
-    r'twenty[- ]two\s+Sundays|veintid[oó]s\s+domingos)'
-    r'(?:(?!</(?P=tag)>).)*?</(?P=tag)>',
-    FLAGS,
-)
+def strip_total_from_entry_labels(text: str) -> str:
+    text = re.sub(r"\bDomingo\s+(\d{1,2})\s+de\s+(?:los\s+)?22\b", r"Domingo \1", text, flags=re.I)
+    text = re.sub(r"\bSunday\s+(\d{1,2})\s+of\s+(?:the\s+)?22\b", r"Sunday \1", text, flags=re.I)
+    text = re.sub(r"\bdomingo\s+(\d{1,2})\s+de\s+veintid[oó]s\b", r"domingo \1", text, flags=re.I)
+    text = re.sub(r"\bSunday\s+(\d{1,2})\s+of\s+twenty[- ]two\b", r"Sunday \1", text, flags=re.I)
+    return text
 
-SUNDAY_LINK_RE = re.compile(
-    r'<a\b[^>]*href=["\'](?:https://oolita\.es)?/'
-    r'(?:domingos|en/sundays)(?:/[^"\']*)?["\'][^>]*>.*?</a>',
-    FLAGS,
-)
-
-PILAR_ES_RE = re.compile(
-    r'<a\b(?=[^>]*class=["\'][^"\']*\bpilar\b[^"\']*["\'])'
-    r'(?=[^>]*href=["\']/domingos/?["\'])[^>]*>.*?</a>',
-    FLAGS,
-)
-PILAR_EN_RE = re.compile(
-    r'<a\b(?=[^>]*class=["\'][^"\']*\bpilar\b[^"\']*["\'])'
-    r'(?=[^>]*href=["\']/en/sundays/?["\'])[^>]*>.*?</a>',
-    FLAGS,
-)
-
-PILAR_ES = (
-    '<a class="pilar b" href="/mundo-3d/">'
-    '<span class="n">02</span><h3>Mundo 3D</h3>'
-    '<span class="glo">Los Escullos en el navegador · abre 23.05.27</span>'
-    '<span class="fl">→</span></a>'
-)
-PILAR_EN = (
-    '<a class="pilar b" href="/en/3d-world/">'
-    '<span class="n">02</span><h3>3D world</h3>'
-    '<span class="glo">Los Escullos in the browser · opens 23 May 27</span>'
-    '<span class="fl">→</span></a>'
-)
-
-def replace_dates(text: str) -> str:
-    for old, new in OLD_DATE_REPLACEMENTS:
+def generic_framing(text: str) -> str:
+    text = strip_total_from_entry_labels(text)
+    for old, new in FRAMING_REPLACEMENTS:
         text = text.replace(old, new)
     return text
 
-def remove_marker_block(text: str, marker: str, tags: tuple[str, ...]) -> tuple[str, bool]:
-    escaped = re.escape(marker)
-    for tag in tags:
-        pattern = re.compile(
-            rf'<{tag}\b[^>]*>(?:(?!</{tag}>).)*?{escaped}(?:(?!</{tag}>).)*?</{tag}>',
-            FLAGS,
-        )
-        text, count = pattern.subn("", text, count=1)
-        if count:
-            return text, True
-    return text, False
-
-def clean_html(path: Path) -> None:
-    rel = path.relative_to(ROOT).as_posix()
-    text = path.read_text(encoding="utf-8", errors="strict")
-    original = text
-
-    text = replace_dates(text)
-
-    # Preserve the homepage's three-part structural rhythm without inventing a
-    # successor campaign: the existing 3D world takes the retired archive slot.
-    if rel in {"index.html", "404.html", "404/index.html"}:
-        text = PILAR_ES_RE.sub(PILAR_ES, text)
-    elif rel == "en/index.html":
-        text = PILAR_EN_RE.sub(PILAR_EN, text)
-
-    # Remove known campaign-only blocks before broad text cleanup.
-    text = re.sub(
-        r'<section\b[^>]*id=["\']oolita-art-field-sundays["\'][^>]*>.*?</section>',
-        "",
-        text,
-        flags=FLAGS,
-    )
-    text = re.sub(
-        r'<section\b[^>]*id=["\']working-rhythm["\'][^>]*>.*?</section>',
-        "",
-        text,
-        flags=FLAGS,
-    )
-
-    # Poster 03 is itself the obsolete campaign artwork. Do not rewrite the art;
-    # retire it from the published poster archive.
-    if rel in {"carteles/index.html", "en/posters/index.html"}:
-        text, removed = remove_marker_block(text, "cartel-03.", ("article", "li", "figure"))
-        if not removed:
-            text = re.sub(
-                r'<picture\b[^>]*>.*?cartel-03\.(?:avif|webp|png).*?</picture>',
-                "",
-                text,
-                flags=FLAGS,
-            )
-            text = re.sub(
-                r'<img\b[^>]*cartel-03\.(?:avif|webp|png)[^>]*>',
-                "",
-                text,
-                flags=FLAGS,
-            )
-        text = re.sub(
-            r'/carteles/img/social-(?:carteles|posters)\.(?:png|jpe?g|webp|avif)',
-            '/carteles/img/cartel-01.png',
-            text,
-            flags=re.I,
-        )
-
-    # Poster 03 was the retired campaign artwork. Any residual metadata,
-    # preload or responsive-image reference must point at an existing neutral
-    # poster asset with the same encoding.
-    text = re.sub(
-        r'/carteles/img/cartel-03\.(avif|webp|png)',
-        lambda match: f'/carteles/img/cartel-01.{match.group(1).lower()}',
-        text,
-        flags=re.I,
-    )
-
-    # Campaign paragraphs and labels are removed rather than rewritten into a
-    # second countdown concept.
-    text = CAMPAIGN_P_RE.sub("", text)
-    text = CAMPAIGN_SMALL_ELEMENT_RE.sub("", text)
-
-
-    # Any remaining links into the retired archive are removed. The homepage
-    # primary pillar has already been converted to the existing 3D-world page.
-    text = SUNDAY_LINK_RE.sub("", text)
-
-    # Some late site layers inject the archive route into shared navigation as
-    # plain href attributes after the original anchor markup has been assembled.
-    # No public page should retain a reference to the retired archive: route any
-    # such residual href to the appropriate language homepage.
-    text = re.sub(
-        r"href=([\"'])(?:https://oolita\.es)?/domingos(?:/[^\"']*)?\1",
-        r"href=\1/\1",
-        text,
-        flags=re.I,
-    )
-    text = re.sub(
-        r"href=([\"'])(?:https://oolita\.es)?/en/sundays(?:/[^\"']*)?\1",
-        r"href=\1/en/\1",
-        text,
-        flags=re.I,
-    )
-
-    # Remove retired archive imagery that was embedded outside archive pages.
-    text = re.sub(
-        r'<picture\b[^>]*>.*?/(?:domingos|en/sundays)/.*?</picture>',
-        "",
-        text,
-        flags=FLAGS,
-    )
-    text = re.sub(
-        r'<img\b[^>]*(?:/domingos/|/en/sundays/)[^>]*>',
-        "",
-        text,
-        flags=FLAGS,
-    )
-
-    # Strip the status-line fragments without disturbing the approved release
-    # dates that follow them.
-    text = re.sub(r'\s*·\s*22\s*domingos\b', "", text, flags=re.I)
-    text = re.sub(r'\s*·\s*22\s*Sundays\b', "", text, flags=re.I)
-
-    for old, new in NEUTRAL_REPLACEMENTS:
+def replace_launch_dates(text: str) -> str:
+    for old, new in DATE_REPLACEMENTS:
         text = text.replace(old, new)
+    return text
 
-    # Homepage-only labels: turn the obsolete campaign label into a direct label
-    # for the existing 3D world and its approved May launch.
-    if rel in {"index.html", "404.html", "404/index.html", "en/index.html"}:
-        text = re.sub(r'22\s+domingos', "Mundo 3D", text, flags=re.I)
-        text = re.sub(r'22\s+Sundays', "3D world", text, flags=re.I)
+def published_links(text: str, lang: str) -> dict[int, str]:
+    segment = r"en/sundays" if lang == "en" else r"domingos"
+    found: dict[int, str] = {}
+    pattern = rf'href=["\']([^"\']*/{segment}/(\d{{2}})-[^"\']*/)["\']'
+    for href, number in re.findall(pattern, text, flags=re.I):
+        found[int(number)] = href
+    return found
 
-    # Final neutralisation for metadata/search snippets that are not wrapped in
-    # ordinary reader-facing elements.
-    text = re.sub(r'22[- ]Sunday(?:s)?', "project", text, flags=re.I)
-    text = re.sub(r'22\s+domingos', "proyecto", text, flags=re.I)
-    text = re.sub(r'twenty[- ]two\s+Sundays', "project", text, flags=re.I)
-    text = re.sub(r'veintid[oó]s\s+domingos', "proyecto", text, flags=re.I)
-    text = re.sub(r'one image every Sunday', "project updates", text, flags=re.I)
-    text = re.sub(r'one image each Sunday', "project updates", text, flags=re.I)
-    text = re.sub(r'una imagen cada domingo', "notas del proyecto", text, flags=re.I)
-    text = re.sub(r'Sunday by Sunday', "gradually", text, flags=re.I)
-    text = re.sub(r'domingo a domingo', "poco a poco", text, flags=re.I)
-
-    if text != original:
-        path.write_text(text, encoding="utf-8")
-
-def clean_json_value(value):
-    if isinstance(value, dict):
-        # Search/result records pointing to retired routes are removed whole.
-        direct_strings = [v for v in value.values() if isinstance(v, str)]
-        if any("/domingos/" in v or "/en/sundays/" in v for v in direct_strings):
-            return None
-        out = {}
-        for k, v in value.items():
-            cleaned = clean_json_value(v)
-            if cleaned is not None:
-                out[k] = cleaned
-        return out
-    if isinstance(value, list):
-        out = []
-        for item in value:
-            cleaned = clean_json_value(item)
-            if cleaned is not None:
-                out.append(cleaned)
-        return out
-    if isinstance(value, str):
-        value = replace_dates(value)
-        value = re.sub(
-            r'/carteles/img/cartel-03\.(avif|webp|png)',
-            lambda match: f'/carteles/img/cartel-01.{match.group(1).lower()}',
-            value,
-            flags=re.I,
+def build_field(lang: str, links: dict[int, str]) -> str:
+    en = lang == "en"
+    cells = []
+    for n, d, short in sunday_dates():
+        href = links.get(n)
+        attrs = [
+            'data-sunday-tile',
+            f'data-sunday="{n}"',
+            f'data-date="{d.isoformat()}"',
+        ]
+        classes = ["sunday-tile"]
+        state = ""
+        if href:
+            classes.append("is-published")
+            attrs.append(f'href="{escape(href, quote=True)}"')
+            state = "open" if en else "abierto"
+        else:
+            attrs.append('aria-disabled="true"')
+        cells.append(
+            '<li><a class="' + " ".join(classes) + '" ' + " ".join(attrs) + '>'
+            f'<span class="sunday-tile-n">{n:02d}</span>'
+            f'<span class="sunday-tile-date">{short}</span>'
+            f'<span class="sunday-tile-state" data-sunday-state>{state}</span>'
+            '</a></li>'
         )
-        for old, new in NEUTRAL_REPLACEMENTS:
-            value = value.replace(old, new)
-        value = re.sub(r'22[- ]Sunday(?:s)?', "project", value, flags=re.I)
-        value = re.sub(r'22\s+domingos', "proyecto", value, flags=re.I)
-        value = re.sub(r'twenty[- ]two\s+Sundays', "project", value, flags=re.I)
-        value = re.sub(r'veintid[oó]s\s+domingos', "proyecto", value, flags=re.I)
-        value = re.sub(r'one image every Sunday', "project updates", value, flags=re.I)
-        value = re.sub(r'una imagen cada domingo', "notas del proyecto", value, flags=re.I)
-        value = re.sub(r'Sunday by Sunday', "gradually", value, flags=re.I)
-        value = re.sub(r'domingo a domingo', "poco a poco", value, flags=re.I)
-        return value
-    return value
+    progress = "published · one image every Sunday until launch" if en else "publicados · una imagen cada domingo hasta la apertura"
+    note = "The archive continues to 23 May 2027." if en else "El archivo continúa hasta el 23 de mayo de 2027."
+    aria = "Sundays archive" if en else "Archivo de domingos"
+    return f'''<div class="sunday-field" id="sunday-field" data-sunday-field data-lang="{lang}">
+  <div class="sunday-field-head">
+    <p class="sunday-field-count"><strong data-sunday-count>{len(links)}</strong> / {TOTAL} · {progress}</p>
+    <p class="sunday-field-note">{note}</p>
+  </div>
+  <ol class="sunday-field-grid" aria-label="{aria}">
+    {''.join(cells)}
+  </ol>
+  <div class="sunday-field-axis" aria-hidden="true"><span>{'9 Aug 2026' if en else '9 ago 2026'}</span><span>{'23 May 2027' if en else '23 mayo 2027'}</span></div>
+</div>'''
 
-# Process all public HTML first.
+def pending_rows(lang: str, start_at: int = 23) -> str:
+    en = lang == "en"
+    rows = []
+    for n, d, _ in sunday_dates():
+        if n < start_at:
+            continue
+        display = d.strftime("%d.%m.%y")
+        if n == TOTAL:
+            name = "Launch" if en else "La apertura"
+            gloss = "The 3D world opens at 00:00 CEST" if en else "El mundo 3D abre a las 00:00 CEST"
+        else:
+            name = "To come" if en else "Por venir"
+            gloss = ""
+        rows.append(
+            f'<div class="fila espera"><span class="num">{n:02d}</span>'
+            f'<span class="cuerpo"><span class="nombre">{name}</span>'
+            f'<span class="glo">{gloss}</span></span>'
+            f'<time class="cuando" datetime="{d.isoformat()}">{display}</time>'
+            '<span class="flecha">·</span></div>'
+        )
+    return "\n".join(rows)
+
+def patch_archive(path: Path, lang: str) -> None:
+    if not path.is_file():
+        raise SystemExit(f"Missing Sunday archive page: {path.relative_to(ROOT)}")
+    text = path.read_text(encoding="utf-8")
+    en = lang == "en"
+
+    # Preserve the weekly chronology itself, including Sunday 22 on 3 January.
+    text = generic_framing(text)
+    text = text.replace("09.08.2026 — 03.01.2027", "09.08.2026 — 23.05.2027")
+    text = text.replace("del 9 de agosto de 2026 al 3 de enero de 2027", "del 9 de agosto de 2026 al 23 de mayo de 2027")
+    text = text.replace("From 9 August 2026 to 3 January 2027", "From 9 August 2026 to 23 May 2027")
+    text = text.replace("hasta enero 2027", "hasta la apertura")
+    text = text.replace("until January 2027", "until launch")
+    text = re.sub(r"\b22\s+imágenes\b", "42 domingos", text, flags=re.I)
+    text = re.sub(r"\b22\s+images\b", "42 Sundays", text, flags=re.I)
+
+    # Retire the old 22-part labyrinth arithmetic without losing the series.
+    es_old = (
+        "Los Domingos siguen ese mismo trazado. Los domingos once y doce contienen el giro: "
+        "el once llega al centro; el doce comienza el regreso. Los anteriores llevan hacia dentro; "
+        "los posteriores vuelven hacia la salida. El último, el 3 de enero, es la salida."
+    )
+    es_new = (
+        "La serie conserva el ritmo del laberinto: una imagen cada domingo, sin saltos. "
+        "El archivo continúa hasta el 23 de mayo de 2027, cuando abre el mundo 3D."
+    )
+    en_old = (
+        "The Sundays follow that same drawing. Sundays eleven and twelve hold the turn: "
+        "eleven arrives at the centre; twelve begins the return. The earlier Sundays lead inward; "
+        "the later ones return towards the exit. The last, on 3 January, is the exit."
+    )
+    en_new = (
+        "The series keeps the labyrinth's measured pace: one image every Sunday, without gaps. "
+        "The archive continues until 23 May 2027, when the 3D world opens."
+    )
+    text = text.replace(es_old, es_new).replace(en_old, en_new)
+    text = re.sub(
+        r"La numeración no es decorativa\..*?Caminar el laberinto y leer la serie son el mismo gesto a distinta velocidad\.",
+        "La numeración conserva el orden de publicación: cada domingo ocupa su fecha y permanece en el archivo. Leer la serie es recorrer el proyecto a otra velocidad.",
+        text,
+        flags=re.S,
+    )
+    text = re.sub(
+        r"The numbering is not decorative\..*?Walking the labyrinth and reading the series are the same gesture at a different speed\.",
+        "The numbering preserves publication order: each Sunday keeps its date and remains in the archive. Reading the series is another way of moving through the project.",
+        text,
+        flags=re.S,
+    )
+    text = text.replace("el archivo va creciendo hacia el 3 de enero", "el archivo va creciendo hacia el 23 de mayo")
+    text = text.replace("the archive grows towards 3 January", "the archive grows towards 23 May")
+
+    # Sunday 22 is no longer launch day.
+    text = text.replace("22 La apertura El mundo abre a las 00:00 CET", "22 Por venir")
+    text = text.replace("22 Launch The world opens at 00:00 CET", "22 To come")
+
+    # Rebuild the visual field to all 42 Sundays.
+    links = published_links(text, lang)
+    field = build_field(lang, links)
+    marker = '<span class="rot">Detailed archive</span>' if en else '<span class="rot">Archivo detallado</span>'
+    start = text.find('<div class="sunday-field"')
+    end = text.find(marker)
+    if start >= 0 and end > start:
+        text = text[:start] + field + "\n" + text[end:]
+    elif end >= 0:
+        text = text[:end] + field + "\n" + text[end:]
+    else:
+        raise SystemExit(f"Detailed archive marker missing in {path.relative_to(ROOT)}")
+
+    # Add future rows 23-42 once. These become real links as posts are published.
+    if 'class="num">23</span>' not in text:
+        match = re.search(
+            r'(<div class="fila[^"]*">\s*<span class="num">22</span>.*?</div>)',
+            text,
+            flags=re.S,
+        )
+        if not match:
+            raise SystemExit(f"Sunday 22 row missing in {path.relative_to(ROOT)}")
+        rows = pending_rows(lang)
+        text = text[:match.end()] + "\n" + rows + text[match.end():]
+
+    # Current-facing headings and metadata.
+    title = "Sundays — OOLITA archive to launch" if en else "Domingos — archivo OOLITA hasta la apertura"
+    text = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", text, count=1, flags=re.S)
+    text = re.sub(r'(<meta\s+name="description"\s+content=")[^"]*(")', lambda m: m.group(1) + (
+        "One image every Sunday from 9 August 2026 to the OOLITA 3D-world launch on 23 May 2027. Bilingual archive."
+        if en else
+        "Una imagen cada domingo desde el 9 de agosto de 2026 hasta la apertura del mundo 3D de OOLITA el 23 de mayo de 2027. Archivo bilingüe."
+    ) + m.group(2), text, count=1)
+
+    path.write_text(text, encoding="utf-8")
+
+# First update non-archive HTML. Sunday entry pages keep their actual publication
+# dates but lose the obsolete total-count framing.
 for page in sorted(ROOT.rglob("*.html")):
-    clean_html(page)
-
-# Retire the archive itself.
-shutil.rmtree(ROOT / "domingos", ignore_errors=True)
-shutil.rmtree(ROOT / "en" / "sundays", ignore_errors=True)
-
-# Retire the campaign poster artwork from direct public asset URLs as well.
-for ext in ("avif", "webp", "png"):
-    (ROOT / "carteles" / "img" / f"cartel-03.{ext}").unlink(missing_ok=True)
-for name in ("social-carteles.png", "social-posters.png"):
-    (ROOT / "carteles" / "img" / name).unlink(missing_ok=True)
-
-# Remove retired URLs from the sitemap without disturbing the rest of its
-# formatting or hreflang structure.
-sitemap = ROOT / "sitemap.xml"
-if sitemap.is_file():
-    text = sitemap.read_text(encoding="utf-8")
-    text = re.sub(
-        r'/carteles/img/cartel-03\.(avif|webp|png)',
-        lambda match: f'/carteles/img/cartel-01.{match.group(1).lower()}',
-        text,
-        flags=re.I,
-    )
-    text = re.sub(
-        r'\s*<url>\s*<loc>https://oolita\.es/(?:domingos|en/sundays)(?:/[^<]*)?</loc>.*?</url>\s*',
-        "\n",
-        text,
-        flags=FLAGS,
-    )
-    sitemap.write_text(text, encoding="utf-8")
-
-# Clean any generated public JSON/search indexes after the page retirement.
-for path in sorted(ROOT.rglob("*.json")):
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        # If it is not strict JSON, leave structure alone but still update the
-        # superseded date spellings.
-        raw = path.read_text(encoding="utf-8", errors="ignore")
-        updated = replace_dates(raw)
-        if updated != raw:
-            path.write_text(updated, encoding="utf-8")
+    rel = page.relative_to(ROOT).as_posix()
+    if rel in ARCHIVE_PATHS:
         continue
-    cleaned = clean_json_value(data)
-    path.write_text(
-        json.dumps(cleaned, ensure_ascii=False, separators=(",", ":")) + "\n",
-        encoding="utf-8",
-    )
+    text = page.read_text(encoding="utf-8")
+    original = text
+    text = generic_framing(text)
+    # Existing Sunday entry pages 01-06 do not use 3 Jan as their publication
+    # date, so launch-date replacement is safe there. Future entries are not yet
+    # present in the build.
+    text = replace_launch_dates(text)
+    if text != original:
+        page.write_text(text, encoding="utf-8")
 
-# Legacy indexed/bookmarked archive URLs should resolve cleanly.
+for rel, lang in ARCHIVE_PATHS.items():
+    patch_archive(ROOT / rel, lang)
+
+# Remove only the obsolete redirect rules. The archive URLs must resolve to
+# their own pages again.
 redirects = ROOT / "_redirects"
-existing = redirects.read_text(encoding="utf-8") if redirects.is_file() else ""
-rules = (
-    "/domingos / 301",
-    "/domingos/ / 301",
-    "/domingos/* / 301",
-    "/en/sundays /en/ 301",
-    "/en/sundays/ /en/ 301",
-    "/en/sundays/* /en/ 301",
-)
-lines = [line for line in existing.splitlines() if line.strip()]
-for rule in rules:
-    if rule not in lines:
-        lines.append(rule)
-redirects.write_text("\n".join(lines) + "\n", encoding="utf-8")
+if redirects.is_file():
+    old = redirects.read_text(encoding="utf-8")
+    kept = []
+    for line in old.splitlines():
+        stripped = line.strip()
+        if re.match(r"^/(?:domingos|en/sundays)(?:/|\s|\*)", stripped):
+            continue
+        kept.append(line)
+    redirects.write_text("\n".join(kept).rstrip() + "\n", encoding="utf-8")
 
-# Final fail-closed audit. _redirects is intentionally excluded because it must
-# contain the retired paths in order to redirect them.
-forbidden_patterns = (
-    re.compile(r'22\s+Sundays', re.I),
-    re.compile(r'22\s+domingos', re.I),
-    re.compile(r'22[- ]Sunday', re.I),
-    re.compile(r'twenty[- ]two\s+Sundays', re.I),
-    re.compile(r'veintid[oó]s\s+domingos', re.I),
-    re.compile(r'one image every Sunday', re.I),
-    re.compile(r'una imagen cada domingo', re.I),
-    re.compile(r'Sunday by Sunday', re.I),
-    re.compile(r'domingo a domingo', re.I),
-    re.compile(r'(?:href|src|srcset)=["\'][^"\']*/(?:domingos|en/sundays)/', re.I),
-    re.compile(r'cartel-03\.(?:avif|webp|png)', re.I),
-    re.compile(r'2027-01-03', re.I),
-    re.compile(r'03\.01\.2027', re.I),
-    re.compile(r'03\.01\.27', re.I),
-    re.compile(r'\b3 January(?: 2027)?\b', re.I),
-    re.compile(r'\b3 Jan(?:uary)?(?: 2027| 27)?\b', re.I),
-    re.compile(r'\b3 de enero(?: de 2027)?\b', re.I),
-    re.compile(r'\b03 (?:JAN|ENE) 27\b', re.I),
-    re.compile(r'23 Mayuary', re.I),
-    re.compile(r'2027-01-31', re.I),
-    re.compile(r'31\.01\.(?:27|2027)', re.I),
-    re.compile(r'\b31 January(?: 2027)?\b', re.I),
-    re.compile(r'\b31 Jan(?:uary)?(?: 2027| 27)?\b', re.I),
-    re.compile(r'\b31 de enero(?: de 2027)?\b', re.I),
-    re.compile(r'2027-04-11', re.I),
-    re.compile(r'11\.04\.(?:27|2027)', re.I),
-    re.compile(r'\b11 April(?: 2027)?\b', re.I),
-    re.compile(r'\b11 Apr(?:il)?(?: 2027| 27)?\b', re.I),
-    re.compile(r'\b11 de abril(?: de 2027)?\b', re.I),
-    re.compile(r'And every Sunday', re.I),
-    re.compile(r'Y cada domingo', re.I),
-    re.compile(r'The series continues', re.I),
-    re.compile(r'La serie continúa', re.I),
-)
-bad = []
-for path in sorted(ROOT.rglob("*")):
-    if not path.is_file() or path.name == "_redirects":
-        continue
-    if path.suffix.lower() not in {".html", ".xml", ".json", ".js", ".css", ".txt"}:
-        continue
-    content = path.read_text(encoding="utf-8", errors="ignore")
-    for pattern in forbidden_patterns:
-        match = pattern.search(content)
-        if match:
-            bad.append(f"{path.relative_to(ROOT)}: {match.group(0)!r}")
-            break
-
-if (ROOT / "domingos").exists() or (ROOT / "en" / "sundays").exists():
-    bad.append("retired Sunday archive directory still exists")
-
-for ext in ("avif", "webp", "png"):
-    if (ROOT / "carteles" / "img" / f"cartel-03.{ext}").exists():
-        bad.append(f"carteles/img/cartel-03.{ext} still exists")
-
-if bad:
-    print("Obsolete Sundays/3-January material survived retirement:")
-    print("\n".join(bad[:100]))
-    raise SystemExit(1)
-
-# Positive checks: the approved date and the new homepage replacement must be
-# present, proving that retirement did not erase the current launch calendar.
+# Positive deployment guard.
 required = {
-    "index.html": ("23.05.2027", "Mundo 3D"),
-    "en/index.html": ("23 May 2027", "3D world"),
-    "mundo-3d/index.html": ("23.05.27", "23 de mayo"),
-    "en/3d-world/index.html": ("23.05.27", "23 May"),
+    "domingos/index.html": ("Domingos", "23.05.2027", 'data-sunday="42"', "/ 42"),
+    "en/sundays/index.html": ("Sundays", "23.05.2027", 'data-sunday="42"', "/ 42"),
 }
 for rel, needles in required.items():
     page = ROOT / rel
     if not page.is_file():
-        raise SystemExit(f"Missing required page after campaign retirement: {rel}")
-    content = page.read_text(encoding="utf-8")
+        raise SystemExit(f"Missing preserved archive: {rel}")
+    data = page.read_text(encoding="utf-8")
     for needle in needles:
-        if needle not in content:
-            raise SystemExit(f"Campaign retirement validation failed in {rel}: missing {needle!r}")
+        if needle not in data:
+            raise SystemExit(f"Sunday preservation validation failed in {rel}: missing {needle!r}")
 
-print("Retired 22 Sundays / 22 domingos from the public site.")
-print("Retired poster 03 and Sunday archive URLs; legacy routes now redirect.")
-print("Superseded 3 January 2027 launch references removed.")
-print("Approved 3D-world launch remains 23 May 2027, 00:00 CEST.")
+# All currently published entry pages must survive as files.
+published_routes = (
+    "domingos/01-el-doble/index.html",
+    "domingos/02-el-gato-de-verdad/index.html",
+    "domingos/03-la-memoria-del-mar/index.html",
+    "domingos/04-el-guardian/index.html",
+    "domingos/05-el-mundo/index.html",
+    "domingos/06-el-mapa/index.html",
+    "en/sundays/01-the-double/index.html",
+    "en/sundays/02-the-cat-for-real/index.html",
+    "en/sundays/03-the-memory-of-the-sea/index.html",
+    "en/sundays/04-the-guardian/index.html",
+    "en/sundays/05-the-world/index.html",
+    "en/sundays/06-the-map/index.html",
+)
+missing = [rel for rel in published_routes if not (ROOT / rel).is_file()]
+if missing:
+    raise SystemExit(f"Published Sunday pages missing from build: {missing}")
+
+print("OOLITA Sundays preserved and reframed.")
+print("Archive name: Domingos / Sundays.")
+print("Sequence: 42 Sundays, 9 Aug 2026 through 23 May 2027.")
+print("Existing published Sunday URLs preserved; obsolete homepage redirects removed.")
