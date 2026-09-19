@@ -411,7 +411,7 @@ for page in sorted(ROOT.rglob("*.html")):
     # Keep Sunday 22's own 3 January 2027 publication date intact when it is
     # eventually published. On every other page the old January date denotes
     # the superseded launch calendar and can be replaced normally.
-    sunday_match = re.match(r"(?:domingos|en/sundays)/(\\d{2})-[^/]+/index\\.html$", rel)
+    sunday_match = re.match(r"(?:domingos|en/sundays)/(\d{2})-[^/]+/index\.html$", rel)
     sunday_number = int(sunday_match.group(1)) if sunday_match else None
     if sunday_number == 22:
         targeted = (
@@ -434,13 +434,13 @@ for page in sorted(ROOT.rglob("*.html")):
     if rel in {"carteles/index.html", "en/posters/index.html"}:
         for tag in ("article", "li", "figure"):
             text = re.sub(
-                rf'<{tag}\\b[^>]*>.*?cartel-03\\.(?:avif|webp|png).*?</{tag}>',
+                rf'<{tag}\b[^>]*>.*?cartel-03\.(?:avif|webp|png).*?</{tag}>',
                 "",
                 text,
                 flags=re.I | re.S,
             )
     text = re.sub(
-        r'/carteles/img/cartel-03\\.(avif|webp|png)',
+        r'/carteles/img/cartel-03\.(avif|webp|png)',
         lambda m: f'/carteles/img/cartel-01.{m.group(1).lower()}',
         text,
         flags=re.I,
