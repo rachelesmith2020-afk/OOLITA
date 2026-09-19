@@ -104,16 +104,16 @@ def generic_framing(text: str) -> str:
     return text
 
 def set_meta_content(text: str, key: str, value: str) -> str:
-    key_re = re.compile(rf'(?:name|property)=["\\\']{re.escape(key)}["\\\']', re.I)
-    content_re = re.compile(r'content=(["\\\']).*?\\1', re.I | re.S)
+    key_re = re.compile(rf"(?:name|property)=['\"]{re.escape(key)}['\"]", re.I)
+    content_re = re.compile(r"content=(['\"]).*?\1", re.I | re.S)
 
     def patch_tag(match: re.Match[str]) -> str:
         tag = match.group(0)
         if not key_re.search(tag):
             return tag
-        return content_re.sub(lambda m: f'content={m.group(1)}{value}{m.group(1)}', tag, count=1)
+        return content_re.sub(lambda m: f"content={m.group(1)}{value}{m.group(1)}", tag, count=1)
 
-    return re.sub(r'<meta\\b[^>]*>', patch_tag, text, flags=re.I)
+    return re.sub(r"<meta\b[^>]*>", patch_tag, text, flags=re.I)
 
 def patch_published_sunday_context(rel: str, text: str) -> str:
     exact = {
