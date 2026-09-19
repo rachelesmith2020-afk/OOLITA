@@ -153,6 +153,11 @@ def patch_published_sunday_context(rel: str, text: str) -> str:
         desc = "The stone holds the memory of the sea: ooids, the fossil dune and the origin of the name OOLITA at Los Escullos, Cabo de Gata."
         for key in ("description", "og:description", "twitter:description"):
             text = set_meta_content(text, key, desc)
+    elif rel == "en/sundays/04-the-guardian/index.html":
+        text = text.replace(
+            "the same fossil dunes that names the labyrinth",
+            "the same fossil dune that names the labyrinth",
+        )
 
     banned = (
         "domingo uno de veintidós",
@@ -361,9 +366,35 @@ def patch_archive(path: Path, lang: str) -> None:
     for key in ("og:title", "twitter:title"):
         text = set_meta_content(text, key, title)
 
-    for stale in ("3 January 2027", "3 de enero de 2027", "03.01.2027"):
-        head = text.split("</head>", 1)[0]
-        if stale in head:
+    # Metadata and JSON-LD inherited from the historical 22-part archive may
+    # contain the former launch date in forms that are not ordinary meta tags.
+    # Normalize the HEAD only: Sunday 22's real 3 January publication date lives
+    # in the archive BODY and must remain unchanged.
+    if "</head>" not in text:
+        raise SystemExit(f"Archive page has no </head>: {path.relative_to(ROOT)}")
+    head, body = text.split("</head>", 1)
+    head_replacements = (
+        ("2027-01-03", "2027-05-23"),
+        ("03.01.2027", "23.05.2027"),
+        ("03.01.27", "23.05.27"),
+        ("3 January 2027", "23 May 2027"),
+        ("3 January", "23 May"),
+        ("January 3, 2027", "May 23, 2027"),
+        ("3 de enero de 2027", "23 de mayo de 2027"),
+        ("3 de enero", "23 de mayo"),
+        ("03 JAN 27", "23 MAY 27"),
+        ("03 ENE 27", "23 MAY 27"),
+    )
+    for old_date, new_date in head_replacements:
+        head = head.replace(old_date, new_date)
+    text = head + "</head>" + body
+
+    for stale in (
+        "2027-01-03", "03.01.2027", "03.01.27",
+        "3 January", "January 3, 2027", "3 de enero",
+        "03 JAN 27", "03 ENE 27",
+    ):
+        if stale.lower() in head.lower():
             raise SystemExit(f"Stale launch metadata survived in {path.relative_to(ROOT)}: {stale}")
 
     path.write_text(text, encoding="utf-8")
