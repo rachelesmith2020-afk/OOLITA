@@ -185,8 +185,18 @@ def patch_archive(path: Path, lang: str) -> None:
     # Preserve the weekly chronology itself, including Sunday 22 on 3 January.
     text = generic_framing(text)
     text = text.replace("09.08.2026 — 03.01.2027", "09.08.2026 — 23.05.2027")
-    text = text.replace("del 9 de agosto de 2026 al 3 de enero de 2027", "del 9 de agosto de 2026 al 23 de mayo de 2027")
-    text = text.replace("From 9 August 2026 to 3 January 2027", "From 9 August 2026 to 23 May 2027")
+    text = re.sub(
+        r"del 9 de agosto de 2026 al 3 de enero de 2027",
+        "del 9 de agosto de 2026 al 23 de mayo de 2027",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        r"from 9 August 2026 to 3 January 2027",
+        "From 9 August 2026 to 23 May 2027",
+        text,
+        flags=re.I,
+    )
     text = text.replace("hasta enero 2027", "hasta la apertura")
     text = text.replace("until January 2027", "until launch")
     text = re.sub(r"\b22\s+imágenes\b", "42 domingos", text, flags=re.I)
@@ -194,7 +204,7 @@ def patch_archive(path: Path, lang: str) -> None:
 
     # Retire the old 22-part labyrinth arithmetic without losing the series.
     es_old = (
-        "Los Domingos siguen ese mismo trazado. Los domingos once y doce contienen el giro: "
+        "Los domingos siguen ese mismo trazado. Los domingos once y doce contienen el giro: "
         "el once llega al centro; el doce comienza el regreso. Los anteriores llevan hacia dentro; "
         "los posteriores vuelven hacia la salida. El último, el 3 de enero, es la salida."
     )
@@ -227,9 +237,24 @@ def patch_archive(path: Path, lang: str) -> None:
     text = text.replace("el archivo va creciendo hacia el 3 de enero", "el archivo va creciendo hacia el 23 de mayo")
     text = text.replace("the archive grows towards 3 January", "the archive grows towards 23 May")
 
-    # Sunday 22 is no longer launch day.
-    text = text.replace("22 La apertura El mundo abre a las 00:00 CET", "22 Por venir")
-    text = text.replace("22 Launch The world opens at 00:00 CET", "22 To come")
+    # Sunday 22 keeps its real 3 January 2027 publication slot, but it is no
+    # longer labelled as launch day.
+    row22 = (
+        '<div class="fila espera"><span class="num">22</span>'
+        f'<span class="cuerpo"><span class="nombre">{"To come" if en else "Por venir"}</span>'
+        '<span class="glo"></span></span>'
+        '<time class="cuando" datetime="2027-01-03">03.01.27</time>'
+        '<span class="flecha">·</span></div>'
+    )
+    text, row22_count = re.subn(
+        r'<div class="fila[^"]*">\s*<span class="num">22</span>.*?</div>',
+        row22,
+        text,
+        count=1,
+        flags=re.S,
+    )
+    if row22_count != 1:
+        raise SystemExit(f"Sunday 22 archive row missing in {path.relative_to(ROOT)}")
 
     # Rebuild the visual field to all 42 Sundays.
     links = published_links(text, lang)
