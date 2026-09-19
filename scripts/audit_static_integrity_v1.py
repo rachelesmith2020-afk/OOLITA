@@ -195,6 +195,52 @@ for file in html_files:
             errors.append(f"Broken hreflang {lang} in {route}: {href} -> {target}")
 
 
+# The Sundays archive is an indexable bilingual publication archive, not a
+# campaign redirect. Protect both archive roots and every currently published
+# bilingual pair from disappearing or losing canonical/hreflang integrity.
+sunday_pairs = (
+    ("/domingos/", "/en/sundays/"),
+    ("/domingos/01-el-doble/", "/en/sundays/01-the-double/"),
+    ("/domingos/02-el-gato-de-verdad/", "/en/sundays/02-the-cat-for-real/"),
+    ("/domingos/03-la-memoria-del-mar/", "/en/sundays/03-the-memory-of-the-sea/"),
+    ("/domingos/04-el-guardian/", "/en/sundays/04-the-guardian/"),
+    ("/domingos/05-el-mundo/", "/en/sundays/05-the-world/"),
+    ("/domingos/06-el-mapa/", "/en/sundays/06-the-map/"),
+)
+sitemap_routes = {
+    normalize_route(urlsplit(loc).path or "/")
+    for loc in locs
+    if urlsplit(loc).netloc.lower() == "oolita.es"
+}
+for es_sunday, en_sunday in sunday_pairs:
+    for route in (es_sunday, en_sunday):
+        file = file_for_route(route)
+        if not file.is_file():
+            errors.append(f"Published Sunday route missing built file: {route}")
+        if route not in sitemap_routes:
+            errors.append(f"Published Sunday route missing from sitemap: {route}")
+
+    es_parser = parsers.get(es_sunday)
+    en_parser = parsers.get(en_sunday)
+    if es_parser is None:
+        errors.append(f"Published Sunday route absent from sitemap/parser set: {es_sunday}")
+    else:
+        es_alts = {lang: href for lang, href in es_parser.alternates}
+        if es_alts.get("es") != BASE + es_sunday:
+            errors.append(f"Sunday hreflang mismatch on {es_sunday}: es={es_alts.get('es')!r}")
+        if es_alts.get("en") != BASE + en_sunday:
+            errors.append(f"Sunday hreflang mismatch on {es_sunday}: en={es_alts.get('en')!r}")
+
+    if en_parser is None:
+        errors.append(f"Published Sunday route absent from sitemap/parser set: {en_sunday}")
+    else:
+        en_alts = {lang: href for lang, href in en_parser.alternates}
+        if en_alts.get("es") != BASE + es_sunday:
+            errors.append(f"Sunday hreflang mismatch on {en_sunday}: es={en_alts.get('es')!r}")
+        if en_alts.get("en") != BASE + en_sunday:
+            errors.append(f"Sunday hreflang mismatch on {en_sunday}: en={en_alts.get('en')!r}")
+
+
 # The geology pair is strategically important and must remain reciprocally paired.
 def alternates_for(route: str) -> dict[str, str]:
     parser = parsers.get(route)
