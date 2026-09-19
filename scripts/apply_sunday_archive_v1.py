@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Turn the 22-Sundays index into an accumulating visual archive.
+"""Maintain the accumulating Sundays archive through the 23 May 2027 launch.
 
 The detailed chronological list remains in place for titles, dates and no-JS
-access. A compact 22-cell field is inserted above it and mirrors whatever
+access. A compact 42-cell field is inserted above it and mirrors whatever
 Sunday entries are actually linked on the page. Client-side enhancement lets
 newly published Sunday links light up without requiring this layer to know the
 future titles in advance.
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from html import escape
 from pathlib import Path
 import re
@@ -22,29 +22,13 @@ BASE = "https://oolita.es"
 LASTMOD = "2026-08-23"
 CHANGED_PATHS = {"/domingos/", "/en/sundays/"}
 
-SUNDAYS = (
-    (1, "2026-08-09", "09.08"),
-    (2, "2026-08-16", "16.08"),
-    (3, "2026-08-23", "23.08"),
-    (4, "2026-08-30", "30.08"),
-    (5, "2026-09-06", "06.09"),
-    (6, "2026-09-13", "13.09"),
-    (7, "2026-09-20", "20.09"),
-    (8, "2026-09-27", "27.09"),
-    (9, "2026-10-04", "04.10"),
-    (10, "2026-10-11", "11.10"),
-    (11, "2026-10-18", "18.10"),
-    (12, "2026-10-25", "25.10"),
-    (13, "2026-11-01", "01.11"),
-    (14, "2026-11-08", "08.11"),
-    (15, "2026-11-15", "15.11"),
-    (16, "2026-11-22", "22.11"),
-    (17, "2026-11-29", "29.11"),
-    (18, "2026-12-06", "06.12"),
-    (19, "2026-12-13", "13.12"),
-    (20, "2026-12-20", "20.12"),
-    (21, "2026-12-27", "27.12"),
-    (22, "2027-01-03", "03.01"),
+SUNDAYS = tuple(
+    (
+        n,
+        (date(2026, 8, 9) + timedelta(weeks=n - 1)).isoformat(),
+        (date(2026, 8, 9) + timedelta(weeks=n - 1)).strftime("%d.%m"),
+    )
+    for n in range(1, 43)
 )
 
 STYLE = r'''<style id="oolita-sunday-field-style">
@@ -53,14 +37,14 @@ STYLE = r'''<style id="oolita-sunday-field-style">
 .sunday-field-count{margin:0;font:inherit;letter-spacing:.02em}
 .sunday-field-count strong{font-size:clamp(1.8rem,4vw,3.3rem);font-weight:500;line-height:.9}
 .sunday-field-note{max-width:34rem;margin:0;text-align:right;opacity:.7}
-.sunday-field-grid{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:clamp(.35rem,.8vw,.7rem);padding:0;margin:0;list-style:none}
+.sunday-field-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:clamp(.35rem,.8vw,.7rem);padding:0;margin:0;list-style:none}
 .sunday-field-grid li{min-width:0}
 .sunday-tile{box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;aspect-ratio:1/1;padding:clamp(.45rem,.8vw,.75rem);border:1px solid currentColor;color:inherit;text-decoration:none;opacity:.27;transition:opacity .18s ease,transform .18s ease;cursor:default}
 .sunday-tile.is-published{opacity:1;cursor:pointer}
 .sunday-tile.is-published:hover,.sunday-tile.is-published:focus-visible{transform:translateY(-2px)}
 .sunday-tile.is-current{opacity:.78;outline:2px solid currentColor;outline-offset:3px}
-.sunday-tile[data-sunday="11"],.sunday-tile[data-sunday="12"]{border-width:2px}
-.sunday-tile[data-sunday="22"]{border-style:double;border-width:3px}
+.sunday-tile[data-sunday="21"],.sunday-tile[data-sunday="22"]{border-width:2px}
+.sunday-tile[data-sunday="42"]{border-style:double;border-width:3px}
 .sunday-tile-n{font-size:clamp(1rem,1.7vw,1.35rem);line-height:1}
 .sunday-tile-date{font-size:.72rem;letter-spacing:.05em;opacity:.72}
 .sunday-tile-state{min-height:1em;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;opacity:.72}
@@ -148,20 +132,20 @@ def build_field(language: str, links: dict[int, str]) -> str:
         )
 
     if en:
-        progress = "published · the archive grows each Sunday"
-        note = "Entrance → centre → return → exit. Sundays 11 and 12 hold the turn."
+        progress = "published · one image every Sunday until launch"
+        note = "The archive continues to 23 May 2027."
         axis_a, axis_b = "inward", "outward"
     else:
-        progress = "publicados · el archivo crece cada domingo"
-        note = "Entrada → centro → regreso → salida. Los domingos 11 y 12 contienen el giro."
+        progress = "publicados · una imagen cada domingo hasta la apertura"
+        note = "El archivo continúa hasta el 23 de mayo de 2027."
         axis_a, axis_b = "hacia dentro", "hacia fuera"
 
     return f'''<div class="sunday-field" id="sunday-field" data-sunday-field data-lang="{language}">
   <div class="sunday-field-head">
-    <p class="sunday-field-count"><strong data-sunday-count>{published_count}</strong> / 22 · {progress}</p>
+    <p class="sunday-field-count"><strong data-sunday-count>{published_count}</strong> / 42 · {progress}</p>
     <p class="sunday-field-note">{note}</p>
   </div>
-  <ol class="sunday-field-grid" aria-label="{'22 Sundays archive' if en else 'Archivo de 22 domingos'}">
+  <ol class="sunday-field-grid" aria-label="{'Sundays archive' if en else 'Archivo de domingos'}">
     {''.join(cells)}
   </ol>
   <div class="sunday-field-axis" aria-hidden="true"><span>{axis_a}</span><span>{axis_b}</span></div>
@@ -210,20 +194,20 @@ for path, required in {
         'id="sunday-field"',
         'data-lang="es"',
         "Archivo detallado",
-        "el archivo crece cada domingo",
-        'data-sunday="11"',
-        'data-sunday="12"',
+        "una imagen cada domingo hasta la apertura",
+        'data-sunday="21"',
         'data-sunday="22"',
+        'data-sunday="42"',
         'id="oolita-sunday-field-script"',
     ],
     "en/sundays/index.html": [
         'id="sunday-field"',
         'data-lang="en"',
         "Detailed archive",
-        "the archive grows each Sunday",
-        'data-sunday="11"',
-        'data-sunday="12"',
+        "one image every Sunday until launch",
+        'data-sunday="21"',
         'data-sunday="22"',
+        'data-sunday="42"',
         'id="oolita-sunday-field-script"',
     ],
 }.items():
