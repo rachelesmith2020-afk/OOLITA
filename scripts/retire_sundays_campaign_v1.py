@@ -433,20 +433,14 @@ for page in sorted(ROOT.rglob("*.html")):
     # so plain-text date replacement cannot see the complete old date. Keep
     # the server-delivered HTML aligned with the rendered 23 May countdown.
     if rel == "en/index.html":
-        text = re.sub(
-            r'(<p\\b[^>]*class=["\\\'][^"\\\']*\\bdia\\b[^"\\\']*["\\\'][^>]*>)\\s*3\\s+Jan\\s*(<span\\b[^>]*>\\s*2027\\s*</span>)',
-            r'\\g<1>23 May \\g<2>',
-            text,
-            count=1,
-            flags=re.I | re.S,
+        text = text.replace(
+            '<p class="dia">3 Jan <span class="mobile-2027-clear">2027</span></p>',
+            '<p class="dia">23 May <span class="mobile-2027-clear">2027</span></p>',
         )
     elif rel in {"index.html", "404.html", "404/index.html"}:
-        text = re.sub(
-            r'(<p\\b[^>]*class=["\\\'][^"\\\']*\\bdia\\b[^"\\\']*["\\\'][^>]*>)\\s*03\\.01\\.\\s*(<span\\b[^>]*>\\s*2027\\s*</span>)',
-            r'\\g<1>23.05.\\g<2>',
-            text,
-            count=1,
-            flags=re.I | re.S,
+        text = text.replace(
+            '<p class="dia">03.01.<span class="mobile-2027-clear">2027</span></p>',
+            '<p class="dia">23.05.<span class="mobile-2027-clear">2027</span></p>',
         )
 
     # Poster 03 is the obsolete baked "22 DOMINGOS / 22 SUNDAYS" campaign art.
