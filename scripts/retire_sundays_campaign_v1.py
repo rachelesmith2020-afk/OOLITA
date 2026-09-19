@@ -276,10 +276,26 @@ for page in sorted(ROOT.rglob("*.html")):
     text = page.read_text(encoding="utf-8")
     original = text
     text = generic_framing(text)
-    # Existing Sunday entry pages 01-06 do not use 3 Jan as their publication
-    # date, so launch-date replacement is safe there. Future entries are not yet
-    # present in the build.
-    text = replace_launch_dates(text)
+    # Keep Sunday 22's own 3 January 2027 publication date intact when it is
+    # eventually published. On every other page the old January date denotes
+    # the superseded launch calendar and can be replaced normally.
+    sunday_match = re.match(r"(?:domingos|en/sundays)/(\\d{2})-[^/]+/index\\.html$", rel)
+    sunday_number = int(sunday_match.group(1)) if sunday_match else None
+    if sunday_number == 22:
+        targeted = (
+            ("opens on 3 January 2027", "opens on 23 May 2027"),
+            ("opens on 3 January", "opens on 23 May"),
+            ("opening on 3 January 2027", "opening on 23 May 2027"),
+            ("opening on 3 January", "opening on 23 May"),
+            ("abre el 3 de enero de 2027", "abre el 23 de mayo de 2027"),
+            ("abre el 3 de enero", "abre el 23 de mayo"),
+            ("apertura del 3 de enero", "apertura del 23 de mayo"),
+            ("00:00 CET", "00:00 CEST"),
+        )
+        for old_date, new_date in targeted:
+            text = text.replace(old_date, new_date)
+    else:
+        text = replace_launch_dates(text)
 
     # Poster 03 is the obsolete baked "22 DOMINGOS / 22 SUNDAYS" campaign art.
     # Retire that one card without touching the Sunday publications themselves.
