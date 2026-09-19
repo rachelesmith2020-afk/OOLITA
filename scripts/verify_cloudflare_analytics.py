@@ -53,4 +53,38 @@ print(f"latest_commit_hash={metadata.get('commit_hash')!r}")
 print(f"latest_branch={metadata.get('branch')!r}")
 print(f"latest_stage={(latest.get('latest_stage') or {}).get('status')!r}")
 
+# Diagnostic-only canonical-domain verification for the restored Sunday archive.
+sunday_paths = (
+    "/domingos/",
+    "/en/sundays/",
+    "/domingos/01-el-doble/",
+    "/en/sundays/01-the-double/",
+    "/domingos/02-el-gato-de-verdad/",
+    "/en/sundays/02-the-cat-for-real/",
+    "/domingos/03-la-memoria-del-mar/",
+    "/en/sundays/03-the-memory-of-the-sea/",
+    "/domingos/04-el-guardian/",
+    "/en/sundays/04-the-guardian/",
+    "/domingos/05-el-mundo/",
+    "/en/sundays/05-the-world/",
+    "/domingos/06-el-mapa/",
+    "/en/sundays/06-the-map/",
+)
+for path in sunday_paths:
+    target = "https://oolita.es" + path
+    request = urllib.request.Request(
+        target,
+        headers={"Cache-Control": "no-cache", "User-Agent": "OOLITA canonical Sunday verification/1.0"},
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        status = response.status
+        final_url = response.geturl()
+        body = response.read().decode("utf-8", "replace")
+    if status != 200 or final_url != target:
+        raise SystemExit(f"Sunday route failed: {target} status={status} final={final_url}")
+    if path in {"/domingos/", "/en/sundays/"}:
+        if "42" not in body or "2027-05-23" not in body:
+            raise SystemExit(f"Sunday archive framing incomplete: {target}")
+    print(f"sunday_route_ok={path}")
+
 # Production propagation trigger: all six reviewed passes, exact-block Hallazgo fix, SEO/href/no-straggler verification.
