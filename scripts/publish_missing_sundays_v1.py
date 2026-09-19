@@ -26,7 +26,7 @@ seen = set()
 for p in POSTS:
     n = p['n']
     expected = date(2026, 8, 9) + timedelta(weeks=n-1)
-    if not isinstance(n, int) or not 4 <= n <= 22 or n in seen:
+    if not isinstance(n, int) or not 4 <= n <= 42 or n in seen:
         raise SystemExit('Invalid or duplicate Sunday number')
     seen.add(n)
     if p.get('status') != 'PUBLISHED' or p.get('type') != 'POST':
@@ -91,7 +91,7 @@ for p in POSTS:
         text = (ROOT / (templates[lang].lstrip('/') + 'index.html')).read_text(encoding='utf-8')
         for locale, old in templates.items():
             text = text.replace(old, route(p, locale))
-        label = f'{"Domingo" if lang == "es" else "Sunday"} {p["n"]:02} {"de" if lang == "es" else "of"} 22 · {p["short"]}'
+        label = f'{"Domingo" if lang == "es" else "Sunday"} {p["n"]:02} · {p["short"]}'
         article = (f'<article class="tramo" data-metricool-published="{p["date"]}"><span class="rot">{label}</span>'
                    f'<h1 class="grande">{escape(p[lang])}</h1><p class="lema-en" lang="{other}">{escape(p[other])}</p>'
                    f'<figure class="lamina">{img(p, False)}</figure><div class="cuento">{paragraphs(p[lang+"_text"])}'
